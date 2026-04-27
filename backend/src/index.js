@@ -5,7 +5,14 @@ import crypto from "node:crypto";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { kv } from "@vercel/kv";
-import { put } from "@vercel/blob";
+import { v2 as cloudinary } from "cloudinary";
+
+// ── Cloudinary config ─────────────────────────────────────────────────────────
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const app = express();
 
@@ -187,17 +194,23 @@ app.delete("/api/auth/co-editor-accounts/:id", requireAdmin, async (req, res) =>
   res.status(204).end();
 });
 
-// ── Upload → Vercel Blob ──────────────────────────────────────────────────────
+// ── Upload → Cloudinary ───────────────────────────────────────────────────────
 app.post("/api/upload", requireAdmin, async (req, res) => {
   const { name, data } = req.body;
   if (!name || !data) return res.status(400).json({ error: "Missing name or data base64" });
-  const matches = data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-  if (!matches) return res.status(400).json({ error: "Invalid base64 format" });
-  const buffer  = Buffer.from(matches[2], "base64");
-  const ext     = (name.split(".").pop() || "png").toLowerCase();
-  const safeName = `uploads/${Date.now()}_${Math.random().toString(36).slice(2, 7)}.${ext}`;
-  const blob    = await put(safeName, buffer, { access: "public" });
-  res.json({ url: blob.url });
+  if (!data.startsWith("data:")) return res.status(400).json({ error: "Invalid base64 format" });
+  try {
+    const result = await cloudinary.uploader.upload(data, {
+      folder:        "journeyflicker",
+      resource_type: "auto",
+      use_filename:  false,
+      unique_filename: true,
+    });
+    res.json({ url: result.secure_url });
+  } catch (err) {
+    console.error("Cloudinary upload error:", err);
+    res.status(500).json({ error: "Upload failed. Check Cloudinary credentials." });
+  }
 });
 
 // ── Schemas ───────────────────────────────────────────────────────────────────
