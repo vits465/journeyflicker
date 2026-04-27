@@ -442,9 +442,17 @@ app.post("/api/backups/restore/:filename", requireAdmin, async (req, res) => {
 });
 
 // ── Serve Admin Panel (Static Files) ──────────────────────────────────────────
-const adminDistPath = process.env.VERCEL 
-  ? path.join(process.cwd(), "admin/dist")
-  : path.resolve(__dirname, "../admin/dist");
+let adminDistPath = path.resolve(__dirname, "../admin/dist");
+if (process.env.VERCEL) {
+  // Check common Vercel output paths
+  const paths = [
+    path.join(process.cwd(), "admin/dist"),
+    path.join(__dirname, "admin/dist"),
+    path.join(__dirname, "../admin/dist")
+  ];
+  adminDistPath = paths.find(p => fs.existsSync(p)) || paths[0];
+}
+
 console.log(`[Server] Admin Panel dist path: ${adminDistPath}`);
 app.use(express.static(adminDistPath));
 
