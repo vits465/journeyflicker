@@ -8,6 +8,7 @@ import { kv } from "@vercel/kv";
 import { v2 as cloudinary } from "cloudinary";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import fs from "node:fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -379,6 +380,18 @@ app.delete("/api/contacts/:id", requireAdmin, async (req, res) => {
   await writeDb(db); res.status(204).end();
 });
 
+const HERO_KEY   = "jf:hero";
+
+// ── Hero Settings ─────────────────────────────────────────────────────────────
+app.get("/api/hero-settings", async (_req, res) => {
+  const data = await kv.get(HERO_KEY);
+  res.json(data || { home: [], tours: [], destinations: [], visaBanner: "" });
+});
+app.put("/api/hero-settings", requireAdmin, async (req, res) => {
+  await kv.set(HERO_KEY, req.body);
+  res.json({ success: true });
+});
+
 // ── Backups (KV-based snapshots) ───────────────────────────────────────────────
 async function createBackup() {
   try {
@@ -415,19 +428,21 @@ app.post("/api/backups/restore/:filename", requireAdmin, async (req, res) => {
 });
 
 // ── Serve Admin Panel (Static Files) ──────────────────────────────────────────
-const adminDistPath = path.join(__dirname, "../admin/dist");
+const adminDistPath = path.resolve(__dirname, "../admin/dist");
+console.log(`[Server] Admin Panel dist path: ${adminDistPath}`);
 app.use(express.static(adminDistPath));
 
 // ── SPA Fallback for Admin Panel ──────────────────────────────────────────────
 app.get("*", (req, res, next) => {
-  // If it's an API route that somehow leaked through, don't serve index.html
   if (req.path.startsWith("/api/")) return next();
-  res.sendFile(path.join(adminDistPath, "index.html"), (err) => {
-    if (err) {
-      // If index.html doesn't exist (not built yet), show a friendly message
-      res.status(404).send("Admin panel not built yet. Please run 'npm run build' in backend/admin.");
-    }
-  });
+  
+  const indexPath = path.resolve(adminDistPath, "index.html");
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    console.error(`[Server] Admin index.html not found at: ${indexPath}`);
+    res.status(404).send(`Admin panel not built yet. Missing: ${indexPath}`);
+  }
 });
 
 // ── Export for Vercel serverless ───────────────────────────────────────────────

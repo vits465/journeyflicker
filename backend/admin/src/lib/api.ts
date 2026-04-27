@@ -145,6 +145,21 @@ export const api = {
   listBackups: () => http<Backup[]>("/backups"),
   createBackup: () => http<{ success: boolean; filename: string }>("/backups", { method: "POST" }),
   restoreBackup: (filename: string) => http<{ success: boolean }>(`/backups/restore/${filename}`, { method: "POST" }),
+  
+  // ── Hero Settings ───────────────────────────────────────────────────────────
+  getHeroSettings: async (): Promise<any> => {
+    const res = await fetch(`${API_BASE}/hero-settings`);
+    if (!res.ok) throw new Error("Failed to fetch hero settings");
+    return res.json();
+  },
+  updateHeroSettings: async (settings: any): Promise<void> => {
+    const res = await fetch(`${API_BASE}/hero-settings`, {
+      method: "PUT",
+      headers: { ...getHeaders(), "Content-Type": "application/json" },
+      body: JSON.stringify(settings),
+    });
+    if (!res.ok) throw new Error("Failed to update hero settings");
+  },
+
   search: (q: string) => http<{ destinations: Destination[]; tours: Tour[] }>(`/search?q=${encodeURIComponent(q)}`),
 };
-

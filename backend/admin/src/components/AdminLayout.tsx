@@ -121,11 +121,11 @@ export function AdminLayout() {
 
         {/* Bottom actions */}
         <div className="px-3 py-4 border-t border-white/10 space-y-1 flex-shrink-0">
-          <NavLink to="/" onClick={() => setSidebarOpen(false)}
+          <a href="https://journeyflicker-9hd2.vercel.app" target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/40 hover:text-white hover:bg-white/10 transition-all duration-200 whitespace-nowrap">
             <span className="material-symbols-outlined text-xl flex-shrink-0 font-light">public</span>
             <span className="hidden lg:block text-sm font-light">View Live Site</span>
-          </NavLink>
+          </a>
           <button onClick={logout}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400/60 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200 whitespace-nowrap">
             <span className="material-symbols-outlined text-xl flex-shrink-0 font-light">logout</span>
