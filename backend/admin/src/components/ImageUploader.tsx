@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { uploadImage } from '../lib/api';
+import React, { useState, useEffect } from 'react';
+import { uploadImage, api, Media } from '../lib/api';
 
 interface ImageUploaderProps {
   multiple?: boolean;
@@ -8,13 +8,147 @@ interface ImageUploaderProps {
   label?: string;
 }
 
+// ── Media Library Picker Modal ────────────────────────────────────────────────
+function MediaPickerModal({
+  multiple,
+  onSelect,
+  onClose,
+}: {
+  multiple?: boolean;
+  onSelect: (urls: string[]) => void;
+  onClose: () => void;
+}) {
+  const [media, setMedia] = useState<Media[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    api.listMedia()
+      .then(setMedia)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filtered = media.filter(m =>
+    m.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const toggle = (url: string) => {
+    if (!multiple) {
+      onSelect([url]);
+      return;
+    }
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(url)) next.delete(url);
+      else next.add(url);
+      return next;
+    });
+  };
+
+  const confirm = () => {
+    onSelect(Array.from(selected));
+  };
+
+  return (
+    <div className="fixed inset-0 z-[300] flex items-center justify-center p-4" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div
+        className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
+          <div>
+            <h2 className="text-base font-bold text-gray-900">Media Library</h2>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {multiple ? 'Click images to select, then confirm' : 'Click an image to use it'}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm">search</span>
+              <input
+                type="text"
+                placeholder="Search..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="pl-8 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black w-44"
+              />
+            </div>
+            <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-500">
+              <span className="material-symbols-outlined text-lg">close</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Grid */}
+        <div className="flex-1 overflow-y-auto p-4">
+          {loading ? (
+            <div className="h-48 flex flex-col items-center justify-center text-gray-400">
+              <span className="material-symbols-outlined text-3xl animate-spin mb-2">refresh</span>
+              <p className="text-sm">Loading library...</p>
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="h-48 flex flex-col items-center justify-center text-gray-400">
+              <span className="material-symbols-outlined text-4xl mb-2 opacity-30">image_not_supported</span>
+              <p className="text-sm font-medium">No images in the library yet.</p>
+              <p className="text-xs mt-1">Go to Media Library and upload some images first.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+              {filtered.map(m => {
+                const isSelected = selected.has(m.url);
+                return (
+                  <div
+                    key={m.id}
+                    onClick={() => toggle(m.url)}
+                    className={`relative aspect-square rounded-xl overflow-hidden cursor-pointer border-2 transition-all ${
+                      isSelected ? 'border-black scale-95 shadow-lg' : 'border-transparent hover:border-gray-300'
+                    }`}
+                  >
+                    <img src={m.url} alt={m.name} className="w-full h-full object-cover" />
+                    {isSelected && (
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                        <span className="material-symbols-outlined text-white text-2xl">check_circle</span>
+                      </div>
+                    )}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-1.5">
+                      <p className="text-[9px] text-white truncate font-medium">{m.name}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Footer for multi-select */}
+        {multiple && selected.size > 0 && (
+          <div className="flex items-center justify-between px-6 py-3 border-t border-gray-100 bg-gray-50 flex-shrink-0">
+            <span className="text-sm text-gray-600 font-medium">{selected.size} image{selected.size > 1 ? 's' : ''} selected</span>
+            <button
+              onClick={confirm}
+              className="bg-black text-white px-5 py-2 rounded-full text-xs font-bold tracking-widest uppercase hover:bg-gray-800 transition"
+            >
+              Add to Form
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Main ImageUploader Component ──────────────────────────────────────────────
 export function ImageUploader({ multiple, value, onChange, label = 'Upload Images' }: ImageUploaderProps) {
   const [uploading, setUploading] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return;
     setUploading(true);
-    
     try {
       if (multiple) {
         const urls = await Promise.all(Array.from(e.target.files).map(f => uploadImage(f)));
@@ -28,8 +162,20 @@ export function ImageUploader({ multiple, value, onChange, label = 'Upload Image
       alert('Upload failed. Ensure the server is running and file size is reasonable.');
     } finally {
       setUploading(false);
-      e.target.value = ''; // Reset input so same file can be uploaded again if removed
+      e.target.value = '';
     }
+  };
+
+  const handlePickFromLibrary = (urls: string[]) => {
+    if (multiple) {
+      const existing = Array.isArray(value) ? value : [];
+      // Merge without duplicates
+      const merged = [...existing, ...urls.filter(u => !existing.includes(u))];
+      onChange(merged);
+    } else {
+      onChange(urls[0] || '');
+    }
+    setShowPicker(false);
   };
 
   const removeImage = (urlToRemove: string) => {
@@ -40,37 +186,65 @@ export function ImageUploader({ multiple, value, onChange, label = 'Upload Image
     }
   };
 
-  const images = multiple 
-    ? (Array.isArray(value) ? value : []) 
+  const images = multiple
+    ? (Array.isArray(value) ? value : [])
     : (value && typeof value === 'string' ? [value] : []);
 
   return (
-    <div className="space-y-4">
-      <label className="block text-sm font-medium text-on-surface">{label}</label>
-      <div className="flex flex-wrap gap-4 items-center">
-        {images.map((url, i) => (
-          <div key={i} className="relative w-24 h-24 rounded border border-outline-variant overflow-hidden group shadow-sm bg-surface-container-lowest flex-shrink-0">
-            <img src={url} alt="Uploaded" className="w-full h-full object-cover" />
-            <button 
-              type="button" 
-              onClick={() => removeImage(url)}
-              className="absolute inset-0 bg-red-600/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              <span className="material-symbols-outlined text-xl">delete</span>
-            </button>
-          </div>
-        ))}
-        {(!images.length || multiple) && (
-          <label className={`w-24 h-24 rounded border border-dashed border-outline-variant flex flex-col items-center justify-center cursor-pointer hover:border-black hover:text-black transition-colors text-on-surface-variant flex-shrink-0 bg-surface-container-low ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
-            <span className="material-symbols-outlined mb-1 text-2xl">{uploading ? 'hourglass_empty' : 'add_photo_alternate'}</span>
-            <span className="text-[10px] font-medium tracking-widest uppercase">{uploading ? 'Wait...' : 'Upload'}</span>
-            <input type="file" className="hidden" multiple={multiple} accept="image/*" onChange={handleUpload} />
-          </label>
+    <>
+      {showPicker && (
+        <MediaPickerModal
+          multiple={multiple}
+          onSelect={handlePickFromLibrary}
+          onClose={() => setShowPicker(false)}
+        />
+      )}
+      <div className="space-y-3">
+        <label className="block text-sm font-medium text-on-surface">{label}</label>
+
+        {/* Thumbnails */}
+        <div className="flex flex-wrap gap-3 items-center">
+          {images.map((url, i) => (
+            <div key={i} className="relative w-24 h-24 rounded-xl border border-outline-variant overflow-hidden group shadow-sm bg-surface-container-lowest flex-shrink-0">
+              <img src={url} alt="Uploaded" className="w-full h-full object-cover" />
+              <button
+                type="button"
+                onClick={() => removeImage(url)}
+                className="absolute inset-0 bg-red-600/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <span className="material-symbols-outlined text-xl">delete</span>
+              </button>
+            </div>
+          ))}
+
+          {/* Action buttons */}
+          {(!images.length || multiple) && (
+            <div className="flex flex-col gap-2">
+              {/* Upload new file */}
+              <label className={`flex items-center gap-2 px-3 py-2 rounded-xl border border-dashed border-outline-variant cursor-pointer hover:border-black hover:text-black transition-colors text-on-surface-variant bg-surface-container-low text-xs font-medium ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                <span className="material-symbols-outlined text-base">{uploading ? 'hourglass_empty' : 'upload'}</span>
+                {uploading ? 'Uploading...' : 'Upload New'}
+                <input type="file" className="hidden" multiple={multiple} accept="image/*" onChange={handleUpload} />
+              </label>
+
+              {/* Pick from library */}
+              <button
+                type="button"
+                onClick={() => setShowPicker(true)}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl border border-outline-variant/60 cursor-pointer hover:border-black hover:text-black transition-colors text-on-surface-variant bg-white text-xs font-medium"
+              >
+                <span className="material-symbols-outlined text-base">photo_library</span>
+                Pick from Library
+              </button>
+            </div>
+          )}
+        </div>
+
+        {images.length === 0 && !multiple && (
+          <div className="text-xs text-on-surface-variant italic">No image selected.</div>
         )}
       </div>
-      {(images.length === 0 && !multiple) && (
-         <div className="text-xs text-on-surface-variant italic">No image uploaded.</div>
-      )}
-    </div>
+    </>
   );
 }
+
