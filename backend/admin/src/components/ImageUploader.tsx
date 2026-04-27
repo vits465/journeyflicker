@@ -150,11 +150,33 @@ export function ImageUploader({ multiple, value, onChange, label = 'Upload Image
     if (!e.target.files?.length) return;
     setUploading(true);
     try {
+      const files = Array.from(e.target.files);
+      
+      // Upload each file AND register in Media Library
+      const uploadOne = async (file: File): Promise<string> => {
+        const url = await uploadImage(file);
+        // Auto-save to Media Library so it can be reused across forms
+        try {
+          await api.createMedia({
+            url,
+            name: file.name,
+            size: (file.size / 1024 / 1024).toFixed(1) + ' MB',
+            type: file.type,
+            date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+            folder: 'General',
+          });
+        } catch {
+          // Don't fail the upload if media library save fails
+          console.warn('Could not register image in Media Library, but upload succeeded.');
+        }
+        return url;
+      };
+
       if (multiple) {
-        const urls = await Promise.all(Array.from(e.target.files).map(f => uploadImage(f)));
+        const urls = await Promise.all(files.map(uploadOne));
         onChange([...(Array.isArray(value) ? value : []), ...urls]);
       } else {
-        const url = await uploadImage(e.target.files[0]);
+        const url = await uploadOne(files[0]);
         onChange(url);
       }
     } catch (err) {
