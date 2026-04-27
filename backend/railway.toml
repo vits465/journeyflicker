@@ -1,7 +1,7 @@
 # ── Railway Config ─────────────────────────────────────────────────────────
 [build]
 builder = "NIXPACKS"
-buildCommand = "npm install"
+buildCommand = "npm install && npm run build"
 
 [deploy]
 startCommand = "node src/index.js"

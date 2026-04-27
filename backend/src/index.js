@@ -1,3 +1,4 @@
+import "dotenv/config";
 import cors from "cors";
 import express from "express";
 import { z } from "zod";
@@ -23,7 +24,20 @@ cloudinary.config({
 const app = express();
 
 // ── Security ──────────────────────────────────────────────────────────────────
-app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  contentSecurityPolicy: {
+    directives: {
+      ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+      "img-src": ["'self'", "data:", "https://res.cloudinary.com", "https://images.unsplash.com"],
+      "media-src": ["'self'", "https://videos.pexels.com"],
+      "font-src": ["'self'", "https://fonts.gstatic.com", "https://fonts.googleapis.com"],
+      "script-src": ["'self'", "'unsafe-inline'"], 
+      "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      "connect-src": ["'self'", "https://api.cloudinary.com", "https://res.cloudinary.com"],
+    },
+  },
+}));
 app.use(cors({
   origin: (process.env.CORS_ORIGIN || "http://localhost:5173,http://localhost:5174").split(","),
   credentials: true,

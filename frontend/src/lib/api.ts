@@ -145,6 +145,6 @@ export const api = {
   listBackups: () => http<Backup[]>("/backups"),
   createBackup: () => http<{ success: boolean; filename: string }>("/backups", { method: "POST" }),
   restoreBackup: (filename: string) => http<{ success: boolean }>(`/backups/restore/${filename}`, { method: "POST" }),
+  getHeroSettings: () => http<any>("/hero-settings"),
   search: (q: string) => http<{ destinations: Destination[]; tours: Tour[] }>(`/search?q=${encodeURIComponent(q)}`),
 };
-

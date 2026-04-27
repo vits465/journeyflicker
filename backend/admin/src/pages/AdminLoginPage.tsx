@@ -37,8 +37,22 @@ export default function AdminLoginPage() {
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden">
+      {/* ── Video background ── */}
+      <video
+        autoPlay muted loop playsInline
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+        style={{ animation: 'jf-video-in 1.4s ease forwards' }}
+      >
+        <source src="https://videos.pexels.com/video-files/1851190/1851190-hd_1920_1080_25fps.mp4" type="video/mp4" />
+      </video>
+
+      {/* ── Overlays ── */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/90 pointer-events-none" />
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #C8A84B 1px, transparent 0)', backgroundSize: '28px 28px' }} />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_25%,rgba(0,0,0,0.7)_100%)] pointer-events-none" />
+
       {/* Background grid */}
-      <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.04) 1px, transparent 0)', backgroundSize: '32px 32px' }} />
+      <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.04) 1px, transparent 0)', backgroundSize: '32px 32px' }} />
 
       {/* Glow orbs */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none" />

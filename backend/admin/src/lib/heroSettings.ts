@@ -1,14 +1,5 @@
-/**
- * Hero Slides Settings — stored in localStorage
- * Key: "jf_hero_settings"
- * Value: { home: string[], tours: string[], destinations: string[] }
- *   — arrays of IDs (destination or tour IDs) in display order
- *
- * When the admin editor saves changes, it dispatches a custom storage event
- * so all open tabs update in real-time without a page refresh.
- */
-
 import { useState, useEffect } from 'react';
+import { api } from './api';
 
 export type HeroPage = 'home' | 'tours' | 'destinations';
 
@@ -19,55 +10,49 @@ export interface HeroSettings {
   visaBanner?: string;    // image URL for Visa page
 }
 
-const STORAGE_KEY = 'jf_hero_settings';
-
-function readSettings(): HeroSettings {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch { /* ignore */ }
-  return { home: [], tours: [], destinations: [], visaBanner: '' };
-}
-
-export function saveHeroSettings(settings: HeroSettings): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-  // Dispatch so other components on same tab also update
-  window.dispatchEvent(new CustomEvent('jf-hero-update', { detail: settings }));
-}
+const DEFAULT: HeroSettings = { home: [], tours: [], destinations: [], visaBanner: '' };
 
 export function useHeroSettings(page: HeroPage): string[] {
-  const [ids, setIds] = useState<string[]>(() => readSettings()[page]);
+  const [ids, setIds] = useState<string[]>([]);
 
   useEffect(() => {
-    const onStorage = () => setIds(readSettings()[page]);
-    const onCustom = (e: Event) => {
-      const s = (e as CustomEvent<HeroSettings>).detail;
-      setIds(s[page]);
-    };
-    window.addEventListener('storage', onStorage);
-    window.addEventListener('jf-hero-update', onCustom);
-    return () => {
-      window.removeEventListener('storage', onStorage);
-      window.removeEventListener('jf-hero-update', onCustom);
-    };
+    api.getHeroSettings()
+      .then(s => setIds(s[page] || []))
+      .catch(console.error);
   }, [page]);
 
   return ids;
 }
 
 export function useAllHeroSettings() {
-  const [settings, setSettings] = useState<HeroSettings>(readSettings);
+  const [settings, setSettings] = useState<HeroSettings>(DEFAULT);
+  const [loading, setLoading] = useState(true);
+
+  const fetchSettings = () => {
+    api.getHeroSettings()
+      .then(s => {
+        setSettings(s);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
+  };
 
   useEffect(() => {
-    const onStorage = () => setSettings(readSettings());
-    const onCustom = (e: Event) => setSettings((e as CustomEvent<HeroSettings>).detail);
-    window.addEventListener('storage', onStorage);
-    window.addEventListener('jf-hero-update', onCustom);
-    return () => {
-      window.removeEventListener('storage', onStorage);
-      window.removeEventListener('jf-hero-update', onCustom);
-    };
+    fetchSettings();
   }, []);
 
-  return { settings, save: saveHeroSettings };
+  const save = async (newSettings: HeroSettings) => {
+    try {
+      await api.updateHeroSettings(newSettings);
+      setSettings(newSettings);
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  };
+
+  return { settings, save, loading, refresh: fetchSettings };
 }

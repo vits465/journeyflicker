@@ -1,55 +1,5 @@
 export const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
-export async function uploadImage(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = async () => {
-      try {
-        const data = reader.result as string;
-        const res = await http<{ url: string }>("/upload", {
-          method: "POST",
-          body: JSON.stringify({ name: file.name, data }),
-        });
-        resolve(res.url);
-      } catch (err) {
-        reject(err);
-      }
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-async function http<T>(path: string, init?: RequestInit): Promise<T> {
-  const token = sessionStorage.getItem("jf_token");
-  const headers: HeadersInit = {
-    "content-type": "application/json",
-    ...(init?.headers ?? {}),
-  };
-  if (token) {
-    (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
-  }
-
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...init,
-    headers,
-  });
-
-  if (res.status === 401) {
-    sessionStorage.removeItem("jf_admin_auth");
-    sessionStorage.removeItem("jf_token");
-    window.location.href = "/login";
-    throw new Error("Unauthorized");
-  }
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`Request failed (${res.status}): ${text}`);
-  }
-  if (res.status === 204) return undefined as T;
-  return (await res.json()) as T;
-}
-
 export type Destination = {
   id: string;
   name: string;
@@ -75,17 +25,17 @@ export type Tour = {
   heroImageUrl?: string;
   overviewDescription?: string;
   overviewExtended?: string;
-  overviewImageUrl?: string;                 // image shown beside the narrative section
+  overviewImageUrl?: string;
   transport?: string;
   guide?: string;
   pickup?: string;
   itinerary?: {
     title: string;
     description: string;
-    imageUrl?: string;        // day photo
-    schedule?: string;        // e.g. "09:00 – Depart | 13:00 – Lunch | 19:00 – Dinner"
-    accommodation?: string;   // e.g. "Caldera Cave Suite, Oia"
-    meals?: string;           // e.g. "Breakfast, Sunset Dinner"
+    imageUrl?: string;
+    schedule?: string;
+    accommodation?: string;
+    meals?: string;
   }[];
   sightseeing?: { title: string; description: string; icon: string; imageUrl?: string }[];
   visualArchive?: string[];
@@ -118,7 +68,84 @@ export type Backup = {
   createdAt: number;
 };
 
-export const api = {
+async function http<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = sessionStorage.getItem("jf_token");
+  const headers: HeadersInit = {
+    "content-type": "application/json",
+    ...(init?.headers ?? {}),
+  };
+  if (token) {
+    (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...init,
+    headers,
+  });
+
+  if (res.status === 401) {
+    sessionStorage.removeItem("jf_admin_auth");
+    sessionStorage.removeItem("jf_token");
+    window.location.href = "/login";
+    throw new Error("Unauthorized");
+  }
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`Request failed (${res.status}): ${text}`);
+  }
+  if (res.status === 204) return undefined as T;
+  return (await res.json()) as T;
+}
+
+export async function uploadImage(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const data = reader.result as string;
+        const res = await http<{ url: string }>("/upload", {
+          method: "POST",
+          body: JSON.stringify({ name: file.name, data }),
+        });
+        resolve(res.url);
+      } catch (err) {
+        reject(err);
+      }
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+export interface ApiInterface {
+  listDestinations: () => Promise<Destination[]>;
+  getDestination: (id: string) => Promise<Destination>;
+  createDestination: (data: Partial<Destination>) => Promise<Destination>;
+  updateDestination: (id: string, data: Partial<Destination>) => Promise<Destination>;
+  deleteDestination: (id: string) => Promise<void>;
+  listTours: () => Promise<Tour[]>;
+  getTour: (id: string) => Promise<Tour>;
+  createTour: (data: Partial<Tour>) => Promise<Tour>;
+  updateTour: (id: string, data: Partial<Tour>) => Promise<Tour>;
+  deleteTour: (id: string) => Promise<void>;
+  listVisas: () => Promise<Visa[]>;
+  createVisa: (data: Partial<Visa>) => Promise<Visa>;
+  updateVisa: (id: string, data: Partial<Visa>) => Promise<Visa>;
+  deleteVisa: (id: string) => Promise<void>;
+  listContacts: () => Promise<Contact[]>;
+  createContact: (data: { name: string; email: string; type: string; message: string }) => Promise<Contact>;
+  markContactRead: (id: string) => Promise<Contact>;
+  deleteContact: (id: string) => Promise<void>;
+  listBackups: () => Promise<Backup[]>;
+  createBackup: () => Promise<{ success: boolean; filename: string }>;
+  restoreBackup: (filename: string) => Promise<{ success: boolean }>;
+  getHeroSettings: () => Promise<any>;
+  updateHeroSettings: (settings: any) => Promise<void>;
+  search: (q: string) => Promise<{ destinations: Destination[]; tours: Tour[] }>;
+}
+
+export const api: ApiInterface = {
   listDestinations: () => http<Destination[]>("/destinations"),
   getDestination: (id: string) => http<Destination>(`/destinations/${id}`),
   createDestination: (data: Partial<Destination>) => http<Destination>("/destinations", { method: "POST", body: JSON.stringify(data) }),
@@ -137,8 +164,7 @@ export const api = {
   deleteVisa: (id: string) => http<void>(`/visas/${id}`, { method: "DELETE" }),
 
   listContacts: () => http<Contact[]>("/contacts"),
-  createContact: (data: { name: string; email: string; type: string; message: string }) =>
-    http<Contact>("/contacts", { method: "POST", body: JSON.stringify(data) }),
+  createContact: (data) => http<Contact>("/contacts", { method: "POST", body: JSON.stringify(data) }),
   markContactRead: (id: string) => http<Contact>(`/contacts/${id}/read`, { method: "PATCH" }),
   deleteContact: (id: string) => http<void>(`/contacts/${id}`, { method: "DELETE" }),
 
@@ -146,20 +172,11 @@ export const api = {
   createBackup: () => http<{ success: boolean; filename: string }>("/backups", { method: "POST" }),
   restoreBackup: (filename: string) => http<{ success: boolean }>(`/backups/restore/${filename}`, { method: "POST" }),
   
-  // ── Hero Settings ───────────────────────────────────────────────────────────
-  getHeroSettings: async (): Promise<any> => {
-    const res = await fetch(`${API_BASE}/hero-settings`);
-    if (!res.ok) throw new Error("Failed to fetch hero settings");
-    return res.json();
-  },
-  updateHeroSettings: async (settings: any): Promise<void> => {
-    const res = await fetch(`${API_BASE}/hero-settings`, {
-      method: "PUT",
-      headers: { ...getHeaders(), "Content-Type": "application/json" },
-      body: JSON.stringify(settings),
-    });
-    if (!res.ok) throw new Error("Failed to update hero settings");
-  },
+  getHeroSettings: () => http<any>("/hero-settings"),
+  updateHeroSettings: (settings: any) => http<void>("/hero-settings", {
+    method: "PUT",
+    body: JSON.stringify(settings),
+  }),
 
   search: (q: string) => http<{ destinations: Destination[]; tours: Tour[] }>(`/search?q=${encodeURIComponent(q)}`),
 };
