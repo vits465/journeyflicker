@@ -1,15 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { uploadImage } from '../lib/api';
-
-const DUMMY_MEDIA = [
-  { id: '1', url: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&q=80', name: 'paris-eiffel.jpg', size: '2.4 MB', type: 'image/jpeg', date: 'Oct 12, 2026', folder: 'Destinations' },
-  { id: '2', url: 'https://images.unsplash.com/photo-1525874684015-58379d421a52?auto=format&fit=crop&q=80', name: 'bali-resort.jpg', size: '3.1 MB', type: 'image/jpeg', date: 'Oct 10, 2026', folder: 'Tours' },
-  { id: '3', url: 'https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?auto=format&fit=crop&q=80', name: 'venice-canal.jpg', size: '1.8 MB', type: 'image/jpeg', date: 'Oct 08, 2026', folder: 'Destinations' },
-  { id: '4', url: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&q=80', name: 'swiss-alps.jpg', size: '4.2 MB', type: 'image/jpeg', date: 'Sep 29, 2026', folder: 'Tours' },
-  { id: '5', url: 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&q=80', name: 'bali-temple.jpg', size: '2.9 MB', type: 'image/jpeg', date: 'Sep 25, 2026', folder: 'Destinations' },
-  { id: '6', url: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80', name: 'hero-bg-main.jpg', size: '5.5 MB', type: 'image/jpeg', date: 'Sep 15, 2026', folder: 'General' },
-];
+import { api, uploadImage, Media } from '../lib/api';
 
 const FOLDERS = ['All', 'Destinations', 'Tours', 'General'];
 
@@ -17,9 +8,26 @@ export default function AdminMediaLibrary() {
   const { canEdit } = useOutletContext<{ canEdit: boolean }>();
   const [activeFolder, setActiveFolder] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [mediaFiles, setMediaFiles] = useState(DUMMY_MEDIA);
+  const [mediaFiles, setMediaFiles] = useState<Media[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    loadMedia();
+  }, []);
+
+  const loadMedia = async () => {
+    try {
+      setIsLoading(true);
+      const data = await api.listMedia();
+      setMediaFiles(data);
+    } catch (err) {
+      console.error('Failed to load media:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
@@ -32,15 +40,15 @@ export default function AdminMediaLibrary() {
     setIsUploading(true);
     try {
       const url = await uploadImage(file);
-      setMediaFiles(prev => [{
-        id: Date.now().toString(),
+      const newMedia = await api.createMedia({
         url,
         name: file.name,
         size: (file.size / 1024 / 1024).toFixed(1) + ' MB',
         type: file.type,
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
         folder: activeFolder === 'All' ? 'General' : activeFolder
-      }, ...prev]);
+      });
+      setMediaFiles(prev => [newMedia, ...prev]);
     } catch (err) {
       console.error('Upload failed:', err);
       alert('Upload failed. Please try again.');
@@ -48,6 +56,24 @@ export default function AdminMediaLibrary() {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
+  };
+
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (!confirm("Are you sure you want to delete this media? This will remove it from the library (but not from tours/destinations using the URL).")) return;
+    try {
+      await api.deleteMedia(id);
+      setMediaFiles(prev => prev.filter(m => m.id !== id));
+    } catch (err) {
+      console.error('Delete failed:', err);
+      alert('Delete failed.');
+    }
+  };
+
+  const handleCopyUrl = (e: React.MouseEvent, url: string) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(url);
+    alert('URL copied to clipboard!');
   };
 
   const filteredMedia = mediaFiles.filter(m => 
@@ -121,7 +147,13 @@ export default function AdminMediaLibrary() {
             <p className="text-xs text-blue-700 font-medium">You are in <span className="font-bold">Read-Only Mode</span>. Upload and deletion privileges are restricted to Editor accounts.</p>
           </div>
         )}
-        {filteredMedia.length === 0 ? (
+        
+        {isLoading ? (
+          <div className="h-full flex flex-col items-center justify-center text-on-surface-variant">
+            <span className="material-symbols-outlined text-4xl mb-3 animate-spin">refresh</span>
+            <p className="text-sm">Loading media...</p>
+          </div>
+        ) : filteredMedia.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-on-surface-variant">
             <span className="material-symbols-outlined text-5xl mb-3 opacity-20">image_not_supported</span>
             <p className="text-sm">No media files found.</p>
@@ -143,10 +175,16 @@ export default function AdminMediaLibrary() {
                 {/* Actions Overlay */}
                 {canEdit && (
                   <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button className="w-7 h-7 bg-white/90 backdrop-blur rounded-lg flex items-center justify-center text-black hover:bg-black hover:text-white transition-colors shadow-sm" title="Copy URL">
+                    <button 
+                      onClick={(e) => handleCopyUrl(e, media.url)}
+                      className="w-7 h-7 bg-white/90 backdrop-blur rounded-lg flex items-center justify-center text-black hover:bg-black hover:text-white transition-colors shadow-sm" title="Copy URL"
+                    >
                       <span className="material-symbols-outlined text-xs">link</span>
                     </button>
-                    <button className="w-7 h-7 bg-red-500/90 backdrop-blur rounded-lg flex items-center justify-center text-white hover:bg-red-600 transition-colors shadow-sm" title="Delete">
+                    <button 
+                      onClick={(e) => handleDelete(e, media.id)}
+                      className="w-7 h-7 bg-red-500/90 backdrop-blur rounded-lg flex items-center justify-center text-white hover:bg-red-600 transition-colors shadow-sm" title="Delete"
+                    >
                       <span className="material-symbols-outlined text-xs">delete</span>
                     </button>
                   </div>

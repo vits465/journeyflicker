@@ -64,14 +64,14 @@ export function AdminLayout() {
       {/* Sidebar */}
       <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0
         fixed md:relative z-50 md:z-auto
-        w-64 md:w-20 lg:w-64 h-full bg-black text-white
+        w-72 md:w-20 lg:w-64 h-full bg-black text-white
         transition-transform duration-300 ease-in-out flex flex-col`}>
 
         {/* Brand */}
         <div className="px-5 py-5 flex items-center justify-between flex-shrink-0 border-b border-white/10">
           <NavLink to="/" className="text-white font-light tracking-tighter uppercase whitespace-nowrap hover:opacity-80 transition-opacity">
-            <span className="hidden lg:inline">Journey<span className="font-black">Flicker</span></span>
-            <span className="lg:hidden text-lg">J<span className="font-black">F</span></span>
+            <span className="inline lg:inline md:hidden">Journey<span className="font-black">Flicker</span></span>
+            <span className="hidden md:inline lg:hidden text-lg">J<span className="font-black">F</span></span>
           </NavLink>
           <button onClick={() => setSidebarOpen(false)} className="md:hidden text-white/40 hover:text-white">
             <span className="material-symbols-outlined text-xl">close</span>
@@ -81,9 +81,9 @@ export function AdminLayout() {
         {/* Role badge */}
         <div className="px-4 py-3 border-b border-white/10 flex-shrink-0">
           <div className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-xl">
-            <div className={`w-2 h-2 rounded-full ${roleBadge.color}`} />
-            <span className="material-symbols-outlined text-white/60 text-base">{roleBadge.icon}</span>
-            <div className="hidden lg:block min-w-0">
+            <div className={`w-2 h-2 rounded-full flex-shrink-0 ${roleBadge.color}`} />
+            <span className="material-symbols-outlined text-white/60 text-base flex-shrink-0">{roleBadge.icon}</span>
+            <div className="block md:hidden lg:block min-w-0">
               <p className="text-white text-xs font-semibold truncate">{username}</p>
               <p className="text-white/40 text-[10px]">{roleBadge.label} Access</p>
             </div>
@@ -92,7 +92,7 @@ export function AdminLayout() {
 
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto admin-sidebar-scroll">
-          <span className="hidden lg:block text-[9px] tracking-[0.4em] uppercase text-white/30 font-black px-3 mb-3">Control</span>
+          <span className="block md:hidden lg:block text-[9px] tracking-[0.4em] uppercase text-white/30 font-black px-3 mb-3">Control</span>
           {allLinks.map((link) => (
             <NavLink
               key={link.path}
@@ -106,14 +106,14 @@ export function AdminLayout() {
               }
             >
               <span className="material-symbols-outlined text-xl flex-shrink-0 font-light">{link.icon}</span>
-              <span className="hidden lg:block text-sm font-medium flex-1">{link.label}</span>
+              <span className="block md:hidden lg:block text-sm font-medium flex-1">{link.label}</span>
               {'badge' in link && (link as { badge?: number }).badge! > 0 && (
-                <span className="hidden lg:flex ml-auto min-w-[18px] h-[18px] bg-red-500 text-white text-[9px] font-black rounded-full items-center justify-center px-1 animate-pulse">
+                <span className="block md:hidden lg:flex ml-auto min-w-[18px] h-[18px] bg-red-500 text-white text-[9px] font-black rounded-full items-center justify-center px-1 animate-pulse">
                   {(link as { badge?: number }).badge}
                 </span>
               )}
               {'badge' in link && (link as { badge?: number }).badge! > 0 && (
-                <span className="lg:hidden absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+                <span className="hidden md:block lg:hidden absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
               )}
             </NavLink>
           ))}
@@ -124,12 +124,12 @@ export function AdminLayout() {
           <a href="https://journeyflicker-9hd2.vercel.app" target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/40 hover:text-white hover:bg-white/10 transition-all duration-200 whitespace-nowrap">
             <span className="material-symbols-outlined text-xl flex-shrink-0 font-light">public</span>
-            <span className="hidden lg:block text-sm font-light">View Live Site</span>
+            <span className="block md:hidden lg:block text-sm font-light">View Live Site</span>
           </a>
           <button onClick={logout}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400/60 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200 whitespace-nowrap">
             <span className="material-symbols-outlined text-xl flex-shrink-0 font-light">logout</span>
-            <span className="hidden lg:block text-sm font-light">Sign Out</span>
+            <span className="block md:hidden lg:block text-sm font-light">Sign Out</span>
           </button>
         </div>
       </div>

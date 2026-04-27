@@ -29,12 +29,21 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-      "img-src": ["'self'", "data:", "https://res.cloudinary.com", "https://images.unsplash.com"],
+      "img-src": ["'self'", "data:", "blob:", "https://res.cloudinary.com", "https://images.unsplash.com"],
       "media-src": ["'self'", "https://videos.pexels.com"],
       "font-src": ["'self'", "https://fonts.gstatic.com", "https://fonts.googleapis.com"],
-      "script-src": ["'self'", "'unsafe-inline'"], 
+      "script-src": ["'self'", "'unsafe-inline'"],
       "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      "connect-src": ["'self'", "https://api.cloudinary.com", "https://res.cloudinary.com"],
+      "connect-src": [
+        "'self'",
+        "https://api.cloudinary.com",
+        "https://res.cloudinary.com",
+        // Allow fetch to any vercel.app / railway.app / onrender.com origin for cross-domain API calls
+        "https://*.vercel.app",
+        "https://*.up.railway.app",
+        "https://*.onrender.com",
+        ...(process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(",").map(o => o.trim()) : []),
+      ],
     },
   },
 }));
@@ -60,6 +69,38 @@ app.use("/api/", apiLimiter);
 const ADMIN_USERNAME  = process.env.ADMIN_USERNAME || "Fliker";
 const ADMIN_PASSWORD  = process.env.ADMIN_PASSWORD || "JourneyFliker0465";
 const TOKEN_TTL       = 8 * 60 * 60; // 8 hours in seconds
+
+// ── Password hashing helpers (scrypt – built-in Node crypto) ──────────────────
+const SCRYPT_PARAMS = { N: 16384, r: 8, p: 1, keylen: 64 };
+async function hashPassword(plain) {
+  const salt = crypto.randomBytes(16).toString("hex");
+  return new Promise((res, rej) =>
+    crypto.scrypt(plain, salt, SCRYPT_PARAMS.keylen, { N: SCRYPT_PARAMS.N, r: SCRYPT_PARAMS.r, p: SCRYPT_PARAMS.p }, (err, key) =>
+      err ? rej(err) : res(`${salt}:${key.toString("hex")}`)
+    )
+  );
+}
+async function verifyPassword(plain, stored) {
+  // Support legacy plain-text passwords (no colon separator)
+  if (!stored.includes(":")) return stored === plain;
+  const [salt, hash] = stored.split(":");
+  return new Promise((res, rej) =>
+    crypto.scrypt(plain, salt, SCRYPT_PARAMS.keylen, { N: SCRYPT_PARAMS.N, r: SCRYPT_PARAMS.r, p: SCRYPT_PARAMS.p }, (err, key) => {
+      if (err) return rej(err);
+      try {
+        res(crypto.timingSafeEqual(Buffer.from(hash, "hex"), key));
+      } catch { res(false); }
+    })
+  );
+}
+// Timing-safe string compare (for admin credentials)
+function safeEqual(a, b) {
+  try {
+    const ba = Buffer.from(a), bb = Buffer.from(b);
+    if (ba.length !== bb.length) return false;
+    return crypto.timingSafeEqual(ba, bb);
+  } catch { return false; }
+}
 
 // ── KV key prefixes ───────────────────────────────────────────────────────────
 const DB_KEY      = "jf:db";
@@ -138,7 +179,10 @@ app.post("/api/auth/login", loginLimiter, async (req, res) => {
   const bf = await checkBruteForce(ip);
   if (bf.blocked) return res.status(429).json({ error: `Too many failed attempts. Try again in ${bf.waitMins} minute(s).` });
   const { username, password } = req.body || {};
-  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+  // Timing-safe credential check
+  const userMatch = safeEqual(String(username || ""), ADMIN_USERNAME);
+  const passMatch = safeEqual(String(password || ""), ADMIN_PASSWORD);
+  if (userMatch && passMatch) {
     await clearAttempts(ip);
     return res.json({ token: await issueToken("editor"), role: "editor" });
   }
@@ -153,10 +197,11 @@ app.post("/api/auth/co-editor-login", loginLimiter, async (req, res) => {
   const { username, password } = req.body || {};
   try {
     const db = await readDb();
-    const matched = (db.coEditorAccounts || []).find(a => a.username === username && a.password === password);
-    if (matched) {
+    // Find by username first (safe to do), then verify password separately
+    const account = (db.coEditorAccounts || []).find(a => a.username === username);
+    if (account && await verifyPassword(String(password || ""), account.password)) {
       await clearAttempts(ip);
-      return res.json({ token: await issueToken("co-editor"), role: "co-editor", id: matched.id });
+      return res.json({ token: await issueToken("co-editor"), role: "co-editor", id: account.id });
     }
   } catch (e) { console.error(e); }
   await recordFailedAttempt(ip);
@@ -188,7 +233,9 @@ app.post("/api/auth/co-editor-accounts", requireAdmin, async (req, res) => {
   if (!db.coEditorAccounts) db.coEditorAccounts = [];
   if (db.coEditorAccounts.length >= 5) return res.status(400).json({ error: "Maximum 5 co-editor accounts." });
   if (db.coEditorAccounts.find(a => a.username === parsed.data.username)) return res.status(400).json({ error: "Username already exists." });
-  const newAcc = { id: newId("coed"), ...parsed.data };
+  // Hash password before storing
+  const hashedPassword = await hashPassword(parsed.data.password);
+  const newAcc = { id: newId("coed"), username: parsed.data.username, password: hashedPassword };
   db.coEditorAccounts.push(newAcc);
   await writeDb(db);
   res.status(201).json({ id: newAcc.id, username: newAcc.username });
@@ -200,7 +247,10 @@ app.put("/api/auth/co-editor-accounts/:id", requireAdmin, async (req, res) => {
   if (!db.coEditorAccounts) db.coEditorAccounts = [];
   const idx = db.coEditorAccounts.findIndex(a => a.id === req.params.id);
   if (idx < 0) return res.status(404).json({ message: "Not found" });
-  db.coEditorAccounts[idx] = { ...db.coEditorAccounts[idx], ...parsed.data };
+  const update = { ...parsed.data };
+  // If password is being updated, hash it first
+  if (update.password) update.password = await hashPassword(update.password);
+  db.coEditorAccounts[idx] = { ...db.coEditorAccounts[idx], ...update };
   await writeDb(db);
   res.json({ id: db.coEditorAccounts[idx].id, username: db.coEditorAccounts[idx].username });
 });
@@ -231,6 +281,40 @@ app.post("/api/upload", requireAdmin, async (req, res) => {
     console.error("Cloudinary upload error:", err);
     res.status(500).json({ error: "Upload failed. Check Cloudinary credentials." });
   }
+});
+
+// ── Media Library ─────────────────────────────────────────────────────────────
+const MediaSchema = z.object({
+  url: z.string().url(),
+  name: z.string(),
+  size: z.string(),
+  type: z.string(),
+  date: z.string(),
+  folder: z.string().optional().default("General"),
+});
+
+app.get("/api/media", async (_req, res) => {
+  const db = await readDb();
+  res.json(db.media || []);
+});
+
+app.post("/api/media", requireCRUD, async (req, res) => {
+  const parsed = MediaSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json(parsed.error);
+  const db = await readDb();
+  if (!db.media) db.media = [];
+  const item = { id: newId("media"), ...parsed.data };
+  db.media.unshift(item);
+  await writeDb(db);
+  res.status(201).json(item);
+});
+
+app.delete("/api/media/:id", requireCRUD, async (req, res) => {
+  const db = await readDb();
+  if (!db.media) db.media = [];
+  db.media = db.media.filter(m => m.id !== req.params.id);
+  await writeDb(db);
+  res.status(204).end();
 });
 
 // ── Schemas ───────────────────────────────────────────────────────────────────

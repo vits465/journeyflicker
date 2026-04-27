@@ -143,6 +143,9 @@ export interface ApiInterface {
   getHeroSettings: () => Promise<any>;
   updateHeroSettings: (settings: any) => Promise<void>;
   search: (q: string) => Promise<{ destinations: Destination[]; tours: Tour[] }>;
+  listMedia: () => Promise<Media[]>;
+  createMedia: (data: Omit<Media, 'id'>) => Promise<Media>;
+  deleteMedia: (id: string) => Promise<void>;
 }
 
 export const api: ApiInterface = {
@@ -179,4 +182,8 @@ export const api: ApiInterface = {
   }),
 
   search: (q: string) => http<{ destinations: Destination[]; tours: Tour[] }>(`/search?q=${encodeURIComponent(q)}`),
+
+  listMedia: () => http<Media[]>("/media"),
+  createMedia: (data) => http<Media>("/media", { method: "POST", body: JSON.stringify(data) }),
+  deleteMedia: (id: string) => http<void>(`/media/${id}`, { method: "DELETE" }),
 };
