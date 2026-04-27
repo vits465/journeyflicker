@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import type { Visa } from '../lib/api';
 import { api } from '../lib/api';
 import { useAdminAuth } from '../lib/adminAuth';
-import { useOutletContext } from 'react-router-dom';
 import { ImageUploader } from '../components/ImageUploader';
 import { Preloader } from '../components/Preloader';
 
