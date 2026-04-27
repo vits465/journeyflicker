@@ -62,7 +62,7 @@ const S = `
 `;
 
 export default function AdminDashboard() {
-  const { canEdit } = useAdminAuth();
+  const { canEdit, canCRUD, role } = useAdminAuth();
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [tours, setTours] = useState<Tour[]>([]);
   const [visas, setVisas] = useState<Visa[]>([]);
@@ -122,7 +122,7 @@ export default function AdminDashboard() {
             </div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">Access Level</p>
-              <p className="text-white font-medium text-sm">{canEdit ? 'Administrative Editor' : 'Observer Access'}</p>
+              <p className="text-white font-medium text-sm">{canEdit ? 'Administrative Editor' : canCRUD ? 'Co-Editor Access' : 'Observer Access'}</p>
             </div>
           </div>
         </div>
@@ -152,7 +152,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ── Quick Actions ── */}
-      {canEdit && (
+      {canCRUD && (
         <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Administrative Orchestration</h3>
@@ -167,13 +167,17 @@ export default function AdminDashboard() {
             <a href="/admin/visas" className="action-btn">
               <span className="material-symbols-outlined text-purple-600">passport</span> Visa Config
             </a>
-            <a href="/admin/hero" className="action-btn">
-              <span className="material-symbols-outlined text-amber-600">view_carousel</span> Hero Engine
-            </a>
-            <div className="h-10 w-[1px] bg-gray-100 mx-2 self-center hidden md:block"></div>
-            <CSVUploader type="destination" onUploadComplete={loadAll} />
-            <CSVUploader type="tour" onUploadComplete={loadAll} />
-            <CSVUploader type="visa" onUploadComplete={loadAll} />
+            {canEdit && (
+              <>
+                <a href="/admin/hero" className="action-btn">
+                  <span className="material-symbols-outlined text-amber-600">view_carousel</span> Hero Engine
+                </a>
+                <div className="h-10 w-[1px] bg-gray-100 mx-2 self-center hidden md:block"></div>
+                <CSVUploader type="destination" onUploadComplete={loadAll} />
+                <CSVUploader type="tour" onUploadComplete={loadAll} />
+                <CSVUploader type="visa" onUploadComplete={loadAll} />
+              </>
+            )}
           </div>
         </div>
       )}
@@ -243,7 +247,7 @@ export default function AdminDashboard() {
                               {d.landmarks && d.landmarks.length > 0 && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">place</span>{d.landmarks.length}</span>}
                               {d.galleryImages && d.galleryImages.length > 0 && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">photo</span>{d.galleryImages.length}</span>}
                             </div>
-                            {canEdit && <a href="/admin/destinations" className="text-[10px] font-bold text-indigo-600 hover:underline">Configure →</a>}
+                            {canCRUD && <a href="/admin/destinations" className="text-[10px] font-bold text-indigo-600 hover:underline">Configure →</a>}
                           </div>
                         </div>
                       </div>
@@ -279,7 +283,7 @@ export default function AdminDashboard() {
                               {t.itinerary && t.itinerary.length > 0 && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">route</span>{t.itinerary.length}</span>}
                               {t.transport && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">commute</span></span>}
                             </div>
-                            {canEdit && <a href="/admin/tours" className="text-[10px] font-bold text-emerald-600 hover:underline">Design →</a>}
+                            {canCRUD && <a href="/admin/tours" className="text-[10px] font-bold text-emerald-600 hover:underline">Design →</a>}
                           </div>
                         </div>
                       </div>
@@ -305,7 +309,7 @@ export default function AdminDashboard() {
                           <div className="flex items-center gap-2 text-[10px] text-gray-500"><span className="material-symbols-outlined text-[12px]">schedule</span> {v.processing}</div>
                           <div className="flex items-center gap-2 text-[10px] text-gray-500"><span className="material-symbols-outlined text-[12px]">payments</span> {v.fee}</div>
                         </div>
-                        {canEdit && <a href="/admin/visas" className="text-[10px] font-bold text-purple-600 hover:underline">Update Protocol →</a>}
+                        {canCRUD && <a href="/admin/visas" className="text-[10px] font-bold text-purple-600 hover:underline">Update Protocol →</a>}
                       </div>
                     ))}
                   </div>

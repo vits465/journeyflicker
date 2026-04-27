@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
-import type { Destination } from '../lib/api';
+import type { Destination, Tour } from '../lib/api';
 import { api } from '../lib/api';
 import { HeroSlider, type HeroSlide } from '../components/HeroSlider';
 import { useHeroSettings } from '../lib/heroSettings';
@@ -44,14 +44,19 @@ function FilterSelect({ label, value, options, onChange, disabled }: {
 export default function DestinationsPage() {
   const navigate = useNavigate();
   const [destinations, setDestinations] = useState<Destination[]>([]);
+  const [tours, setTours] = useState<Tour[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterState>(EMPTY_FILTER);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const heroIds = useHeroSettings('destinations');
 
   useEffect(() => {
-    api.listDestinations()
-      .then(d => { setDestinations(d || []); setLoading(false); })
+    Promise.all([api.listDestinations(), api.listTours()])
+      .then(([d, t]) => { 
+        setDestinations(d || []); 
+        setTours(t || []);
+        setLoading(false); 
+      })
       .catch(() => setLoading(false));
   }, []);
 
@@ -69,6 +74,7 @@ export default function DestinationsPage() {
 
   // Filtered results
   const filtered = useMemo(() => applyFilter(destinations, filter), [destinations, filter]);
+  const filteredTours = useMemo(() => applyFilter(tours, filter), [tours, filter]);
 
   function setLevel(key: keyof FilterState, value: string) {
     // Reset downstream levels when a parent changes
@@ -309,9 +315,52 @@ export default function DestinationsPage() {
             </div>
           )}
 
-          {/* Result count */}
+          {/* ── MATCHING EXPEDITIONS (TOURS) ── */}
+          {hasFilter && filteredTours.length > 0 && (
+            <div className="mt-16 sm:mt-24 pt-10 border-t border-outline-variant/15 animate-reveal-up">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
+                <div>
+                  <span className="text-[10px] font-black tracking-[0.5em] text-primary uppercase mb-1.5 block">Recommended Access</span>
+                  <h2 className="text-3xl sm:text-4xl font-light tracking-tighter leading-tight italic">Matching <span className="not-italic font-black text-black">Expeditions.</span></h2>
+                  <p className="text-xs font-light text-on-surface-variant opacity-50 mt-1">Found {filteredTours.length} curated journeys in the selected territory.</p>
+                </div>
+                <button onClick={() => navigate('/tours')} 
+                  className="text-[10px] font-black tracking-[0.4em] uppercase border-b border-black pb-1 hover:text-primary transition-all">
+                  View All Tours
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {filteredTours.slice(0, 8).map((tour, idx) => (
+                  <div 
+                    key={tour.id}
+                    onClick={() => navigate(`/tours/${tour.id}`)}
+                    className="group cursor-pointer bg-white rounded-xl overflow-hidden border border-outline-variant/10 shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col"
+                    style={{ animationDelay: `${idx * 0.05}s` }}
+                  >
+                    <div className="aspect-[4/3] overflow-hidden relative">
+                      <img src={tour.heroImageUrl || FALLBACK} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-[4s]" alt={tour.name} />
+                      <div className="absolute top-2 right-2 bg-black/60 backdrop-blur px-2.5 py-1 rounded-full">
+                        <span className="text-[8px] font-black tracking-widest text-white uppercase">{tour.days} Days</span>
+                      </div>
+                    </div>
+                    <div className="p-4 flex-1 flex flex-col">
+                      <span className="text-[8px] font-black tracking-[0.3em] uppercase text-on-surface-variant/40 mb-1">{tour.category}</span>
+                      <h4 className="text-sm font-semibold tracking-tight italic group-hover:text-primary transition-colors line-clamp-1 mb-2">{tour.name}</h4>
+                      <div className="mt-auto flex items-center justify-between pt-3 border-t border-outline-variant/5">
+                        <span className="text-xs font-serif italic text-on-surface-variant/60">{tour.price}</span>
+                        <span className="material-symbols-outlined text-sm font-light transform group-hover:translate-x-1 transition-transform">east</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Result count footer */}
           {!loading && filtered.length > 0 && (
-            <p className="text-center mt-6 text-[9px] font-black tracking-[0.5em] uppercase text-on-surface-variant/30">
+            <p className="text-center mt-12 text-[9px] font-black tracking-[0.5em] uppercase text-on-surface-variant/30">
               Showing {filtered.length} of {destinations.length} territories
               {hasFilter && ` · ${activeCount} filter${activeCount > 1 ? 's' : ''} active`}
             </p>

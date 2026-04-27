@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useOutletContext } from 'react-router-dom';
+import { uploadImage } from '../lib/api';
 
 const DUMMY_MEDIA = [
   { id: '1', url: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&q=80', name: 'paris-eiffel.jpg', size: '2.4 MB', type: 'image/jpeg', date: 'Oct 12, 2026', folder: 'Destinations' },
@@ -16,8 +17,40 @@ export default function AdminMediaLibrary() {
   const { canEdit } = useOutletContext<{ canEdit: boolean }>();
   const [activeFolder, setActiveFolder] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [mediaFiles, setMediaFiles] = useState(DUMMY_MEDIA);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const filteredMedia = DUMMY_MEDIA.filter(m => 
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const url = await uploadImage(file);
+      setMediaFiles(prev => [{
+        id: Date.now().toString(),
+        url,
+        name: file.name,
+        size: (file.size / 1024 / 1024).toFixed(1) + ' MB',
+        type: file.type,
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+        folder: activeFolder === 'All' ? 'General' : activeFolder
+      }, ...prev]);
+    } catch (err) {
+      console.error('Upload failed:', err);
+      alert('Upload failed. Please try again.');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const filteredMedia = mediaFiles.filter(m => 
     (activeFolder === 'All' || m.folder === activeFolder) &&
     m.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -42,10 +75,23 @@ export default function AdminMediaLibrary() {
             />
           </div>
           {canEdit && (
-            <button className="bg-black text-white px-5 py-2 rounded-full text-xs font-bold tracking-widest uppercase hover:bg-gray-800 transition flex items-center gap-2 shadow-md">
-              <span className="material-symbols-outlined text-sm">upload</span>
-              Upload
-            </button>
+            <>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleFileChange} 
+                className="hidden" 
+                accept="image/*" 
+              />
+              <button 
+                onClick={handleUploadClick}
+                disabled={isUploading}
+                className="bg-black text-white px-5 py-2 rounded-full text-xs font-bold tracking-widest uppercase hover:bg-gray-800 transition flex items-center gap-2 shadow-md disabled:opacity-50"
+              >
+                <span className="material-symbols-outlined text-sm">{isUploading ? 'hourglass_empty' : 'upload'}</span>
+                {isUploading ? 'Uploading...' : 'Upload'}
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -69,6 +115,12 @@ export default function AdminMediaLibrary() {
 
       {/* Grid */}
       <div className="flex-1 overflow-y-auto min-h-0 bg-white rounded-2xl border border-outline-variant/30 shadow-sm p-6">
+        {!canEdit && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-center gap-3">
+            <span className="material-symbols-outlined text-blue-500">info</span>
+            <p className="text-xs text-blue-700 font-medium">You are in <span className="font-bold">Read-Only Mode</span>. Upload and deletion privileges are restricted to Editor accounts.</p>
+          </div>
+        )}
         {filteredMedia.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-on-surface-variant">
             <span className="material-symbols-outlined text-5xl mb-3 opacity-20">image_not_supported</span>

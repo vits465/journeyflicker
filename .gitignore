@@ -1,7 +1,17 @@
 node_modules/
 .env
+.env.local
+.env.production
 dist/
 build/
 .DS_Store
 .npm
 *.log
+
+# Backend data — do NOT commit db.json (contains real data)
+# The backups folder is also excluded
+backend/data/db.json
+backend/data/backups/
+
+# Uploaded images (served from /uploads)
+backend/public/uploads/

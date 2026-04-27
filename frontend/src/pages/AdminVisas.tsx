@@ -9,7 +9,7 @@ const inputCls = 'w-full px-3 py-1.5 border border-outline-variant rounded text-
 const labelCls = 'block text-xs font-semibold text-on-surface-variant uppercase tracking-wide mb-1';
 
 export default function AdminVisas() {
-  const { canEdit } = useAdminAuth();
+  const { canCRUD } = useAdminAuth();
   const [visas, setVisas] = useState<Visa[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -46,13 +46,13 @@ export default function AdminVisas() {
 
   return (
     <div className="space-y-5 w-full max-w-3xl mx-auto">
-      {!canEdit && (
+      {!canCRUD && (
         <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-700 text-xs font-semibold">
           <span className="material-symbols-outlined text-base">visibility</span>
           You have read-only access. Contact an editor to make changes.
         </div>
       )}
-      {canEdit && <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-outline-variant/30">
+      {canCRUD && <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-outline-variant/30">
         <h2 className="text-base font-semibold text-on-surface mb-4">
           {editingId ? '✏️ Edit' : '+ Create'} Visa Requirement
         </h2>
@@ -127,8 +127,8 @@ export default function AdminVisas() {
                       </td>
                       <td className="px-4 py-3 text-on-surface-variant">{visa.fee}</td>
                       <td className="px-4 py-3 text-center space-x-3">
-                        {canEdit && <button onClick={() => handleEdit(visa)} className="text-blue-600 hover:text-blue-800 font-medium text-xs">Edit</button>}
-                        {canEdit && <button onClick={() => handleDelete(visa.id)} className="text-red-500 hover:text-red-700 font-medium text-xs">Delete</button>}
+                        {canCRUD && <button onClick={() => handleEdit(visa)} className="text-blue-600 hover:text-blue-800 font-medium text-xs">Edit</button>}
+                        {canCRUD && <button onClick={() => handleDelete(visa.id)} className="text-red-500 hover:text-red-700 font-medium text-xs">Delete</button>}
                       </td>
                     </tr>
                   ))}
@@ -145,8 +145,8 @@ export default function AdminVisas() {
                   <p className="text-xs text-on-surface-variant mb-0.5">Processing: {visa.processing}</p>
                   <p className="text-xs text-on-surface-variant mb-3">Fee: {visa.fee}</p>
                   <div className="flex gap-2">
-                    {canEdit && <button onClick={() => handleEdit(visa)} className="flex-1 text-blue-600 text-xs font-semibold py-1.5 px-2 bg-blue-50 rounded hover:bg-blue-100">Edit</button>}
-                    {canEdit && <button onClick={() => handleDelete(visa.id)} className="flex-1 text-red-500 text-xs font-semibold py-1.5 px-2 bg-red-50 rounded hover:bg-red-100">Delete</button>}
+                    {canCRUD && <button onClick={() => handleEdit(visa)} className="flex-1 text-blue-600 text-xs font-semibold py-1.5 px-2 bg-blue-50 rounded hover:bg-blue-100">Edit</button>}
+                    {canCRUD && <button onClick={() => handleDelete(visa.id)} className="flex-1 text-red-500 text-xs font-semibold py-1.5 px-2 bg-red-50 rounded hover:bg-red-100">Delete</button>}
                   </div>
                 </div>
               ))}

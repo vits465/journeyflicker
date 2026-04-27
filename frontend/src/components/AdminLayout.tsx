@@ -7,10 +7,11 @@ export function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();
-  const { role, username, logout, canEdit } = useAdminAuth();
+  const { role, username, logout, canEdit, canCRUD } = useAdminAuth();
 
   // Poll for unread contact submissions
   useEffect(() => {
+    if (!canEdit) return;
     const fetchUnread = () => {
       api.listContacts()
         .then(contacts => setUnreadCount(contacts.filter(c => !c.read).length))
@@ -19,7 +20,7 @@ export function AdminLayout() {
     fetchUnread();
     const interval = setInterval(fetchUnread, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [canEdit]);
 
   // Redirect to login if not authenticated
   if (!role) return <Navigate to="/admin/login" replace />;
@@ -31,20 +32,26 @@ export function AdminLayout() {
     { path: '/admin/visas',        label: 'Visas',        icon: 'passport' },
     { path: '/admin/media',        label: 'Media Library',icon: 'photo_library' },
     { path: '/admin/reviews',      label: 'Reviews',      icon: 'star' },
-    { path: '/admin/contacts',     label: 'Contacts',     icon: 'mail', badge: unreadCount },
   ];
 
   const editorOnlyLinks = [
     { path: '/admin/hero',         label: 'Hero Slides',    icon: 'slideshow' },
     { path: '/admin/seo',          label: 'SEO Manager',    icon: 'search' },
+    { path: '/admin/backups',      label: 'DB Backups',     icon: 'database' },
+    { path: '/admin/fe-backups',   label: 'FE Backups',     icon: 'browser_updated' },
     { path: '/admin/access',       label: 'Access Control', icon: 'key' },
     { path: '/admin/api-settings', label: 'API Settings',   icon: 'api' },
+    { path: '/admin/contacts',     label: 'Contacts',     icon: 'mail', badge: unreadCount },
   ];
 
   const allLinks = canEdit ? [...adminLinks, ...editorOnlyLinks] : adminLinks;
 
+  const allEditorLinks = [...adminLinks, ...editorOnlyLinks];
+
   const roleBadge = canEdit
     ? { label: 'Editor', color: 'bg-green-500', icon: 'manage_accounts' }
+    : canCRUD
+    ? { label: 'Co-Editor', color: 'bg-violet-500', icon: 'edit_note' }
     : { label: 'Viewer', color: 'bg-blue-500', icon: 'visibility' };
 
   return (
@@ -84,7 +91,7 @@ export function AdminLayout() {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto admin-sidebar-scroll">
           <span className="hidden lg:block text-[9px] tracking-[0.4em] uppercase text-white/30 font-black px-3 mb-3">Control</span>
           {allLinks.map((link) => (
             <NavLink
@@ -141,8 +148,7 @@ export function AdminLayout() {
               <span className="material-symbols-outlined font-light text-lg">menu</span>
             </button>
             <h1 className="text-base font-semibold text-on-surface tracking-tight">
-              {adminLinks.find((l) => location.pathname === l.path)?.label
-              ?? (location.pathname === '/admin/access' ? 'Access Control' : 'Admin')}
+              {allEditorLinks.find((l) => location.pathname === l.path)?.label ?? 'Admin'}
             </h1>
           </div>
 
@@ -155,8 +161,14 @@ export function AdminLayout() {
                 <span className="text-red-600 text-[10px] font-black uppercase tracking-wide">{unreadCount} New</span>
               </NavLink>
             )}
-            {/* Read-only banner */}
-            {!canEdit && (
+            {/* Role banner for non-editors */}
+            {!canEdit && canCRUD && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-50 border border-violet-200 rounded-full">
+                <span className="material-symbols-outlined text-violet-500 text-sm">edit_note</span>
+                <span className="text-violet-600 text-[10px] font-bold uppercase tracking-wide">Co-Editor</span>
+              </div>
+            )}
+            {!canEdit && !canCRUD && (
               <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-full">
                 <span className="material-symbols-outlined text-blue-500 text-sm">visibility</span>
                 <span className="text-blue-600 text-[10px] font-bold uppercase tracking-wide">Read Only</span>
@@ -170,7 +182,7 @@ export function AdminLayout() {
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-auto p-4 md:p-6 lg:p-8 relative z-10">
+        <div className="flex-1 overflow-auto p-4 md:p-6 lg:p-8 relative z-10 admin-scroll">
           <Outlet context={{ canEdit }} />
         </div>
       </div>

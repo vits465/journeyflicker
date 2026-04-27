@@ -1,0 +1,14 @@
+# ── Railway Config ─────────────────────────────────────────────────────────
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm install"
+
+[deploy]
+startCommand = "node src/index.js"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5
+
+# ── Health check ───────────────────────────────────────────────────────────
+[deploy.healthcheck]
+path = "/api/health"
+timeout = 30

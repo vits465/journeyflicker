@@ -4,25 +4,34 @@ import { useAdminAuth } from '../lib/adminAuth';
 
 export default function AdminLoginPage() {
   const { login } = useAdminAuth();
-  const navigate = useNavigate();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [showPass, setShowPass] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const navigate  = useNavigate();
+  const [username,  setUsername]  = useState('');
+  const [password,  setPassword]  = useState('');
+  const [error,     setError]     = useState('');
+  const [showPass,  setShowPass]  = useState(false);
+  const [loading,   setLoading]   = useState(false);
+  const [locked,    setLocked]    = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (locked) return;
     setError('');
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 500)); // brief UX delay
-    const ok = login(username.trim(), password);
+    const result = await login(username.trim(), password);
     setLoading(false);
-    if (ok) {
+
+    if (result.ok) {
       navigate('/admin');
     } else {
-      setError('Invalid username or password. Please try again.');
       setPassword('');
+      const msg = result.error || 'Invalid username or password.';
+      setError(msg);
+      // If the server says we're locked out, reflect that
+      if (msg.toLowerCase().includes('locked') || msg.toLowerCase().includes('too many')) {
+        setLocked(true);
+        // Auto-unlock after 15 min (UI only — backend still enforces)
+        setTimeout(() => setLocked(false), 15 * 60 * 1000);
+      }
     }
   };
 
@@ -54,65 +63,74 @@ export default function AdminLoginPage() {
           <h1 className="text-white text-xl font-light tracking-tight mb-1">Welcome back</h1>
           <p className="text-white/40 text-xs mb-7 font-light">Sign in to access the control panel</p>
 
-          {/* Role hints */}
-          <div className="mb-6 space-y-2">
-            <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10">
-              <span className="material-symbols-outlined text-blue-400 text-base">visibility</span>
-              <div>
-                <p className="text-white text-xs font-semibold">Viewer Access</p>
-                <p className="text-white/40 text-[10px]">Dashboard & analytics only · <code className="text-white/60">viewer / view123</code></p>
-              </div>
-            </div>
-          </div>
-
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-[10px] font-black tracking-[0.3em] uppercase text-white/50 mb-2">Username</label>
+              <label className="block text-[10px] font-black tracking-[0.3em] uppercase text-white/50 mb-2">
+                Username
+              </label>
               <input
+                id="admin-username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full bg-white/10 border border-white/10 text-white placeholder-white/20 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white/40 transition-colors"
                 placeholder="Enter username"
                 autoComplete="username"
+                disabled={loading || locked}
                 required
               />
             </div>
             <div>
-              <label className="block text-[10px] font-black tracking-[0.3em] uppercase text-white/50 mb-2">Password</label>
+              <label className="block text-[10px] font-black tracking-[0.3em] uppercase text-white/50 mb-2">
+                Password
+              </label>
               <div className="relative">
                 <input
+                  id="admin-password"
                   type={showPass ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-white/10 border border-white/10 text-white placeholder-white/20 rounded-xl px-4 py-3 pr-12 text-sm focus:outline-none focus:border-white/40 transition-colors"
                   placeholder="Enter password"
                   autoComplete="current-password"
+                  disabled={loading || locked}
                   required
                 />
-                <button type="button" onClick={() => setShowPass(!showPass)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors">
+                <button
+                  type="button"
+                  onClick={() => setShowPass(!showPass)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                >
                   <span className="material-symbols-outlined text-lg">{showPass ? 'visibility_off' : 'visibility'}</span>
                 </button>
               </div>
             </div>
 
+            {/* Error / lockout message */}
             {error && (
-              <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-xl">
-                <span className="material-symbols-outlined text-red-400 text-sm">error</span>
-                <p className="text-red-400 text-xs">{error}</p>
+              <div className={`flex items-start gap-2 p-3 rounded-xl border ${locked ? 'bg-orange-500/10 border-orange-500/30' : 'bg-red-500/10 border-red-500/30'}`}>
+                <span className={`material-symbols-outlined text-sm mt-0.5 flex-shrink-0 ${locked ? 'text-orange-400' : 'text-red-400'}`}>
+                  {locked ? 'lock_clock' : 'error'}
+                </span>
+                <p className={`text-xs leading-relaxed ${locked ? 'text-orange-400' : 'text-red-400'}`}>{error}</p>
               </div>
             )}
 
             <button
+              id="admin-login-btn"
               type="submit"
-              disabled={loading}
+              disabled={loading || locked}
               className="w-full py-3 rounded-xl bg-white text-black text-sm font-bold tracking-wide hover:bg-white/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
             >
               {loading ? (
                 <>
                   <span className="material-symbols-outlined text-base animate-spin">progress_activity</span>
                   Authenticating…
+                </>
+              ) : locked ? (
+                <>
+                  <span className="material-symbols-outlined text-base">lock</span>
+                  Account Locked
                 </>
               ) : (
                 <>

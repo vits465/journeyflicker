@@ -1,36 +1,8 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { API_BASE } from './api';
 
-// ─── Editor credentials are fixed ──────────────────────────────────────────
-export const EDITOR = { username: 'Fliker', password: 'JourneyFliker0465' } as const;
-
-// ─── Viewer credentials – up to 5 accounts, stored in localStorage ─────────
-const VIEWER_CREDS_KEY = 'jf_viewer_accounts';
-export const MAX_VIEWERS = 5;
-
-export interface ViewerAccount {
-  id: string;           // stable random id
-  username: string;
-  password: string;
-}
-
-const DEFAULT_VIEWERS: ViewerAccount[] = [
-  { id: 'default-1', username: 'viewer', password: 'view123' },
-];
-
-export function getViewerAccounts(): ViewerAccount[] {
-  try {
-    const raw = localStorage.getItem(VIEWER_CREDS_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch { /* ignore */ }
-  return DEFAULT_VIEWERS;
-}
-
-export function saveViewerAccounts(accounts: ViewerAccount[]): void {
-  localStorage.setItem(VIEWER_CREDS_KEY, JSON.stringify(accounts));
-}
-
-// ─── Session state ──────────────────────────────────────────────────────────
-export type AdminRole = 'viewer' | 'editor';
+// ─── Role types ──────────────────────────────────────────────────────────────
+export type AdminRole = 'editor' | 'co-editor';
 
 interface AuthState {
   role: AdminRole | null;
@@ -38,11 +10,12 @@ interface AuthState {
 }
 
 interface AdminAuthContextType extends AuthState {
-  login: (username: string, password: string) => boolean;
+  login: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
+  /** true only for the main editor account */
   canEdit: boolean;
-  viewerAccounts: ViewerAccount[];
-  setViewerAccounts: (accounts: ViewerAccount[]) => void;
+  /** true for both editor AND co-editor (CRUD on tours/destinations/visas) */
+  canCRUD: boolean;
 }
 
 const AdminAuthContext = createContext<AdminAuthContextType | null>(null);
@@ -56,43 +29,101 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     } catch { return { role: null, username: null }; }
   });
 
-  const [viewerAccounts, setViewerAccountsState] = useState<ViewerAccount[]>(getViewerAccounts);
-
+  // Persist session
   useEffect(() => {
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(auth));
   }, [auth]);
 
-  const login = (username: string, password: string): boolean => {
-    if (username === EDITOR.username && password === EDITOR.password) {
-      setAuth({ role: 'editor', username });
-      return true;
-    }
-    // Check against ALL stored viewer accounts
-    const accounts = getViewerAccounts();
-    const matched = accounts.find(a => a.username === username && a.password === password);
-    if (matched) {
-      setAuth({ role: 'viewer', username });
-      return true;
-    }
-    return false;
+  // Re-verify token on mount (handles page refresh / token expiry)
+  useEffect(() => {
+    const token = sessionStorage.getItem('jf_token');
+    if (!token || !auth.role) return;
+    fetch(`${API_BASE}/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(r => { if (!r.ok) throw new Error('expired'); return r.json(); })
+      .catch(() => {
+        // Token expired or invalid — log out
+        setAuth({ role: null, username: null });
+        sessionStorage.removeItem(SESSION_KEY);
+        sessionStorage.removeItem('jf_token');
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const login = async (
+    usernameInput: string,
+    password: string,
+  ): Promise<{ ok: boolean; error?: string }> => {
+    const username = usernameInput.trim();
+
+    // ── Try editor login first ──────────────────────────────────────────────
+    try {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (res.status === 429) {
+        const data = await res.json().catch(() => ({}));
+        return { ok: false, error: data.error || 'Too many attempts. Try again later.' };
+      }
+
+      if (res.ok) {
+        const data = await res.json();
+        sessionStorage.setItem('jf_token', data.token);
+        setAuth({ role: 'editor', username });
+        return { ok: true };
+      }
+    } catch { /* network error, fall through */ }
+
+    // ── Try co-editor login ─────────────────────────────────────────────────
+    try {
+      const res = await fetch(`${API_BASE}/auth/co-editor-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (res.status === 429) {
+        const data = await res.json().catch(() => ({}));
+        return { ok: false, error: data.error || 'Too many attempts. Try again later.' };
+      }
+
+      if (res.ok) {
+        const data = await res.json();
+        sessionStorage.setItem('jf_token', data.token);
+        setAuth({ role: 'co-editor', username });
+        return { ok: true };
+      }
+    } catch { /* network error */ }
+
+    return { ok: false, error: 'Invalid username or password.' };
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      const token = sessionStorage.getItem('jf_token');
+      if (token) {
+        await fetch(`${API_BASE}/auth/logout`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+    } catch { /* ignore */ }
     setAuth({ role: null, username: null });
     sessionStorage.removeItem(SESSION_KEY);
-  };
-
-  const setViewerAccounts = (accounts: ViewerAccount[]) => {
-    const clamped = accounts.slice(0, MAX_VIEWERS);
-    saveViewerAccounts(clamped);
-    setViewerAccountsState(clamped);
+    sessionStorage.removeItem('jf_token');
   };
 
   return (
     <AdminAuthContext.Provider value={{
-      ...auth, login, logout,
+      ...auth,
+      login,
+      logout,
       canEdit: auth.role === 'editor',
-      viewerAccounts, setViewerAccounts,
+      canCRUD: auth.role === 'editor' || auth.role === 'co-editor',
     }}>
       {children}
     </AdminAuthContext.Provider>

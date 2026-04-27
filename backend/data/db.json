@@ -1,6 +1,100 @@
 {
   "destinations": [
     {
+      "id": "dest_mogwfuzn_p6mbxk",
+      "name": "Switzerland",
+      "region": "Europe",
+      "description": "A symphony of snow-capped peaks, crystalline lakes and alpine meadows. Switzerland is where legendary luxury meets raw natural power. From the clockwork precision of its cities to the timeless silence of the Matterhorn, it is a destination that defines the pinnacle of travel.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?q=80&w=2070&auto=format&fit=crop",
+      "essenceText": "The heart of the Alps.",
+      "landmarks": [
+        {
+          "title": "The Matterhorn",
+          "category": "Mountain",
+          "description": "The world's most iconic peak, a jagged pyramid of rock and ice that commands the Zermatt skyline. A symbol of Swiss majesty.",
+          "imageUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop"
+        },
+        {
+          "title": "Lake Lucerne",
+          "category": "Nature",
+          "description": "A breathtaking fjord-like lake surrounded by historic villages and soaring mountains. The birthplace of Swiss independence.",
+          "imageUrl": "https://images.unsplash.com/photo-1517330357046-3ab5b5dd42b1?q=80&w=2071&auto=format&fit=crop"
+        },
+        {
+          "title": "Jungfraujoch",
+          "category": "Peak",
+          "description": "The 'Top of Europe' — a high-alpine wonderland of ice and snow accessible by a historic cogwheel railway.",
+          "imageUrl": "https://images.unsplash.com/photo-1491904761614-41e77038dec4?q=80&w=2070&auto=format&fit=crop"
+        }
+      ],
+      "bestSeasonsTitle": "ALPINE WONDER SEASON",
+      "bestSeasonsMonths": "June to September and December to March",
+      "seasonsHighlights": [
+        {
+          "season": "Summer (July-August)",
+          "description": "Lush green valleys alpine wildflowers and mirror-clear lakes perfect for hiking and lake cruises."
+        },
+        {
+          "season": "Winter (January-February)",
+          "description": "A world-class ski paradise with cozy chalets fondues by the fire and sparkling snow-covered peaks."
+        }
+      ],
+      "galleryImages": [
+        "https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?q=80&w=2070&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1517330357046-3ab5b5dd42b1?q=80&w=2071&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1491904761614-41e77038dec4?q=80&w=2070&auto=format&fit=crop"
+      ],
+      "createdAt": 1777276332707
+    },
+    {
+      "id": "dest_mogwfpba_3ulu7t",
+      "name": "Bali Indonesia",
+      "region": "Asia",
+      "description": "A paradise island where ancient Hindu temples rise from volcanic jungles and terraced rice fields cascade into the ocean. Bali is not just a destination — it is a spiritual experience that permanently changes the way you see beauty, stillness and ceremony.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=2038&auto=format&fit=crop",
+      "essenceText": "Where spirit nature and beauty are one.",
+      "landmarks": [
+        {
+          "title": "Tanah Lot Temple",
+          "category": "Temple",
+          "description": "An ancient sea temple perched on a dramatic offshore rock silhouetted against the fiery Balinese sunset — one of the most photographed sights in all of Asia.",
+          "imageUrl": "https://images.unsplash.com/photo-1555400038-63f5ba517a47?q=80&w=2070&auto=format&fit=crop"
+        },
+        {
+          "title": "Ubud Rice Terraces",
+          "category": "Nature",
+          "description": "Emerald green terraced rice paddies carved into volcanic hillsides over centuries — a UNESCO-listed masterpiece of agricultural engineering and natural beauty.",
+          "imageUrl": "https://images.unsplash.com/photo-1573790387438-4da905039392?q=80&w=2025&auto=format&fit=crop"
+        },
+        {
+          "title": "Mount Agung",
+          "category": "Volcano",
+          "description": "Bali's sacred and highest peak considered the navel of the world by the Balinese — visible from nearly everywhere on the island it commands both awe and reverence.",
+          "imageUrl": "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?q=80&w=2070&auto=format&fit=crop"
+        }
+      ],
+      "bestSeasonsTitle": "TROPICAL PARADISE SEASON",
+      "bestSeasonsMonths": "April May and September",
+      "seasonsHighlights": [
+        {
+          "season": "April-May (Shoulder Season)",
+          "description": "Post-monsoon freshness with luminous green landscapes minimal crowds and every waterfall at full dramatic flow."
+        },
+        {
+          "season": "September (Dry Peak)",
+          "description": "The perfect Balinese month — golden light all day calm seas ideal for diving and temple festivals filling the air with incense and offering."
+        }
+      ],
+      "galleryImages": [
+        "https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=2038&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1555400038-63f5ba517a47?q=80&w=2070&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1573790387438-4da905039392?q=80&w=2025&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop"
+      ],
+      "createdAt": 1777276325350
+    },
+    {
       "id": "dest_sample_santorini",
       "name": "Santorini, Greece",
       "region": "Europe",
@@ -191,6 +285,244 @@
   ],
   "tours": [
     {
+      "id": "tour_mogwgap0_u05rgn",
+      "name": "Swiss Alpine Elegance",
+      "region": "Europe",
+      "days": 6,
+      "price": "$3,450",
+      "category": "Luxury Heritage",
+      "rating": 5,
+      "heroImageUrl": "https://images.unsplash.com/photo-1491904761614-41e77038dec4?q=80&w=2070&auto=format&fit=crop",
+      "overviewDescription": "A 6-day journey through the heart of the Swiss Alps, from the medieval streets of Lucerne to the car-free mountain air of Zermatt.",
+      "overviewExtended": "Experience Switzerland exactly as it should be seen: via the world's most scenic trains, in historic lakeside hotels and at the foot of the mighty Matterhorn. We combine private boat cruises with gourmet alpine dining and exclusive mountain access.",
+      "transport": "Swiss Travel Pass & First Class Rail",
+      "guide": "Certified Swiss Alpine Guide",
+      "pickup": "Zurich International Airport",
+      "itinerary": [
+        {
+          "title": "Day 1: Arrival in Zurich and Lucerne",
+          "description": "Private transfer from Zurich to Lucerne. Afternoon walking tour of the Chapel Bridge and Old Town followed by a sunset cruise on Lake Lucerne.",
+          "imageUrl": "https://images.unsplash.com/photo-1517330357046-3ab5b5dd42b1?q=80&w=2071&auto=format&fit=crop",
+          "schedule": "10:00 Arrival - 14:00 City Walk - 18:00 Sunset Cruise",
+          "accommodation": "Hotel Montana Lucerne",
+          "meals": "Welcome Dinner at Old Town"
+        },
+        {
+          "title": "Day 2: Mount Pilatus Golden Roundtrip",
+          "description": "A historic cogwheel railway journey to the summit of Mt. Pilatus for 360 degree views of the Alps followed by a descent via cable car.",
+          "imageUrl": "https://images.unsplash.com/photo-1527668752968-14dc70a27c95?q=80&w=2070&auto=format&fit=crop",
+          "schedule": "09:00 Cogwheel ascent - 12:00 Summit Lunch - 15:00 Cable car descent",
+          "accommodation": "Hotel Montana Lucerne",
+          "meals": "Breakfast - Mountain Top Lunch"
+        },
+        {
+          "title": "Day 3: Scenic Rail to Interlaken",
+          "description": "Travel first-class on the Luzern-Interlaken Express through the Brunig Pass. Afternoon at leisure in the adventure capital of Interlaken.",
+          "imageUrl": "https://images.unsplash.com/photo-1534008891545-107a55728827?q=80&w=2070&auto=format&fit=crop",
+          "schedule": "10:00 Scenic Train - 13:00 Interlaken arrival - 15:00 Optional Paragliding",
+          "accommodation": "Victoria-Jungfrau Grand Hotel",
+          "meals": "Breakfast - Swiss Fondue Evening"
+        },
+        {
+          "title": "Day 4: Jungfraujoch - Top of Europe",
+          "description": "Ascend to the highest railway station in Europe. Walk through the Ice Palace and step out onto the Sphinx Terrace for views of the Aletsch Glacier.",
+          "imageUrl": "https://images.unsplash.com/photo-1491904761614-41e77038dec4?q=80&w=2070&auto=format&fit=crop",
+          "schedule": "08:30 Train to Jungfrau - 11:00 Ice Palace - 14:00 Descent",
+          "accommodation": "Victoria-Jungfrau Grand Hotel",
+          "meals": "Breakfast - Packed Alpine Lunch"
+        },
+        {
+          "title": "Day 5: Zermatt and The Matterhorn",
+          "description": "Travel to the car-free village of Zermatt. Afternoon Gornergrat mountain railway journey for the best views of the Matterhorn.",
+          "imageUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop",
+          "schedule": "09:00 Train to Zermatt - 14:00 Gornergrat Railway - 17:00 Village Walk",
+          "accommodation": "Grand Hotel Zermatterhof",
+          "meals": "Breakfast - Fine Dining in Zermatt"
+        },
+        {
+          "title": "Day 6: Final Alpine Morning and Departure",
+          "description": "One last sunrise over the Matterhorn. Leisurely breakfast and boutique shopping in Zermatt before your first-class rail transfer back to Zurich.",
+          "imageUrl": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2070&auto=format&fit=crop",
+          "schedule": "08:00 Sunrise View - 10:00 Shopping - 13:00 Airport Transfer",
+          "accommodation": "N/A",
+          "meals": "Breakfast"
+        }
+      ],
+      "sightseeing": [
+        {
+          "title": "Lake Lucerne Cruise",
+          "description": "A private boat cruise across the emerald waters of Switzerland's most historic lake with views of Bürgenstock.",
+          "icon": "sailing",
+          "imageUrl": "https://images.unsplash.com/photo-1517330357046-3ab5b5dd42b1?q=80&w=2071&auto=format&fit=crop"
+        },
+        {
+          "title": "Mount Pilatus Summit",
+          "description": "Experience the steepest cogwheel railway in the world and stand above the clouds at 2132 meters.",
+          "icon": "terrain",
+          "imageUrl": "https://images.unsplash.com/photo-1527668752968-14dc70a27c95?q=80&w=2070&auto=format&fit=crop"
+        },
+        {
+          "title": "Ice Palace Jungfraujoch",
+          "description": "Walk through tunnels of ice carved deep within the Jungfrau glacier 3454 meters above sea level.",
+          "icon": "ac_unit",
+          "imageUrl": "https://images.unsplash.com/photo-1491904761614-41e77038dec4?q=80&w=2070&auto=format&fit=crop"
+        },
+        {
+          "title": "Zermatt Old Village",
+          "description": "Explore 500-year-old traditional Swiss barns and narrow sun-blackened wooden streets in this car-free paradise.",
+          "icon": "cottage",
+          "imageUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop"
+        }
+      ],
+      "visualArchive": [
+        "https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?q=80&w=2070&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1517330357046-3ab5b5dd42b1?q=80&w=2071&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1491904761614-41e77038dec4?q=80&w=2070&auto=format&fit=crop"
+      ],
+      "testimonials": [
+        {
+          "quote": "The First Class rail journeys were the highlight for me. Passing through the Brunig Pass with those massive windows was like watching a movie of the most beautiful place on earth.",
+          "author": "SARAH W. - New York"
+        },
+        {
+          "quote": "Waking up in Zermatt to the sun hitting the peak of the Matterhorn was a spiritual experience. Every hotel was a masterpiece of Swiss hospitality.",
+          "author": "MICHAEL K. - Berlin"
+        }
+      ],
+      "departureWindows": [
+        "June 2027",
+        "July 2027",
+        "August 2027",
+        "December 2027"
+      ],
+      "maxGuests": 8,
+      "createdAt": 1777276353060
+    },
+    {
+      "id": "tour_mogwg48s_ntedhh",
+      "name": "Bali Spirit Journey",
+      "region": "Asia",
+      "days": 7,
+      "price": "$2,950",
+      "category": "Signature Series",
+      "rating": 4.9,
+      "heroImageUrl": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=2038&auto=format&fit=crop",
+      "overviewDescription": "Seven days through Bali's temples, rice terraces and sacred coastlines — a journey designed for travellers who seek depth over distance.",
+      "overviewExtended": "We move through Bali slowly and intentionally. Sunrise ceremonies at Besakih, private cooking classes with a Ubud family, evening kecak fire dances and a final dawn ascent of Mount Batur that ends with breakfast above the clouds. Every detail is arranged so you arrive fully present.",
+      "transport": "Private A/C Vehicle and Boat",
+      "guide": "Certified Balinese Cultural Guide",
+      "pickup": "Ngurah Rai International Airport",
+      "itinerary": [
+        {
+          "title": "Day 1: Arrive Seminyak and Welcome",
+          "description": "Private airport transfer to a clifftop villa overlooking the Indian Ocean. Evening purification ceremony with a local Balinese priest at sunset.",
+          "imageUrl": "https://images.unsplash.com/photo-1537953391948-e493f61b9ccb?q=80&w=2070&auto=format&fit=crop",
+          "schedule": "15:00 Arrival - 17:00 Villa check-in - 19:00 Welcome ceremony",
+          "accommodation": "Alaya Resort Seminyak",
+          "meals": "Welcome dinner at Merah Putih"
+        },
+        {
+          "title": "Day 2: Sacred Temple Circuit",
+          "description": "Private guided tour of Tanah Lot at sunrise before the crowds followed by Pura Taman Ayun and a traditional Balinese lunch in Mengwi.",
+          "imageUrl": "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?q=80&w=2070&auto=format&fit=crop",
+          "schedule": "05:30 Tanah Lot sunrise - 10:00 Taman Ayun - 13:00 Lunch",
+          "accommodation": "Alaya Resort Seminyak",
+          "meals": "Breakfast - Traditional Balinese lunch"
+        },
+        {
+          "title": "Day 3: Ubud Rice Terraces and Art Village",
+          "description": "Full day in Ubud — walk the Campuhan Ridge at dawn, visit the Tegalalang rice terraces and attend a private Kecak dance performance in the evening.",
+          "imageUrl": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=2070&auto=format&fit=crop",
+          "schedule": "07:00 Ridge walk - 10:00 Terraces - 19:00 Kecak dance",
+          "accommodation": "Komaneka at Bisma Ubud",
+          "meals": "Breakfast - Lunch at Sari Organik"
+        },
+        {
+          "title": "Day 4: Cooking Class and Healer Visit",
+          "description": "Morning spice market walk with your host family, hands-on Balinese cooking class then a private session with a traditional Balinese healer (Balian).",
+          "imageUrl": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop",
+          "schedule": "08:00 Market walk - 10:00 Cooking class - 15:00 Healer session",
+          "accommodation": "Komaneka at Bisma Ubud",
+          "meals": "Breakfast - Lunch prepared by you"
+        },
+        {
+          "title": "Day 5: Amed and Underwater World",
+          "description": "Drive to Amed on Bali's east coast for sunrise snorkelling over a Japanese WWII shipwreck and vibrant coral gardens teeming with tropical fish.",
+          "imageUrl": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=2070&auto=format&fit=crop",
+          "schedule": "06:00 Depart Ubud - 09:00 Snorkelling - 14:00 Beach leisure",
+          "accommodation": "Amed Beach Resort",
+          "meals": "Breakfast - Seafood lunch on the beach"
+        },
+        {
+          "title": "Day 6: Mount Batur Summit and Hot Springs",
+          "description": "Pre-dawn guided trek to the summit of Mount Batur (active volcano) for a sunrise above the clouds. Descend to natural volcanic hot springs for recovery.",
+          "imageUrl": "https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=2070&auto=format&fit=crop",
+          "schedule": "02:00 Depart - 05:30 Summit sunrise - 10:00 Hot springs",
+          "accommodation": "Ubud Valley Villa",
+          "meals": "Packed summit breakfast - Hot-spring lunch"
+        },
+        {
+          "title": "Day 7: Farewell and Departure",
+          "description": "Final morning of traditional Balinese spa ritual at your villa — a full-body boreh scrub and flower bath before private transfer to the airport.",
+          "imageUrl": "https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=2070&auto=format&fit=crop",
+          "schedule": "Morning spa ritual - 13:00 Airport transfer",
+          "accommodation": "Alaya Resort Seminyak",
+          "meals": "Breakfast"
+        }
+      ],
+      "sightseeing": [
+        {
+          "title": "Tanah Lot Sunrise",
+          "description": "Private pre-dawn access to Bali's most iconic sea temple before it opens to the public — the sky turns gold as the tide retreats.",
+          "icon": "temple_hindu",
+          "imageUrl": "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?q=80&w=2070&auto=format&fit=crop"
+        },
+        {
+          "title": "Tegalalang Rice Terraces",
+          "description": "Walk through centuries-old terraced paddy fields with a local farmer explaining the subak irrigation system recognised by UNESCO.",
+          "icon": "eco",
+          "imageUrl": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=2070&auto=format&fit=crop"
+        },
+        {
+          "title": "Mount Batur Sunrise Trek",
+          "description": "A guided pre-dawn ascent of Bali's sacred volcano culminating in a 360 degree sunrise panorama above the clouds — a defining life experience.",
+          "icon": "landscape",
+          "imageUrl": "https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=2070&auto=format&fit=crop"
+        },
+        {
+          "title": "Kecak Fire Dance",
+          "description": "An evening open-air performance of the ancient Ramayana epic performed by a chorus of 50 men by torchlight at Uluwatu cliff temple.",
+          "icon": "theater_comedy",
+          "imageUrl": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=2038&auto=format&fit=crop"
+        }
+      ],
+      "visualArchive": [
+        "https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=2038&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?q=80&w=2070&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=2070&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=2070&auto=format&fit=crop"
+      ],
+      "testimonials": [
+        {
+          "quote": "The Mount Batur sunrise was the single most beautiful thing I have ever witnessed. Standing above the clouds on an active volcano as the sun rises over Lombok — I was completely speechless.",
+          "author": "PRIYA R. - Mumbai"
+        },
+        {
+          "quote": "Seven days felt like seven weeks in the best possible way. The healer session on Day 4 was unexpectedly profound. Our guide Wayan is extraordinary — deeply knowledgeable and completely warm.",
+          "author": "THOMAS H. - London"
+        }
+      ],
+      "departureWindows": [
+        "May 2027",
+        "June 2027",
+        "September 2027",
+        "October 2027"
+      ],
+      "maxGuests": 10,
+      "createdAt": 1777276344700
+    },
+    {
       "id": "tour_mobk828y_5hx21r",
       "name": "Golden Triangle Odyssey",
       "region": "Asia",
@@ -198,10 +530,10 @@
       "price": "$850",
       "category": "Cultural",
       "rating": 4.9,
-      "heroImageUrl": "http://localhost:4000/uploads/upload_1776953482565_644934.jpg",
+      "heroImageUrl": "http://localhost:5174/uploads/upload_1776953482565_644934.jpg",
       "overviewDescription": "Explore Delhi, Agra, and Jaipur in a mesmerizing journey.",
       "overviewExtended": "A comprehensive journey through India's rich history, diving deep into majestic forts, romantic palaces, and bustling bazaars.",
-      "overviewImageUrl": "http://localhost:4000/uploads/upload_1776953482579_puhly5.jpg",
+      "overviewImageUrl": "http://localhost:5174/uploads/upload_1776953482579_puhly5.jpg",
       "transport": "A/C Coach",
       "guide": "Expert Local Guide",
       "pickup": "Hotel Lobby",
@@ -209,7 +541,7 @@
         {
           "title": "Day 1: Arrive Delhi",
           "description": "Arrival, check-in and welcome dinner experience.",
-          "imageUrl": "http://localhost:4000/uploads/upload_1776953482528_ip3je2.jpg",
+          "imageUrl": "http://localhost:5174/uploads/upload_1776953482528_ip3je2.jpg",
           "schedule": "18:00 Dinner",
           "accommodation": "Taj Palace Hotel",
           "meals": "Welcome Dinner"
@@ -217,7 +549,7 @@
         {
           "title": "Day 2: Taj Mahal at Sunrise",
           "description": "A magical morning viewing the Taj Mahal in Agra.",
-          "imageUrl": "http://localhost:4000/uploads/upload_1776953482553_qnaath.jpg",
+          "imageUrl": "http://localhost:5174/uploads/upload_1776953482553_qnaath.jpg",
           "schedule": "05:30 Wake up",
           "accommodation": "Oberoi Agra",
           "meals": "Breakfast, Lunch"
@@ -228,20 +560,20 @@
           "title": "Taj Mahal",
           "description": "A marble mausoleum and world wonder",
           "icon": "temple_hindu",
-          "imageUrl": "http://localhost:4000/uploads/upload_1776953482553_qnaath.jpg"
+          "imageUrl": "http://localhost:5174/uploads/upload_1776953482553_qnaath.jpg"
         },
         {
           "title": "Amber Fort",
           "description": "Majestic hilltop fort in Jaipur",
           "icon": "castle",
-          "imageUrl": "http://localhost:4000/uploads/upload_1776953560148_k42vd7.jpg"
+          "imageUrl": "http://localhost:5174/uploads/upload_1776953560148_k42vd7.jpg"
         }
       ],
       "visualArchive": [
-        "http://localhost:4000/uploads/upload_1776953550167_x2qhbh.png",
-        "http://localhost:4000/uploads/upload_1776953550215_s59kgf.png",
-        "http://localhost:4000/uploads/upload_1776953550123_50ed18.jpg",
-        "http://localhost:4000/uploads/upload_1776953550193_jr5byj.png"
+        "http://localhost:5174/uploads/upload_1776953550167_x2qhbh.png",
+        "http://localhost:5174/uploads/upload_1776953550215_s59kgf.png",
+        "http://localhost:5174/uploads/upload_1776953550123_50ed18.jpg",
+        "http://localhost:5174/uploads/upload_1776953550193_jr5byj.png"
       ],
       "testimonials": [
         {
@@ -526,5 +858,31 @@
       "createdAt": 1713360000000
     }
   ],
-  "contacts": []
+  "contacts": [
+    {
+      "id": "msg_moh0irr4_podmp9",
+      "name": "Id aut voluptas in u",
+      "email": "fequdu@mailinator.com",
+      "type": "Private Curation Strategy",
+      "message": "Voluptatibus est rep",
+      "read": true,
+      "createdAt": 1777283186944
+    },
+    {
+      "id": "msg_mogugbwz_890rd6",
+      "name": "Omnis accusamus mole",
+      "email": "vikytubad@mailinator.com",
+      "type": "Expedition Modification",
+      "message": "Aut nisi obcaecati o",
+      "read": true,
+      "createdAt": 1777272995411
+    }
+  ],
+  "coEditorAccounts": [
+    {
+      "id": "coed_mohb3ph2_apzvs9",
+      "username": "noble.dune",
+      "password": "vivid6125!"
+    }
+  ]
 }

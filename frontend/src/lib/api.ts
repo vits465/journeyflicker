@@ -1,4 +1,4 @@
-export const API_BASE = "http://localhost:4000/api";
+export const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5174/api";
 
 export async function uploadImage(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -21,13 +21,27 @@ export async function uploadImage(file: File): Promise<string> {
 }
 
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = sessionStorage.getItem("jf_token");
+  const headers: HeadersInit = {
+    "content-type": "application/json",
+    ...(init?.headers ?? {}),
+  };
+  if (token) {
+    (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${API_BASE}${path}`, {
     ...init,
-    headers: {
-      "content-type": "application/json",
-      ...(init?.headers ?? {}),
-    },
+    headers,
   });
+
+  if (res.status === 401) {
+    sessionStorage.removeItem("jf_admin_auth");
+    sessionStorage.removeItem("jf_token");
+    window.location.href = "/admin/login";
+    throw new Error("Unauthorized");
+  }
+
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(`Request failed (${res.status}): ${text}`);
@@ -98,6 +112,12 @@ export type Contact = {
   createdAt: number;
 };
 
+export type Backup = {
+  filename: string;
+  size: number;
+  createdAt: number;
+};
+
 export const api = {
   listDestinations: () => http<Destination[]>("/destinations"),
   getDestination: (id: string) => http<Destination>(`/destinations/${id}`),
@@ -121,5 +141,10 @@ export const api = {
     http<Contact>("/contacts", { method: "POST", body: JSON.stringify(data) }),
   markContactRead: (id: string) => http<Contact>(`/contacts/${id}/read`, { method: "PATCH" }),
   deleteContact: (id: string) => http<void>(`/contacts/${id}`, { method: "DELETE" }),
+
+  listBackups: () => http<Backup[]>("/backups"),
+  createBackup: () => http<{ success: boolean; filename: string }>("/backups", { method: "POST" }),
+  restoreBackup: (filename: string) => http<{ success: boolean }>(`/backups/restore/${filename}`, { method: "POST" }),
+  search: (q: string) => http<{ destinations: Destination[]; tours: Tour[] }>(`/search?q=${encodeURIComponent(q)}`),
 };
 

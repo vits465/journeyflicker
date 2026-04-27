@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
+import { useSearch } from "../lib/searchContext";
 
 const navItems = [
   { to: "/", label: "Home" },
@@ -12,6 +13,7 @@ const navItems = [
 ];
 
 export function Header() {
+  const { openSearch } = useSearch();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
@@ -62,6 +64,14 @@ export function Header() {
                 {item.label}
               </NavLink>
             ))}
+            
+            <button 
+              onClick={openSearch}
+              className={`p-2 flex items-center justify-center transition-all duration-300 ${isLight ? 'text-black/50 hover:text-black' : 'text-white/60 hover:text-white'}`}
+            >
+              <span className="material-symbols-outlined font-light text-xl">search</span>
+            </button>
+
             <NavLink to="/contact"
               className={`ml-2 px-5 py-2 rounded-full text-[10px] font-black tracking-[0.3em] uppercase transition-all duration-300 ${
                 isLight
@@ -72,16 +82,24 @@ export function Header() {
             </NavLink>
           </nav>
 
-          {/* Mobile toggle */}
-          <button
-            className={`lg:hidden p-2.5 rounded-xl transition-all duration-300 z-[110] ${isLight ? 'bg-surface-container-low text-black' : 'bg-white/10 text-white border border-white/20'}`}
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
-          >
-            <span className="material-symbols-outlined font-light text-2xl leading-none block" style={{ fontSize: '22px' }}>
-              {mobileOpen ? "close" : "menu"}
-            </span>
-          </button>
+          {/* Mobile toggle area */}
+          <div className="flex items-center gap-2 lg:hidden z-[110]">
+            <button 
+              onClick={openSearch}
+              className={`p-2.5 rounded-xl transition-all duration-300 ${isLight ? 'text-black' : 'text-white bg-white/10 border border-white/20'}`}
+            >
+              <span className="material-symbols-outlined font-light text-xl block">search</span>
+            </button>
+            <button
+              className={`p-2.5 rounded-xl transition-all duration-300 ${isLight ? 'bg-surface-container-low text-black' : 'bg-white/10 text-white border border-white/20'}`}
+              onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            >
+              <span className="material-symbols-outlined font-light text-2xl leading-none block" style={{ fontSize: '22px' }}>
+                {mobileOpen ? "close" : "menu"}
+              </span>
+            </button>
+          </div>
         </div>
       </header>
 

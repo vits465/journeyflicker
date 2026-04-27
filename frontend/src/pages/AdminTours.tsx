@@ -48,7 +48,7 @@ const S = `
 `;
 
 export default function AdminTours() {
-  const { canEdit } = useAdminAuth();
+  const { canCRUD } = useAdminAuth();
   const [tours, setTours] = useState<Tour[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -100,14 +100,14 @@ export default function AdminTours() {
     <div className="space-y-5 w-full max-w-5xl mx-auto" id="ttop">
       <style>{S}</style>
 
-      {!canEdit && (
+      {!canCRUD && (
         <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-2xl text-blue-700 text-sm font-medium">
           <span className="material-symbols-outlined">visibility</span>
           Read-only access. Contact an editor to make changes.
         </div>
       )}
 
-      {canEdit && (
+      {canCRUD && (
         <>
           {/* Header */}
           <div className="flex items-center gap-4">
@@ -365,7 +365,7 @@ export default function AdminTours() {
                     {tour.sightseeing?.length > 0 && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant"><span className="material-symbols-outlined text-sm" style={{ color: '#f59e0b' }}>place</span>{tour.sightseeing.length} sites</span>}
                   </div>
                 </div>
-                {canEdit && (
+                {canCRUD && (
                   <div className="flex flex-col gap-1.5 px-3 flex-shrink-0">
                     <button onClick={() => handleEdit(tour)} className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-bold transition-colors">
                       <span className="material-symbols-outlined text-sm">edit</span> Edit

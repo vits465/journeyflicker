@@ -32,8 +32,11 @@ const TESTIMONIALS = [
 
 const PRESS = ['Travel + Leisure', 'Condé Nast Traveller', 'Forbes Life', 'The New York Times', 'Monocle', 'Wallpaper*'];
 
+import { useSearch } from '../lib/searchContext';
+
 export default function HomePage() {
   const navigate = useNavigate();
+  const { openSearch } = useSearch();
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [tours, setTours] = useState<Tour[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,16 +73,19 @@ export default function HomePage() {
               Now Featuring: <span className="text-white/70">{heroSlides[0]?.title}</span>
             </p>
           )}
-          <div className="bg-white/10 backdrop-blur-3xl border border-white/20 rounded-2xl sm:rounded-full w-full max-w-2xl flex flex-col sm:flex-row items-stretch p-2 gap-2 shadow-2xl hover:bg-white/15 transition-all duration-500 mt-4">
+          <div 
+            className="bg-white/10 backdrop-blur-3xl border border-white/20 rounded-2xl sm:rounded-full w-full max-w-2xl flex flex-col sm:flex-row items-stretch p-2 gap-2 shadow-2xl hover:bg-white/15 transition-all duration-500 mt-4 cursor-pointer"
+            onClick={openSearch}
+          >
             <div className="flex-1 px-4 py-2.5 text-left sm:border-r border-white/20">
               <label className="text-white/50 text-[9px] tracking-[0.4em] font-black uppercase block mb-0.5">Search Territory</label>
-              <input className="bg-transparent border-none p-0 focus:ring-0 text-white placeholder-white/30 w-full text-sm font-light outline-none" placeholder="Where to next?" type="text" />
+              <div className="text-white/30 text-sm font-light">Where to next?</div>
             </div>
             <div className="flex-1 px-4 py-2.5 text-left hidden sm:block">
               <label className="text-white/50 text-[9px] tracking-[0.4em] font-black uppercase block mb-0.5">Protocol</label>
-              <input className="bg-transparent border-none p-0 focus:ring-0 text-white placeholder-white/30 w-full text-sm font-light outline-none" placeholder="Private Expedition" type="text" />
+              <div className="text-white/30 text-sm font-light">Private Expedition</div>
             </div>
-            <button onClick={() => navigate('/destinations')}
+            <button
               className="bg-white text-black px-6 py-2.5 rounded-xl sm:rounded-full text-[10px] uppercase tracking-[0.4em] font-black hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center gap-2 shrink-0 mx-1">
               Access <span className="material-symbols-outlined text-sm font-light">arrow_outward</span>
             </button>

@@ -6,7 +6,7 @@ A luxury travel-agency web app built with **React + TypeScript + Vite + Tailwind
 
 ## Quick Start
 
-### 1 — Install & run the backend API (port 4000)
+### 1 — Install & run the backend API (port 5174)
 
 ```bash
 cd backend
@@ -14,7 +14,7 @@ npm install
 npm run dev
 ```
 
-The API will serve on **http://localhost:4000**.  
+The API will serve on **http://localhost:5174**.  
 The seed data lives in `backend/data/db.json` — all edits persist there.
 
 ### 2 — Install & run the frontend (port 5173)
@@ -40,7 +40,7 @@ journeyflicker/
 │
 └── frontend/
     ├── index.html
-    ├── vite.config.ts         Dev-server + API proxy (/api → :4000)
+    ├── vite.config.ts         Dev-server + API proxy (/api → :5174)
     ├── tailwind.config.js
     ├── tsconfig.json
     ├── postcss.config.js
