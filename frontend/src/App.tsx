@@ -14,6 +14,7 @@ import VisasPage from "./pages/VisasPage";
 import { SplashPreloader } from "./components/Preloader";
 import { SearchProvider } from "./lib/searchContext";
 import { ScrollToTop } from "./components/ScrollToTop";
+import { Analytics } from "@vercel/analytics/react";
 
 export default function App() {
   const [init, setInit] = useState(true);
@@ -39,6 +40,7 @@ export default function App() {
           <Route path="/contact" element={<ContactPage />} />
         </Route>
       </Routes>
+      <Analytics />
     </SearchProvider>
   );
 }
