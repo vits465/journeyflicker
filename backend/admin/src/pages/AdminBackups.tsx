@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { api, Backup } from '../lib/api';
+import { api, type Backup } from '../lib/api';
 import { useOutletContext } from 'react-router-dom';
 
 export default function AdminBackups() {

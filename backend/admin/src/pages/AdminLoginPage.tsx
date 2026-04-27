@@ -21,7 +21,7 @@ export default function AdminLoginPage() {
     setLoading(false);
 
     if (result.ok) {
-      navigate('/admin');
+      navigate('/');
     } else {
       setPassword('');
       const msg = result.error || 'Invalid username or password.';

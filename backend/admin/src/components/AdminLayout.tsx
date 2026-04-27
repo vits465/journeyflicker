@@ -23,25 +23,25 @@ export function AdminLayout() {
   }, [canEdit]);
 
   // Redirect to login if not authenticated
-  if (!role) return <Navigate to="/admin/login" replace />;
+  if (!role) return <Navigate to="/login" replace />;
 
   const adminLinks = [
-    { path: '/admin',              label: 'Dashboard',    icon: 'dashboard' },
-    { path: '/admin/destinations', label: 'Destinations', icon: 'location_on' },
-    { path: '/admin/tours',        label: 'Tours',        icon: 'flight' },
-    { path: '/admin/visas',        label: 'Visas',        icon: 'passport' },
-    { path: '/admin/media',        label: 'Media Library',icon: 'photo_library' },
-    { path: '/admin/reviews',      label: 'Reviews',      icon: 'star' },
+    { path: '/',              label: 'Dashboard',    icon: 'dashboard' },
+    { path: '/destinations', label: 'Destinations', icon: 'location_on' },
+    { path: '/tours',        label: 'Tours',        icon: 'flight' },
+    { path: '/visas',        label: 'Visas',        icon: 'passport' },
+    { path: '/media',        label: 'Media Library',icon: 'photo_library' },
+    { path: '/reviews',      label: 'Reviews',      icon: 'star' },
   ];
 
   const editorOnlyLinks = [
-    { path: '/admin/hero',         label: 'Hero Slides',    icon: 'slideshow' },
-    { path: '/admin/seo',          label: 'SEO Manager',    icon: 'search' },
-    { path: '/admin/backups',      label: 'DB Backups',     icon: 'database' },
-    { path: '/admin/fe-backups',   label: 'FE Backups',     icon: 'browser_updated' },
-    { path: '/admin/access',       label: 'Access Control', icon: 'key' },
-    { path: '/admin/api-settings', label: 'API Settings',   icon: 'api' },
-    { path: '/admin/contacts',     label: 'Contacts',     icon: 'mail', badge: unreadCount },
+    { path: '/hero',         label: 'Hero Slides',    icon: 'slideshow' },
+    { path: '/seo',          label: 'SEO Manager',    icon: 'search' },
+    { path: '/backups',      label: 'DB Backups',     icon: 'database' },
+    { path: '/fe-backups',   label: 'FE Backups',     icon: 'browser_updated' },
+    { path: '/access',       label: 'Access Control', icon: 'key' },
+    { path: '/api-settings', label: 'API Settings',   icon: 'api' },
+    { path: '/contacts',     label: 'Contacts',     icon: 'mail', badge: unreadCount },
   ];
 
   const allLinks = canEdit ? [...adminLinks, ...editorOnlyLinks] : adminLinks;
@@ -97,7 +97,7 @@ export function AdminLayout() {
             <NavLink
               key={link.path}
               to={link.path}
-              end={link.path === '/admin'}
+              end={link.path === '/'}
               onClick={() => setSidebarOpen(false)}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group whitespace-nowrap ${
@@ -155,7 +155,7 @@ export function AdminLayout() {
           <div className="flex items-center gap-3">
             {/* Unread notification bell */}
             {unreadCount > 0 && (
-              <NavLink to="/admin/contacts"
+              <NavLink to="/contacts"
                 className="relative flex items-center gap-1.5 px-3 py-1.5 bg-red-50 border border-red-200 rounded-full hover:bg-red-100 transition-colors">
                 <span className="material-symbols-outlined text-red-500 text-sm">notifications_active</span>
                 <span className="text-red-600 text-[10px] font-black uppercase tracking-wide">{unreadCount} New</span>

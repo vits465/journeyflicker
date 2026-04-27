@@ -14,7 +14,7 @@ export default function AdminApiSettings() {
     awsAccessKey: 'AKIA••••••••••••••••',
   });
 
-  const [webhooks, setWebhooks] = useState([
+  const [webhooks, _setWebhooks] = useState([
     { id: 1, name: 'Stripe Payments', url: 'https://api.journeyflicker.com/webhooks/stripe', status: 'active', lastTriggered: '10 mins ago' },
     { id: 2, name: 'SendGrid Bounces', url: 'https://api.journeyflicker.com/webhooks/email', status: 'active', lastTriggered: '2 hours ago' },
   ]);

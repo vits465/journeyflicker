@@ -6,6 +6,11 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { kv } from "@vercel/kv";
 import { v2 as cloudinary } from "cloudinary";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ── Cloudinary config ─────────────────────────────────────────────────────────
 cloudinary.config({
@@ -407,6 +412,22 @@ app.post("/api/backups/restore/:filename", requireAdmin, async (req, res) => {
     await writeDb(data);
     res.json({ success: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Serve Admin Panel (Static Files) ──────────────────────────────────────────
+const adminDistPath = path.join(__dirname, "../admin/dist");
+app.use(express.static(adminDistPath));
+
+// ── SPA Fallback for Admin Panel ──────────────────────────────────────────────
+app.get("*", (req, res, next) => {
+  // If it's an API route that somehow leaked through, don't serve index.html
+  if (req.path.startsWith("/api/")) return next();
+  res.sendFile(path.join(adminDistPath, "index.html"), (err) => {
+    if (err) {
+      // If index.html doesn't exist (not built yet), show a friendly message
+      res.status(404).send("Admin panel not built yet. Please run 'npm run build' in backend/admin.");
+    }
+  });
 });
 
 // ── Export for Vercel serverless ───────────────────────────────────────────────
