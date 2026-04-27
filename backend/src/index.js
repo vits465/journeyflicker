@@ -379,8 +379,15 @@ const TourSchema = z.object({
   maxGuests: z.number().optional().default(8),
 });
 const VisaSchema = z.object({
-  country: z.string().min(1), processing: z.string().min(1),
-  difficulty: z.string().min(1), fee: z.string().min(1),
+  country: z.string().min(1),
+  processing: z.string().min(1),
+  difficulty: z.string().min(1),
+  fee: z.string().min(1),
+  heroImageUrl: z.string().optional().default(""),
+  description: z.string().optional().default(""),
+  visaType: z.string().optional().default(""),
+  documents: z.array(z.string()).optional().default([]),
+  requirements: z.array(z.object({ label: z.string(), detail: z.string() })).optional().default([]),
 });
 const ContactSchema = z.object({
   name: z.string().min(1), email: z.string().email(),
