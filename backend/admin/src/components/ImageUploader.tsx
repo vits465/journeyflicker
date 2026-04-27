@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { uploadImage, api, Media } from '../lib/api';
+import { uploadImage, api } from '../lib/api';
+import type { Media } from '../lib/api';
 
 interface ImageUploaderProps {
   multiple?: boolean;

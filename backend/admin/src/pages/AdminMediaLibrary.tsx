@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { api, uploadImage, Media } from '../lib/api';
+import { api, uploadImage } from '../lib/api';
+import type { Media } from '../lib/api';
 
 const FOLDERS = ['All', 'Destinations', 'Tours', 'General'];
 

@@ -68,6 +68,16 @@ export type Backup = {
   createdAt: number;
 };
 
+export type Media = {
+  id: string;
+  url: string;
+  name: string;
+  size: string;
+  type: string;
+  date: string;
+  folder: string;
+};
+
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
   const token = sessionStorage.getItem("jf_token");
   const headers: HeadersInit = {
