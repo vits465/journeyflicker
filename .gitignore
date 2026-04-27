@@ -13,5 +13,6 @@ build/
 backend/data/db.json
 backend/data/backups/
 
-# Uploaded images (served from /uploads)
-backend/public/uploads/
+# Uploaded images — ignore image files but keep the folder tracked via .gitkeep
+backend/public/uploads/*
+!backend/public/uploads/.gitkeep

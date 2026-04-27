@@ -264,24 +264,58 @@ app.delete("/api/auth/co-editor-accounts/:id", requireAdmin, async (req, res) =>
   res.status(204).end();
 });
 
-// ── Upload → Cloudinary ───────────────────────────────────────────────────────
+// ── Serve local uploads (dev fallback) ────────────────────────────────────────
+const uploadsDir = path.resolve(__dirname, "../public/uploads");
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+app.use("/uploads", express.static(uploadsDir));
+
+// ── Upload → Cloudinary (prod) or Local Disk (dev fallback) ───────────────────
 app.post("/api/upload", requireAdmin, async (req, res) => {
   const { name, data } = req.body;
   if (!name || !data) return res.status(400).json({ error: "Missing name or data base64" });
   if (!data.startsWith("data:")) return res.status(400).json({ error: "Invalid base64 format" });
+
+  const hasCloudinary = process.env.CLOUDINARY_CLOUD_NAME &&
+    process.env.CLOUDINARY_API_KEY &&
+    process.env.CLOUDINARY_API_SECRET;
+
+  // ── Try Cloudinary first (if credentials available) ──────────────────────
+  if (hasCloudinary) {
+    try {
+      const result = await cloudinary.uploader.upload(data, {
+        folder:          "journeyflicker",
+        resource_type:   "auto",
+        use_filename:    false,
+        unique_filename: true,
+      });
+      return res.json({ url: result.secure_url, storage: "cloudinary" });
+    } catch (err) {
+      console.error("Cloudinary upload error (falling back to local):", err);
+      // Fall through to local save
+    }
+  }
+
+  // ── Local disk fallback (dev mode or Cloudinary failed) ───────────────────
   try {
-    const result = await cloudinary.uploader.upload(data, {
-      folder:        "journeyflicker",
-      resource_type: "auto",
-      use_filename:  false,
-      unique_filename: true,
-    });
-    res.json({ url: result.secure_url });
+    // Strip data URI prefix and decode base64
+    const base64Data = data.replace(/^data:[^;]+;base64,/, "");
+    const ext        = data.match(/^data:image\/(\w+)/)?.[1] || "jpg";
+    const safeName   = name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const filename   = `${Date.now()}_${safeName.replace(/\.[^.]+$/, "")}.${ext}`;
+    const filePath   = path.join(uploadsDir, filename);
+    fs.writeFileSync(filePath, Buffer.from(base64Data, "base64"));
+    // Build the public URL
+    const host = req.headers["x-forwarded-host"] || req.headers.host || `localhost:${process.env.PORT || 5174}`;
+    const protocol = req.headers["x-forwarded-proto"] || (req.secure ? "https" : "http");
+    const url = `${protocol}://${host}/uploads/${filename}`;
+    console.log(`[Upload] Saved locally: ${filePath}`);
+    return res.json({ url, storage: "local" });
   } catch (err) {
-    console.error("Cloudinary upload error:", err);
-    res.status(500).json({ error: "Upload failed. Check Cloudinary credentials." });
+    console.error("Local upload error:", err);
+    return res.status(500).json({ error: "Upload failed: could not save to Cloudinary or local disk." });
   }
 });
+
 
 // ── Media Library ─────────────────────────────────────────────────────────────
 const MediaSchema = z.object({
