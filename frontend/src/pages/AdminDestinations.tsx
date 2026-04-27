@@ -281,8 +281,8 @@ export default function AdminDestinations() {
                   </div>
                   <p className="text-xs text-on-surface-variant line-clamp-1 mb-2">{dest.description || 'No description.'}</p>
                   <div className="flex gap-3 flex-wrap">
-                    {dest.landmarks?.length > 0 && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant"><span className="material-symbols-outlined text-sm" style={{color:'#10b981'}}>place</span>{dest.landmarks.length} landmarks</span>}
-                    {dest.galleryImages?.length > 0 && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant"><span className="material-symbols-outlined text-sm" style={{color:'#7c3aed'}}>photo_library</span>{dest.galleryImages.length} photos</span>}
+                    {(dest.landmarks?.length ?? 0) > 0 && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant"><span className="material-symbols-outlined text-sm" style={{color:'#10b981'}}>place</span>{dest.landmarks?.length} landmarks</span>}
+                    {(dest.galleryImages?.length ?? 0) > 0 && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant"><span className="material-symbols-outlined text-sm" style={{color:'#7c3aed'}}>photo_library</span>{dest.galleryImages?.length} photos</span>}
                     {dest.bestSeasonsMonths && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant"><span className="material-symbols-outlined text-sm" style={{color:'#f59e0b'}}>wb_sunny</span>{dest.bestSeasonsMonths}</span>}
                   </div>
                 </div>

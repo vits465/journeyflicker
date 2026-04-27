@@ -361,8 +361,8 @@ export default function AdminTours() {
                   <div className="flex gap-3 flex-wrap">
                     {tour.transport && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant"><span className="material-symbols-outlined text-sm" style={{ color: '#0ea5e9' }}>flight</span>{tour.transport}</span>}
                     {tour.maxGuests && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant"><span className="material-symbols-outlined text-sm" style={{ color: '#7c3aed' }}>group</span>Max {tour.maxGuests}</span>}
-                    {tour.itinerary?.length > 0 && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant"><span className="material-symbols-outlined text-sm" style={{ color: '#10b981' }}>route</span>{tour.itinerary.length} days</span>}
-                    {tour.sightseeing?.length > 0 && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant"><span className="material-symbols-outlined text-sm" style={{ color: '#f59e0b' }}>place</span>{tour.sightseeing.length} sites</span>}
+                    {(tour.itinerary?.length ?? 0) > 0 && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant"><span className="material-symbols-outlined text-sm" style={{ color: '#10b981' }}>route</span>{tour.itinerary?.length} days</span>}
+                    {(tour.sightseeing?.length ?? 0) > 0 && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant"><span className="material-symbols-outlined text-sm" style={{ color: '#f59e0b' }}>place</span>{tour.sightseeing?.length} sites</span>}
                   </div>
                 </div>
                 {canCRUD && (
