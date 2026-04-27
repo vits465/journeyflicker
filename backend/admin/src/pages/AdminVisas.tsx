@@ -16,7 +16,6 @@ const inputCls = 'w-full px-3 py-2 border border-outline-variant/40 rounded-lg t
 const labelCls = 'block text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.15em] mb-1.5';
 
 export default function AdminVisas() {
-  const { canEdit } = useOutletContext<{ canEdit: boolean }>();
   const { canCRUD } = useAdminAuth();
   const [visas, setVisas] = useState<Visa[]>([]);
   const [loading, setLoading] = useState(true);
