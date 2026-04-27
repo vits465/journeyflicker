@@ -50,6 +50,11 @@ export type Visa = {
   processing: string;
   difficulty: string;
   fee: string;
+  heroImageUrl?: string;
+  description?: string;
+  visaType?: string;
+  documents?: string[];
+  requirements?: { label: string; detail: string }[];
 };
 
 export type Contact = {
