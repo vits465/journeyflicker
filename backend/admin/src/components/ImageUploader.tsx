@@ -142,6 +142,45 @@ function MediaPickerModal({
   );
 }
 
+// ── Single Image Thumbnail (handles broken URLs gracefully) ───────────────────
+function ImageThumb({ url, onRemove }: { url: string; onRemove: () => void }) {
+  const [broken, setBroken] = useState(false);
+
+  return (
+    <div className={`relative w-24 h-24 rounded-xl border overflow-hidden group shadow-sm flex-shrink-0 ${
+      broken ? 'border-red-300 bg-red-50' : 'border-outline-variant bg-surface-container-lowest'
+    }`}>
+      {broken ? (
+        // Broken image — show clear error state with always-visible delete
+        <div className="w-full h-full flex flex-col items-center justify-center gap-1 p-1">
+          <span className="material-symbols-outlined text-red-400 text-2xl">broken_image</span>
+          <p className="text-[8px] text-red-500 text-center font-medium leading-tight">Broken URL</p>
+        </div>
+      ) : (
+        <img
+          src={url}
+          alt="Uploaded"
+          className="w-full h-full object-cover"
+          onError={() => setBroken(true)}
+        />
+      )}
+      {/* Delete button — always visible on broken images, hover-only on valid images */}
+      <button
+        type="button"
+        onClick={onRemove}
+        title="Remove image"
+        className={`absolute flex items-center justify-center text-white bg-red-600/90 transition-opacity ${
+          broken
+            ? 'inset-x-0 bottom-0 h-7 opacity-100' // always visible strip at bottom for broken
+            : 'inset-0 opacity-0 group-hover:opacity-100' // full overlay on hover for valid
+        }`}
+      >
+        <span className="material-symbols-outlined text-lg">delete</span>
+      </button>
+    </div>
+  );
+}
+
 // ── Main ImageUploader Component ──────────────────────────────────────────────
 export function ImageUploader({ multiple, value, onChange, label = 'Upload Images' }: ImageUploaderProps) {
   const [uploading, setUploading] = useState(false);
@@ -192,7 +231,6 @@ export function ImageUploader({ multiple, value, onChange, label = 'Upload Image
   const handlePickFromLibrary = (urls: string[]) => {
     if (multiple) {
       const existing = Array.isArray(value) ? value : [];
-      // Merge without duplicates
       const merged = [...existing, ...urls.filter(u => !existing.includes(u))];
       onChange(merged);
     } else {
@@ -225,32 +263,39 @@ export function ImageUploader({ multiple, value, onChange, label = 'Upload Image
       <div className="space-y-3">
         <label className="block text-sm font-medium text-on-surface">{label}</label>
 
-        {/* Thumbnails */}
-        <div className="flex flex-wrap gap-3 items-center">
+        <div className="flex flex-wrap gap-3 items-start">
+          {/* Thumbnails */}
           {images.map((url, i) => (
-            <div key={i} className="relative w-24 h-24 rounded-xl border border-outline-variant overflow-hidden group shadow-sm bg-surface-container-lowest flex-shrink-0">
-              <img src={url} alt="Uploaded" className="w-full h-full object-cover" />
-              <button
-                type="button"
-                onClick={() => removeImage(url)}
-                className="absolute inset-0 bg-red-600/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <span className="material-symbols-outlined text-xl">delete</span>
-              </button>
-            </div>
+            <ImageThumb key={i} url={url} onRemove={() => removeImage(url)} />
           ))}
 
-          {/* Action buttons */}
+          {/* Action buttons — always visible so user can replace or add */}
           {(!images.length || multiple) && (
             <div className="flex flex-col gap-2">
-              {/* Upload new file */}
               <label className={`flex items-center gap-2 px-3 py-2 rounded-xl border border-dashed border-outline-variant cursor-pointer hover:border-black hover:text-black transition-colors text-on-surface-variant bg-surface-container-low text-xs font-medium ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
                 <span className="material-symbols-outlined text-base">{uploading ? 'hourglass_empty' : 'upload'}</span>
                 {uploading ? 'Uploading...' : 'Upload New'}
                 <input type="file" className="hidden" multiple={multiple} accept="image/*" onChange={handleUpload} />
               </label>
+              <button
+                type="button"
+                onClick={() => setShowPicker(true)}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl border border-outline-variant/60 cursor-pointer hover:border-black hover:text-black transition-colors text-on-surface-variant bg-white text-xs font-medium"
+              >
+                <span className="material-symbols-outlined text-base">photo_library</span>
+                Pick from Library
+              </button>
+            </div>
+          )}
 
-              {/* Pick from library */}
+          {/* For single-image fields that already have an image: show replace/change buttons too */}
+          {images.length > 0 && !multiple && (
+            <div className="flex flex-col gap-2">
+              <label className={`flex items-center gap-2 px-3 py-2 rounded-xl border border-dashed border-outline-variant cursor-pointer hover:border-black hover:text-black transition-colors text-on-surface-variant bg-surface-container-low text-xs font-medium ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                <span className="material-symbols-outlined text-base">{uploading ? 'hourglass_empty' : 'swap_horiz'}</span>
+                {uploading ? 'Uploading...' : 'Replace'}
+                <input type="file" className="hidden" accept="image/*" onChange={handleUpload} />
+              </label>
               <button
                 type="button"
                 onClick={() => setShowPicker(true)}
