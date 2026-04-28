@@ -184,14 +184,26 @@ export default function VisasPage() {
 
   const heroSlides = useMemo(() => {
     const validVisas = visas.filter(v => v.heroImageUrl);
-    if (!loading && validVisas.length > 0) {
-      return validVisas.slice(0, 5).map(v => ({ id: v.id, imageUrl: v.heroImageUrl!, title: v.country }));
-    }
-    return [
+    const defaults = [
       { id: '1', imageUrl: bannerImage, title: 'Visa Intelligence' },
       { id: '2', imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=2070&auto=format&fit=crop', title: 'Global Movement' },
       { id: '3', imageUrl: 'https://images.unsplash.com/photo-1493246232918-d78b97076ac9?q=80&w=2070&auto=format&fit=crop', title: 'Borderless Strategy' }
     ];
+
+    if (loading) return defaults;
+
+    const result = validVisas.slice(0, 5).map(v => ({ id: v.id, imageUrl: v.heroImageUrl!, title: v.country }));
+    
+    // Pad with defaults to ensure there are always at least 3 slides for a nice slider effect
+    let i = 0;
+    while (result.length < 3 && i < defaults.length) {
+      if (!result.find(r => r.imageUrl === defaults[i].imageUrl)) {
+        result.push(defaults[i]);
+      }
+      i++;
+    }
+
+    return result;
   }, [visas, loading, bannerImage]);
 
   const faqs = [
