@@ -194,11 +194,14 @@ export default function VisasPage() {
       <SEO pageId="visas" />
       {/* ── HERO ── */}
       <HeroSlider
-        slides={[
-          { id: '1', imageUrl: bannerImage, title: 'Visa Intelligence' },
-          { id: '2', imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=2070&auto=format&fit=crop', title: 'Global Movement' },
-          { id: '3', imageUrl: 'https://images.unsplash.com/photo-1493246232918-d78b97076ac9?q=80&w=2070&auto=format&fit=crop', title: 'Borderless Strategy' }
-        ]}
+        slides={visas.filter(v => v.heroImageUrl).length > 0 
+          ? visas.filter(v => v.heroImageUrl).slice(0, 5).map(v => ({ id: v.id, imageUrl: v.heroImageUrl!, title: v.country }))
+          : [
+              { id: '1', imageUrl: bannerImage, title: 'Visa Intelligence' },
+              { id: '2', imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=2070&auto=format&fit=crop', title: 'Global Movement' },
+              { id: '3', imageUrl: 'https://images.unsplash.com/photo-1493246232918-d78b97076ac9?q=80&w=2070&auto=format&fit=crop', title: 'Borderless Strategy' }
+            ]
+        }
         height="h-[70vh] min-h-[460px] max-h-[700px]"
         hideSlideText={true}
       >
