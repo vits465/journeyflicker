@@ -55,6 +55,8 @@ export default function AdminTours() {
   const [formData, setFormData] = useState<Partial<Tour>>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selectMode, setSelectMode] = useState(false);
 
   useEffect(() => {
     loadTours();
@@ -79,7 +81,36 @@ export default function AdminTours() {
   };
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this tour? This cannot be undone.')) return;
-    try { await api.deleteTour(id); loadTours(); } catch (err) { console.error(err); }
+    try { 
+      await api.deleteTour(id); 
+      loadTours(); 
+      if (selected.has(id)) {
+        const newSet = new Set(selected);
+        newSet.delete(id);
+        setSelected(newSet);
+      }
+    } catch (err) { console.error(err); }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selected.size === 0) return;
+    if (!confirm(`Are you sure you want to delete ${selected.size} tours? This cannot be undone.`)) return;
+    try {
+      await Promise.all(Array.from(selected).map(id => api.deleteTour(id)));
+      loadTours();
+      setSelected(new Set());
+      setSelectMode(false);
+    } catch (err) {
+      console.error('Bulk delete failed:', err);
+      alert('Some items failed to delete.');
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    const newSet = new Set(selected);
+    if (newSet.has(id)) newSet.delete(id);
+    else newSet.add(id);
+    setSelected(newSet);
   };
 
   const upd = (patch: Partial<Tour>) => setFormData(f => ({ ...f, ...patch }));
@@ -336,6 +367,29 @@ export default function AdminTours() {
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search tours…"
               className="w-full pl-9 pr-3 py-2 text-sm bg-surface-container-low border border-outline-variant/30 rounded-xl focus:outline-none focus:border-black focus:bg-white transition-all" />
           </div>
+          {canCRUD && tours.length > 0 && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setSelectMode(!selectMode);
+                  if (selectMode) setSelected(new Set());
+                }}
+                className={`px-3 py-1.5 flex items-center gap-1 rounded-lg text-xs font-bold uppercase transition-colors ${selectMode ? 'bg-blue-100 text-blue-700' : 'bg-surface-container border border-outline-variant/30 text-on-surface'}`}
+              >
+                <span className="material-symbols-outlined text-sm">checklist</span>
+                {selectMode ? 'Cancel' : 'Select'}
+              </button>
+              {selectMode && selected.size > 0 && (
+                <button
+                  onClick={handleBulkDelete}
+                  className="px-3 py-1.5 flex items-center gap-1 rounded-lg text-xs font-bold uppercase bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-sm">delete</span>
+                  Delete ({selected.size})
+                </button>
+              )}
+            </div>
+          )}
         </div>
         {loading ? <Preloader /> : filtered.length === 0 ? (
           <div className="py-16 text-center">
@@ -345,8 +399,15 @@ export default function AdminTours() {
         ) : (
           <div className="space-y-3">
             {filtered.map(tour => (
-              <div key={tour.id} className="at-card">
-                <div className="at-thumb flex-shrink-0">
+              <div key={tour.id} className="at-card relative">
+                {selectMode && (
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10" onClick={(e) => { e.stopPropagation(); toggleSelect(tour.id); }}>
+                    <div className={`w-5 h-5 rounded flex items-center justify-center border cursor-pointer transition-all ${selected.has(tour.id) ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-outline-variant/50 hover:border-black'}`}>
+                      {selected.has(tour.id) && <span className="material-symbols-outlined text-xs">check</span>}
+                    </div>
+                  </div>
+                )}
+                <div className={`at-thumb flex-shrink-0 transition-all ${selectMode ? 'ml-10' : ''}`}>
                   {tour.heroImageUrl
                     ? <img src={tour.heroImageUrl} alt={tour.name} />
                     : <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-on-surface-variant/30 text-2xl">flight</span></div>}

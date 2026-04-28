@@ -23,6 +23,8 @@ export default function AdminVisas() {
   const [newDoc, setNewDoc] = useState('');
   const [newReqLabel, setNewReqLabel] = useState('');
   const [newReqDetail, setNewReqDetail] = useState('');
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selectMode, setSelectMode] = useState(false);
 
   useEffect(() => {
     loadVisas();
@@ -46,8 +48,37 @@ export default function AdminVisas() {
   const handleEdit = (visa: Visa) => { setFormData({ ...visa }); setEditingId(visa.id); };
   const handleDelete = async (id: string) => {
     if (confirm('Delete this visa requirement?')) {
-      try { await api.deleteVisa(id); loadVisas(); } catch (err) { console.error(err); }
+      try { 
+        await api.deleteVisa(id); 
+        loadVisas(); 
+        if (selected.has(id)) {
+          const newSet = new Set(selected);
+          newSet.delete(id);
+          setSelected(newSet);
+        }
+      } catch (err) { console.error(err); }
     }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selected.size === 0) return;
+    if (!confirm(`Are you sure you want to delete ${selected.size} visas? This cannot be undone.`)) return;
+    try {
+      await Promise.all(Array.from(selected).map(id => api.deleteVisa(id)));
+      loadVisas();
+      setSelected(new Set());
+      setSelectMode(false);
+    } catch (err) {
+      console.error('Bulk delete failed:', err);
+      alert('Some items failed to delete.');
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    const newSet = new Set(selected);
+    if (newSet.has(id)) newSet.delete(id);
+    else newSet.add(id);
+    setSelected(newSet);
   };
 
   // Document list helpers
@@ -216,25 +247,59 @@ export default function AdminVisas() {
       {/* ── Visa List ── */}
       <div className="bg-white rounded-2xl shadow-sm border border-outline-variant/30 overflow-hidden">
         <div className="px-5 py-4 border-b border-outline-variant/20 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-on-surface">All Visa Dossiers</h2>
-          <span className="text-xs text-on-surface-variant bg-surface-container-low px-2.5 py-1 rounded-full font-bold">{visas.length}</span>
+          <div className="flex items-center gap-3">
+            <h2 className="text-sm font-semibold text-on-surface">All Visa Dossiers</h2>
+            <span className="text-xs text-on-surface-variant bg-surface-container-low px-2.5 py-1 rounded-full font-bold">{visas.length}</span>
+          </div>
+          {canCRUD && visas.length > 0 && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setSelectMode(!selectMode);
+                  if (selectMode) setSelected(new Set());
+                }}
+                className={`px-3 py-1.5 flex items-center gap-1 rounded-lg text-xs font-bold uppercase transition-colors ${selectMode ? 'bg-blue-100 text-blue-700' : 'bg-surface-container border border-outline-variant/30 text-on-surface'}`}
+              >
+                <span className="material-symbols-outlined text-sm">checklist</span>
+                {selectMode ? 'Cancel' : 'Select'}
+              </button>
+              {selectMode && selected.size > 0 && (
+                <button
+                  onClick={handleBulkDelete}
+                  className="px-3 py-1.5 flex items-center gap-1 rounded-lg text-xs font-bold uppercase bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-sm">delete</span>
+                  Delete ({selected.size})
+                </button>
+              )}
+            </div>
+          )}
         </div>
         {loading ? <Preloader /> : visas.length === 0 ? (
           <div className="p-10 text-center text-sm text-on-surface-variant italic opacity-60">No visa dossiers yet. Add one above!</div>
         ) : (
           <div className="divide-y divide-outline-variant/10">
             {visas.map(visa => (
-              <div key={visa.id} className="flex items-center gap-4 p-4 hover:bg-surface-container-low/40 transition-colors group">
-                {/* Thumbnail */}
-                {visa.heroImageUrl ? (
-                  <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 border border-outline-variant/20">
-                    <img src={visa.heroImageUrl} alt={visa.country} className="w-full h-full object-cover" />
-                  </div>
-                ) : (
-                  <div className="w-14 h-14 rounded-xl bg-surface-container-low flex items-center justify-center flex-shrink-0 border border-outline-variant/20">
-                    <span className="material-symbols-outlined text-xl text-on-surface-variant/40 font-light">public</span>
+              <div key={visa.id} className="flex items-center gap-4 p-4 hover:bg-surface-container-low/40 transition-colors group relative">
+                {selectMode && (
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10" onClick={(e) => { e.stopPropagation(); toggleSelect(visa.id); }}>
+                    <div className={`w-5 h-5 rounded flex items-center justify-center border cursor-pointer transition-all ${selected.has(visa.id) ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-outline-variant/50 hover:border-black'}`}>
+                      {selected.has(visa.id) && <span className="material-symbols-outlined text-xs">check</span>}
+                    </div>
                   </div>
                 )}
+                {/* Thumbnail */}
+                <div className={`flex-shrink-0 transition-all ${selectMode ? 'ml-8' : ''}`}>
+                  {visa.heroImageUrl ? (
+                    <div className="w-14 h-14 rounded-xl overflow-hidden border border-outline-variant/20">
+                      <img src={visa.heroImageUrl} alt={visa.country} className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="w-14 h-14 rounded-xl bg-surface-container-low flex items-center justify-center border border-outline-variant/20">
+                      <span className="material-symbols-outlined text-xl text-on-surface-variant/40 font-light">public</span>
+                    </div>
+                  )}
+                </div>
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">

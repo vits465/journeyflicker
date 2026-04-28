@@ -12,6 +12,8 @@ export default function AdminMediaLibrary() {
   const [mediaFiles, setMediaFiles] = useState<Media[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selectMode, setSelectMode] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -35,24 +37,29 @@ export default function AdminMediaLibrary() {
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     setIsUploading(true);
     try {
-      const url = await uploadImage(file);
-      const newMedia = await api.createMedia({
-        url,
-        name: file.name,
-        size: (file.size / 1024 / 1024).toFixed(1) + ' MB',
-        type: file.type,
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
-        folder: activeFolder === 'All' ? 'General' : activeFolder
-      });
-      setMediaFiles(prev => [newMedia, ...prev]);
+      const uploadedMedia: Media[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const url = await uploadImage(file);
+        const newMedia = await api.createMedia({
+          url,
+          name: file.name,
+          size: (file.size / 1024 / 1024).toFixed(1) + ' MB',
+          type: file.type,
+          date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+          folder: activeFolder === 'All' ? 'General' : activeFolder
+        });
+        uploadedMedia.push(newMedia);
+      }
+      setMediaFiles(prev => [...uploadedMedia, ...prev]);
     } catch (err) {
       console.error('Upload failed:', err);
-      alert('Upload failed. Please try again.');
+      alert('Upload failed. Some files may not have uploaded properly. Please try again.');
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -65,10 +72,36 @@ export default function AdminMediaLibrary() {
     try {
       await api.deleteMedia(id);
       setMediaFiles(prev => prev.filter(m => m.id !== id));
+      if (selected.has(id)) {
+        const newSet = new Set(selected);
+        newSet.delete(id);
+        setSelected(newSet);
+      }
     } catch (err) {
       console.error('Delete failed:', err);
       alert('Delete failed.');
     }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selected.size === 0) return;
+    if (!confirm(`Are you sure you want to delete ${selected.size} items?`)) return;
+    try {
+      await Promise.all(Array.from(selected).map(id => api.deleteMedia(id)));
+      setMediaFiles(prev => prev.filter(m => !selected.has(m.id)));
+      setSelected(new Set());
+      setSelectMode(false);
+    } catch (err) {
+      console.error('Bulk delete failed:', err);
+      alert('Some items failed to delete.');
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    const newSet = new Set(selected);
+    if (newSet.has(id)) newSet.delete(id);
+    else newSet.add(id);
+    setSelected(newSet);
   };
 
   const handleCopyUrl = (e: React.MouseEvent, url: string) => {
@@ -108,7 +141,8 @@ export default function AdminMediaLibrary() {
                 ref={fileInputRef} 
                 onChange={handleFileChange} 
                 className="hidden" 
-                accept="image/*" 
+                accept="image/*"
+                multiple 
               />
               <button 
                 onClick={handleUploadClick}
@@ -138,6 +172,29 @@ export default function AdminMediaLibrary() {
             {folder}
           </button>
         ))}
+        {canEdit && mediaFiles.length > 0 && (
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              onClick={() => {
+                setSelectMode(!selectMode);
+                if (selectMode) setSelected(new Set());
+              }}
+              className={`px-3 py-1.5 flex items-center gap-1 rounded-full text-xs font-bold uppercase transition-colors ${selectMode ? 'bg-blue-100 text-blue-700' : 'bg-surface-container border border-outline-variant/30 text-on-surface'}`}
+            >
+              <span className="material-symbols-outlined text-sm">checklist</span>
+              {selectMode ? 'Cancel' : 'Select'}
+            </button>
+            {selectMode && selected.size > 0 && (
+              <button
+                onClick={handleBulkDelete}
+                className="px-3 py-1.5 flex items-center gap-1 rounded-full text-xs font-bold uppercase bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+              >
+                <span className="material-symbols-outlined text-sm">delete</span>
+                Delete ({selected.size})
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Grid */}
@@ -173,6 +230,14 @@ export default function AdminMediaLibrary() {
                     <span>{media.folder}</span>
                   </p>
                 </div>
+                {/* Selection Overlay */}
+                {selectMode && (
+                  <div className="absolute top-2 left-2 z-10" onClick={(e) => { e.stopPropagation(); toggleSelect(media.id); }}>
+                    <div className={`w-5 h-5 rounded flex items-center justify-center border transition-all ${selected.has(media.id) ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white/90 backdrop-blur border-outline-variant/50 hover:border-black'}`}>
+                      {selected.has(media.id) && <span className="material-symbols-outlined text-xs">check</span>}
+                    </div>
+                  </div>
+                )}
                 {/* Actions Overlay */}
                 {canEdit && (
                   <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

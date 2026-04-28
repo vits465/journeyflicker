@@ -50,6 +50,8 @@ export default function AdminDestinations() {
   const [formData, setFormData] = useState<Partial<Destination>>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selectMode, setSelectMode] = useState(false);
 
   useEffect(() => {
     loadDestinations();
@@ -74,7 +76,36 @@ export default function AdminDestinations() {
   };
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this destination? This cannot be undone.')) return;
-    try { await api.deleteDestination(id); loadDestinations(); } catch (err) { console.error(err); }
+    try { 
+      await api.deleteDestination(id); 
+      loadDestinations(); 
+      if (selected.has(id)) {
+        const newSet = new Set(selected);
+        newSet.delete(id);
+        setSelected(newSet);
+      }
+    } catch (err) { console.error(err); }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selected.size === 0) return;
+    if (!confirm(`Are you sure you want to delete ${selected.size} destinations? This cannot be undone.`)) return;
+    try {
+      await Promise.all(Array.from(selected).map(id => api.deleteDestination(id)));
+      loadDestinations();
+      setSelected(new Set());
+      setSelectMode(false);
+    } catch (err) {
+      console.error('Bulk delete failed:', err);
+      alert('Some items failed to delete.');
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    const newSet = new Set(selected);
+    if (newSet.has(id)) newSet.delete(id);
+    else newSet.add(id);
+    setSelected(newSet);
   };
 
   const upd = (patch: Partial<Destination>) => setFormData(f => ({ ...f, ...patch }));
@@ -260,6 +291,29 @@ export default function AdminDestinations() {
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search…"
               className="w-full pl-9 pr-3 py-2 text-sm bg-surface-container-low border border-outline-variant/30 rounded-xl focus:outline-none focus:border-black focus:bg-white transition-all" />
           </div>
+          {canCRUD && destinations.length > 0 && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setSelectMode(!selectMode);
+                  if (selectMode) setSelected(new Set());
+                }}
+                className={`px-3 py-1.5 flex items-center gap-1 rounded-lg text-xs font-bold uppercase transition-colors ${selectMode ? 'bg-blue-100 text-blue-700' : 'bg-surface-container border border-outline-variant/30 text-on-surface'}`}
+              >
+                <span className="material-symbols-outlined text-sm">checklist</span>
+                {selectMode ? 'Cancel' : 'Select'}
+              </button>
+              {selectMode && selected.size > 0 && (
+                <button
+                  onClick={handleBulkDelete}
+                  className="px-3 py-1.5 flex items-center gap-1 rounded-lg text-xs font-bold uppercase bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-sm">delete</span>
+                  Delete ({selected.size})
+                </button>
+              )}
+            </div>
+          )}
         </div>
         {loading ? <Preloader /> : filtered.length === 0 ? (
           <div className="py-16 text-center">
@@ -269,8 +323,15 @@ export default function AdminDestinations() {
         ) : (
           <div className="space-y-3">
             {filtered.map(dest => (
-              <div key={dest.id} className="af-list-card">
-                <div className="af-thumb flex-shrink-0">
+              <div key={dest.id} className="af-list-card relative">
+                {selectMode && (
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10" onClick={(e) => { e.stopPropagation(); toggleSelect(dest.id); }}>
+                    <div className={`w-5 h-5 rounded flex items-center justify-center border cursor-pointer transition-all ${selected.has(dest.id) ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-outline-variant/50 hover:border-black'}`}>
+                      {selected.has(dest.id) && <span className="material-symbols-outlined text-xs">check</span>}
+                    </div>
+                  </div>
+                )}
+                <div className={`af-thumb flex-shrink-0 transition-all ${selectMode ? 'ml-10' : ''}`}>
                   {dest.heroImageUrl ? <img src={dest.heroImageUrl} alt={dest.name} />
                     : <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-on-surface-variant/30 text-2xl">image</span></div>}
                 </div>
