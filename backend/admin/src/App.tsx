@@ -27,7 +27,10 @@ export default function App() {
 
   useEffect(() => {
     // Kick off auto frontend backup after splash is done
+    // Only attempt if the user has an active session token
     startAutoBackup(async () => {
+      const token = sessionStorage.getItem("jf_token");
+      if (!token) return { destinations: [], tours: [], visas: [] };
       try {
         const [destinations, tours, visas] = await Promise.all([
           api.listDestinations(),
@@ -36,7 +39,7 @@ export default function App() {
         ]);
         return { destinations, tours, visas };
       } catch (e) {
-        console.error("Backup failed", e);
+        // Silently ignore — likely a 401 when session has expired
         return { destinations: [], tours: [], visas: [] };
       }
     });
