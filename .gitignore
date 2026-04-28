@@ -8,11 +8,12 @@ build/
 .npm
 *.log
 
-# Backend data â€” do NOT commit db.json (contains real data)
+# Backend data — do NOT commit db.json (contains real data)
 # The backups folder is also excluded
 backend/data/db.json
 backend/data/backups/
 
-# Uploaded images â€” ignore image files but keep the folder tracked via .gitkeep
+# Uploaded images — ignore image files but keep the folder tracked via .gitkeep
 backend/public/uploads/*
 !backend/public/uploads/.gitkeep
+DATA/
