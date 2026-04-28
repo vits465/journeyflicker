@@ -77,7 +77,13 @@ function parseTourText(raw: string) {
   const guide = guideMatch ? guideMatch[1].trim() : '';
   const pickupMatch = text.match(/arrive in ([A-Za-z ]+)/i) || text.match(/([A-Z]{3})\s*Airport/i);
   const pickup = pickupMatch ? pickupMatch[1].trim() : '';
-  return { name, region, days, price, category: 'Signature Expedition', rating: 4.8, transport, guide, pickup, overviewDescription: `A curated ${days}-day journey through ${region}.`, itinerary, sightseeing, visualArchive: [], departureWindows: [], maxGuests: 8, heroImageUrl: '' };
+  const heroImage = `https://source.unsplash.com/1200x800/?${encodeURIComponent(region + ' landscape travel')}`;
+  const visualArchive = [
+    `https://source.unsplash.com/800x600/?${encodeURIComponent(region + ' city')}`,
+    `https://source.unsplash.com/800x600/?${encodeURIComponent(region + ' nature')}`,
+    `https://source.unsplash.com/800x600/?${encodeURIComponent(region + ' culture')}`
+  ];
+  return { name, region, days, price, category: 'Signature Expedition', rating: 4.8, transport, guide, pickup, overviewDescription: `A curated ${days}-day journey through ${region}.`, itinerary, sightseeing, visualArchive, departureWindows: [], maxGuests: 8, heroImageUrl: heroImage };
 }
 
 // ── Smart Destination Parser ─────────────────────────────────────────────────
@@ -101,7 +107,14 @@ function parseDestinationText(raw: string) {
       }
     });
   });
-  return { name, region, description: description.substring(0, 500), essenceText: '', heroImageUrl: '', galleryImages: [], bestSeasonsTitle: `Best Time to Visit ${name}`, bestSeasonsMonths: '', landmarks, seasonsHighlights: [{ season: 'Peak Season', description: `Best time to visit ${name}.` }, { season: 'Off-Peak', description: `Fewer crowds in ${name}.` }] };
+  const heroImage = `https://source.unsplash.com/1200x800/?${encodeURIComponent(name + ' famous landmark travel')}`;
+  const galleryImages = [
+    `https://source.unsplash.com/800x600/?${encodeURIComponent(name + ' street view')}`,
+    `https://source.unsplash.com/800x600/?${encodeURIComponent(name + ' architecture')}`,
+    `https://source.unsplash.com/800x600/?${encodeURIComponent(name + ' landscape')}`,
+    `https://source.unsplash.com/800x600/?${encodeURIComponent(name + ' culture')}`
+  ];
+  return { name, region, description: description.substring(0, 500), essenceText: '', heroImageUrl: heroImage, galleryImages, bestSeasonsTitle: `Best Time to Visit ${name}`, bestSeasonsMonths: '', landmarks, seasonsHighlights: [{ season: 'Peak Season', description: `Best time to visit ${name}.` }, { season: 'Off-Peak', description: `Fewer crowds in ${name}.` }] };
 }
 
 export function CSVUploader({ type, onUploadComplete }: DocImporterProps) {
