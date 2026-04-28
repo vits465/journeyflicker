@@ -65,7 +65,10 @@ function parseTourText(raw: string) {
     const bullets = includesMatch[1].match(/(?:^|\n)\s*[•\-\d.]+\s*(.+)/gm) || [];
     bullets.slice(0, 5).forEach(b => {
       const t = b.replace(/^[\s•\-\d.]+/, '').trim();
-      if (t.length > 5) sightseeing.push({ title: t.substring(0, 40), description: t, icon: 'star', imageUrl: '' });
+      if (t.length > 5) {
+        const sightImage = `https://source.unsplash.com/800x600/?${encodeURIComponent(region + ' ' + t.substring(0, 20) + ' travel')}`;
+        sightseeing.push({ title: t.substring(0, 40), description: t, icon: 'star', imageUrl: sightImage });
+      }
     });
   }
   const transport = [
