@@ -80,6 +80,22 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
           </p>
         )}
 
+        {/* Requirements Preview */}
+        {visa.requirements && visa.requirements.length > 0 && !open && (
+          <div className="space-y-1.5 mb-3 border-t border-outline-variant/10 pt-3">
+            <p className="text-[9px] font-black tracking-[0.2em] uppercase text-on-surface-variant/40 mb-2">Key Requirements</p>
+            {visa.requirements.slice(0, 2).map((req, i) => (
+              <div key={i} className="flex justify-between items-center text-xs">
+                <span className="font-semibold text-on-surface opacity-80">{req.label}</span>
+                <span className="font-light text-on-surface-variant truncate max-w-[60%] text-right">{req.detail}</span>
+              </div>
+            ))}
+            {visa.requirements.length > 2 && (
+              <p className="text-[10px] text-primary/70 italic text-center pt-1">+ {visa.requirements.length - 2} more</p>
+            )}
+          </div>
+        )}
+
         <div className="space-y-2 border-t border-outline-variant/10 pt-3 mt-auto">
           <div className="flex justify-between items-center text-[10px] tracking-widest">
             <span className="text-on-surface-variant uppercase font-bold opacity-40">Processing</span>
