@@ -110,6 +110,7 @@ const TOKEN_PFX   = "jf:tok:";
 const ATTEMPT_PFX = "jf:att:";
 const BACKUP_PFX  = "jf:bak:";
 const BACKUP_LIST = "jf:bak:index";
+const ACTIVE_PFX  = "jf:active:";
 
 // ── DB helpers ────────────────────────────────────────────────────────────────
 let dbCache = null;
@@ -133,9 +134,19 @@ async function writeDb(next) {
 }
 
 // ── Token helpers ─────────────────────────────────────────────────────────────
-async function issueToken(role) {
+async function issueToken(role, identifier = "admin") {
   const token = crypto.randomBytes(32).toString("hex");
-  await kv.set(`${TOKEN_PFX}${token}`, { role }, { ex: TOKEN_TTL });
+  const activeKey = `${ACTIVE_PFX}${identifier}`;
+  
+  // Revoke previous session if it exists
+  const oldToken = await kv.get(activeKey);
+  if (oldToken) {
+    await kv.del(`${TOKEN_PFX}${oldToken}`);
+  }
+
+  await kv.set(`${TOKEN_PFX}${token}`, { role, identifier }, { ex: TOKEN_TTL });
+  await kv.set(activeKey, token, { ex: TOKEN_TTL });
+  
   return token;
 }
 async function getTokenData(req) {
@@ -149,7 +160,13 @@ async function revokeToken(req) {
   const h = req.headers.authorization;
   if (!h) return;
   const tok = h.split(" ")[1];
-  if (tok) await kv.del(`${TOKEN_PFX}${tok}`);
+  if (tok) {
+    const data = await kv.get(`${TOKEN_PFX}${tok}`);
+    if (data?.identifier) {
+      await kv.del(`${ACTIVE_PFX}${data.identifier}`);
+    }
+    await kv.del(`${TOKEN_PFX}${tok}`);
+  }
 }
 
 // ── Brute-force (KV-persisted — works across serverless instances) ─────────────
@@ -200,7 +217,7 @@ app.post("/api/auth/login", loginLimiter, async (req, res) => {
   const passMatch = safeEqual(String(password || ""), ADMIN_PASSWORD);
   if (userMatch && passMatch) {
     await clearAttempts(ip);
-    return res.json({ token: await issueToken("editor"), role: "editor" });
+    return res.json({ token: await issueToken("editor", "admin"), role: "editor" });
   }
   await recordFailedAttempt(ip);
   return res.status(401).json({ error: "Invalid credentials" });
@@ -217,7 +234,7 @@ app.post("/api/auth/co-editor-login", loginLimiter, async (req, res) => {
     const account = (db.coEditorAccounts || []).find(a => a.username === username);
     if (account && await verifyPassword(String(password || ""), account.password)) {
       await clearAttempts(ip);
-      return res.json({ token: await issueToken("co-editor"), role: "co-editor", id: account.id });
+      return res.json({ token: await issueToken("co-editor", account.id), role: "co-editor", id: account.id });
     }
   } catch (e) { console.error(e); }
   await recordFailedAttempt(ip);
@@ -286,7 +303,7 @@ if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 app.use("/uploads", express.static(uploadsDir));
 
 // ── Upload → Cloudinary (prod) or Local Disk (dev fallback) ───────────────────
-app.post("/api/upload", requireAdmin, async (req, res) => {
+app.post("/api/upload", requireCRUD, async (req, res) => {
   const { name, data } = req.body;
   if (!name || !data) return res.status(400).json({ error: "Missing name or data base64" });
   if (!data.startsWith("data:")) return res.status(400).json({ error: "Invalid base64 format" });
