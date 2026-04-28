@@ -4,8 +4,8 @@ const registry = ['Tours', 'Destinations', 'Visas', 'About'];
 const intelligence = ['FAQ', 'Contact', 'Strategy'];
 
 const socialIcons = [
+  { icon: 'forum', href: 'https://wa.me/919879268811', label: 'WhatsApp' },
   { icon: 'photo_camera', href: 'https://www.instagram.com/journeyflicker?igsh=MWxxMXZ1bGR1Zjh3MQ==', label: 'Instagram' },
-  { icon: 'business', href: '#', label: 'LinkedIn' },
   { icon: 'mail', href: 'mailto:curator@journeyflicker.com', label: 'Email' },
   { icon: 'phone', href: 'tel:+919879268811', label: 'Phone' },
 ];
