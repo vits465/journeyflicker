@@ -122,7 +122,7 @@ export default function AdminDestinations() {
   }, []);
 
   const loadDestinations = () =>
-    api.listDestinations().then((d) => { setDestinations(d); setLoading(false); }).catch(console.error);
+    api.listDestinations().then((d) => { setDestinations(d || []); setLoading(false); }).catch(console.error);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); setSaving(true);

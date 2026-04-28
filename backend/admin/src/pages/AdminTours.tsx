@@ -160,7 +160,7 @@ export default function AdminTours() {
   }, []);
 
   const loadTours = () =>
-    api.listTours().then(d => { setTours(d); setLoading(false); }).catch(console.error);
+    api.listTours().then(d => { setTours(d || []); setLoading(false); }).catch(console.error);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); setSaving(true);

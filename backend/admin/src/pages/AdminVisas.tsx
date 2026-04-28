@@ -33,7 +33,7 @@ export default function AdminVisas() {
   }, []);
 
   const loadVisas = () =>
-    api.listVisas().then(data => { setVisas(data); setLoading(false); }).catch(console.error);
+    api.listVisas().then(data => { setVisas(data || []); setLoading(false); }).catch(console.error);
 
   const upd = (patch: Partial<Visa>) => setFormData(prev => ({ ...prev, ...patch }));
 
