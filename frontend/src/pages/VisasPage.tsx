@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Visa } from '../lib/api';
 import { api } from '../lib/api';
@@ -182,6 +182,18 @@ export default function VisasPage() {
     (search === '' || v.country.toLowerCase().includes(search.toLowerCase()))
   );
 
+  const heroSlides = useMemo(() => {
+    const validVisas = visas.filter(v => v.heroImageUrl);
+    if (!loading && validVisas.length > 0) {
+      return validVisas.slice(0, 5).map(v => ({ id: v.id, imageUrl: v.heroImageUrl!, title: v.country }));
+    }
+    return [
+      { id: '1', imageUrl: bannerImage, title: 'Visa Intelligence' },
+      { id: '2', imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=2070&auto=format&fit=crop', title: 'Global Movement' },
+      { id: '3', imageUrl: 'https://images.unsplash.com/photo-1493246232918-d78b97076ac9?q=80&w=2070&auto=format&fit=crop', title: 'Borderless Strategy' }
+    ];
+  }, [visas, loading, bannerImage]);
+
   const faqs = [
     { q: "Standard processing duration?", a: "E-visas typically conclude within 48–72 hours. Physical endorsements via diplomatic channels may take 10–15 business days." },
     { q: "Digital nomad visa coverage?", a: "Yes, we provide specialized guidance for extended-stay digital residency programs across the Caribbean, Europe, and Southeast Asia." },
@@ -194,14 +206,8 @@ export default function VisasPage() {
       <SEO pageId="visas" />
       {/* ── HERO ── */}
       <HeroSlider
-        slides={visas.filter(v => v.heroImageUrl).length > 0 
-          ? visas.filter(v => v.heroImageUrl).slice(0, 5).map(v => ({ id: v.id, imageUrl: v.heroImageUrl!, title: v.country }))
-          : [
-              { id: '1', imageUrl: bannerImage, title: 'Visa Intelligence' },
-              { id: '2', imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=2070&auto=format&fit=crop', title: 'Global Movement' },
-              { id: '3', imageUrl: 'https://images.unsplash.com/photo-1493246232918-d78b97076ac9?q=80&w=2070&auto=format&fit=crop', title: 'Borderless Strategy' }
-            ]
-        }
+        slides={heroSlides}
+        loading={loading}
         height="h-[70vh] min-h-[460px] max-h-[700px]"
         hideSlideText={true}
       >
