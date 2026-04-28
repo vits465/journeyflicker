@@ -19,158 +19,108 @@ const diffDot = (d: string) =>
 
 const DEFAULT_VISA_BG = 'https://images.unsplash.com/photo-1544016768-982d1554f0b9?q=80&w=1974&auto=format&fit=crop';
 
-// Expandable Visa Detail Card
+// Complete Details Visa Card (Redesigned)
 function VisaCard({ visa, index }: { visa: Visa; index: number }) {
-  const [open, setOpen] = useState(false);
-
-  const hasExtras = (visa.documents?.length ?? 0) > 0 ||
-    (visa.requirements?.length ?? 0) > 0 ||
-    visa.description;
-
   return (
     <div
-      className="group relative rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-outline-variant/10 bg-white flex flex-col"
+      className="group relative rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-outline-variant/10 bg-white flex flex-col h-full"
       style={{ animationDelay: `${(index % 3) * 0.08}s` }}
     >
       {/* Background Image Strip */}
       {visa.heroImageUrl ? (
-        <div className="relative h-36 overflow-hidden flex-shrink-0">
+        <div className="relative h-48 overflow-hidden flex-shrink-0">
           <img
             src={visa.heroImageUrl}
             alt={visa.country}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/60" />
-          {/* Difficulty badge over image */}
-          <span className={`absolute top-3 right-3 px-3 py-1 rounded-full text-[9px] font-bold tracking-[0.2em] border ${diffColor(visa.difficulty)}`}>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/80" />
+          <span className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[9px] font-bold tracking-[0.2em] border ${diffColor(visa.difficulty)}`}>
             {visa.difficulty}
           </span>
-          {/* Country name overlay */}
-          <h3 className="absolute bottom-3 left-4 text-white text-xl font-light tracking-tighter">
+          <h3 className="absolute bottom-4 left-5 text-white text-3xl font-light tracking-tighter drop-shadow-md">
             {visa.country}
           </h3>
         </div>
       ) : (
-        /* No image — classic text layout */
-        <div className="px-6 pt-6 pb-4">
+        <div className="px-6 pt-6 pb-4 border-b border-outline-variant/10 bg-surface-container-lowest">
           <div className="flex justify-between items-start mb-3">
-            <div className="w-10 h-10 bg-surface-container-low rounded-xl flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-500">
-              <span className="material-symbols-outlined font-light text-xl">public</span>
+            <div className="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-500">
+              <span className="material-symbols-outlined font-light text-2xl">public</span>
             </div>
             <span className={`px-3 py-1 rounded-full text-[9px] font-bold tracking-[0.2em] border ${diffColor(visa.difficulty)}`}>
               {visa.difficulty}
             </span>
           </div>
-          <h3 className="text-2xl font-light tracking-tighter group-hover:text-primary transition-colors">
+          <h3 className="text-3xl font-light tracking-tighter group-hover:text-primary transition-colors">
             {visa.country}
           </h3>
         </div>
       )}
 
       {/* Core Info */}
-      <div className={`px-6 ${visa.heroImageUrl ? 'pt-4' : 'pt-0'} pb-4 flex-1 flex flex-col`}>
-        {visa.visaType && (
-          <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-on-surface-variant/50 mb-2 block">
-            {visa.visaType}
-          </span>
-        )}
-        {visa.description && (
-          <p className="text-xs font-light text-on-surface-variant leading-relaxed mb-3 opacity-70 line-clamp-2">
-            {visa.description}
-          </p>
-        )}
-
-        {/* Requirements Preview */}
-        {visa.requirements && visa.requirements.length > 0 && !open && (
-          <div className="space-y-1.5 mb-3 border-t border-outline-variant/10 pt-3">
-            <p className="text-[9px] font-black tracking-[0.2em] uppercase text-on-surface-variant/40 mb-2">Key Requirements</p>
-            {visa.requirements.slice(0, 2).map((req, i) => (
-              <div key={i} className="flex justify-between items-start gap-3 text-xs">
-                <span className="font-semibold text-on-surface opacity-80 min-w-max">{req.label}</span>
-                <span className="font-light text-on-surface-variant text-right">{req.detail}</span>
-              </div>
-            ))}
-            {visa.requirements.length > 2 && (
-              <p className="text-[10px] text-primary/70 italic text-center pt-1">+ {visa.requirements.length - 2} more</p>
-            )}
-          </div>
-        )}
-
-        <div className="space-y-2 border-t border-outline-variant/10 pt-3 mt-auto">
-          <div className="flex justify-between items-center text-[10px] tracking-widest">
-            <span className="text-on-surface-variant uppercase font-bold opacity-40">Processing</span>
-            <span className="text-sm font-light text-on-surface-variant">{visa.processing}</span>
-          </div>
-          <div className="flex justify-between items-center text-[10px] tracking-widest">
-            <span className="text-on-surface-variant uppercase font-bold opacity-40">Fee</span>
-            <span className="text-sm font-light text-on-surface-variant">{visa.fee}</span>
-          </div>
+      <div className="px-6 py-6 flex-1 flex flex-col gap-6">
+        <div>
+          {visa.visaType && (
+            <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-on-surface-variant/50 mb-2 block">
+              {visa.visaType}
+            </span>
+          )}
+          {visa.description && (
+            <p className="text-sm font-light text-on-surface-variant leading-relaxed">
+              {visa.description}
+            </p>
+          )}
         </div>
 
-        {/* Expand button */}
-        {hasExtras && (
-          <button
-            onClick={() => setOpen(!open)}
-            className="mt-4 w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-surface-container-low hover:bg-black hover:text-white transition-all text-xs font-bold tracking-[0.2em] uppercase text-on-surface-variant"
-          >
-            <span className="material-symbols-outlined text-base">{open ? 'expand_less' : 'expand_more'}</span>
-            {open ? 'Collapse' : 'View Details'}
-          </button>
+        {/* Documents */}
+        {visa.documents && visa.documents.length > 0 && (
+          <div>
+            <p className="text-[10px] font-black tracking-[0.4em] uppercase text-on-surface-variant/50 mb-3 border-b border-outline-variant/10 pb-2">
+              📄 Required Documents
+            </p>
+            <ul className="space-y-3">
+              {visa.documents.map((doc, i) => (
+                <li key={i} className="flex items-start gap-3 text-sm font-light text-on-surface-variant leading-relaxed">
+                  <span className="w-5 h-5 rounded-full bg-primary/5 text-primary flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 border border-primary/10">
+                    {i + 1}
+                  </span>
+                  {doc}
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
-      </div>
 
-      {/* Expandable Section */}
-      {hasExtras && (
-        <div className={`grid transition-all duration-500 ${open ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
-          <div className="overflow-hidden">
-            <div className="px-6 pb-6 space-y-5 border-t border-outline-variant/10 pt-5">
-
-              {/* Description full */}
-              {visa.description && (
-                <p className="text-sm font-light text-on-surface-variant leading-relaxed italic border-l-2 border-primary/20 pl-3">
-                  {visa.description}
-                </p>
-              )}
-
-              {/* Documents required */}
-              {visa.documents && visa.documents.length > 0 && (
-                <div>
-                  <p className="text-[10px] font-black tracking-[0.4em] uppercase text-on-surface-variant/50 mb-3">
-                    📄 Required Documents
-                  </p>
-                  <ul className="space-y-2 max-h-[400px] overflow-y-auto scrollbar-thumb-gray-300 scrollbar-track-gray-100 pr-2">
-                    {visa.documents.map((doc, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm font-light text-on-surface-variant">
-                        <span className="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">
-                          {i + 1}
-                        </span>
-                        {doc}
-                      </li>
-                    ))}
-                  </ul>
+        {/* Requirements */}
+        {visa.requirements && visa.requirements.length > 0 && (
+          <div>
+            <p className="text-[10px] font-black tracking-[0.4em] uppercase text-on-surface-variant/50 mb-3 border-b border-outline-variant/10 pb-2">
+              ✅ Key Requirements
+            </p>
+            <div className="space-y-3">
+              {visa.requirements.map((req, i) => (
+                <div key={i} className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-4 text-sm pb-3 border-b border-outline-variant/5 last:border-0 last:pb-0">
+                  <span className="font-semibold text-on-surface sm:min-w-[140px]">{req.label}</span>
+                  <span className="font-light text-on-surface-variant sm:text-right">{req.detail}</span>
                 </div>
-              )}
-
-              {/* Requirements */}
-              {visa.requirements && visa.requirements.length > 0 && (
-                <div>
-                  <p className="text-[10px] font-black tracking-[0.4em] uppercase text-on-surface-variant/50 mb-3">
-                    ✅ Key Requirements
-                  </p>
-                  <div className="space-y-2 max-h-[250px] overflow-y-auto admin-scroll pr-2">
-                    {visa.requirements.map((req, i) => (
-                      <div key={i} className="flex justify-between items-start gap-4 py-2 border-b border-outline-variant/10 last:border-0">
-                        <span className="text-xs font-semibold text-on-surface">{req.label}</span>
-                        <span className="text-xs font-light text-on-surface-variant text-right">{req.detail}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              ))}
             </div>
           </div>
+        )}
+
+        {/* Footer info (Processing & Fee) */}
+        <div className="mt-auto pt-6 border-t border-outline-variant/10 grid grid-cols-2 gap-4">
+          <div className="bg-surface-container-lowest p-3 rounded-2xl border border-outline-variant/10 text-center">
+            <span className="text-[9px] text-on-surface-variant uppercase font-bold tracking-widest block mb-1 opacity-60">Processing</span>
+            <span className="text-sm font-semibold text-on-surface">{visa.processing}</span>
+          </div>
+          <div className="bg-surface-container-lowest p-3 rounded-2xl border border-outline-variant/10 text-center">
+            <span className="text-[9px] text-on-surface-variant uppercase font-bold tracking-widest block mb-1 opacity-60">Fee</span>
+            <span className="text-sm font-semibold text-on-surface">{visa.fee}</span>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -362,7 +312,7 @@ export default function VisasPage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {filtered.map((visa, i) => (
                 <VisaCard key={visa.id} visa={visa} index={i} />
               ))}
