@@ -129,13 +129,21 @@ export default function DestinationDetailsPage() {
   useEffect(() => {
     if (!id) return;
     window.scrollTo(0, 0);
-    Promise.all([api.getDestination(id), api.listTours()])
-      .then(([dest, allTours]) => {
-        setDestination(dest);
-        setTours(allTours.filter(t => t.region === dest.region || t.region.includes(dest.name) || dest.name.includes(t.region)));
-        setLoading(false);
-      })
-      .catch(err => { console.error(err); setError('Failed to load.'); setLoading(false); });
+    
+    const fetchData = () => {
+      Promise.all([api.getDestination(id), api.listTours()])
+        .then(([dest, allTours]) => {
+          setDestination(dest);
+          setTours(allTours.filter(t => t.region === dest.region || t.region.includes(dest.name) || dest.name.includes(t.region)));
+          setLoading(false);
+        })
+        .catch(err => { console.error(err); setError('Failed to load.'); setLoading(false); });
+    };
+
+    fetchData(); // Initial fetch
+    const intervalId = setInterval(fetchData, 3000); // Poll every 3 seconds for near real-time updates
+
+    return () => clearInterval(intervalId); // Cleanup interval on unmount
   }, [id]);
 
   if (loading) return <Preloader fullScreen />;

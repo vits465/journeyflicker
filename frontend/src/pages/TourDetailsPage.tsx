@@ -129,9 +129,17 @@ export default function TourDetailsPage() {
   useEffect(() => {
     if (!id) return;
     window.scrollTo(0, 0);
-    api.getTour(id)
-      .then(data => { setTour(data); setLoading(false); })
-      .catch(err => { console.error(err); setError('Failed to load.'); setLoading(false); });
+    
+    const fetchTour = () => {
+      api.getTour(id)
+        .then(data => { setTour(data); setLoading(false); })
+        .catch(err => { console.error(err); setError('Failed to load.'); setLoading(false); });
+    };
+
+    fetchTour(); // Initial fetch
+    const intervalId = setInterval(fetchTour, 3000); // Poll every 3 seconds for near real-time updates
+
+    return () => clearInterval(intervalId); // Cleanup interval on unmount
   }, [id]);
 
   if (loading) return <Preloader fullScreen />;

@@ -162,9 +162,16 @@ export default function VisasPage() {
   const bannerImage = settings?.visaBanner || DEFAULT_VISA_BG;
 
   useEffect(() => {
-    api.listVisas()
-      .then(data => { setVisas(data || []); setLoading(false); })
-      .catch(() => setLoading(false));
+    const fetchVisas = () => {
+      api.listVisas()
+        .then(data => { setVisas(data || []); setLoading(false); })
+        .catch(() => setLoading(false));
+    };
+
+    fetchVisas(); // Initial fetch
+    const intervalId = setInterval(fetchVisas, 3000); // Poll every 3 seconds for near real-time updates
+
+    return () => clearInterval(intervalId); // Cleanup interval on unmount
   }, []);
 
   const filtered = visas.filter(v =>

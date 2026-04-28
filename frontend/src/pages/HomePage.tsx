@@ -48,16 +48,22 @@ export default function HomePage() {
   const [shuffledTours, setShuffledTours] = useState<Tour[]>([]);
 
   useEffect(() => {
-    Promise.all([api.listDestinations(), api.listTours()])
-      .then(([d, t]) => { 
-        setDestinations(d || []); 
-        setTours(t || []); 
-        // Shuffle for dynamic feel
-        setShuffledDestinations([...(d || [])].sort(() => Math.random() - 0.5));
-        setShuffledTours([...(t || [])].sort(() => Math.random() - 0.5));
-        setLoading(false); 
-      })
-      .catch(() => setLoading(false));
+    const fetchData = () => {
+      Promise.all([api.listDestinations(), api.listTours()])
+        .then(([dests, trs]) => {
+          setDestinations(dests || []);
+          setTours(trs || []);
+          setShuffledDestinations([...(dests || [])].sort(() => Math.random() - 0.5));
+          setShuffledTours([...(trs || [])].sort(() => Math.random() - 0.5));
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
+    };
+
+    fetchData(); // Initial fetch
+    const intervalId = setInterval(fetchData, 3000); // Poll every 3 seconds for near real-time updates
+
+    return () => clearInterval(intervalId); // Cleanup interval on unmount
   }, []);
 
   const heroSlides: HeroSlide[] = (() => {

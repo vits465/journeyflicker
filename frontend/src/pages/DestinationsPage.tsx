@@ -53,13 +53,20 @@ export default function DestinationsPage() {
   const heroIds = useHeroSettings('destinations');
 
   useEffect(() => {
-    Promise.all([api.listDestinations(), api.listTours()])
-      .then(([d, t]) => { 
-        setDestinations(d || []); 
-        setTours(t || []);
-        setLoading(false); 
-      })
-      .catch(() => setLoading(false));
+    const fetchData = () => {
+      Promise.all([api.listDestinations(), api.listTours()])
+        .then(([d, t]) => { 
+          setDestinations(d || []); 
+          setTours(t || []);
+          setLoading(false); 
+        })
+        .catch(() => setLoading(false));
+    };
+
+    fetchData(); // Initial fetch
+    const intervalId = setInterval(fetchData, 3000); // Poll every 3 seconds for near real-time updates
+
+    return () => clearInterval(intervalId); // Cleanup interval on unmount
   }, []);
 
   // Build hero slides

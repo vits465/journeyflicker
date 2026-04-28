@@ -51,7 +51,16 @@ export default function ToursPage() {
   const heroIds = useHeroSettings('tours');
 
   useEffect(() => {
-    api.listTours().then(data => { setTours(data || []); setLoading(false); }).catch(() => setLoading(false));
+    const fetchTours = () => {
+      api.listTours()
+        .then(data => { setTours(data || []); setLoading(false); })
+        .catch(() => setLoading(false));
+    };
+
+    fetchTours(); // Initial fetch
+    const intervalId = setInterval(fetchTours, 3000); // Poll every 3 seconds for near real-time updates
+
+    return () => clearInterval(intervalId); // Cleanup interval on unmount
   }, []);
 
   // Hero slides
