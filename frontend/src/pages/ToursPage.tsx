@@ -5,6 +5,7 @@ import type { Tour } from "../lib/api";
 import { api } from "../lib/api";
 import { HeroSlider, type HeroSlide } from "../components/HeroSlider";
 import { useHeroSettings } from "../lib/heroSettings";
+import { optimizeImage } from "../lib/optimize";
 import {
   buildFilterOptions, applyFilter, getCountry, getState, getTerritory,
   EMPTY_FILTER, type FilterState,
@@ -260,7 +261,7 @@ export default function ToursPage() {
                   onClick={() => navigate(`/tours/${tour.id}`)}>
                   <div className="overflow-hidden mb-3.5 aspect-[4/5] bg-surface-container-low rounded-2xl relative shadow-sm group-hover:shadow-xl transition-all duration-500">
                     <img className="w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105 mix-blend-luminosity group-hover:mix-blend-normal"
-                      alt={tour.name} src={tour.heroImageUrl || FALLBACK} />
+                      alt={tour.name} src={optimizeImage(tour.heroImageUrl || FALLBACK, 800)} loading="lazy" />
                     {/* Badges */}
                     <div className="absolute top-3 left-3 flex flex-col gap-1.5">
                       <div className="bg-white/90 backdrop-blur px-3 py-1 rounded-full shadow border border-black/5">

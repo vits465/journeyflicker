@@ -4,6 +4,7 @@ import type { Destination, Tour } from '../lib/api';
 import { api } from '../lib/api';
 import { HeroSlider, type HeroSlide } from '../components/HeroSlider';
 import { useHeroSettings } from '../lib/heroSettings';
+import { optimizeImage } from '../lib/optimize';
 
 const FALLBACK = "https://images.unsplash.com/photo-1493246232918-d78b97076ac9?q=80&w=2070&auto=format&fit=crop";
 
@@ -16,12 +17,12 @@ const STEPS = [
 ];
 
 const EXPERIENCE_TYPES = [
-  { icon: 'hotel', label: 'Luxury Retreats',    desc: 'Ultra-private properties with editorial-grade service and architectural brilliance.',            img: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=800&auto=format&fit=crop' },
-  { icon: 'terrain', label: 'Wilderness Expeditions', desc: 'From Arctic tundra to Saharan dunes — raw landscapes accessed by invitation only.',           img: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=800&auto=format&fit=crop' },
-  { icon: 'museum', label: 'Cultural Immersion', desc: 'Private access to living heritage, local gastronomy and artisan traditions across global territories.', img: 'https://images.unsplash.com/photo-1539635278303-d4002c07eae3?q=80&w=800&auto=format&fit=crop' },
-  { icon: 'sailing', label: 'Ocean & Coastal',   desc: 'Yacht charters, island archipelagos and coastal village circuits along the world\'s most scenic shorelines.', img: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?q=80&w=800&auto=format&fit=crop' },
-  { icon: 'restaurant', label: 'Culinary Journeys', desc: 'Michelin-adjacent dining itineraries woven into local farms, wineries and private chef experiences.',  img: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=800&auto=format&fit=crop' },
-  { icon: 'spa', label: 'Wellness & Silence',  desc: 'Restorative escapes designed around thermal springs, high-altitude meditation and bio-rhythmic rest.',   img: 'https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?q=80&w=800&auto=format&fit=crop' },
+  { icon: 'hotel', label: 'Luxury Retreats',    desc: 'Ultra-private properties with editorial-grade service and architectural brilliance.',            img: optimizeImage('https://images.unsplash.com/photo-1542314831-068cd1dbfeeb', 800) },
+  { icon: 'terrain', label: 'Wilderness Expeditions', desc: 'From Arctic tundra to Saharan dunes — raw landscapes accessed by invitation only.',           img: optimizeImage('https://images.unsplash.com/photo-1506905925346-21bda4d32df4', 800) },
+  { icon: 'museum', label: 'Cultural Immersion', desc: 'Private access to living heritage, local gastronomy and artisan traditions across global territories.', img: optimizeImage('https://images.unsplash.com/photo-1539635278303-d4002c07eae3', 800) },
+  { icon: 'sailing', label: 'Ocean & Coastal',   desc: 'Yacht charters, island archipelagos and coastal village circuits along the world\'s most scenic shorelines.', img: optimizeImage('https://images.unsplash.com/photo-1505118380757-91f5f5632de0', 800) },
+  { icon: 'restaurant', label: 'Culinary Journeys', desc: 'Michelin-adjacent dining itineraries woven into local farms, wineries and private chef experiences.',  img: optimizeImage('https://images.unsplash.com/photo-1414235077428-338989a2e8c0', 800) },
+  { icon: 'spa', label: 'Wellness & Silence',  desc: 'Restorative escapes designed around thermal springs, high-altitude meditation and bio-rhythmic rest.',   img: optimizeImage('https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2', 800) },
 ];
 
 const TESTIMONIALS = [

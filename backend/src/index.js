@@ -1,6 +1,7 @@
 import "dotenv/config";
 import cors from "cors";
 import express from "express";
+import compression from "compression";
 import { z } from "zod";
 import crypto from "node:crypto";
 import helmet from "helmet";
@@ -22,6 +23,7 @@ cloudinary.config({
 });
 
 const app = express();
+app.use(compression()); // Compress all responses
 
 // ── Security ──────────────────────────────────────────────────────────────────
 app.use(helmet({
@@ -110,11 +112,25 @@ const BACKUP_PFX  = "jf:bak:";
 const BACKUP_LIST = "jf:bak:index";
 
 // ── DB helpers ────────────────────────────────────────────────────────────────
+let dbCache = null;
+let lastCacheTime = 0;
+const CACHE_TTL = 1000 * 30; // Cache for 30 seconds to reduce KV latency
+
 async function readDb() {
+  const now = Date.now();
+  if (dbCache && (now - lastCacheTime < CACHE_TTL)) {
+    return dbCache;
+  }
   const data = await kv.get(DB_KEY);
-  return data || { destinations: [], tours: [], visas: [], contacts: [], coEditorAccounts: [] };
+  dbCache = data || { destinations: [], tours: [], visas: [], contacts: [], coEditorAccounts: [] };
+  lastCacheTime = now;
+  return dbCache;
 }
-async function writeDb(next) { await kv.set(DB_KEY, next); }
+async function writeDb(next) { 
+  await kv.set(DB_KEY, next); 
+  dbCache = next;
+  lastCacheTime = Date.now();
+}
 
 // ── Token helpers ─────────────────────────────────────────────────────────────
 async function issueToken(role) {

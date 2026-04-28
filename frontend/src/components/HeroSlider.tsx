@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { optimizeImage } from '../lib/optimize';
 
 export interface HeroSlide {
   id: string;
@@ -118,7 +119,7 @@ export function HeroSlider({
             : 'opacity-0 z-0'
           }`}>
           <img
-            src={s.imageUrl}
+            src={optimizeImage(s.imageUrl, 1920)}
             alt={s.title}
             className={`w-full h-full object-cover transition-transform duration-[7s] ease-out ${i === current ? 'scale-105' : 'scale-100'}`}
           />
