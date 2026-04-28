@@ -239,3 +239,78 @@
   100% { width: 100%; }
 }
 
+/* ─── Print Styles (Brochure Mode) ───────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4;
+    margin: 1.5cm;
+  }
+
+  /* Hide navigation, footers, interactive buttons, and animations */
+  header, footer, nav, button, .no-print, [role="button"] {
+    display: none !important;
+  }
+
+  /* Prevent animations from breaking print layout */
+  * {
+    animation: none !important;
+    transition: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    background: #fff !important;
+    color: #111 !important;
+    overflow: visible !important;
+  }
+
+  /* Avoid breaking elements */
+  img, svg, article, .group, section, .break-inside-avoid {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+    break-after: avoid;
+    color: #000 !important;
+  }
+
+  p {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    color: #222 !important;
+  }
+
+  /* Simplify dark backgrounds for readability and ink saving */
+  .bg-black, .bg-gray-900, .bg-surface-container-lowest, .bg-surface-container-low {
+    background: #fff !important;
+    color: #000 !important;
+    border: 1px solid #eee !important;
+  }
+
+  /* Ensure text over images or dark backgrounds becomes visible */
+  .text-white, .text-white\/90, .text-white\/80, .text-white\/70, .text-white\/60, .text-white\/50, .text-white\/40, .text-white\/30 {
+    color: #333 !important;
+    text-shadow: none !important;
+  }
+
+  /* Adjust section padding */
+  section {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+
+  /* Hide specific overlay gradients */
+  .bg-gradient-to-t, .bg-gradient-to-b, .bg-gradient-to-r, .bg-gradient-to-l {
+    display: none !important;
+  }
+
+  /* Hide HeroSlider arrows and controls */
+  .HeroSlider-controls, .absolute.left-3.top-1\/2, .absolute.right-3.top-1\/2, .absolute.bottom-4.left-1\/2 {
+    display: none !important;
+  }
+}
+
+

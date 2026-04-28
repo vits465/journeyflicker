@@ -157,13 +157,18 @@ export default function TourDetailsPage() {
 
       {/* ── 1. HEADER ── */}
       <section className="pt-24 md:pt-28 pb-8 px-4 sm:px-8 md:px-16 max-w-5xl mx-auto animate-reveal-up">
-        <nav className="flex flex-wrap items-center text-[9px] tracking-[0.3em] uppercase text-on-surface-variant font-bold mb-6">
-          <span className="cursor-pointer hover:text-black transition-colors" onClick={() => navigate('/')}>Home</span>
-          <span className="mx-3 text-outline-variant/30">/</span>
-          <span className="cursor-pointer hover:text-black transition-colors" onClick={() => navigate('/tours')}>Tours</span>
-          <span className="mx-3 text-outline-variant/30">/</span>
-          <span className="text-on-surface font-black opacity-40 truncate">{tour.name}</span>
-        </nav>
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <nav className="flex flex-wrap items-center text-[9px] tracking-[0.3em] uppercase text-on-surface-variant font-bold">
+            <span className="cursor-pointer hover:text-black transition-colors" onClick={() => navigate('/')}>Home</span>
+            <span className="mx-3 text-outline-variant/30">/</span>
+            <span className="cursor-pointer hover:text-black transition-colors" onClick={() => navigate('/tours')}>Tours</span>
+            <span className="mx-3 text-outline-variant/30">/</span>
+            <span className="text-on-surface font-black opacity-40 truncate">{tour.name}</span>
+          </nav>
+          <button onClick={() => window.print()} className="no-print flex items-center gap-1.5 text-[9px] font-black tracking-[0.3em] uppercase bg-black/5 hover:bg-black hover:text-white transition-all px-4 py-2 rounded-full">
+            <span className="material-symbols-outlined text-sm">print</span> Brochure
+          </button>
+        </div>
 
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
           <div className="flex-1 min-w-0">
