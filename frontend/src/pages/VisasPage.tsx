@@ -121,8 +121,9 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
 
       {/* Expandable Section */}
       {hasExtras && (
-        <div className={`overflow-hidden transition-all duration-500 ${open ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}>
-          <div className="px-6 pb-6 space-y-5 border-t border-outline-variant/10 pt-5">
+        <div className={`grid transition-all duration-500 ${open ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+          <div className="overflow-hidden">
+            <div className="px-6 pb-6 space-y-5 border-t border-outline-variant/10 pt-5">
 
             {/* Description full */}
             {visa.description && (
@@ -166,6 +167,7 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
                 </div>
               </div>
             )}
+          </div>
           </div>
         </div>
       )}
