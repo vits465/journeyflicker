@@ -4,10 +4,10 @@ const registry = ['Tours', 'Destinations', 'Visas', 'About'];
 const intelligence = ['FAQ', 'Contact', 'Strategy'];
 
 const socialIcons = [
-  { icon: 'photo_camera', href: '#', label: 'Instagram' },
-  { icon: 'business', href: '#', label: 'LinkedIn' },
-  { icon: 'mail', href: 'mailto:curator@journeyflicker.com', label: 'Email' },
-  { icon: 'phone', href: 'tel:+15557829901', label: 'Phone' },
+  { icon: 'photo_camera', href: 'YOUR_INSTAGRAM_URL_HERE', label: 'Instagram' },
+  { icon: 'business', href: 'YOUR_LINKEDIN_URL_HERE', label: 'LinkedIn' },
+  { icon: 'mail', href: 'mailto:YOUR_EMAIL_HERE', label: 'Email' },
+  { icon: 'phone', href: 'tel:YOUR_PHONE_HERE', label: 'Phone' },
 ];
 
 export function Footer() {
@@ -73,19 +73,19 @@ export function Footer() {
             <h4 className="text-[9px] font-black tracking-[0.5em] uppercase text-white/20">Bureau</h4>
             <address className="not-italic">
               <p className="text-sm font-light text-white/30 leading-loose tracking-wide">
-                402 Silicon Drive<br />
-                Suite 1200<br />
-                California, USA 94025
+                JourneyFlicker<br />
+                Surat, Gujarat<br />
+                India
               </p>
             </address>
             <div className="space-y-1 pt-1">
-              <a href="mailto:curator@journeyflicker.com"
+              <a href="mailto:YOUR_EMAIL_HERE"
                 className="text-[10px] text-white/30 hover:text-white transition-colors block tracking-wide">
-                curator@journeyflicker.com
+                YOUR_EMAIL_HERE
               </a>
-              <a href="tel:+15557829901"
+              <a href="tel:YOUR_PHONE_HERE"
                 className="text-[10px] text-white/30 hover:text-white transition-colors block tracking-wide">
-                +1 (555) 782-9901
+                YOUR_PHONE_HERE
               </a>
             </div>
           </div>

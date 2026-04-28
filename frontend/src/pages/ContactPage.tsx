@@ -51,15 +51,15 @@ export default function ContactPage() {
               <div className="space-y-5">
                 <div className="group border-l-2 border-primary/10 pl-5 hover:border-primary transition-all duration-500">
                   <span className="text-[9px] font-bold tracking-[0.3em] uppercase text-on-surface-variant mb-1.5 block">General Correspondence</span>
-                  <a href="mailto:curator@journeyflicker.com"
+                  <a href="mailto:YOUR_EMAIL_HERE"
                     className="text-lg font-light tracking-tight text-on-surface hover:text-primary transition-colors break-all">
-                    curator@journeyflicker.com
+                    YOUR_EMAIL_HERE
                   </a>
                 </div>
                 <div className="group border-l-2 border-primary/10 pl-5 hover:border-primary transition-all duration-500">
                   <span className="text-[9px] font-bold tracking-[0.3em] uppercase text-on-surface-variant mb-1.5 block">Priority Management</span>
-                  <a href="tel:+15557829901" className="text-lg font-light tracking-tight text-on-surface hover:text-primary transition-colors">
-                    +1 (555) 782-9901
+                  <a href="tel:YOUR_PHONE_HERE" className="text-lg font-light tracking-tight text-on-surface hover:text-primary transition-colors">
+                    YOUR_PHONE_HERE
                   </a>
                 </div>
               </div>
@@ -67,7 +67,23 @@ export default function ContactPage() {
 
             <div className="pt-2">
               <span className="text-primary text-[10px] font-bold tracking-[0.5em] uppercase mb-3 block">The Repository</span>
-              <p className="text-sm font-light text-on-surface opacity-70 leading-relaxed">402 Silicon Drive, Suite 1200<br/>California, USA 94025</p>
+              <p className="text-sm font-light text-on-surface opacity-70 leading-relaxed">
+                JourneyFlicker<br/>
+                Surat, Gujarat, India
+              </p>
+              
+              <div className="mt-5 w-full h-48 rounded-xl overflow-hidden shadow-sm border border-outline-variant/20">
+                <iframe 
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d119039.26723686591!2d72.6283685!3d21.1930686!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be04deb5062a78d%3A0xcff159c56a65a372!2sJourneyFlicker!5e0!3m2!1sen!2sin!4v1714240400000!5m2!1sen!2sin" 
+                  width="100%" 
+                  height="100%" 
+                  style={{ border: 0 }} 
+                  allowFullScreen={false} 
+                  loading="lazy" 
+                  referrerPolicy="no-referrer-when-downgrade">
+                </iframe>
+              </div>
+
               <div className="h-px bg-outline-variant/30 w-20 mt-5" />
             </div>
 
