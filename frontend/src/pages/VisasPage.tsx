@@ -85,9 +85,9 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
           <div className="space-y-1.5 mb-3 border-t border-outline-variant/10 pt-3">
             <p className="text-[9px] font-black tracking-[0.2em] uppercase text-on-surface-variant/40 mb-2">Key Requirements</p>
             {visa.requirements.slice(0, 2).map((req, i) => (
-              <div key={i} className="flex justify-between items-center text-xs">
-                <span className="font-semibold text-on-surface opacity-80">{req.label}</span>
-                <span className="font-light text-on-surface-variant truncate max-w-[60%] text-right">{req.detail}</span>
+              <div key={i} className="flex justify-between items-start gap-3 text-xs">
+                <span className="font-semibold text-on-surface opacity-80 min-w-max">{req.label}</span>
+                <span className="font-light text-on-surface-variant text-right">{req.detail}</span>
               </div>
             ))}
             {visa.requirements.length > 2 && (
