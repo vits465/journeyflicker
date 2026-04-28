@@ -55,7 +55,9 @@ function parseTourText(raw: string) {
     const description = dayText.split('\n').slice(1).join(' ').trim() || titleLine;
     const mealsMatch = dayText.match(/\(([BLD][^)]+)\)/i);
     const meals = mealsMatch ? mealsMatch[1].replace(/B/g, 'Breakfast').replace(/L/g, 'Lunch').replace(/D/g, 'Dinner').replace(/-/g, ', ') : '';
-    return { title: titleLine.replace(/\([BLD,\s-]+\)/gi, '').trim(), description: description.substring(0, 300), meals, accommodation: '', schedule: '', imageUrl: '' };
+    const cleanTitle = titleLine.replace(/\([BLD,\s-]+\)/gi, '').trim();
+    const dynamicImage = `https://loremflickr.com/800/600/${encodeURIComponent(region + ',' + cleanTitle.split(' ')[0])}/travel`;
+    return { title: cleanTitle, description: description.substring(0, 300), meals, accommodation: '', schedule: '', imageUrl: dynamicImage };
   });
   const includesMatch = text.match(/Package Includes[:\s]*([^]*?)(?=Package Excludes|Cancellation|$)/i);
   const sightseeing: any[] = [];
@@ -93,7 +95,9 @@ function parseDestinationText(raw: string) {
     m[1].split(/,|and/).map(p => p.trim()).filter(p => p.length > 3 && p.length < 60).forEach(place => {
       if (!seen.has(place) && landmarks.length < 6) {
         seen.add(place);
-        landmarks.push({ title: place.replace(/^the /i, ''), category: 'Attraction', description: `A must-visit landmark in ${name}.`, imageUrl: '' });
+        const cleanPlace = place.replace(/^the /i, '');
+        const dynamicImage = `https://loremflickr.com/800/600/${encodeURIComponent(name + ',' + cleanPlace)}/travel`;
+        landmarks.push({ title: cleanPlace, category: 'Attraction', description: `A must-visit landmark in ${name}.`, imageUrl: dynamicImage });
       }
     });
   });
