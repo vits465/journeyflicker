@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import "./App.css";
 import { api } from "./lib/api";
 import { startAutoBackup } from "./lib/frontendBackup";
@@ -73,6 +74,7 @@ export default function App() {
           {/* Catch-all redirect to dashboard */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        <SpeedInsights />
       </SearchProvider>
     </AdminAuthProvider>
   );

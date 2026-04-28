@@ -42,6 +42,8 @@ app.use(helmet({
         "https://*.vercel.app",
         "https://*.up.railway.app",
         "https://*.onrender.com",
+        // Vercel Speed Insights
+        "https://vitals.vercel-insights.com",
         ...(process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(",").map(o => o.trim()) : []),
       ],
     },
