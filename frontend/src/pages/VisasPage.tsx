@@ -169,7 +169,9 @@ export default function VisasPage() {
     };
 
     fetchVisas(); // Initial fetch
-    const intervalId = setInterval(fetchVisas, 3000); // Poll every 3 seconds for near real-time updates
+    const intervalId = setInterval(() => {
+      if (document.visibilityState === 'visible') fetchVisas();
+    }, 3000); // Poll every 3 seconds only if tab is visible
 
     return () => clearInterval(intervalId); // Cleanup interval on unmount
   }, []);

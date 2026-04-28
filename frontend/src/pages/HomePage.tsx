@@ -61,7 +61,9 @@ export default function HomePage() {
     };
 
     fetchData(); // Initial fetch
-    const intervalId = setInterval(fetchData, 3000); // Poll every 3 seconds for near real-time updates
+    const intervalId = setInterval(() => {
+      if (document.visibilityState === 'visible') fetchData();
+    }, 3000); // Poll every 3 seconds only if tab is visible
 
     return () => clearInterval(intervalId); // Cleanup interval on unmount
   }, []);
