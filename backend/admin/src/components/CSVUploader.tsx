@@ -56,7 +56,7 @@ function parseTourText(raw: string) {
     const mealsMatch = dayText.match(/\(([BLD][^)]+)\)/i);
     const meals = mealsMatch ? mealsMatch[1].replace(/B/g, 'Breakfast').replace(/L/g, 'Lunch').replace(/D/g, 'Dinner').replace(/-/g, ', ') : '';
     const cleanTitle = titleLine.replace(/\([BLD,\s-]+\)/gi, '').trim();
-    const dynamicImage = `https://loremflickr.com/800/600/${encodeURIComponent(region + ',' + cleanTitle.split(' ')[0])}/travel`;
+    const dynamicImage = `https://source.unsplash.com/800x600/?${encodeURIComponent(region + ' ' + cleanTitle.split(' ')[0] + ' travel')}`;
     return { title: cleanTitle, description: description.substring(0, 300), meals, accommodation: '', schedule: '', imageUrl: dynamicImage };
   });
   const includesMatch = text.match(/Package Includes[:\s]*([^]*?)(?=Package Excludes|Cancellation|$)/i);
@@ -96,7 +96,7 @@ function parseDestinationText(raw: string) {
       if (!seen.has(place) && landmarks.length < 6) {
         seen.add(place);
         const cleanPlace = place.replace(/^the /i, '');
-        const dynamicImage = `https://loremflickr.com/800/600/${encodeURIComponent(name + ',' + cleanPlace)}/travel`;
+        const dynamicImage = `https://source.unsplash.com/800x600/?${encodeURIComponent(name + ' ' + cleanPlace + ' landmark')}`;
         landmarks.push({ title: cleanPlace, category: 'Attraction', description: `A must-visit landmark in ${name}.`, imageUrl: dynamicImage });
       }
     });
