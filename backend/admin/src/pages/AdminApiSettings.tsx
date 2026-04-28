@@ -1,37 +1,75 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
+import { api } from '../lib/api';
+import { Preloader } from '../components/Preloader';
 
 export default function AdminApiSettings() {
   const { canEdit } = useOutletContext<{ canEdit: boolean }>();
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
   
-  // Dummy state for API settings
   const [apiKeys, setApiKeys] = useState({
-    stripeSecret: 'sk_test_••••••••••••••••••••••••',
-    stripePublic: 'pk_test_••••••••••••••••••••••••',
-    sendgridKey: 'SG.••••••••••••••••••••••••••••••••',
-    googleMapsKey: 'AIza••••••••••••••••••••••••••',
-    awsAccessKey: 'AKIA••••••••••••••••',
+    stripeSecret: '',
+    stripePublic: '',
+    sendgridKey: '',
+    googleMapsKey: '',
+    awsAccessKey: '',
   });
+
+  const fetchSettings = () => {
+    api.getApiSettings()
+      .then(data => {
+        if (data) setApiKeys(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    fetchSettings();
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') fetchSettings();
+    }, 5000);
+
+    const onFocus = () => { if (document.visibilityState === 'visible') fetchSettings(); };
+    window.addEventListener('visibilitychange', onFocus);
+    window.addEventListener('focus', onFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('visibilitychange', onFocus);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, []);
 
   const [webhooks, _setWebhooks] = useState([
     { id: 1, name: 'Stripe Payments', url: 'https://api.journeyflicker.com/webhooks/stripe', status: 'active', lastTriggered: '10 mins ago' },
     { id: 2, name: 'SendGrid Bounces', url: 'https://api.journeyflicker.com/webhooks/email', status: 'active', lastTriggered: '2 hours ago' },
   ]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!canEdit) return;
     setSaving(true);
-    setTimeout(() => {
-      setSaving(false);
+    try {
+      await api.updateApiSettings(apiKeys);
       alert('API settings saved successfully');
-    }, 800);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to save settings');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleKeyChange = (key: string, value: string) => {
     if (!canEdit) return;
     setApiKeys(prev => ({ ...prev, [key]: value }));
   };
+
+  if (loading) return <Preloader />;
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-12">

@@ -576,6 +576,24 @@ app.put("/api/seo-settings", requireAdmin, async (req, res) => {
   res.json({ success: true });
 });
 
+const API_SETTINGS_KEY = "jf:api_settings";
+
+// ── API Settings ──────────────────────────────────────────────────────────────
+app.get("/api/api-settings", async (_req, res) => {
+  const data = await kv.get(API_SETTINGS_KEY);
+  res.json(data || {
+    stripeSecret: '',
+    stripePublic: '',
+    sendgridKey: '',
+    googleMapsKey: '',
+    awsAccessKey: '',
+  });
+});
+app.put("/api/api-settings", requireAdmin, async (req, res) => {
+  await kv.set(API_SETTINGS_KEY, req.body);
+  res.json({ success: true });
+});
+
 // ── Backups (KV-based snapshots) ───────────────────────────────────────────────
 async function createBackup() {
   try {

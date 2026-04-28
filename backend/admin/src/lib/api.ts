@@ -215,6 +215,8 @@ export interface ApiInterface {
   deleteMedia: (id: string) => Promise<void>;
   getSeoSettings: () => Promise<SeoPage[]>;
   updateSeoSettings: (settings: SeoPage[]) => Promise<void>;
+  getApiSettings: () => Promise<any>;
+  updateApiSettings: (settings: any) => Promise<void>;
 }
 
 export const api: ApiInterface = {
@@ -258,6 +260,11 @@ export const api: ApiInterface = {
 
   getSeoSettings: () => http<SeoPage[]>("/seo-settings"),
   updateSeoSettings: (settings: SeoPage[]) => http<void>("/seo-settings", {
+    method: "PUT",
+    body: JSON.stringify(settings),
+  }),
+  getApiSettings: () => http<any>("/api-settings"),
+  updateApiSettings: (settings: any) => http<void>("/api-settings", {
     method: "PUT",
     body: JSON.stringify(settings),
   }),
