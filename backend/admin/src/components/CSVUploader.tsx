@@ -197,11 +197,12 @@ export function CSVUploader({ type, onUploadComplete }: DocImporterProps) {
       // Upload images if any
       const urlMap: Record<string, string> = {};
       if (imgFiles.length > 0) {
-        setProgress(`Uploading ${imgFiles.length} images...`);
-        for (const file of imgFiles) {
+        setProgress(`Uploading ${imgFiles.length} images concurrently...`);
+        const uploadPromises = imgFiles.map(async (file) => {
           const url = await uploadImage(file);
           urlMap[file.name] = url;
-        }
+        });
+        await Promise.all(uploadPromises);
       }
 
       setProgress('Parsing document data...');

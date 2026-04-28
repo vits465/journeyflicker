@@ -42,11 +42,9 @@ export default function AdminMediaLibrary() {
 
     setIsUploading(true);
     try {
-      const uploadedMedia: Media[] = [];
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
+      const uploadPromises = Array.from(files).map(async (file) => {
         const url = await uploadImage(file);
-        const newMedia = await api.createMedia({
+        return await api.createMedia({
           url,
           name: file.name,
           size: (file.size / 1024 / 1024).toFixed(1) + ' MB',
@@ -54,8 +52,9 @@ export default function AdminMediaLibrary() {
           date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
           folder: activeFolder === 'All' ? 'General' : activeFolder
         });
-        uploadedMedia.push(newMedia);
-      }
+      });
+      
+      const uploadedMedia = await Promise.all(uploadPromises);
       setMediaFiles(prev => [...uploadedMedia, ...prev]);
     } catch (err) {
       console.error('Upload failed:', err);

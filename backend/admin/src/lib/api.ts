@@ -124,21 +124,64 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
 
 export async function uploadImage(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = async () => {
-      try {
-        const data = reader.result as string;
-        const res = await http<{ url: string }>("/upload", {
-          method: "POST",
-          body: JSON.stringify({ name: file.name, data }),
-        });
-        resolve(res.url);
-      } catch (err) {
-        reject(err);
+    // If it's not an image, just read as base64 and upload
+    if (!file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const data = reader.result as string;
+          const res = await http<{ url: string }>("/upload", {
+            method: "POST",
+            body: JSON.stringify({ name: file.name, data }),
+          });
+          resolve(res.url);
+        } catch (err) { reject(err); }
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    // Compress image before upload
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+      
+      const MAX_WIDTH = 1920;
+      const MAX_HEIGHT = 1080;
+
+      if (width > height) {
+        if (width > MAX_WIDTH) {
+          height = Math.round((height * MAX_WIDTH) / width);
+          width = MAX_WIDTH;
+        }
+      } else {
+        if (height > MAX_HEIGHT) {
+          width = Math.round((width * MAX_HEIGHT) / height);
+          height = MAX_HEIGHT;
+        }
       }
+      
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (ctx) ctx.drawImage(img, 0, 0, width, height);
+      
+      // Compress to WebP or JPEG to save space (reduce payload by ~90%)
+      const data = canvas.toDataURL('image/jpeg', 0.8);
+      
+      http<{ url: string }>("/upload", {
+        method: "POST",
+        body: JSON.stringify({ name: file.name, data }),
+      }).then(res => resolve(res.url)).catch(reject);
+      
+      // Cleanup object URL
+      URL.revokeObjectURL(img.src);
     };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
+    img.onerror = () => reject(new Error('Failed to load image for compression'));
+    img.src = URL.createObjectURL(file);
   });
 }
 
