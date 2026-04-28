@@ -132,8 +132,12 @@ function parseVisaText(raw: string) {
   const feeMatch = text.match(/(?:Fee|Cost)\s*[:\-]?\s*USD\s*(\d+)/i) || text.match(/USD\s*(\d+)/i);
   const fee = feeMatch ? `$${feeMatch[1]}` : '$150';
   
-  const diffMatch = text.match(/Difficulty\s*[:\-]?\s*(Easy|Medium|Hard|Complex)/i);
-  const difficulty = diffMatch ? diffMatch[1].trim() : 'Medium';
+  const diffMatch = text.match(/Difficulty\s*[:\-]?\s*(Easy|Medium|Moderate|Hard|Complex)/i);
+  let difficulty = diffMatch ? diffMatch[1].trim() : 'Moderate';
+  if (difficulty.toLowerCase() === 'medium') difficulty = 'Moderate';
+  if (difficulty.toLowerCase() === 'hard' || difficulty.toLowerCase() === 'complex') difficulty = 'Challenging';
+  // Capitalize properly
+  difficulty = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
 
   const paragraphs = raw.split(/\n{2,}/).map(p => p.trim()).filter(p => p.length > 50);
   const description = paragraphs.find(p => !/QUOTATION|TRAVELING|Requirement|Document|Processing|Fee/i.test(p)) || `Comprehensive visa assistance for ${country}.`;
