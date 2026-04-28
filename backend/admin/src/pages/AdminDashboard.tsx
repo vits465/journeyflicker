@@ -299,21 +299,34 @@ export default function AdminDashboard() {
               {/* Visas Grid */}
               {activeTab === 'visas' && (
                 visas.length === 0 ? <EmptyState label="visas" /> : (
-                  <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-2"}>
+                  <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-3"}>
                     {visas.map(v => (
-                      <div key={v.id} className="p-5 border border-gray-100 rounded-2xl hover:border-purple-200 hover:bg-purple-50/30 transition-all group">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center group-hover:bg-purple-100 transition-colors">
-                            <span className="material-symbols-outlined text-purple-600">passport</span>
+                      <div key={v.id} className={viewMode === 'grid' ? "grid-item" : "flex items-center gap-4 p-4 border border-gray-100 rounded-2xl hover:bg-gray-50 transition-colors"}>
+                        <div className={viewMode === 'grid' ? "h-40 overflow-hidden relative" : "w-16 h-16 rounded-xl overflow-hidden flex-shrink-0"}>
+                          {v.heroImageUrl ? (
+                            <img src={v.heroImageUrl} className="w-full h-full object-cover" alt={v.country} />
+                          ) : (
+                            <div className="w-full h-full bg-purple-50 flex items-center justify-center"><span className="material-symbols-outlined text-purple-300">passport</span></div>
+                          )}
+                          {viewMode === 'grid' && (
+                            <div className="absolute top-3 left-3"><span className={`pill ${v.difficulty === 'Easy' ? 'pill-green' : v.difficulty === 'Moderate' ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'} backdrop-blur-md bg-white/80`}>{v.difficulty}</span></div>
+                          )}
+                        </div>
+                        <div className={viewMode === 'grid' ? "p-5" : "flex-1 min-w-0"}>
+                          <div className="flex items-center justify-between mb-1">
+                            <h4 className="text-sm font-bold text-gray-900 truncate">{v.country}</h4>
+                            {viewMode === 'list' && <span className={`pill ${v.difficulty === 'Easy' ? 'pill-green' : v.difficulty === 'Moderate' ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'}`}>{v.difficulty}</span>}
                           </div>
-                          <span className={`pill ${v.difficulty === 'Easy' ? 'pill-green' : v.difficulty === 'Moderate' ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'}`}>{v.difficulty}</span>
+                          <p className="text-xs text-gray-500 line-clamp-1 mb-3">{v.description || v.visaType || 'No description added.'}</p>
+                          <div className="flex items-center justify-between">
+                            <div className="flex gap-3">
+                              <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">schedule</span>{v.processing}</span>
+                              <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">payments</span>{v.fee}</span>
+                              {v.documents && v.documents.length > 0 && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">description</span>{v.documents.length}</span>}
+                            </div>
+                            {canCRUD && <a href="/visas" className="text-[10px] font-bold text-purple-600 hover:underline">Update →</a>}
+                          </div>
                         </div>
-                        <h4 className="text-sm font-bold text-gray-900 mb-2">{v.country}</h4>
-                        <div className="space-y-1.5 mb-4">
-                          <div className="flex items-center gap-2 text-[10px] text-gray-500"><span className="material-symbols-outlined text-[12px]">schedule</span> {v.processing}</div>
-                          <div className="flex items-center gap-2 text-[10px] text-gray-500"><span className="material-symbols-outlined text-[12px]">payments</span> {v.fee}</div>
-                        </div>
-                        {canCRUD && <a href="/visas" className="text-[10px] font-bold text-purple-600 hover:underline">Update Protocol →</a>}
                       </div>
                     ))}
                   </div>
