@@ -8,14 +8,14 @@ import { HeroSlider } from '../components/HeroSlider';
 import { SEO } from '../components/SEO';
 
 const diffColor = (d: string) =>
-  d === 'Easy'     ? 'bg-emerald-50  text-emerald-700 border-emerald-200'
-  : d === 'Moderate'? 'bg-amber-50    text-amber-700   border-amber-200'
-  : 'bg-rose-50    text-rose-700    border-rose-200';
+  d === 'Easy' ? 'bg-emerald-50  text-emerald-700 border-emerald-200'
+    : d === 'Moderate' ? 'bg-amber-50    text-amber-700   border-amber-200'
+      : 'bg-rose-50    text-rose-700    border-rose-200';
 
 const diffDot = (d: string) =>
-  d === 'Easy'     ? 'bg-emerald-400'
-  : d === 'Moderate'? 'bg-amber-400'
-  : 'bg-rose-400';
+  d === 'Easy' ? 'bg-emerald-400'
+    : d === 'Moderate' ? 'bg-amber-400'
+      : 'bg-rose-400';
 
 const DEFAULT_VISA_BG = 'https://images.unsplash.com/photo-1544016768-982d1554f0b9?q=80&w=1974&auto=format&fit=crop';
 
@@ -125,49 +125,49 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
           <div className="overflow-hidden">
             <div className="px-6 pb-6 space-y-5 border-t border-outline-variant/10 pt-5">
 
-            {/* Description full */}
-            {visa.description && (
-              <p className="text-sm font-light text-on-surface-variant leading-relaxed italic border-l-2 border-primary/20 pl-3">
-                {visa.description}
-              </p>
-            )}
-
-            {/* Documents required */}
-            {visa.documents && visa.documents.length > 0 && (
-              <div>
-                <p className="text-[10px] font-black tracking-[0.4em] uppercase text-on-surface-variant/50 mb-3">
-                  📄 Required Documents
+              {/* Description full */}
+              {visa.description && (
+                <p className="text-sm font-light text-on-surface-variant leading-relaxed italic border-l-2 border-primary/20 pl-3">
+                  {visa.description}
                 </p>
-                <ul className="space-y-2 max-h-[250px] overflow-y-auto admin-scroll pr-2">
-                  {visa.documents.map((doc, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm font-light text-on-surface-variant">
-                      <span className="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">
-                        {i + 1}
-                      </span>
-                      {doc}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+              )}
 
-            {/* Requirements */}
-            {visa.requirements && visa.requirements.length > 0 && (
-              <div>
-                <p className="text-[10px] font-black tracking-[0.4em] uppercase text-on-surface-variant/50 mb-3">
-                  ✅ Key Requirements
-                </p>
-                <div className="space-y-2 max-h-[250px] overflow-y-auto admin-scroll pr-2">
-                  {visa.requirements.map((req, i) => (
-                    <div key={i} className="flex justify-between items-start gap-4 py-2 border-b border-outline-variant/10 last:border-0">
-                      <span className="text-xs font-semibold text-on-surface">{req.label}</span>
-                      <span className="text-xs font-light text-on-surface-variant text-right">{req.detail}</span>
-                    </div>
-                  ))}
+              {/* Documents required */}
+              {visa.documents && visa.documents.length > 0 && (
+                <div>
+                  <p className="text-[10px] font-black tracking-[0.4em] uppercase text-on-surface-variant/50 mb-3">
+                    📄 Required Documents
+                  </p>
+                  <ul className="space-y-2 max-h-[400px] overflow-y-auto admin-scroll pr-2">
+                    {visa.documents.map((doc, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm font-light text-on-surface-variant">
+                        <span className="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">
+                          {i + 1}
+                        </span>
+                        {doc}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+
+              {/* Requirements */}
+              {visa.requirements && visa.requirements.length > 0 && (
+                <div>
+                  <p className="text-[10px] font-black tracking-[0.4em] uppercase text-on-surface-variant/50 mb-3">
+                    ✅ Key Requirements
+                  </p>
+                  <div className="space-y-2 max-h-[400px] overflow-y-auto admin-scroll pr-2">
+                    {visa.requirements.map((req, i) => (
+                      <div key={i} className="flex justify-between items-start gap-4 py-2 border-b border-outline-variant/10 last:border-0">
+                        <span className="text-xs font-semibold text-on-surface">{req.label}</span>
+                        <span className="text-xs font-light text-on-surface-variant text-right">{req.detail}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -211,7 +211,7 @@ export default function VisasPage() {
     if (loading) return defaults;
 
     const result = validVisas.slice(0, 5).map(v => ({ id: v.id, imageUrl: v.heroImageUrl!, title: v.country }));
-    
+
     // Pad with defaults to ensure there are always at least 3 slides for a nice slider effect
     let i = 0;
     while (result.length < 3 && i < defaults.length) {
@@ -244,7 +244,7 @@ export default function VisasPage() {
         <div className="relative z-10 max-w-3xl animate-reveal-up flex flex-col items-center gap-5 text-center px-4 pt-16">
           <span className="text-white/50 text-[10px] tracking-[0.6em] uppercase font-bold">Bureau of Movement</span>
           <h1 className="text-5xl sm:text-6xl md:text-7xl font-light leading-tight tracking-tighter text-white drop-shadow-xl">
-            Visa<br/><span className="italic font-serif text-white/80">Intelligence</span>
+            Visa<br /><span className="italic font-serif text-white/80">Intelligence</span>
           </h1>
           <p className="text-base font-light text-white/40 max-w-md leading-relaxed drop-shadow-md">
             Decoding global borders into clear, actionable strategy.
@@ -282,7 +282,7 @@ export default function VisasPage() {
           <div className="w-full lg:w-1/2 animate-reveal-up">
             <span className="text-primary text-[10px] font-bold tracking-[0.4em] uppercase mb-3 block">Strategic Mobility</span>
             <h2 className="text-4xl sm:text-5xl font-light tracking-tighter leading-tight">
-              Precision in<br/><span className="italic font-serif opacity-40">Entry.</span>
+              Precision in<br /><span className="italic font-serif opacity-40">Entry.</span>
             </h2>
           </div>
           <div className="w-full lg:w-1/2 space-y-5 animate-reveal-up" style={{ animationDelay: '0.15s' }}>
@@ -339,11 +339,10 @@ export default function VisasPage() {
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-5 py-2 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase whitespace-nowrap transition-all ${
-                  filter === f
+                className={`px-5 py-2 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase whitespace-nowrap transition-all ${filter === f
                     ? 'bg-black text-white shadow-md'
                     : 'bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-lowest'
-                }`}
+                  }`}
               >
                 {f !== 'All' && (
                   <span className={`inline-block w-1.5 h-1.5 rounded-full mr-2 ${diffDot(f)}`} />
@@ -440,7 +439,7 @@ export default function VisasPage() {
       <section className="py-16 sm:py-20 px-4 sm:px-8 md:px-16 bg-surface-container-lowest text-center border-t border-outline-variant/10">
         <div className="max-w-xl mx-auto animate-reveal-up">
           <h2 className="text-3xl sm:text-4xl font-light tracking-tighter mb-4 leading-tight">
-            Strategic<br/><span className="italic font-serif text-on-surface/40">Mobility Bureau</span>
+            Strategic<br /><span className="italic font-serif text-on-surface/40">Mobility Bureau</span>
           </h2>
           <p className="text-sm font-light text-on-surface-variant mb-7 leading-relaxed opacity-70">
             For complex multi-territory itineraries, our senior mobility strategists offer end-to-end documentation management.
