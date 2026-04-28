@@ -92,15 +92,24 @@ export function Footer() {
         </div>
 
         {/* ── BOTTOM BAR ── */}
-        <div className="pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
-          <div className="space-y-1">
+        <div className="pt-6 flex flex-col lg:flex-row justify-between items-center gap-6 text-center lg:text-left">
+          <div className="space-y-1.5 order-2 lg:order-1">
             <p className="text-[9px] font-black tracking-[0.6em] uppercase text-white/20">Experience curated travel at its finest</p>
             <p className="text-[9px] font-bold tracking-[0.3em] uppercase text-white/30">
               © {year} JourneyFlicker Curator System · All Rights Reserved
             </p>
           </div>
+
+          <div className="flex flex-wrap justify-center lg:justify-end items-center gap-3 sm:gap-5 order-1 lg:order-2">
+            <span className="text-[8px] font-black tracking-[0.4em] uppercase text-white/20">Accreditations:</span>
+            <span className="text-[9px] font-bold tracking-widest text-white/40 hover:text-white/80 transition-colors uppercase cursor-help" title="International Air Transport Association">IATA</span>
+            <span className="text-[9px] font-bold tracking-widest text-white/40 hover:text-white/80 transition-colors uppercase cursor-help" title="Air Travel Organisers' Licensing">ATOL Protected</span>
+            <span className="text-[9px] font-bold tracking-widest text-white/40 hover:text-white/80 transition-colors uppercase cursor-help" title="American Society of Travel Advisors">ASTA Member</span>
+            <span className="text-[8px] font-bold tracking-widest text-white/40 hover:text-white/80 transition-colors uppercase border border-white/20 px-2 py-0.5 rounded-sm cursor-help" title="Quality Management System">ISO 9001:2015</span>
+          </div>
+
           <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300 shrink-0"
+            className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300 shrink-0 order-3"
             aria-label="Scroll to top">
             <span className="material-symbols-outlined font-light text-base">north</span>
           </button>
