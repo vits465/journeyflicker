@@ -21,6 +21,7 @@ import AdminBackups from "./pages/AdminBackups";
 import AdminFrontendBackups from "./pages/AdminFrontendBackups";
 import { SplashPreloader } from "./components/Preloader";
 import { SearchProvider } from "./lib/searchContext";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 export default function App() {
   const [init, setInit] = useState(true);
@@ -73,6 +74,7 @@ export default function App() {
           {/* Catch-all redirect to dashboard */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        <SpeedInsights />
       </SearchProvider>
     </AdminAuthProvider>
   );
