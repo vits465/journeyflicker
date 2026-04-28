@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import type { Destination, Tour } from '../lib/api';
 import { api } from '../lib/api';
 import { HeroSlider, type HeroSlide } from '../components/HeroSlider';
+import { AutoCarousel } from '../components/AutoCarousel';
 import { useHeroSettings } from '../lib/heroSettings';
 import { optimizeImage } from '../lib/optimize';
 
@@ -43,10 +44,19 @@ export default function HomePage() {
   const [tours, setTours] = useState<Tour[]>([]);
   const [loading, setLoading] = useState(true);
   const heroIds = useHeroSettings('home');
+  const [shuffledDestinations, setShuffledDestinations] = useState<Destination[]>([]);
+  const [shuffledTours, setShuffledTours] = useState<Tour[]>([]);
 
   useEffect(() => {
     Promise.all([api.listDestinations(), api.listTours()])
-      .then(([d, t]) => { setDestinations(d || []); setTours(t || []); setLoading(false); })
+      .then(([d, t]) => { 
+        setDestinations(d || []); 
+        setTours(t || []); 
+        // Shuffle for dynamic feel
+        setShuffledDestinations([...(d || [])].sort(() => Math.random() - 0.5));
+        setShuffledTours([...(t || [])].sort(() => Math.random() - 0.5));
+        setLoading(false); 
+      })
       .catch(() => setLoading(false));
   }, []);
 
@@ -130,23 +140,26 @@ export default function HomePage() {
               Full Archive <span className="material-symbols-outlined font-light text-sm">east</span>
             </button>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {loading
-              ? [1,2,3].map(i => <div key={i} className="animate-pulse bg-surface-container-low aspect-[4/5] rounded-2xl" />)
-              : destinations.slice(0, 6).map(dest => (
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {[1,2,3].map(i => <div key={i} className="animate-pulse bg-surface-container-low aspect-[4/5] rounded-2xl" />)}
+            </div>
+          ) : (
+            <AutoCarousel autoPlayMs={5000}>
+              {shuffledDestinations.map(dest => (
                 <div key={dest.id}
-                  className="group relative overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer aspect-[4/5]"
+                  className="group relative overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer w-[280px] sm:w-[320px] aspect-[4/5]"
                   onClick={() => navigate(`/destinations/${dest.id}`)}>
                   <img className="absolute inset-0 w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105 grayscale group-hover:grayscale-0"
-                    alt={dest.name} src={dest.heroImageUrl || FALLBACK} />
+                    alt={dest.name} src={optimizeImage(dest.heroImageUrl || FALLBACK, 800)} />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent flex flex-col justify-end p-5">
                     <span className="text-white text-[9px] font-black tracking-[0.5em] uppercase bg-black/40 backdrop-blur-sm self-start px-3 py-1 rounded-full border border-white/20 mb-2">{dest.region}</span>
                     <h3 className="text-2xl font-light text-white tracking-tighter font-serif italic">{dest.name}</h3>
                   </div>
                 </div>
-              ))
-            }
-          </div>
+              ))}
+            </AutoCarousel>
+          )}
         </div>
       </section>
 
@@ -267,42 +280,46 @@ export default function HomePage() {
             <div className="h-px bg-outline-variant/30 w-24" />
           </div>
           <div className="flex flex-col gap-10 md:gap-14">
-            {loading
-              ? [1,2,3].map(i => (
+          {loading ? (
+            <div className="flex flex-col gap-10">
+              {[1,2,3].map(i => (
                 <div key={i} className="flex flex-col lg:flex-row gap-7 animate-pulse">
                   <div className="w-full lg:w-3/5 aspect-[4/3] bg-surface-container-low rounded-2xl" />
                   <div className="w-full lg:w-2/5 space-y-3">
                     <div className="h-3 bg-surface-container-low rounded w-1/3" />
                     <div className="h-6 bg-surface-container-low rounded w-3/4" />
-                    <div className="h-3 bg-surface-container-low rounded w-full" />
                   </div>
                 </div>
-              ))
-              : tours.slice(0, 3).map((tour, idx) => (
+              ))}
+            </div>
+          ) : (
+            <AutoCarousel autoPlayMs={6000}>
+              {shuffledTours.map((tour, idx) => (
                 <div key={tour.id}
-                  className={`flex flex-col ${idx % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-center gap-7 lg:gap-14 group cursor-pointer animate-reveal-up`}
+                  className="w-[80vw] max-w-4xl flex flex-col lg:flex-row items-center gap-7 lg:gap-10 group cursor-pointer"
                   onClick={() => navigate(`/tours/${tour.id}`)}>
-                  <div className="w-full lg:w-3/5 overflow-hidden rounded-2xl shadow-sm group-hover:shadow-2xl transition-all duration-700 relative aspect-[4/3] bg-black">
+                  <div className="w-full lg:w-1/2 overflow-hidden rounded-2xl shadow-sm group-hover:shadow-2xl transition-all duration-700 relative aspect-[4/3] bg-black shrink-0">
                     <img className="absolute inset-0 w-full h-full object-cover transition-transform duration-[5s] ease-out group-hover:scale-105 opacity-80 group-hover:opacity-100"
-                      alt={tour.name} src={tour.heroImageUrl || FALLBACK} />
+                      alt={tour.name} src={optimizeImage(tour.heroImageUrl || FALLBACK, 1200)} />
                     <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-4 py-1.5 rounded-full shadow-lg">
                       <span className="text-[9px] font-black tracking-[0.4em] text-black uppercase">{tour.days} DAYS</span>
                     </div>
                   </div>
-                  <div className="w-full lg:w-2/5 flex flex-col items-start">
+                  <div className="w-full lg:w-1/2 flex flex-col items-start text-left">
                     <div className="flex items-center gap-3 mb-3">
-                      <span className="bg-black/5 px-4 py-1.5 rounded-full text-[9px] font-black tracking-[0.4em] uppercase">No. {String(idx+1).padStart(2,'00')}</span>
+                      <span className="bg-black/5 px-4 py-1.5 rounded-full text-[9px] font-black tracking-[0.4em] uppercase">No. {String(idx+1).padStart(2,'0')}</span>
                       <span className="text-on-surface-variant text-[9px] tracking-[0.3em] uppercase font-bold">{tour.category}</span>
                     </div>
-                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-light leading-tight tracking-tighter mb-3 group-hover:text-primary transition-colors duration-500 italic">{tour.name}</h3>
-                    <p className="text-sm font-light text-on-surface-variant leading-relaxed mb-5 opacity-70">{tour.overviewDescription}</p>
+                    <h3 className="text-xl sm:text-2xl md:text-3xl font-light leading-tight tracking-tighter mb-3 group-hover:text-primary transition-colors duration-500 italic">{tour.name}</h3>
+                    <p className="text-xs sm:text-sm font-light text-on-surface-variant leading-relaxed mb-5 opacity-70 line-clamp-3">{tour.overviewDescription}</p>
                     <div className="flex items-center gap-2 text-[9px] font-black tracking-[0.4em] uppercase border-b-2 border-black pb-1.5 hover:translate-x-1 transition-transform duration-300">
                       Read Dossier <span className="material-symbols-outlined text-sm font-light">arrow_forward</span>
                     </div>
                   </div>
                 </div>
-              ))
-            }
+              ))}
+            </AutoCarousel>
+          )}
           </div>
 
           {tours.length > 0 && (
