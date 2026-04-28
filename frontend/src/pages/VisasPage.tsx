@@ -4,6 +4,8 @@ import type { Visa } from '../lib/api';
 import { api } from '../lib/api';
 import { useAllHeroSettings } from '../lib/heroSettings';
 import { Preloader } from '../components/Preloader';
+import { HeroSlider } from '../components/HeroSlider';
+import { SEO } from '../components/SEO';
 
 const diffColor = (d: string) =>
   d === 'Easy'     ? 'bg-emerald-50  text-emerald-700 border-emerald-200'
@@ -189,40 +191,41 @@ export default function VisasPage() {
 
   return (
     <>
+      <SEO pageId="visas" />
       {/* ── HERO ── */}
-      <section className="relative h-[70vh] min-h-[460px] max-h-[700px] flex flex-col justify-center items-center px-4 sm:px-8 overflow-hidden bg-black text-center pt-16">
-        <div className="absolute inset-0 z-0">
-          <img
-            className="absolute inset-0 w-full h-full object-cover animate-image-pan opacity-50 grayscale"
-            alt="Passport & Visa"
-            src={bannerImage}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-black/90" />
-        </div>
-        <div className="relative z-10 max-w-3xl animate-reveal-up flex flex-col items-center gap-5">
+      <HeroSlider
+        slides={[
+          { id: '1', imageUrl: bannerImage, title: 'Visa Intelligence' },
+          { id: '2', imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=2070&auto=format&fit=crop', title: 'Global Movement' },
+          { id: '3', imageUrl: 'https://images.unsplash.com/photo-1493246232918-d78b97076ac9?q=80&w=2070&auto=format&fit=crop', title: 'Borderless Strategy' }
+        ]}
+        height="h-[70vh] min-h-[460px] max-h-[700px]"
+        hideSlideText={true}
+      >
+        <div className="relative z-10 max-w-3xl animate-reveal-up flex flex-col items-center gap-5 text-center px-4 pt-16">
           <span className="text-white/50 text-[10px] tracking-[0.6em] uppercase font-bold">Bureau of Movement</span>
-          <h1 className="text-5xl sm:text-6xl md:text-7xl font-light leading-tight tracking-tighter text-white">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl font-light leading-tight tracking-tighter text-white drop-shadow-xl">
             Visa<br/><span className="italic font-serif text-white/80">Intelligence</span>
           </h1>
-          <p className="text-base font-light text-white/40 max-w-md leading-relaxed">
+          <p className="text-base font-light text-white/40 max-w-md leading-relaxed drop-shadow-md">
             Decoding global borders into clear, actionable strategy.
           </p>
           {/* Stats strip */}
           {!loading && visas.length > 0 && (
             <div className="flex items-center gap-6 mt-2">
               <div className="text-center">
-                <p className="text-2xl font-light text-white">{visas.length}</p>
-                <p className="text-[9px] text-white/40 tracking-widest uppercase">Countries</p>
+                <p className="text-2xl font-light text-white drop-shadow-sm">{visas.length}</p>
+                <p className="text-[9px] text-white/60 tracking-widest uppercase">Countries</p>
               </div>
               <div className="w-px h-8 bg-white/20" />
               <div className="text-center">
-                <p className="text-2xl font-light text-white">{visas.filter(v => v.difficulty === 'Easy').length}</p>
-                <p className="text-[9px] text-white/40 tracking-widest uppercase">Easy Access</p>
+                <p className="text-2xl font-light text-white drop-shadow-sm">{visas.filter(v => v.difficulty === 'Easy').length}</p>
+                <p className="text-[9px] text-white/60 tracking-widest uppercase">Easy Access</p>
               </div>
               <div className="w-px h-8 bg-white/20" />
               <div className="text-center">
-                <p className="text-2xl font-light text-white">{visas.filter(v => v.documents && v.documents.length > 0).length}</p>
-                <p className="text-[9px] text-white/40 tracking-widest uppercase">With Docs Guide</p>
+                <p className="text-2xl font-light text-white drop-shadow-sm">{visas.filter(v => v.documents && v.documents.length > 0).length}</p>
+                <p className="text-[9px] text-white/60 tracking-widest uppercase">With Docs Guide</p>
               </div>
             </div>
           )}
@@ -232,7 +235,7 @@ export default function VisasPage() {
           <span className="text-white text-[9px] tracking-widest uppercase">Scroll</span>
           <div className="w-px h-10 bg-white animate-pulse" />
         </div>
-      </section>
+      </HeroSlider>
 
       {/* ── PHILOSOPHY ── */}
       <section className="py-16 sm:py-20 md:py-28 px-4 sm:px-8 md:px-16 bg-surface-container-lowest">

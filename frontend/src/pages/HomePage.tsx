@@ -33,6 +33,7 @@ const TESTIMONIALS = [
 const PRESS = ['Travel + Leisure', 'Condé Nast Traveller', 'Forbes Life', 'The New York Times', 'Monocle', 'Wallpaper*'];
 
 import { useSearch } from '../lib/searchContext';
+import { SEO } from '../components/SEO';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -59,6 +60,7 @@ export default function HomePage() {
 
   return (
     <>
+      <SEO pageId="home" />
       {/* ────────────────────────── 1. HERO ────────────────────────── */}
       <HeroSlider slides={heroSlides} loading={loading} autoPlayMs={5500} height="h-screen min-h-[560px] max-h-[900px]" hideSlideText={true}>
         <div className="flex flex-col items-center text-center w-full px-4 pt-16">

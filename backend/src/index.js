@@ -531,6 +531,18 @@ app.put("/api/hero-settings", requireAdmin, async (req, res) => {
   res.json({ success: true });
 });
 
+const SEO_KEY = "jf:seo";
+
+// ── SEO Settings ──────────────────────────────────────────────────────────────
+app.get("/api/seo-settings", async (_req, res) => {
+  const data = await kv.get(SEO_KEY);
+  res.json(data || []);
+});
+app.put("/api/seo-settings", requireAdmin, async (req, res) => {
+  await kv.set(SEO_KEY, req.body);
+  res.json({ success: true });
+});
+
 // ── Backups (KV-based snapshots) ───────────────────────────────────────────────
 async function createBackup() {
   try {

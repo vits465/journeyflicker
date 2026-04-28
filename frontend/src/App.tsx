@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import "./App.css";
 import { SiteLayout } from "./components/SiteLayout";
 import AboutPage from "./pages/AboutPage";
@@ -23,7 +24,8 @@ export default function App() {
   }
 
   return (
-    <SearchProvider>
+    <HelmetProvider>
+      <SearchProvider>
       <ScrollToTop />
       <Routes>
         {/* Public site */}
@@ -40,5 +42,6 @@ export default function App() {
         </Route>
       </Routes>
     </SearchProvider>
+    </HelmetProvider>
   );
 }

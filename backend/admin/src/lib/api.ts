@@ -83,6 +83,15 @@ export type Media = {
   folder: string;
 };
 
+export type SeoPage = {
+  id: string;
+  name: string;
+  path: string;
+  title: string;
+  desc: string;
+  ogImage?: string;
+};
+
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
   const token = sessionStorage.getItem("jf_token");
   const headers: HeadersInit = {
@@ -161,6 +170,8 @@ export interface ApiInterface {
   listMedia: () => Promise<Media[]>;
   createMedia: (data: Omit<Media, 'id'>) => Promise<Media>;
   deleteMedia: (id: string) => Promise<void>;
+  getSeoSettings: () => Promise<SeoPage[]>;
+  updateSeoSettings: (settings: SeoPage[]) => Promise<void>;
 }
 
 export const api: ApiInterface = {
@@ -201,4 +212,10 @@ export const api: ApiInterface = {
   listMedia: () => http<Media[]>("/media"),
   createMedia: (data) => http<Media>("/media", { method: "POST", body: JSON.stringify(data) }),
   deleteMedia: (id: string) => http<void>(`/media/${id}`, { method: "DELETE" }),
+
+  getSeoSettings: () => http<SeoPage[]>("/seo-settings"),
+  updateSeoSettings: (settings: SeoPage[]) => http<void>("/seo-settings", {
+    method: "PUT",
+    body: JSON.stringify(settings),
+  }),
 };

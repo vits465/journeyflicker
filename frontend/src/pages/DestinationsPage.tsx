@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
+import { SEO } from '../components/SEO';
 import type { Destination, Tour } from '../lib/api';
 import { api } from '../lib/api';
 import { HeroSlider, type HeroSlide } from '../components/HeroSlider';
@@ -92,6 +93,7 @@ export default function DestinationsPage() {
 
   return (
     <>
+      <SEO pageId="destinations" />
       {/* ── HERO SLIDER ── */}
       <HeroSlider slides={heroSlides} loading={loading} autoPlayMs={5000} height="h-[65vh] min-h-[480px] max-h-[700px]" />
 

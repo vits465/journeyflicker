@@ -1,26 +1,64 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
+import { api, type SeoPage } from '../lib/api';
 
-const PAGES = [
-  { id: 'home', name: 'Homepage', path: '/', title: 'JourneyFlicker | Digital Curator of Luxury Travel', desc: 'Experience the world\'s most evocative territories through our curated luxury travel itineraries.' },
-  { id: 'destinations', name: 'Destinations', path: '/destinations', title: 'Luxury Destinations | JourneyFlicker', desc: 'Explore our handpicked selection of premium global destinations.' },
-  { id: 'tours', name: 'Tours & Journeys', path: '/tours', title: 'Curated Tours | JourneyFlicker', desc: 'Browse our exclusive, meticulously planned travel experiences and guided tours.' },
-  { id: 'about', name: 'About Us', path: '/about', title: 'About JourneyFlicker', desc: 'Learn about our philosophy as digital curators of luxury travel.' },
+const DEFAULT_PAGES: SeoPage[] = [
+  { id: 'home', name: 'Homepage', path: '/', title: 'JourneyFlicker | Digital Curator of Luxury Travel', desc: 'Experience the world\'s most evocative territories through our curated luxury travel itineraries.', ogImage: '' },
+  { id: 'destinations', name: 'Destinations', path: '/destinations', title: 'Luxury Destinations | JourneyFlicker', desc: 'Explore our handpicked selection of premium global destinations.', ogImage: '' },
+  { id: 'tours', name: 'Tours & Journeys', path: '/tours', title: 'Curated Tours | JourneyFlicker', desc: 'Browse our exclusive, meticulously planned travel experiences and guided tours.', ogImage: '' },
+  { id: 'about', name: 'About Us', path: '/about', title: 'About JourneyFlicker', desc: 'Learn about our philosophy as digital curators of luxury travel.', ogImage: '' },
 ];
 
 export default function AdminSEO() {
   const { canEdit } = useOutletContext<{ canEdit: boolean }>();
-  const [activePage, setActivePage] = useState(PAGES[0]);
+  const [pages, setPages] = useState<SeoPage[]>([]);
+  const [activePageId, setActivePageId] = useState<string>('home');
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const handleSave = () => {
+  useEffect(() => {
+    api.getSeoSettings().then(data => {
+      if (data && data.length > 0) {
+        // Merge with default to ensure all pages exist
+        const merged = DEFAULT_PAGES.map(dp => {
+          const found = data.find((p: SeoPage) => p.id === dp.id);
+          return found ? { ...dp, ...found } : dp;
+        });
+        setPages(merged);
+      } else {
+        setPages(DEFAULT_PAGES);
+      }
+      setLoading(false);
+    }).catch(err => {
+      console.error(err);
+      setPages(DEFAULT_PAGES);
+      setLoading(false);
+    });
+  }, []);
+
+  const activePage = pages.find(p => p.id === activePageId) || pages[0];
+
+  const handleUpdate = (field: keyof SeoPage, value: string) => {
+    setPages(prev => prev.map(p => p.id === activePageId ? { ...p, [field]: value } : p));
+  };
+
+  const handleSave = async () => {
     if (!canEdit) return;
     setSaving(true);
-    setTimeout(() => {
-      setSaving(false);
+    try {
+      await api.updateSeoSettings(pages);
       alert('SEO Metadata updated successfully.');
-    }, 800);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update SEO settings.');
+    } finally {
+      setSaving(false);
+    }
   };
+
+  if (loading) {
+    return <div className="p-8 text-center text-on-surface-variant">Loading...</div>;
+  }
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -35,12 +73,12 @@ export default function AdminSEO() {
         <div className="bg-white rounded-2xl border border-outline-variant/30 p-4 shadow-sm h-fit">
           <h3 className="text-xs font-black uppercase tracking-widest text-on-surface-variant mb-4 px-2">Static Pages</h3>
           <div className="space-y-1">
-            {PAGES.map(page => (
+            {pages.map(page => (
               <button
                 key={page.id}
-                onClick={() => setActivePage(page)}
+                onClick={() => setActivePageId(page.id)}
                 className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                  activePage.id === page.id ? 'bg-black text-white shadow-md' : 'text-on-surface hover:bg-surface-container-low'
+                  activePageId === page.id ? 'bg-black text-white shadow-md' : 'text-on-surface hover:bg-surface-container-low'
                 }`}
               >
                 {page.name}
@@ -79,7 +117,8 @@ export default function AdminSEO() {
                 <label className="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Meta Title</label>
                 <input
                   type="text"
-                  defaultValue={activePage.title}
+                  value={activePage.title}
+                  onChange={e => handleUpdate('title', e.target.value)}
                   disabled={!canEdit}
                   className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant/50 rounded-xl text-sm focus:ring-2 focus:ring-black focus:outline-none disabled:opacity-50"
                 />
@@ -93,7 +132,8 @@ export default function AdminSEO() {
                 <label className="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Meta Description</label>
                 <textarea
                   rows={3}
-                  defaultValue={activePage.desc}
+                  value={activePage.desc}
+                  onChange={e => handleUpdate('desc', e.target.value)}
                   disabled={!canEdit}
                   className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant/50 rounded-xl text-sm focus:ring-2 focus:ring-black focus:outline-none disabled:opacity-50 resize-none"
                 />
@@ -107,21 +147,22 @@ export default function AdminSEO() {
                 <label className="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Social Sharing Image (OpenGraph)</label>
                 <div className="flex gap-4">
                   <div className="w-32 h-20 bg-surface-container border border-outline-variant/30 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
-                    <span className="material-symbols-outlined text-on-surface-variant/40">image</span>
+                    {activePage.ogImage ? (
+                      <img src={activePage.ogImage} alt="OG" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="material-symbols-outlined text-on-surface-variant/40">image</span>
+                    )}
                   </div>
                   <div className="flex-1 flex flex-col justify-center">
                     <div className="flex gap-2">
                       <input
                         type="text"
                         placeholder="https://... (Image URL)"
+                        value={activePage.ogImage || ''}
+                        onChange={e => handleUpdate('ogImage', e.target.value)}
                         disabled={!canEdit}
                         className="flex-1 px-3 py-2 bg-surface-container-lowest border border-outline-variant/50 rounded-lg text-sm focus:ring-2 focus:ring-black focus:outline-none disabled:opacity-50"
                       />
-                      {canEdit && (
-                        <button className="px-4 py-2 bg-surface-container border border-outline-variant/50 rounded-lg text-xs font-bold uppercase hover:bg-surface-container-low transition">
-                          Browse
-                        </button>
-                      )}
                     </div>
                     <p className="text-[10px] text-on-surface-variant mt-2">Used when the page is shared on Twitter, Facebook, or LinkedIn. Ideal size: 1200x630px.</p>
                   </div>

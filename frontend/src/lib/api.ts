@@ -123,6 +123,15 @@ export type Backup = {
   createdAt: number;
 };
 
+export type SeoPage = {
+  id: string;
+  name: string;
+  path: string;
+  title: string;
+  desc: string;
+  ogImage?: string;
+};
+
 export const api = {
   listDestinations: () => http<Destination[]>("/destinations"),
   getDestination: (id: string) => http<Destination>(`/destinations/${id}`),
@@ -152,4 +161,5 @@ export const api = {
   restoreBackup: (filename: string) => http<{ success: boolean }>(`/backups/restore/${filename}`, { method: "POST" }),
   getHeroSettings: () => http<any>("/hero-settings"),
   search: (q: string) => http<{ destinations: Destination[]; tours: Tour[] }>(`/search?q=${encodeURIComponent(q)}`),
+  getSeoSettings: () => http<SeoPage[]>("/seo-settings"),
 };

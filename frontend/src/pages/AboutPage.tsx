@@ -1,4 +1,6 @@
 import { useNavigate } from 'react-router-dom';
+import { SEO } from '../components/SEO';
+import { HeroSlider, type HeroSlide } from '../components/HeroSlider';
 
 const team = [
   { name: "Julian Voss", role: "Founding Curator", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2070&auto=format&fit=crop" },
@@ -12,23 +14,27 @@ export default function AboutPage() {
 
   return (
     <>
+      <SEO pageId="about" />
       {/* ── HERO ── */}
-      <section className="relative h-[65vh] min-h-[440px] max-h-[680px] flex items-center px-4 sm:px-8 md:px-16 overflow-hidden bg-black pt-16">
-        <div className="absolute inset-0 z-0">
-          <img className="absolute inset-0 w-full h-full object-cover animate-image-pan opacity-55 grayscale"
-            alt="About hero" src="https://images.unsplash.com/photo-1493246232918-d78b97076ac9?q=80&w=2070&auto=format&fit=crop" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/50 to-transparent" />
-        </div>
-        <div className="relative z-10 max-w-3xl animate-reveal-up">
+      <HeroSlider
+        slides={[
+          { id: '1', imageUrl: 'https://images.unsplash.com/photo-1493246232918-d78b97076ac9?q=80&w=2070&auto=format&fit=crop', title: 'The Narrative' },
+          { id: '2', imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=2070&auto=format&fit=crop', title: 'The Ethos' },
+          { id: '3', imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop', title: 'The Collective' }
+        ]}
+        height="h-[65vh] min-h-[440px] max-h-[680px]"
+        hideSlideText={true}
+      >
+        <div className="relative z-10 max-w-3xl animate-reveal-up text-left md:ml-16 sm:ml-8 ml-4 pt-16">
           <span className="text-white/60 text-[10px] tracking-[0.5em] uppercase mb-4 block font-bold">The Narrative</span>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tighter leading-tight text-white mb-5">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tighter leading-tight text-white mb-5 drop-shadow-lg">
             Crafting Art in<br/><span className="italic font-serif text-white/90">Discovery</span>
           </h1>
-          <p className="text-base sm:text-lg font-light text-white/50 max-w-xl leading-relaxed">
+          <p className="text-base sm:text-lg font-light text-white/50 max-w-xl leading-relaxed drop-shadow-md">
             JourneyFlicker is a digital curator for the discerning voyager seeking silence, space, and the sublime.
           </p>
         </div>
-      </section>
+      </HeroSlider>
 
       {/* ── PHILOSOPHY ── */}
       <section className="py-14 sm:py-20 md:py-28 px-4 sm:px-8 md:px-16 bg-surface-container-lowest">

@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { SEO } from '../components/SEO';
 import type { Destination, Tour } from '../lib/api';
 import { api } from '../lib/api';
 import { Preloader } from '../components/Preloader';
@@ -154,6 +155,7 @@ export default function DestinationDetailsPage() {
 
   return (
     <div className="overflow-x-hidden w-full">
+      <SEO title={`${destination.name} | JourneyFlicker`} description={destination.description || destination.essenceText} image={destination.heroImageUrl} />
 
       {/* ── 1. HEADER ── */}
       <section className="pt-24 md:pt-28 pb-8 px-4 sm:px-8 md:px-16 max-w-5xl mx-auto animate-reveal-up">
