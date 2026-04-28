@@ -141,7 +141,15 @@ export default function TourDetailsPage() {
       if (document.visibilityState === 'visible') fetchTour();
     }, 3000); // Poll every 3 seconds only if tab is visible
 
-    return () => clearInterval(intervalId); // Cleanup interval on unmount
+    const onFocus = () => { if (document.visibilityState === 'visible') fetchTour(); };
+    window.addEventListener('visibilitychange', onFocus);
+    window.addEventListener('focus', onFocus);
+
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener('visibilitychange', onFocus);
+      window.removeEventListener('focus', onFocus);
+    };
   }, [id]);
 
   if (loading) return <Preloader fullScreen />;
