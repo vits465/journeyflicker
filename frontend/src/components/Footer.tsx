@@ -4,10 +4,10 @@ const registry = ['Tours', 'Destinations', 'Visas', 'About'];
 const intelligence = ['FAQ', 'Contact', 'Strategy'];
 
 const socialIcons = [
-  { icon: 'photo_camera', href: 'YOUR_INSTAGRAM_URL_HERE', label: 'Instagram' },
-  { icon: 'business', href: 'YOUR_LINKEDIN_URL_HERE', label: 'LinkedIn' },
-  { icon: 'mail', href: 'mailto:YOUR_EMAIL_HERE', label: 'Email' },
-  { icon: 'phone', href: 'tel:YOUR_PHONE_HERE', label: 'Phone' },
+  { icon: 'photo_camera', href: 'https://www.instagram.com/journeyflicker?igsh=MWxxMXZ1bGR1Zjh3MQ==', label: 'Instagram' },
+  { icon: 'business', href: '#', label: 'LinkedIn' },
+  { icon: 'mail', href: 'mailto:curator@journeyflicker.com', label: 'Email' },
+  { icon: 'phone', href: 'tel:+919879268811', label: 'Phone' },
 ];
 
 export function Footer() {
@@ -73,19 +73,23 @@ export function Footer() {
             <h4 className="text-[9px] font-black tracking-[0.5em] uppercase text-white/20">Bureau</h4>
             <address className="not-italic">
               <p className="text-sm font-light text-white/30 leading-loose tracking-wide">
-                JourneyFlicker<br />
-                Surat, Gujarat<br />
-                India
+                103, Raj Victoria<br />
+                Near Samarth Circle, Adajan<br />
+                Surat - 395009, Gujarat, India
               </p>
             </address>
             <div className="space-y-1 pt-1">
-              <a href="mailto:YOUR_EMAIL_HERE"
+              <a href="mailto:curator@journeyflicker.com"
                 className="text-[10px] text-white/30 hover:text-white transition-colors block tracking-wide">
-                YOUR_EMAIL_HERE
+                curator@journeyflicker.com
               </a>
-              <a href="tel:YOUR_PHONE_HERE"
+              <a href="tel:+919879268811"
                 className="text-[10px] text-white/30 hover:text-white transition-colors block tracking-wide">
-                YOUR_PHONE_HERE
+                +91 98792 68811
+              </a>
+              <a href="tel:02613564717"
+                className="text-[10px] text-white/30 hover:text-white transition-colors block tracking-wide">
+                0261 3564717
               </a>
             </div>
           </div>
