@@ -120,6 +120,49 @@ function parseDestinationText(raw: string) {
   return { name, region, description: description.substring(0, 500), essenceText: '', heroImageUrl: heroImage, galleryImages, bestSeasonsTitle: `Best Time to Visit ${name}`, bestSeasonsMonths: '', landmarks, seasonsHighlights: [{ season: 'Peak Season', description: `Best time to visit ${name}.` }, { season: 'Off-Peak', description: `Fewer crowds in ${name}.` }] };
 }
 
+// ── Smart Visa Parser ────────────────────────────────────────────────────────
+function parseVisaText(raw: string) {
+  const text = raw;
+  const destMatch = text.match(/DESTINATION\s*[:\-]?\s*([A-Z][A-Z ]+)/i) || text.match(/([A-Z][A-Z ]+)\s+VISA/i);
+  const country = destMatch ? destMatch[1].trim() : 'New Country';
+  const typeMatch = text.match(/Type\s*[:\-]?\s*([A-Za-z ]+)/i);
+  const visaType = typeMatch ? typeMatch[1].trim() : 'Tourist Visa';
+  const processingMatch = text.match(/Processing\s*(?:Time)?\s*[:\-]?\s*([A-Za-z0-9 ]+)/i);
+  const processing = processingMatch ? processingMatch[1].trim() : '7-10 Business Days';
+  const feeMatch = text.match(/(?:Fee|Cost)\s*[:\-]?\s*USD\s*(\d+)/i) || text.match(/USD\s*(\d+)/i);
+  const fee = feeMatch ? `$${feeMatch[1]}` : '$150';
+  
+  const diffMatch = text.match(/Difficulty\s*[:\-]?\s*(Easy|Medium|Hard|Complex)/i);
+  const difficulty = diffMatch ? diffMatch[1].trim() : 'Medium';
+
+  const paragraphs = raw.split(/\n{2,}/).map(p => p.trim()).filter(p => p.length > 50);
+  const description = paragraphs.find(p => !/QUOTATION|TRAVELING|Requirement|Document|Processing|Fee/i.test(p)) || `Comprehensive visa assistance for ${country}.`;
+
+  const docsMatch = text.match(/(?:Required Documents|Documents)[:\s]*([^]*?)(?=Requirements|Process|Cancellation|$)/i);
+  const documents: string[] = [];
+  if (docsMatch) {
+    const bullets = docsMatch[1].match(/(?:^|\n)\s*[•\-\d.]+\s*(.+)/gm) || [];
+    bullets.forEach(b => documents.push(b.replace(/^[\s•\-\d.]+/, '').trim()));
+  }
+
+  const reqMatch = text.match(/Requirements[:\s]*([^]*?)(?=Process|Cancellation|$)/i);
+  const requirements: {label: string, detail: string}[] = [];
+  if (reqMatch) {
+    const bullets = reqMatch[1].match(/(?:^|\n)\s*[•\-\d.]+\s*(.+)/gm) || [];
+    bullets.forEach(b => {
+      const parts = b.replace(/^[\s•\-\d.]+/, '').split(':');
+      if (parts.length > 1) {
+        requirements.push({ label: parts[0].trim(), detail: parts.slice(1).join(':').trim() });
+      } else {
+        requirements.push({ label: 'Requirement', detail: parts[0].trim() });
+      }
+    });
+  }
+
+  const heroImage = `https://source.unsplash.com/1200x800/?${encodeURIComponent(country + ' passport travel')}`;
+  return { country, processing, difficulty, fee, description: description.substring(0, 500), visaType, documents, requirements, heroImageUrl: heroImage };
+}
+
 export function CSVUploader({ type, onUploadComplete }: DocImporterProps) {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -167,6 +210,10 @@ export function CSVUploader({ type, onUploadComplete }: DocImporterProps) {
         const parsed = parseDestinationText(text);
         if (imgFiles.length > 0) parsed.heroImageUrl = Object.values(urlMap)[0] || '';
         await api.createDestination(parsed as any);
+      } else if (type === 'visa') {
+        const parsed = parseVisaText(text);
+        // Visa model doesn't support multiple images in CSVUploader form yet, but if it did we'd handle it.
+        await api.createVisa(parsed as any);
       }
 
       alert(`Document imported as ${type} successfully!`);
