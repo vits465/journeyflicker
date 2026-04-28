@@ -19,27 +19,52 @@ const diffDot = (d: string) =>
 
 const DEFAULT_VISA_BG = 'https://images.unsplash.com/photo-1544016768-982d1554f0b9?q=80&w=1974&auto=format&fit=crop';
 
-// Complete Details Visa Card (Redesigned)
+// Sub-component: Handles long requirement detail text with Read More toggle
+function RequirementRow({ label, detail }: { label: string; detail: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const isLong = detail.length > 120;
+  return (
+    <div className="flex flex-col gap-1 text-sm pb-3 border-b border-outline-variant/5 last:border-0 last:pb-0">
+      <span className="font-semibold text-on-surface">{label}</span>
+      <span className="font-light text-on-surface-variant leading-relaxed">
+        {isLong && !expanded ? `${detail.slice(0, 120)}…` : detail}
+      </span>
+      {isLong && (
+        <button
+          onClick={() => setExpanded(e => !e)}
+          className="text-[10px] font-bold text-primary/70 hover:text-primary transition-colors text-left mt-0.5 uppercase tracking-wide"
+        >
+          {expanded ? 'Show Less ▲' : 'Read More ▼'}
+        </button>
+      )}
+    </div>
+  );
+}
+
+// Hardened Visa Card — crash-proof with safe array/object guards
 function VisaCard({ visa, index }: { visa: Visa; index: number }) {
+  const requirements = Array.isArray(visa?.requirements) ? visa.requirements : [];
+  const documents = Array.isArray(visa?.documents) ? visa.documents : [];
+
   return (
     <div
       className="group relative rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-outline-variant/10 bg-white flex flex-col h-full"
       style={{ animationDelay: `${(index % 3) * 0.08}s` }}
     >
       {/* Background Image Strip */}
-      {visa.heroImageUrl ? (
+      {visa?.heroImageUrl ? (
         <div className="relative h-48 overflow-hidden flex-shrink-0">
           <img
             src={visa.heroImageUrl}
-            alt={visa.country}
+            alt={visa?.country || 'Visa'}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/80" />
-          <span className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[9px] font-bold tracking-[0.2em] border ${diffColor(visa.difficulty)}`}>
-            {visa.difficulty}
+          <span className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[9px] font-bold tracking-[0.2em] border ${diffColor(visa?.difficulty || '')}`}>
+            {visa?.difficulty || '—'}
           </span>
           <h3 className="absolute bottom-4 left-5 text-white text-3xl font-light tracking-tighter drop-shadow-md">
-            {visa.country}
+            {visa?.country || 'Unknown'}
           </h3>
         </div>
       ) : (
@@ -48,12 +73,12 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
             <div className="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-500">
               <span className="material-symbols-outlined font-light text-2xl">public</span>
             </div>
-            <span className={`px-3 py-1 rounded-full text-[9px] font-bold tracking-[0.2em] border ${diffColor(visa.difficulty)}`}>
-              {visa.difficulty}
+            <span className={`px-3 py-1 rounded-full text-[9px] font-bold tracking-[0.2em] border ${diffColor(visa?.difficulty || '')}`}>
+              {visa?.difficulty || '—'}
             </span>
           </div>
           <h3 className="text-3xl font-light tracking-tighter group-hover:text-primary transition-colors">
-            {visa.country}
+            {visa?.country || 'Unknown'}
           </h3>
         </div>
       )}
@@ -61,12 +86,12 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
       {/* Core Info */}
       <div className="px-6 py-6 flex-1 flex flex-col gap-6">
         <div>
-          {visa.visaType && (
+          {visa?.visaType && (
             <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-on-surface-variant/50 mb-2 block">
               {visa.visaType}
             </span>
           )}
-          {visa.description && (
+          {visa?.description && (
             <p className="text-sm font-light text-on-surface-variant leading-relaxed">
               {visa.description}
             </p>
@@ -74,18 +99,18 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
         </div>
 
         {/* Documents */}
-        {visa.documents && visa.documents.length > 0 && (
+        {documents.length > 0 && (
           <div>
             <p className="text-[10px] font-black tracking-[0.4em] uppercase text-on-surface-variant/50 mb-3 border-b border-outline-variant/10 pb-2">
               📄 Required Documents
             </p>
             <ul className="space-y-3">
-              {visa.documents.map((doc, i) => (
+              {documents.map((doc, i) => (
                 <li key={i} className="flex items-start gap-3 text-sm font-light text-on-surface-variant leading-relaxed">
                   <span className="w-5 h-5 rounded-full bg-primary/5 text-primary flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 border border-primary/10">
                     {i + 1}
                   </span>
-                  {doc}
+                  {doc || '—'}
                 </li>
               ))}
             </ul>
@@ -93,31 +118,28 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
         )}
 
         {/* Requirements */}
-        {visa.requirements && visa.requirements.length > 0 && (
+        {requirements.length > 0 && (
           <div>
             <p className="text-[10px] font-black tracking-[0.4em] uppercase text-on-surface-variant/50 mb-3 border-b border-outline-variant/10 pb-2">
               ✅ Key Requirements
             </p>
             <div className="space-y-3">
-              {visa.requirements.map((req, i) => (
-                <div key={i} className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-4 text-sm pb-3 border-b border-outline-variant/5 last:border-0 last:pb-0">
-                  <span className="font-semibold text-on-surface sm:min-w-[140px]">{req.label}</span>
-                  <span className="font-light text-on-surface-variant sm:text-right">{req.detail}</span>
-                </div>
+              {requirements.map((req, i) => (
+                <RequirementRow key={i} label={req?.label || '—'} detail={req?.detail || '—'} />
               ))}
             </div>
           </div>
         )}
 
-        {/* Footer info (Processing & Fee) */}
+        {/* Footer: Processing & Fee */}
         <div className="mt-auto pt-6 border-t border-outline-variant/10 grid grid-cols-2 gap-4">
           <div className="bg-surface-container-lowest p-3 rounded-2xl border border-outline-variant/10 text-center">
             <span className="text-[9px] text-on-surface-variant uppercase font-bold tracking-widest block mb-1 opacity-60">Processing</span>
-            <span className="text-sm font-semibold text-on-surface">{visa.processing}</span>
+            <span className="text-sm font-semibold text-on-surface">{visa?.processing || '—'}</span>
           </div>
           <div className="bg-surface-container-lowest p-3 rounded-2xl border border-outline-variant/10 text-center">
             <span className="text-[9px] text-on-surface-variant uppercase font-bold tracking-widest block mb-1 opacity-60">Fee</span>
-            <span className="text-sm font-semibold text-on-surface">{visa.fee}</span>
+            <span className="text-sm font-semibold text-on-surface">{visa?.fee || '—'}</span>
           </div>
         </div>
       </div>
@@ -147,7 +169,7 @@ export default function VisasPage() {
 
   const filtered = visas.filter(v =>
     (filter === 'All' || v.difficulty === filter) &&
-    (search === '' || v.country.toLowerCase().includes(search.toLowerCase()))
+    (search === '' || (v.country || '').toLowerCase().includes(search.toLowerCase()))
   );
 
   const heroSlides = useMemo(() => {
@@ -162,7 +184,6 @@ export default function VisasPage() {
 
     const result = validVisas.slice(0, 5).map(v => ({ id: v.id, imageUrl: v.heroImageUrl!, title: v.country }));
 
-    // Pad with defaults to ensure there are always at least 3 slides for a nice slider effect
     let i = 0;
     while (result.length < 3 && i < defaults.length) {
       if (!result.find(r => r.imageUrl === defaults[i].imageUrl)) {
@@ -199,7 +220,6 @@ export default function VisasPage() {
           <p className="text-base font-light text-white/40 max-w-md leading-relaxed drop-shadow-md">
             Decoding global borders into clear, actionable strategy.
           </p>
-          {/* Stats strip */}
           {!loading && visas.length > 0 && (
             <div className="flex items-center gap-6 mt-2">
               <div className="text-center">
@@ -213,13 +233,12 @@ export default function VisasPage() {
               </div>
               <div className="w-px h-8 bg-white/20" />
               <div className="text-center">
-                <p className="text-2xl font-light text-white drop-shadow-sm">{visas.filter(v => v.documents && v.documents.length > 0).length}</p>
+                <p className="text-2xl font-light text-white drop-shadow-sm">{visas.filter(v => Array.isArray(v.documents) && v.documents.length > 0).length}</p>
                 <p className="text-[9px] text-white/60 tracking-widest uppercase">With Docs Guide</p>
               </div>
             </div>
           )}
         </div>
-        {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40">
           <span className="text-white text-[9px] tracking-widest uppercase">Scroll</span>
           <div className="w-px h-10 bg-white animate-pulse" />
@@ -242,7 +261,6 @@ export default function VisasPage() {
             <p className="text-sm font-light text-on-surface-variant leading-relaxed opacity-70">
               Our Intelligence bureau distils evolving geopolitical requirements into high-definition strategies, ensuring your focus remains on the destination — not the paperwork.
             </p>
-            {/* Process steps */}
             <div className="grid grid-cols-3 gap-4 pt-4">
               {[
                 { icon: 'search', label: 'Research' },
@@ -264,13 +282,11 @@ export default function VisasPage() {
       {/* ── VISA GRID ── */}
       <section className="py-12 sm:py-16 md:py-24 px-4 sm:px-8 md:px-16 bg-surface-container-low border-t border-outline-variant/10">
         <div className="max-w-6xl mx-auto">
-          {/* Section header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 pb-6 border-b border-outline-variant/20 animate-reveal-up">
             <div>
               <span className="text-[10px] font-bold tracking-[0.5em] text-on-surface-variant uppercase mb-1.5 block">Current Registry</span>
               <h2 className="text-3xl sm:text-4xl font-light tracking-tighter italic opacity-25 leading-none">Status Dossiers</h2>
             </div>
-            {/* Search */}
             <div className="relative">
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
               <input
@@ -283,7 +299,6 @@ export default function VisasPage() {
             </div>
           </div>
 
-          {/* Filter tabs */}
           <div className="flex gap-2 mb-8 overflow-x-auto pb-1 no-scrollbar">
             {FILTERS.map(f => (
               <button
@@ -292,7 +307,7 @@ export default function VisasPage() {
                 className={`px-5 py-2 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase whitespace-nowrap transition-all ${filter === f
                   ? 'bg-black text-white shadow-md'
                   : 'bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-lowest'
-                  }`}
+                }`}
               >
                 {f !== 'All' && (
                   <span className={`inline-block w-1.5 h-1.5 rounded-full mr-2 ${diffDot(f)}`} />
