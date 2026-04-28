@@ -47,6 +47,99 @@ const S = `
   .at-thumb img{width:100%;height:100%;object-fit:cover;}
 `;
 
+// ── Smart Word/Quotation Text Parser ──────────────────────────────────────────
+function parseQuotationText(raw: string): Partial<Tour> {
+  const text = raw;
+
+  // Extract tour name - look for DESTINATION or TOUR keywords
+  const destMatch = text.match(/DESTINATION\s*[:\-]?\s*([A-Z][A-Z ]+)/i) ||
+    text.match(/([A-Z][A-Z ]+)\s+TOUR/);
+  const name = destMatch ? destMatch[1].trim() + ' Discovery Tour' : '';
+
+  // Extract region
+  const regionMatch = text.match(/DESTINATION\s*[:\-]?\s*([A-Za-z ]+)/i);
+  const region = regionMatch ? regionMatch[1].trim() : name.split(' ')[0] || '';
+
+  // Extract days/nights
+  const daysMatch = text.match(/(\d+)\s*Night[s]?\s*(\d+)\s*Day[s]?/i) ||
+    text.match(/(\d+)\s*Day[s]?/i);
+  const days = daysMatch ? parseInt(daysMatch[2] || daysMatch[1]) : 7;
+
+  // Extract price - look for USD amounts
+  const priceMatch = text.match(/USD[.\s]*(\d+[,\d]*)/i);
+  const price = priceMatch ? `$${priceMatch[1]}` : '';
+
+  // Extract itinerary - look for Day-N patterns
+  const dayMatches = [...text.matchAll(/Day[-\s]*(\d+).*?\n([^]+?)(?=Day[-\s]*\d+|Above Package|$)/gi)];
+  const itinerary = dayMatches.slice(0, 12).map(m => {
+    const dayText = m[2].trim();
+    const titleLine = dayText.split('\n')[0];
+    const description = dayText.split('\n').slice(1).join(' ').trim() || titleLine;
+    // Extract meals
+    const mealsMatch = dayText.match(/\(([BLD][^)]+)\)/i);
+    const meals = mealsMatch ? mealsMatch[1]
+      .replace(/B/g, 'Breakfast').replace(/L/g, 'Lunch').replace(/D/g, 'Dinner')
+      .replace(/-/g, ', ') : '';
+    return {
+      title: titleLine.replace(/\([BLD,\s-]+\)/gi, '').trim(),
+      description: description.substring(0, 300),
+      meals,
+      accommodation: '',
+      schedule: '',
+      imageUrl: '',
+    };
+  });
+
+  // Extract includes as sightseeing highlights
+  const includesMatch = text.match(/Package Includes[:\s]*([^]*?)(?=Package Excludes|Cancellation|$)/i);
+  const sightseeing: Tour['sightseeing'] = [];
+  if (includesMatch) {
+    const bullets = includesMatch[1].match(/(?:^|\n)\s*[•\-\d.]+\s*(.+)/gm) || [];
+    bullets.slice(0, 5).forEach(b => {
+      const t = b.replace(/^[\s•\-\d.]+/, '').trim();
+      if (t.length > 5) sightseeing.push({ title: t.substring(0, 40), description: t, icon: 'star', imageUrl: '' });
+    });
+  }
+
+  // Transport detection
+  const hasFlightOrTrain = /bullet train|shinkansen|flight|transfer/i.test(text);
+  const transport = hasFlightOrTrain
+    ? [...new Set([
+        /bullet train|shinkansen/i.test(text) ? 'Bullet Train (Shinkansen)' : '',
+        /private transfer|private basis/i.test(text) ? 'Private Transfers' : '',
+        /flight|airport/i.test(text) ? 'Flight (as specified)' : '',
+      ].filter(Boolean))].join(', ')
+    : '';
+
+  // Guide detection
+  const guideMatch = text.match(/([A-Za-z\/\s]+speaking guide)/i);
+  const guide = guideMatch ? guideMatch[1].trim() : '';
+
+  // Pickup/arrival airport
+  const pickupMatch = text.match(/arrive in ([A-Za-z ]+)/i) ||
+    text.match(/([A-Z]{3})\s*Airport/i);
+  const pickup = pickupMatch ? pickupMatch[1].trim() : '';
+
+  return {
+    name,
+    region,
+    days,
+    price,
+    category: 'Signature Expedition',
+    rating: 4.8,
+    transport,
+    guide,
+    pickup,
+    overviewDescription: `A curated ${days}-day journey through ${region}. An expertly crafted itinerary covering the highlights, culture, and natural beauty of the destination.`,
+    itinerary: itinerary.length > 0 ? itinerary : emptyForm.itinerary,
+    sightseeing: sightseeing.length > 0 ? sightseeing : emptyForm.sightseeing,
+    visualArchive: [],
+    departureWindows: [],
+    maxGuests: 8,
+    heroImageUrl: '',
+  };
+}
+
 export default function AdminTours() {
   const { canCRUD } = useAdminAuth();
   const [tours, setTours] = useState<Tour[]>([]);
@@ -57,6 +150,8 @@ export default function AdminTours() {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [selectMode, setSelectMode] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+  const [importText, setImportText] = useState('');
 
   useEffect(() => {
     loadTours();
@@ -140,6 +235,51 @@ export default function AdminTours() {
 
       {canCRUD && (
         <>
+          {/* Import Modal */}
+          {showImport && (
+            <div style={{ position:'fixed', inset:0, zIndex:1000, background:'rgba(0,0,0,0.6)', display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
+              <div style={{ background:'#fff', borderRadius:20, padding:28, maxWidth:680, width:'100%', boxShadow:'0 20px 60px rgba(0,0,0,0.25)' }}>
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                    <div style={{ width:36, height:36, background:'#1a1a2e', borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                      <span className="material-symbols-outlined" style={{ color:'#fff', fontSize:18 }}>content_paste</span>
+                    </div>
+                    <div>
+                      <h3 style={{ margin:0, fontSize:15, fontWeight:800, color:'#111' }}>Import from Document</h3>
+                      <p style={{ margin:0, fontSize:11, color:'#6b7280' }}>Paste your Word/quotation text below — fields will auto-fill</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setShowImport(false)} style={{ background:'none', border:'none', cursor:'pointer', color:'#6b7280', fontSize:22 }}>×</button>
+                </div>
+                <textarea
+                  value={importText}
+                  onChange={e => setImportText(e.target.value)}
+                  placeholder="Paste your full tour quotation or Word document text here..."
+                  style={{ width:'100%', height:260, padding:14, border:'1.5px solid #e5e7eb', borderRadius:12, fontSize:12.5, fontFamily:'monospace', resize:'vertical', outline:'none', boxSizing:'border-box' }}
+                />
+                <div style={{ display:'flex', gap:10, marginTop:14, justifyContent:'flex-end' }}>
+                  <button onClick={() => setShowImport(false)}
+                    style={{ padding:'10px 20px', borderRadius:10, border:'1.5px solid #e5e7eb', background:'#f9fafb', fontSize:13, fontWeight:600, cursor:'pointer' }}>
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (!importText.trim()) return;
+                      const parsed = parseQuotationText(importText);
+                      setFormData(f => ({ ...f, ...parsed }));
+                      setImportText('');
+                      setShowImport(false);
+                      document.getElementById('ttop')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    style={{ padding:'10px 22px', borderRadius:10, border:'none', background:'#111827', color:'#fff', fontSize:13, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:8 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize:16 }}>auto_awesome</span>
+                    Auto-Fill Fields
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Header */}
           <div className="flex items-center gap-4">
             <div className="w-11 h-11 rounded-xl bg-black flex items-center justify-center flex-shrink-0">
@@ -149,6 +289,11 @@ export default function AdminTours() {
               <h2 className="text-base font-bold text-on-surface">{editingId ? 'Edit Tour' : 'Create New Tour'}</h2>
               <p className="text-xs text-on-surface-variant">{editingId ? 'Update the tour details below.' : 'Design a new itinerary for your collection.'}</p>
             </div>
+            <button onClick={() => setShowImport(true)}
+              style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 16px', borderRadius:10, border:'1.5px solid #e5e7eb', background:'linear-gradient(135deg,#667eea,#764ba2)', color:'#fff', fontSize:12, fontWeight:700, cursor:'pointer', whiteSpace:'nowrap' }}>
+              <span className="material-symbols-outlined" style={{ fontSize:15 }}>content_paste</span>
+              Import from Doc
+            </button>
             {editingId && (
               <button onClick={() => { setEditingId(null); setFormData(emptyForm); }}
                 className="flex items-center gap-1 text-xs font-semibold text-on-surface-variant hover:text-on-surface px-3 py-2 rounded-lg hover:bg-surface-container-low transition-colors">

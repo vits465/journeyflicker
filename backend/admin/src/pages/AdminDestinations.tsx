@@ -41,6 +41,66 @@ const S = `
   .af-thumb{width:80px;height:80px;flex-shrink:0;background:#f3f4f6;overflow:hidden;}
   .af-thumb img{width:100%;height:100%;object-fit:cover;}
 `;
+// ── Smart Destination Text Parser ──────────────────────────────────────────
+function parseDestinationText(raw: string): Partial<Destination> {
+  const text = raw;
+
+  // Extract destination name from DESTINATION: or first all-caps heading
+  const destMatch = text.match(/DESTINATION\s*[:\-]?\s*([A-Z][A-Z ]+)/i) ||
+    text.match(/^([A-Z][A-Z ]{2,})\s*TOUR/m) ||
+    text.match(/arrive in ([A-Za-z ]+)/i);
+  const name = destMatch ? destMatch[1].trim().replace(/\bTOUR\b/i, '').trim() : '';
+
+  // Region = same as name for destinations
+  const region = name;
+
+  // Description - use first substantial paragraph
+  const paragraphs = raw.split(/\n{2,}/).map(p => p.trim()).filter(p => p.length > 60);
+  const description = paragraphs
+    .find(p => !/QUOTATION|TRAVELING|Dear Sir|Greeting|Option|Hotel|Per Person|Day-|Package/i.test(p)) || '';
+
+  // Essence text - pull from itinerary intro if available
+  const essenceMatch = text.match(/(?:overview|about|discover)[:\-]?\s*([^\n]{40,200})/i);
+  const essenceText = essenceMatch ? essenceMatch[1].trim() : '';
+
+  // Best seasons - look for month mentions
+  const monthsMatch = text.match(/(?:best time|season|month)[s]?[:\-]?[^\n]*([A-Z][a-z]+ (?:to|-) [A-Z][a-z]+)/i);
+  const bestSeasonsMonths = monthsMatch ? monthsMatch[1] : '';
+
+  // Extract landmarks from Day itinerary visits (Visit X, Y, Z)
+  const visitMatches = [...text.matchAll(/[Vv]isit ([^.\n]+)/g)];
+  const landmarks: Destination['landmarks'] = [];
+  const seen = new Set<string>();
+  visitMatches.forEach(m => {
+    const places = m[1].split(/,|and/).map(p => p.trim()).filter(p => p.length > 3 && p.length < 60);
+    places.forEach(place => {
+      if (!seen.has(place) && landmarks.length < 6) {
+        seen.add(place);
+        landmarks.push({ title: place.replace(/^the /i, ''), category: 'Attraction', description: `A must-visit landmark in ${name}.`, imageUrl: '' });
+      }
+    });
+  });
+
+  // Season highlights from days - extract unique activities
+  const seasonsHighlights: Destination['seasonsHighlights'] = [
+    { season: 'Peak Season', description: `The best time to visit ${name} for sightseeing and cultural experiences.` },
+    { season: 'Off-Peak', description: `Fewer crowds and lower prices while still enjoying the beauty of ${name}.` },
+  ];
+
+  return {
+    name,
+    region,
+    description: description.substring(0, 500),
+    essenceText,
+    heroImageUrl: '',
+    galleryImages: [],
+    bestSeasonsTitle: `Best Time to Visit ${name}`,
+    bestSeasonsMonths,
+    landmarks,
+    seasonsHighlights,
+  };
+}
+
 
 export default function AdminDestinations() {
   const { canCRUD } = useAdminAuth();
@@ -52,6 +112,8 @@ export default function AdminDestinations() {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [selectMode, setSelectMode] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+  const [importText, setImportText] = useState('');
 
   useEffect(() => {
     loadDestinations();
@@ -128,6 +190,51 @@ export default function AdminDestinations() {
 
       {canCRUD && (
         <>
+          {/* Import Modal */}
+          {showImport && (
+            <div style={{ position:'fixed', inset:0, zIndex:1000, background:'rgba(0,0,0,0.6)', display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
+              <div style={{ background:'#fff', borderRadius:20, padding:28, maxWidth:680, width:'100%', boxShadow:'0 20px 60px rgba(0,0,0,0.25)' }}>
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                    <div style={{ width:36, height:36, background:'#1a1a2e', borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                      <span className="material-symbols-outlined" style={{ color:'#fff', fontSize:18 }}>content_paste</span>
+                    </div>
+                    <div>
+                      <h3 style={{ margin:0, fontSize:15, fontWeight:800, color:'#111' }}>Import from Document</h3>
+                      <p style={{ margin:0, fontSize:11, color:'#6b7280' }}>Paste your Word/quotation text — destination fields will auto-fill</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setShowImport(false)} style={{ background:'none', border:'none', cursor:'pointer', color:'#6b7280', fontSize:22 }}>×</button>
+                </div>
+                <textarea
+                  value={importText}
+                  onChange={e => setImportText(e.target.value)}
+                  placeholder="Paste your full tour quotation or destination document text here..."
+                  style={{ width:'100%', height:260, padding:14, border:'1.5px solid #e5e7eb', borderRadius:12, fontSize:12.5, fontFamily:'monospace', resize:'vertical', outline:'none', boxSizing:'border-box' }}
+                />
+                <div style={{ display:'flex', gap:10, marginTop:14, justifyContent:'flex-end' }}>
+                  <button onClick={() => setShowImport(false)}
+                    style={{ padding:'10px 20px', borderRadius:10, border:'1.5px solid #e5e7eb', background:'#f9fafb', fontSize:13, fontWeight:600, cursor:'pointer' }}>
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (!importText.trim()) return;
+                      const parsed = parseDestinationText(importText);
+                      setFormData(f => ({ ...f, ...parsed }));
+                      setImportText('');
+                      setShowImport(false);
+                      document.getElementById('dtop')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    style={{ padding:'10px 22px', borderRadius:10, border:'none', background:'#111827', color:'#fff', fontSize:13, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:8 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize:16 }}>auto_awesome</span>
+                    Auto-Fill Fields
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Form Header */}
           <div className="flex items-center gap-4">
             <div className="w-11 h-11 rounded-xl bg-black flex items-center justify-center flex-shrink-0">
@@ -137,6 +244,11 @@ export default function AdminDestinations() {
               <h2 className="text-base font-bold text-on-surface">{editingId ? 'Edit Destination' : 'Create New Destination'}</h2>
               <p className="text-xs text-on-surface-variant">{editingId ? 'Update the details below.' : 'Add a new destination to your collection.'}</p>
             </div>
+            <button onClick={() => setShowImport(true)}
+              style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 16px', borderRadius:10, border:'1.5px solid #e5e7eb', background:'linear-gradient(135deg,#667eea,#764ba2)', color:'#fff', fontSize:12, fontWeight:700, cursor:'pointer', whiteSpace:'nowrap' }}>
+              <span className="material-symbols-outlined" style={{ fontSize:15 }}>content_paste</span>
+              Import from Doc
+            </button>
             {editingId && (
               <button onClick={() => { setEditingId(null); setFormData(emptyForm); }}
                 className="flex items-center gap-1 text-xs font-semibold text-on-surface-variant hover:text-on-surface px-3 py-2 rounded-lg hover:bg-surface-container-low transition-colors">
