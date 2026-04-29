@@ -8,9 +8,9 @@ import { HeroSlider } from '../components/HeroSlider';
 import { SEO } from '../components/SEO';
 
 const diffColor = (d: string) =>
-  d === 'Easy' ? 'bg-emerald-50  text-emerald-700 border-emerald-200'
-    : d === 'Moderate' ? 'bg-amber-50    text-amber-700   border-amber-200'
-      : 'bg-rose-50    text-rose-700    border-rose-200';
+  d === 'Easy' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
+    : d === 'Moderate' ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800'
+      : 'bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800';
 
 const diffDot = (d: string) =>
   d === 'Easy' ? 'bg-emerald-400'
@@ -24,9 +24,9 @@ function RequirementRow({ label, detail }: { label: string; detail: string }) {
   const [expanded, setExpanded] = useState(false);
   const isLong = detail.length > 120;
   return (
-    <div className="flex flex-col gap-1 text-sm pb-3 border-b border-outline-variant/5 last:border-0 last:pb-0">
-      <span className="font-semibold text-on-surface">{label}</span>
-      <span className="font-light text-on-surface-variant leading-relaxed">
+    <div className="flex flex-col gap-1 text-sm pb-3 border-b border-outline-variant/5 dark:border-white/5 last:border-0 last:pb-0">
+      <span className="font-semibold text-on-surface dark:text-white">{label}</span>
+      <span className="font-light text-on-surface-variant dark:text-white/60 leading-relaxed">
         {isLong && !expanded ? `${detail.slice(0, 120)}…` : detail}
       </span>
       {isLong && (
@@ -48,7 +48,7 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
 
   return (
     <div
-      className="group relative rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-outline-variant/10 bg-white flex flex-col h-full"
+      className="group relative rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-outline-variant/10 dark:border-white/5 bg-white dark:bg-[#111] flex flex-col h-full"
       style={{ animationDelay: `${(index % 3) * 0.08}s` }}
     >
       {/* Background Image Strip */}
@@ -68,16 +68,16 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
           </h3>
         </div>
       ) : (
-        <div className="px-6 pt-6 pb-4 border-b border-outline-variant/10 bg-surface-container-lowest">
+        <div className="px-6 pt-6 pb-4 border-b border-outline-variant/10 dark:border-white/5 bg-surface-container-lowest dark:bg-white/5">
           <div className="flex justify-between items-start mb-3">
-            <div className="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-500">
+            <div className="w-12 h-12 bg-surface-container-low dark:bg-white/10 rounded-xl flex items-center justify-center group-hover:bg-primary dark:group-hover:bg-white group-hover:text-white dark:group-hover:text-black transition-all duration-500">
               <span className="material-symbols-outlined font-light text-2xl">public</span>
             </div>
             <span className={`px-3 py-1 rounded-full text-[9px] font-bold tracking-[0.2em] border ${diffColor(visa?.difficulty || '')}`}>
               {visa?.difficulty || '—'}
             </span>
           </div>
-          <h3 className="text-3xl font-light tracking-tighter group-hover:text-primary transition-colors">
+          <h3 className="text-3xl font-light tracking-tighter group-hover:text-primary dark:group-hover:text-white transition-colors dark:text-white">
             {visa?.country || 'Unknown'}
           </h3>
         </div>
@@ -87,12 +87,12 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
       <div className="px-6 py-6 flex-1 flex flex-col gap-6">
         <div>
           {visa?.visaType && (
-            <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-on-surface-variant/50 mb-2 block">
+            <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-on-surface-variant/50 dark:text-white/30 mb-2 block">
               {visa.visaType}
             </span>
           )}
           {visa?.description && (
-            <p className="text-sm font-light text-on-surface-variant leading-relaxed">
+            <p className="text-sm font-light text-on-surface-variant dark:text-white/60 leading-relaxed">
               {visa.description}
             </p>
           )}
@@ -106,8 +106,8 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
             </p>
             <ul className="space-y-3">
               {documents.map((doc, i) => (
-                <li key={i} className="flex items-start gap-3 text-sm font-light text-on-surface-variant leading-relaxed">
-                  <span className="w-5 h-5 rounded-full bg-primary/5 text-primary flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 border border-primary/10">
+                <li key={i} className="flex items-start gap-3 text-sm font-light text-on-surface-variant dark:text-white/60 leading-relaxed">
+                  <span className="w-5 h-5 rounded-full bg-primary/5 dark:bg-white/5 text-primary dark:text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 border border-primary/10 dark:border-white/10">
                     {i + 1}
                   </span>
                   {doc || '—'}
@@ -132,14 +132,14 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
         )}
 
         {/* Footer: Processing & Fee */}
-        <div className="mt-auto pt-6 border-t border-outline-variant/10 grid grid-cols-2 gap-4">
-          <div className="bg-surface-container-lowest p-3 rounded-2xl border border-outline-variant/10 text-center">
-            <span className="text-[9px] text-on-surface-variant uppercase font-bold tracking-widest block mb-1 opacity-60">Processing</span>
-            <span className="text-sm font-semibold text-on-surface">{visa?.processing || '—'}</span>
+        <div className="mt-auto pt-6 border-t border-outline-variant/10 dark:border-white/5 grid grid-cols-2 gap-4">
+          <div className="bg-surface-container-lowest dark:bg-white/5 p-3 rounded-2xl border border-outline-variant/10 dark:border-white/10 text-center">
+            <span className="text-[9px] text-on-surface-variant dark:text-white/40 uppercase font-bold tracking-widest block mb-1 opacity-60">Processing</span>
+            <span className="text-sm font-semibold text-on-surface dark:text-white">{visa?.processing || '—'}</span>
           </div>
-          <div className="bg-surface-container-lowest p-3 rounded-2xl border border-outline-variant/10 text-center">
-            <span className="text-[9px] text-on-surface-variant uppercase font-bold tracking-widest block mb-1 opacity-60">Fee</span>
-            <span className="text-sm font-semibold text-on-surface">{visa?.fee || '—'}</span>
+          <div className="bg-surface-container-lowest dark:bg-white/5 p-3 rounded-2xl border border-outline-variant/10 dark:border-white/10 text-center">
+            <span className="text-[9px] text-on-surface-variant dark:text-white/40 uppercase font-bold tracking-widest block mb-1 opacity-60">Fee</span>
+            <span className="text-sm font-semibold text-on-surface dark:text-white">{visa?.fee || '—'}</span>
           </div>
         </div>
       </div>
@@ -171,7 +171,7 @@ export default function VisasPage() {
     fetchVisas(); // Initial fetch
     const intervalId = setInterval(() => {
       if (document.visibilityState === 'visible') fetchVisas();
-    }, 3000); // Poll every 3 seconds only if tab is visible
+    }, 30000); // Poll every 30 seconds only if tab is visible
 
     const onFocus = () => { if (document.visibilityState === 'visible') fetchVisas(); };
     window.addEventListener('visibilitychange', onFocus);
@@ -263,19 +263,19 @@ export default function VisasPage() {
       </HeroSlider>
 
       {/* ── PHILOSOPHY ── */}
-      <section className="py-16 sm:py-20 md:py-28 px-4 sm:px-8 md:px-16 bg-surface-container-lowest">
+      <section className="py-16 sm:py-20 md:py-28 px-4 sm:px-8 md:px-16 bg-surface-container-lowest dark:bg-black">
         <div className="max-w-5xl mx-auto flex flex-col lg:flex-row gap-10 lg:gap-24 items-center">
           <div className="w-full lg:w-1/2 animate-reveal-up">
-            <span className="text-primary text-[10px] font-bold tracking-[0.4em] uppercase mb-3 block">Strategic Mobility</span>
-            <h2 className="text-4xl sm:text-5xl font-light tracking-tighter leading-tight">
-              Precision in<br /><span className="italic font-serif opacity-40">Entry.</span>
+            <span className="text-primary dark:text-white/60 text-[10px] font-bold tracking-[0.4em] uppercase mb-3 block">Strategic Mobility</span>
+            <h2 className="text-4xl sm:text-5xl font-light tracking-tighter leading-tight dark:text-white">
+              Precision in<br /><span className="italic font-serif opacity-40 dark:opacity-20">Entry.</span>
             </h2>
           </div>
           <div className="w-full lg:w-1/2 space-y-5 animate-reveal-up" style={{ animationDelay: '0.15s' }}>
-            <p className="text-base font-serif italic text-on-surface border-l-4 border-primary/20 pl-5 py-2 leading-relaxed">
+            <p className="text-base font-serif italic text-on-surface dark:text-white border-l-4 border-primary/20 dark:border-white/20 pl-5 py-2 leading-relaxed">
               "Effective travel is a matter of administrative mastery."
             </p>
-            <p className="text-sm font-light text-on-surface-variant leading-relaxed opacity-70">
+            <p className="text-sm font-light text-on-surface-variant dark:text-white/60 leading-relaxed opacity-70">
               Our Intelligence bureau distils evolving geopolitical requirements into high-definition strategies, ensuring your focus remains on the destination — not the paperwork.
             </p>
             <div className="grid grid-cols-3 gap-4 pt-4">
@@ -285,10 +285,10 @@ export default function VisasPage() {
                 { icon: 'flight_takeoff', label: 'Depart' },
               ].map((step, i) => (
                 <div key={i} className="text-center">
-                  <div className="w-10 h-10 rounded-2xl bg-surface-container-low flex items-center justify-center mx-auto mb-2">
-                    <span className="material-symbols-outlined text-lg font-light">{step.icon}</span>
+                  <div className="w-10 h-10 rounded-2xl bg-surface-container-low dark:bg-white/10 flex items-center justify-center mx-auto mb-2">
+                    <span className="material-symbols-outlined text-lg font-light dark:text-white">{step.icon}</span>
                   </div>
-                  <p className="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant opacity-60">{step.label}</p>
+                  <p className="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant dark:text-white/40 opacity-60">{step.label}</p>
                 </div>
               ))}
             </div>
@@ -297,21 +297,21 @@ export default function VisasPage() {
       </section>
 
       {/* ── VISA GRID ── */}
-      <section className="py-12 sm:py-16 md:py-24 px-4 sm:px-8 md:px-16 bg-surface-container-low border-t border-outline-variant/10">
+      <section className="py-12 sm:py-16 md:py-24 px-4 sm:px-8 md:px-16 bg-surface-container-low dark:bg-[#0a0a0a] border-t border-outline-variant/10 dark:border-white/5">
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 pb-6 border-b border-outline-variant/20 animate-reveal-up">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 pb-6 border-b border-outline-variant/20 dark:border-white/10 animate-reveal-up">
             <div>
-              <span className="text-[10px] font-bold tracking-[0.5em] text-on-surface-variant uppercase mb-1.5 block">Current Registry</span>
-              <h2 className="text-3xl sm:text-4xl font-light tracking-tighter italic opacity-25 leading-none">Status Dossiers</h2>
+              <span className="text-[10px] font-bold tracking-[0.5em] text-on-surface-variant dark:text-white/40 uppercase mb-1.5 block">Current Registry</span>
+              <h2 className="text-3xl sm:text-4xl font-light tracking-tighter italic opacity-25 dark:opacity-10 dark:text-white leading-none">Status Dossiers</h2>
             </div>
             <div className="relative">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant dark:text-white/40 text-sm">search</span>
               <input
                 type="text"
                 placeholder="Search country..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="pl-9 pr-4 py-2 text-sm border border-outline-variant/30 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 w-52"
+                className="pl-9 pr-4 py-2 text-sm border border-outline-variant/30 dark:border-white/10 rounded-full bg-white dark:bg-black focus:outline-none focus:ring-2 focus:ring-primary/30 dark:focus:ring-white/20 dark:text-white w-52"
               />
             </div>
           </div>
@@ -322,8 +322,8 @@ export default function VisasPage() {
                 key={f}
                 onClick={() => setFilter(f)}
                 className={`px-5 py-2 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase whitespace-nowrap transition-all ${filter === f
-                  ? 'bg-black text-white shadow-md'
-                  : 'bg-white border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-lowest'
+                  ? 'bg-black dark:bg-white text-white dark:text-black shadow-md'
+                  : 'bg-white dark:bg-black border border-outline-variant/30 dark:border-white/10 text-on-surface-variant dark:text-white/60 hover:bg-surface-container-lowest dark:hover:bg-white/5'
                 }`}
               >
                 {f !== 'All' && (
@@ -337,9 +337,9 @@ export default function VisasPage() {
           {loading ? (
             <Preloader />
           ) : filtered.length === 0 ? (
-            <div className="py-20 text-center bg-white rounded-3xl border border-outline-variant/10">
-              <span className="material-symbols-outlined text-5xl text-on-surface-variant/20 mb-4 block font-light">inventory_2</span>
-              <p className="text-sm font-light text-on-surface-variant italic">
+            <div className="py-20 text-center bg-white dark:bg-[#111] rounded-3xl border border-outline-variant/10 dark:border-white/5">
+              <span className="material-symbols-outlined text-5xl text-on-surface-variant/20 dark:text-white/10 mb-4 block font-light">inventory_2</span>
+              <p className="text-sm font-light text-on-surface-variant dark:text-white/40 italic">
                 {search ? `No visas found for "${search}"` : 'No visa dossiers available yet.'}
               </p>
             </div>
@@ -385,30 +385,30 @@ export default function VisasPage() {
       </section>
 
       {/* ── FAQ ── */}
-      <section className="py-12 sm:py-16 md:py-24 px-4 sm:px-8 md:px-16 bg-white">
+      <section className="py-12 sm:py-16 md:py-24 px-4 sm:px-8 md:px-16 bg-white dark:bg-black">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-10 animate-reveal-up">
-            <span className="text-[10px] font-bold tracking-[0.5em] text-on-surface-variant uppercase mb-2 block">Intelligence Archive</span>
-            <h2 className="text-3xl sm:text-4xl font-light tracking-tighter leading-none italic opacity-25">Queries</h2>
+            <span className="text-[10px] font-bold tracking-[0.5em] text-on-surface-variant dark:text-white/40 uppercase mb-2 block">Intelligence Archive</span>
+            <h2 className="text-3xl sm:text-4xl font-light tracking-tighter leading-none italic opacity-25 dark:opacity-10 dark:text-white">Queries</h2>
           </div>
           <div className="space-y-3 animate-reveal-up">
             {faqs.map((faq, index) => (
               <div
                 key={index}
-                className={`border rounded-2xl overflow-hidden transition-all duration-300 ${openFaq === index ? 'bg-white shadow-lg border-primary/20' : 'bg-surface-container-low/30 border-outline-variant/10'}`}
+                className={`border rounded-2xl overflow-hidden transition-all duration-300 ${openFaq === index ? 'bg-white dark:bg-[#111] shadow-lg border-primary/20 dark:border-white/20' : 'bg-surface-container-low/30 dark:bg-white/5 border-outline-variant/10 dark:border-white/5'}`}
               >
                 <button
                   className="w-full px-5 py-4 flex justify-between items-center text-left gap-4"
                   onClick={() => setOpenFaq(openFaq === index ? null : index)}
                 >
-                  <span className="text-base sm:text-lg font-light tracking-tight pr-4">{faq.q}</span>
-                  <div className={`w-8 h-8 rounded-full border border-outline-variant/30 flex items-center justify-center shrink-0 transition-transform duration-300 ${openFaq === index ? 'rotate-45 bg-black text-white border-black' : ''}`}>
+                  <span className="text-base sm:text-lg font-light tracking-tight pr-4 dark:text-white">{faq.q}</span>
+                  <div className={`w-8 h-8 rounded-full border border-outline-variant/30 dark:border-white/20 flex items-center justify-center shrink-0 transition-transform duration-300 ${openFaq === index ? 'rotate-45 bg-black dark:bg-white text-white dark:text-black border-black dark:border-white' : ''}`}>
                     <span className="material-symbols-outlined font-light text-lg">add</span>
                   </div>
                 </button>
                 <div className={`overflow-hidden transition-all duration-300 ${openFaq === index ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'}`}>
                   <div className="px-5 pb-5">
-                    <p className="text-sm font-light leading-relaxed text-on-surface-variant opacity-80 italic border-l-2 border-primary/20 pl-4">{faq.a}</p>
+                    <p className="text-sm font-light leading-relaxed text-on-surface-variant dark:text-white/60 opacity-80 italic border-l-2 border-primary/20 dark:border-white/20 pl-4">{faq.a}</p>
                   </div>
                 </div>
               </div>
@@ -418,16 +418,16 @@ export default function VisasPage() {
       </section>
 
       {/* ── CTA ── */}
-      <section className="py-16 sm:py-20 px-4 sm:px-8 md:px-16 bg-surface-container-lowest text-center border-t border-outline-variant/10">
+      <section className="py-16 sm:py-20 px-4 sm:px-8 md:px-16 bg-surface-container-lowest dark:bg-black text-center border-t border-outline-variant/10 dark:border-white/5">
         <div className="max-w-xl mx-auto animate-reveal-up">
-          <h2 className="text-3xl sm:text-4xl font-light tracking-tighter mb-4 leading-tight">
-            Strategic<br /><span className="italic font-serif text-on-surface/40">Mobility Bureau</span>
+          <h2 className="text-3xl sm:text-4xl font-light tracking-tighter mb-4 leading-tight dark:text-white">
+            Strategic<br /><span className="italic font-serif text-on-surface/40 dark:text-white/20">Mobility Bureau</span>
           </h2>
-          <p className="text-sm font-light text-on-surface-variant mb-7 leading-relaxed opacity-70">
+          <p className="text-sm font-light text-on-surface-variant dark:text-white/60 mb-7 leading-relaxed opacity-70">
             For complex multi-territory itineraries, our senior mobility strategists offer end-to-end documentation management.
           </p>
           <button
-            className="bg-black text-white px-8 py-3 text-[10px] font-extrabold tracking-[0.5em] uppercase rounded-full hover:bg-primary transition-all shadow-xl active:scale-95"
+            className="bg-black dark:bg-white text-white dark:text-black px-8 py-3 text-[10px] font-extrabold tracking-[0.5em] uppercase rounded-full hover:bg-primary dark:hover:bg-gray-200 transition-all shadow-xl active:scale-95"
             onClick={() => navigate('/contact')}
           >
             Connect with Registry

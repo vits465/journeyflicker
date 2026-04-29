@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import type { Destination } from '../lib/api';
 import { api } from '../lib/api';
 import { ImageUploader } from '../components/ImageUploader';
@@ -113,6 +114,7 @@ function parseDestinationText(raw: string): Partial<Destination> {
 
 export default function AdminDestinations() {
   const { canCRUD } = useAdminAuth();
+  const location = useLocation();
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -131,6 +133,16 @@ export default function AdminDestinations() {
     const iv = setInterval(loadDestinations, 5000);
     return () => clearInterval(iv);
   }, []);
+
+  // Handle deep-link editing via URL
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const editId = params.get('edit');
+    if (editId && destinations.length > 0) {
+      const dest = destinations.find(d => d.id === editId);
+      if (dest) handleEdit(dest);
+    }
+  }, [location.search, destinations]);
 
   const loadDestinations = () =>
     api.listDestinations().then((d) => { setDestinations(d || []); setLoading(false); }).catch(console.error);

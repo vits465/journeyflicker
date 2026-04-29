@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import type { Tour } from '../lib/api';
 import { api } from '../lib/api';
 import { ImageUploader } from '../components/ImageUploader';
@@ -151,6 +152,7 @@ function parseQuotationText(raw: string): Partial<Tour> {
 
 export default function AdminTours() {
   const { canCRUD } = useAdminAuth();
+  const location = useLocation();
   const [tours, setTours] = useState<Tour[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -169,6 +171,16 @@ export default function AdminTours() {
     const iv = setInterval(loadTours, 5000);
     return () => clearInterval(iv);
   }, []);
+
+  // Handle deep-link editing via URL
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const editId = params.get('edit');
+    if (editId && tours.length > 0) {
+      const tour = tours.find(t => t.id === editId);
+      if (tour) handleEdit(tour);
+    }
+  }, [location.search, tours]);
 
   const loadTours = () =>
     api.listTours().then(d => { setTours(d || []); setLoading(false); }).catch(console.error);

@@ -84,6 +84,23 @@ export default function AdminDashboard() {
     return () => clearInterval(interval);
   }, []);
 
+  const loadAll = () => {
+    setLoading(true);
+    Promise.all([
+      api.listDestinations(),
+      api.listTours(),
+      api.listVisas()
+    ]).then(([d, t, v]) => {
+      setDestinations(d || []);
+      setTours(t || []);
+      setVisas(v || []);
+      setLoading(false);
+    }).catch(err => {
+      console.error(err);
+      setLoading(false);
+    });
+  };
+
   const loadActivity = () => {
     api.listActivity()
       .then(setActivities)
@@ -300,7 +317,7 @@ export default function AdminDashboard() {
                                   {d.landmarks && d.landmarks.length > 0 && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">place</span>{d.landmarks.length}</span>}
                                   {d.galleryImages && d.galleryImages.length > 0 && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">photo</span>{d.galleryImages.length}</span>}
                                 </div>
-                                {canCRUD && <Link to="/destinations" className="text-[10px] font-bold text-indigo-600 hover:underline">Configure →</Link>}
+                                {canCRUD && <Link to={`/destinations?edit=${d.id}`} className="text-[10px] font-bold text-indigo-600 hover:underline">Configure →</Link>}
                               </div>
                             </div>
                           </div>
@@ -336,7 +353,7 @@ export default function AdminDashboard() {
                                   {t.itinerary && t.itinerary.length > 0 && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">route</span>{t.itinerary.length}</span>}
                                   {t.transport && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">commute</span></span>}
                                 </div>
-                                {canCRUD && <Link to="/tours" className="text-[10px] font-bold text-emerald-600 hover:underline">Design →</Link>}
+                                {canCRUD && <Link to={`/tours?edit=${t.id}`} className="text-[10px] font-bold text-emerald-600 hover:underline">Design →</Link>}
                               </div>
                             </div>
                           </div>
@@ -373,7 +390,7 @@ export default function AdminDashboard() {
                                   <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">payments</span>{v.fee}</span>
                                   {v.documents && v.documents.length > 0 && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">description</span>{v.documents.length}</span>}
                                 </div>
-                                {canCRUD && <Link to="/visas" className="text-[10px] font-bold text-purple-600 hover:underline">Update →</Link>}
+                                {canCRUD && <Link to={`/visas?edit=${v.id}`} className="text-[10px] font-bold text-purple-600 hover:underline">Update →</Link>}
                               </div>
                             </div>
                           </div>

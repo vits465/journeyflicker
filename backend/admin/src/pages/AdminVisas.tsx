@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import type { Visa } from '../lib/api';
 import { api } from '../lib/api';
 import { useAdminAuth } from '../lib/adminAuth';
@@ -16,6 +17,7 @@ const labelCls = 'block text-[10px] font-bold text-on-surface-variant uppercase 
 
 export default function AdminVisas() {
   const { canCRUD } = useAdminAuth();
+  const location = useLocation();
   const [visas, setVisas] = useState<Visa[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -31,6 +33,16 @@ export default function AdminVisas() {
     const interval = setInterval(loadVisas, 3000);
     return () => clearInterval(interval);
   }, []);
+
+  // Handle deep-link editing via URL
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const editId = params.get('edit');
+    if (editId && visas.length > 0) {
+      const visa = visas.find(v => v.id === editId);
+      if (visa) handleEdit(visa);
+    }
+  }, [location.search, visas]);
 
   const loadVisas = () =>
     api.listVisas().then(data => { setVisas(data || []); setLoading(false); }).catch(console.error);

@@ -72,6 +72,10 @@ const ADMIN_USERNAME  = process.env.ADMIN_USERNAME || "Fliker";
 const ADMIN_PASSWORD  = process.env.ADMIN_PASSWORD || "JourneyFliker0465";
 const TOKEN_TTL       = 8 * 60 * 60; // 8 hours in seconds
 
+if (!process.env.ADMIN_PASSWORD) {
+  console.warn("\x1b[33m%s\x1b[0m", "SECURITY WARNING: Using default ADMIN_PASSWORD. Please set ADMIN_PASSWORD in your environment variables.");
+}
+
 // ── Password hashing helpers (scrypt – built-in Node crypto) ──────────────────
 const SCRYPT_PARAMS = { N: 16384, r: 8, p: 1, keylen: 64 };
 async function hashPassword(plain) {
@@ -347,8 +351,26 @@ app.post("/api/upload", requireCRUD, async (req, res) => {
   // ── Local disk fallback (dev mode or Cloudinary failed) ───────────────────
   try {
     // Strip data URI prefix and decode base64
+    const mimeMatch = data.match(/^data:([^;]+);base64,/);
+    if (!mimeMatch) return res.status(400).json({ error: "Invalid data URI" });
+    
+    const mimeType = mimeMatch[1];
     const base64Data = data.replace(/^data:[^;]+;base64,/, "");
-    const ext        = data.match(/^data:image\/(\w+)/)?.[1] || "jpg";
+    
+    // Security check: Whitelist extensions
+    const extMap = {
+      'image/jpeg': 'jpg',
+      'image/png': 'png',
+      'image/webp': 'webp',
+      'image/gif': 'gif',
+      'image/svg+xml': 'svg'
+    };
+    const ext = extMap[mimeType] || (data.match(/^data:image\/(\w+)/)?.[1] || "jpg");
+    
+    if (!['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'].includes(ext.toLowerCase())) {
+      return res.status(400).json({ error: `File type ${ext} not allowed for security reasons.` });
+    }
+
     const safeName   = name.replace(/[^a-zA-Z0-9._-]/g, "_");
     const filename   = `${Date.now()}_${safeName.replace(/\.[^.]+$/, "")}.${ext}`;
     const filePath   = path.join(uploadsDir, filename);
