@@ -154,15 +154,15 @@ export default function AdminDashboard() {
                 <span className={`material-symbols-outlined text-xl ${s.color}`}>{s.icon}</span>
               </div>
               {s.href && (
-                <Link to={s.href} className="text-[10px] font-bold text-gray-400 hover:text-black dark:hover:text-white transition-colors uppercase tracking-widest">Manage</Link>
+                <Link to={s.href} className="text-[10px] font-bold text-on-surface-variant hover:text-on-surface transition-colors uppercase tracking-widest">Manage</Link>
               )}
             </div>
             <div className="space-y-1">
-              <h3 className="text-3xl font-light font-serif italic text-gray-900 dark:text-white">
+              <h3 className="text-3xl font-bold font-serif italic text-on-surface">
                 {loading ? '...' : s.value}
-                {s.suffix && <span className="text-xs font-sans font-bold not-italic ml-1 text-gray-400 uppercase tracking-tighter">{s.suffix}</span>}
+                {s.suffix && <span className="text-xs font-sans font-bold not-italic ml-1 text-on-surface-variant uppercase tracking-tighter">{s.suffix}</span>}
               </h3>
-              <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">{s.title}</p>
+              <p className="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest">{s.title}</p>
             </div>
           </div>
         ))}
@@ -203,13 +203,11 @@ export default function AdminDashboard() {
                         </div>
                         <div className="w-px flex-1 bg-gray-100 dark:bg-white/5 group-last:hidden" />
                       </div>
-                      <div className="flex-1 pb-6 group-last:pb-0">
-                        <p className="text-xs font-bold text-gray-900 dark:text-white leading-relaxed">{act.action}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">{act.user}</span>
-                          <span className="text-[10px] text-gray-300">•</span>
-                          <span className="text-[10px] text-gray-400">{formatDistanceToNow(act.timestamp)} ago</span>
-                        </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-on-surface leading-tight">
+                          {act.user || 'System'} <span className="font-medium text-on-surface-variant">{act.action}</span>
+                        </p>
+                        <p className="text-[10px] text-on-surface-variant font-medium">{formatDistanceToNow(act.timestamp)} ago</p>
                       </div>
                     </div>
                   );
