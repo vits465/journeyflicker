@@ -5,6 +5,8 @@ import type { Destination, Tour, Visa } from '../lib/api';
 import { useAdminAuth } from '../lib/adminAuth';
 import { CSVUploader } from '../components/CSVUploader';
 import { Preloader } from '../components/Preloader';
+import { formatDistanceToNow } from 'date-fns';
+import type { Activity } from '../lib/api';
 
 type ViewMode = 'grid' | 'list';
 
@@ -67,28 +69,25 @@ export default function AdminDashboard() {
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [tours, setTours] = useState<Tour[]>([]);
   const [visas, setVisas] = useState<Visa[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'destinations' | 'tours' | 'visas'>('destinations');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
   useEffect(() => {
     loadAll();
-    const interval = setInterval(loadAll, 10000); // Sync every 10s
+    const interval = setInterval(() => {
+      loadAll();
+      loadActivity();
+    }, 10000); // Sync every 10s
+    loadActivity();
     return () => clearInterval(interval);
   }, []);
 
-  const loadAll = () => {
-    Promise.all([api.listDestinations(), api.listTours(), api.listVisas()])
-      .then(([d, t, v]) => { 
-        setDestinations(d || []); 
-        setTours(t || []); 
-        setVisas(v || []); 
-        setLoading(false); 
-      })
-      .catch((err) => { 
-        console.error(err); 
-        setLoading(false); 
-      });
+  const loadActivity = () => {
+    api.listActivity()
+      .then(setActivities)
+      .catch(console.error);
   };
 
   const stats = [
@@ -132,17 +131,17 @@ export default function AdminDashboard() {
       {/* ── Stats ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s, i) => (
-          <div key={i} className="stat-card">
+          <div key={i} className="stat-card dark:bg-white/5 dark:border-white/10">
             <div className="flex items-center justify-between mb-4">
-              <div className={`w-10 h-10 rounded-xl ${s.bg} flex items-center justify-center`}>
+              <div className={`w-10 h-10 rounded-xl ${s.bg} dark:bg-opacity-10 flex items-center justify-center`}>
                 <span className={`material-symbols-outlined text-xl ${s.color}`}>{s.icon}</span>
               </div>
               {s.href && (
-                <Link to={s.href} className="text-[10px] font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest">Manage</Link>
+                <Link to={s.href} className="text-[10px] font-bold text-gray-400 hover:text-black dark:hover:text-white transition-colors uppercase tracking-widest">Manage</Link>
               )}
             </div>
             <div className="space-y-1">
-              <h3 className="text-3xl font-light font-serif italic text-gray-900">
+              <h3 className="text-3xl font-light font-serif italic text-gray-900 dark:text-white">
                 {loading ? '...' : s.value}
                 {s.suffix && <span className="text-xs font-sans font-bold not-italic ml-1 text-gray-400 uppercase tracking-tighter">{s.suffix}</span>}
               </h3>
@@ -152,189 +151,240 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* ── Quick Actions ── */}
-      {canCRUD && (
-        <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Administrative Orchestration</h3>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <Link to="/destinations" className="action-btn">
-              <span className="material-symbols-outlined">add_location</span>
-              <span>New Destination</span>
-            </Link>
-            <Link to="/tours" className="action-btn">
-              <span className="material-symbols-outlined">add_road</span>
-              <span>Create Tour</span>
-            </Link>
-            <Link to="/visas" className="action-btn">
-              <span className="material-symbols-outlined">description</span>
-              <span>Visa Rules</span>
-            </Link>
-            <div className="w-px h-6 bg-white/10 mx-2 hidden sm:block" />
-            {canEdit && (
-              <>
-                <Link to="/hero" className="action-btn">
-                  <span className="material-symbols-outlined text-amber-600">view_carousel</span> Hero Engine
-                </Link>
-                <div className="h-10 w-[1px] bg-gray-100 mx-2 self-center hidden md:block"></div>
-                <CSVUploader type="destination" onUploadComplete={loadAll} />
-                <CSVUploader type="tour" onUploadComplete={loadAll} />
-                <CSVUploader type="visa" onUploadComplete={loadAll} />
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ── Content Browser ── */}
-      <div className="content-card">
-        <div className="px-6 py-5 border-b border-gray-50 bg-gray-50/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex p-1 bg-gray-100/80 rounded-14 w-fit">
-            {[
-              { id: 'destinations', label: 'Destinations', icon: 'location_on', count: destinations.length },
-              { id: 'tours', label: 'Tours', icon: 'flight', count: tours.length },
-              { id: 'visas', label: 'Visas', icon: 'passport', count: visas.length },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`db-tab-btn ${activeTab === tab.id ? 'active' : ''}`}
-              >
-                <span className="material-symbols-outlined text-sm">{tab.icon}</span>
-                <span>{tab.label}</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-white text-gray-400'}`}>
-                  {tab.count}
-                </span>
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-2 p-1 bg-gray-100/80 rounded-14 w-fit">
-            <button onClick={() => setViewMode('grid')} className={`p-2 rounded-10 transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-black' : 'text-gray-400 hover:text-gray-600'}`}>
-              <span className="material-symbols-outlined text-sm block">grid_view</span>
-            </button>
-            <button onClick={() => setViewMode('list')} className={`p-2 rounded-10 transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-black' : 'text-gray-400 hover:text-gray-600'}`}>
-              <span className="material-symbols-outlined text-sm block">view_list</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="p-6">
-          {loading ? (
-            <div className="py-20"><Preloader /></div>
-          ) : (
-            <div className="min-h-[400px]">
-              {/* Destinations Grid */}
-              {activeTab === 'destinations' && (
-                destinations.length === 0 ? <EmptyState label="destinations" /> : (
-                  <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-3"}>
-                    {destinations.map(d => (
-                      <div key={d.id} className={viewMode === 'grid' ? "grid-item" : "flex items-center gap-4 p-4 border border-gray-100 rounded-2xl hover:bg-gray-50 transition-colors"}>
-                        <div className={viewMode === 'grid' ? "h-40 overflow-hidden relative" : "w-16 h-16 rounded-xl overflow-hidden flex-shrink-0"}>
-                          {d.heroImageUrl ? (
-                            <img src={d.heroImageUrl} className="w-full h-full object-cover" alt={d.name} />
-                          ) : (
-                            <div className="w-full h-full bg-gray-50 flex items-center justify-center"><span className="material-symbols-outlined text-gray-300">image</span></div>
-                          )}
-                          {viewMode === 'grid' && (
-                            <div className="absolute top-3 right-3"><span className="pill pill-blue backdrop-blur-md bg-white/80">{d.region}</span></div>
-                          )}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* ── Recent Activity ── */}
+        <div className="lg:col-span-1 space-y-6">
+          <div className="bg-white dark:bg-white/5 rounded-3xl p-6 border border-gray-100 dark:border-white/10 shadow-sm flex flex-col h-full">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Intelligence Feed</h3>
+              <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-500 uppercase tracking-widest">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Live
+              </div>
+            </div>
+            
+            <div className="space-y-6 overflow-y-auto max-h-[500px] pr-2 admin-scroll">
+              {activities.length === 0 ? (
+                <div className="py-10 text-center space-y-2">
+                  <span className="material-symbols-outlined text-gray-200 text-4xl">history</span>
+                  <p className="text-xs text-gray-400 uppercase tracking-widest">No recent activity</p>
+                </div>
+              ) : (
+                activities.map((act) => {
+                  let icon = 'info';
+                  let iconColor = 'text-blue-500';
+                  if (act.action.includes('Created')) { icon = 'add_circle'; iconColor = 'text-emerald-500'; }
+                  if (act.action.includes('Updated')) { icon = 'edit'; iconColor = 'text-amber-500'; }
+                  if (act.action.includes('Deleted')) { icon = 'delete'; iconColor = 'text-rose-500'; }
+                  if (act.action.includes('Uploaded')) { icon = 'cloud_upload'; iconColor = 'text-indigo-500'; }
+                  
+                  return (
+                    <div key={act.id} className="flex gap-4 group">
+                      <div className="flex flex-col items-center gap-1">
+                        <div className={`w-8 h-8 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center border border-gray-100 dark:border-white/10 group-hover:scale-110 transition-transform`}>
+                          <span className={`material-symbols-outlined text-lg ${iconColor}`}>{icon}</span>
                         </div>
-                        <div className={viewMode === 'grid' ? "p-5" : "flex-1 min-w-0"}>
-                          <div className="flex items-center justify-between mb-1">
-                            <h4 className="text-sm font-bold text-gray-900 truncate">{d.name}</h4>
-                            {viewMode === 'list' && <span className="pill pill-blue">{d.region}</span>}
-                          </div>
-                          <p className="text-xs text-gray-500 line-clamp-1 mb-3">{d.description || 'No description added.'}</p>
-                          <div className="flex items-center justify-between">
-                            <div className="flex gap-2">
-                              {d.landmarks && d.landmarks.length > 0 && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">place</span>{d.landmarks.length}</span>}
-                              {d.galleryImages && d.galleryImages.length > 0 && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">photo</span>{d.galleryImages.length}</span>}
-                            </div>
-                            {canCRUD && <Link to="/destinations" className="text-[10px] font-bold text-indigo-600 hover:underline">Configure →</Link>}
-                          </div>
+                        <div className="w-px flex-1 bg-gray-100 dark:bg-white/5 group-last:hidden" />
+                      </div>
+                      <div className="flex-1 pb-6 group-last:pb-0">
+                        <p className="text-xs font-bold text-gray-900 dark:text-white leading-relaxed">{act.action}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">{act.user}</span>
+                          <span className="text-[10px] text-gray-300">•</span>
+                          <span className="text-[10px] text-gray-400">{formatDistanceToNow(act.timestamp)} ago</span>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )
-              )}
-
-              {/* Tours Grid */}
-              {activeTab === 'tours' && (
-                tours.length === 0 ? <EmptyState label="tours" /> : (
-                  <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-3"}>
-                    {tours.map(t => (
-                      <div key={t.id} className={viewMode === 'grid' ? "grid-item" : "flex items-center gap-4 p-4 border border-gray-100 rounded-2xl hover:bg-gray-50 transition-colors"}>
-                        <div className={viewMode === 'grid' ? "h-40 overflow-hidden relative" : "w-16 h-16 rounded-xl overflow-hidden flex-shrink-0"}>
-                          {t.heroImageUrl ? (
-                            <img src={t.heroImageUrl} className="w-full h-full object-cover" alt={t.name} />
-                          ) : (
-                            <div className="w-full h-full bg-gray-50 flex items-center justify-center"><span className="material-symbols-outlined text-gray-300">flight</span></div>
-                          )}
-                          {viewMode === 'grid' && (
-                            <div className="absolute top-3 left-3"><span className="pill pill-green backdrop-blur-md bg-white/80">{t.days} Days</span></div>
-                          )}
-                        </div>
-                        <div className={viewMode === 'grid' ? "p-5" : "flex-1 min-w-0"}>
-                          <div className="flex items-center justify-between mb-1">
-                            <h4 className="text-sm font-bold text-gray-900 truncate">{t.name}</h4>
-                            {viewMode === 'list' && <span className="pill pill-green">{t.days} Days</span>}
-                          </div>
-                          <p className="text-xs text-gray-500 mb-3">{t.region} · <span className="font-bold text-gray-900">{t.price}</span></p>
-                          <div className="flex items-center justify-between">
-                            <div className="flex gap-3">
-                              {t.itinerary && t.itinerary.length > 0 && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">route</span>{t.itinerary.length}</span>}
-                              {t.transport && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">commute</span></span>}
-                            </div>
-                            {canCRUD && <Link to="/tours" className="text-[10px] font-bold text-emerald-600 hover:underline">Design →</Link>}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )
-              )}
-
-              {/* Visas Grid */}
-              {activeTab === 'visas' && (
-                visas.length === 0 ? <EmptyState label="visas" /> : (
-                  <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-3"}>
-                    {visas.map(v => (
-                      <div key={v.id} className={viewMode === 'grid' ? "grid-item" : "flex items-center gap-4 p-4 border border-gray-100 rounded-2xl hover:bg-gray-50 transition-colors"}>
-                        <div className={viewMode === 'grid' ? "h-40 overflow-hidden relative" : "w-16 h-16 rounded-xl overflow-hidden flex-shrink-0"}>
-                          {v.heroImageUrl ? (
-                            <img src={v.heroImageUrl} className="w-full h-full object-cover" alt={v.country} />
-                          ) : (
-                            <div className="w-full h-full bg-purple-50 flex items-center justify-center"><span className="material-symbols-outlined text-purple-300">passport</span></div>
-                          )}
-                          {viewMode === 'grid' && (
-                            <div className="absolute top-3 left-3"><span className={`pill ${v.difficulty === 'Easy' ? 'pill-green' : v.difficulty === 'Moderate' ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'} backdrop-blur-md bg-white/80`}>{v.difficulty}</span></div>
-                          )}
-                        </div>
-                        <div className={viewMode === 'grid' ? "p-5" : "flex-1 min-w-0"}>
-                          <div className="flex items-center justify-between mb-1">
-                            <h4 className="text-sm font-bold text-gray-900 truncate">{v.country}</h4>
-                            {viewMode === 'list' && <span className={`pill ${v.difficulty === 'Easy' ? 'pill-green' : v.difficulty === 'Moderate' ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'}`}>{v.difficulty}</span>}
-                          </div>
-                          <p className="text-xs text-gray-500 line-clamp-1 mb-3">{v.description || v.visaType || 'No description added.'}</p>
-                          <div className="flex items-center justify-between">
-                            <div className="flex gap-3">
-                              <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">schedule</span>{v.processing}</span>
-                              <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">payments</span>{v.fee}</span>
-                              {v.documents && v.documents.length > 0 && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">description</span>{v.documents.length}</span>}
-                            </div>
-                            {canCRUD && <Link to="/visas" className="text-[10px] font-bold text-purple-600 hover:underline">Update →</Link>}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )
+                    </div>
+                  );
+                })
               )}
             </div>
+          </div>
+        </div>
+
+        {/* ── Quick Actions ── */}
+        <div className="lg:col-span-2 space-y-6">
+          {canCRUD && (
+            <div className="bg-white dark:bg-white/5 rounded-3xl p-6 border border-gray-100 dark:border-white/10 shadow-sm">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Administrative Orchestration</h3>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <Link to="/destinations" className="action-btn dark:bg-white/5 dark:text-white dark:hover:bg-white/10">
+                  <span className="material-symbols-outlined">add_location</span>
+                  <span>New Destination</span>
+                </Link>
+                <Link to="/tours" className="action-btn dark:bg-white/5 dark:text-white dark:hover:bg-white/10">
+                  <span className="material-symbols-outlined">add_road</span>
+                  <span>Create Tour</span>
+                </Link>
+                <Link to="/visas" className="action-btn dark:bg-white/5 dark:text-white dark:hover:bg-white/10">
+                  <span className="material-symbols-outlined">description</span>
+                  <span>Visa Rules</span>
+                </Link>
+                {canEdit && (
+                  <>
+                    <Link to="/hero" className="action-btn dark:bg-white/5 dark:text-white dark:hover:bg-white/10">
+                      <span className="material-symbols-outlined text-amber-600">view_carousel</span> Hero Engine
+                    </Link>
+                    <CSVUploader type="destination" onUploadComplete={loadAll} />
+                    <CSVUploader type="tour" onUploadComplete={loadAll} />
+                  </>
+                )}
+              </div>
+            </div>
           )}
+
+          {/* ── Content Browser ── */}
+          <div className="content-card dark:bg-white/5 dark:border-white/10">
+            <div className="px-6 py-5 border-b border-gray-50 dark:border-white/10 bg-gray-50/30 dark:bg-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex p-1 bg-gray-100/80 dark:bg-white/5 rounded-14 w-fit">
+                {[
+                  { id: 'destinations', label: 'Destinations', icon: 'location_on', count: destinations.length },
+                  { id: 'tours', label: 'Tours', icon: 'flight', count: tours.length },
+                  { id: 'visas', label: 'Visas', icon: 'passport', count: visas.length },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id as any)}
+                    className={`db-tab-btn ${activeTab === tab.id ? 'active dark:bg-white dark:text-black' : 'dark:text-white/60 dark:hover:bg-white/10'}`}
+                  >
+                    <span className="material-symbols-outlined text-sm">{tab.icon}</span>
+                    <span className="hidden sm:inline">{tab.label}</span>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${activeTab === tab.id ? 'bg-white/20 text-white dark:bg-black/20 dark:text-black' : 'bg-white text-gray-400 dark:bg-white/10 dark:text-white/40'}`}>
+                      {tab.count}
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-2 p-1 bg-gray-100/80 dark:bg-white/5 rounded-14 w-fit">
+                <button onClick={() => setViewMode('grid')} className={`p-2 rounded-10 transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-white/10 shadow-sm text-black dark:text-white' : 'text-gray-400 hover:text-gray-600'}`}>
+                  <span className="material-symbols-outlined text-sm block">grid_view</span>
+                </button>
+                <button onClick={() => setViewMode('list')} className={`p-2 rounded-10 transition-all ${viewMode === 'list' ? 'bg-white dark:bg-white/10 shadow-sm text-black dark:text-white' : 'text-gray-400 hover:text-gray-600'}`}>
+                  <span className="material-symbols-outlined text-sm block">view_list</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6">
+              {loading ? (
+                <div className="py-20"><Preloader /></div>
+              ) : (
+                <div className="min-h-[400px]">
+                  {/* Destinations Grid */}
+                  {activeTab === 'destinations' && (
+                    destinations.length === 0 ? <EmptyState label="destinations" /> : (
+                      <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 gap-6" : "space-y-3"}>
+                        {destinations.map(d => (
+                          <div key={d.id} className={viewMode === 'grid' ? "grid-item dark:bg-white/5 dark:border-white/10" : "flex items-center gap-4 p-4 border border-gray-100 dark:border-white/10 rounded-2xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"}>
+                            <div className={viewMode === 'grid' ? "h-40 overflow-hidden relative" : "w-16 h-16 rounded-xl overflow-hidden flex-shrink-0"}>
+                              {d.heroImageUrl ? (
+                                <img src={d.heroImageUrl} className="w-full h-full object-cover" alt={d.name} />
+                              ) : (
+                                <div className="w-full h-full bg-gray-50 dark:bg-white/5 flex items-center justify-center"><span className="material-symbols-outlined text-gray-300">image</span></div>
+                              )}
+                              {viewMode === 'grid' && (
+                                <div className="absolute top-3 right-3"><span className="pill pill-blue backdrop-blur-md bg-white/80 dark:bg-black/60 dark:text-blue-400">{d.region}</span></div>
+                              )}
+                            </div>
+                            <div className={viewMode === 'grid' ? "p-5" : "flex-1 min-w-0"}>
+                              <div className="flex items-center justify-between mb-1">
+                                <h4 className="text-sm font-bold text-gray-900 dark:text-white truncate">{d.name}</h4>
+                                {viewMode === 'list' && <span className="pill pill-blue">{d.region}</span>}
+                              </div>
+                              <p className="text-xs text-gray-500 line-clamp-1 mb-3">{d.description || 'No description added.'}</p>
+                              <div className="flex items-center justify-between">
+                                <div className="flex gap-2">
+                                  {d.landmarks && d.landmarks.length > 0 && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">place</span>{d.landmarks.length}</span>}
+                                  {d.galleryImages && d.galleryImages.length > 0 && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">photo</span>{d.galleryImages.length}</span>}
+                                </div>
+                                {canCRUD && <Link to="/destinations" className="text-[10px] font-bold text-indigo-600 hover:underline">Configure →</Link>}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  )}
+
+                  {/* Tours Grid */}
+                  {activeTab === 'tours' && (
+                    tours.length === 0 ? <EmptyState label="tours" /> : (
+                      <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 gap-6" : "space-y-3"}>
+                        {tours.map(t => (
+                          <div key={t.id} className={viewMode === 'grid' ? "grid-item dark:bg-white/5 dark:border-white/10" : "flex items-center gap-4 p-4 border border-gray-100 dark:border-white/10 rounded-2xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"}>
+                            <div className={viewMode === 'grid' ? "h-40 overflow-hidden relative" : "w-16 h-16 rounded-xl overflow-hidden flex-shrink-0"}>
+                              {t.heroImageUrl ? (
+                                <img src={t.heroImageUrl} className="w-full h-full object-cover" alt={t.name} />
+                              ) : (
+                                <div className="w-full h-full bg-gray-50 dark:bg-white/5 flex items-center justify-center"><span className="material-symbols-outlined text-gray-300">flight</span></div>
+                              )}
+                              {viewMode === 'grid' && (
+                                <div className="absolute top-3 left-3"><span className="pill pill-green backdrop-blur-md bg-white/80 dark:bg-black/60 dark:text-emerald-400">{t.days} Days</span></div>
+                              )}
+                            </div>
+                            <div className={viewMode === 'grid' ? "p-5" : "flex-1 min-w-0"}>
+                              <div className="flex items-center justify-between mb-1">
+                                <h4 className="text-sm font-bold text-gray-900 dark:text-white truncate">{t.name}</h4>
+                                {viewMode === 'list' && <span className="pill pill-green">{t.days} Days</span>}
+                              </div>
+                              <p className="text-xs text-gray-500 mb-3">{t.region} · <span className="font-bold text-gray-900 dark:text-white/80">{t.price}</span></p>
+                              <div className="flex items-center justify-between">
+                                <div className="flex gap-3">
+                                  {t.itinerary && t.itinerary.length > 0 && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">route</span>{t.itinerary.length}</span>}
+                                  {t.transport && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">commute</span></span>}
+                                </div>
+                                {canCRUD && <Link to="/tours" className="text-[10px] font-bold text-emerald-600 hover:underline">Design →</Link>}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  )}
+
+                  {/* Visas Grid */}
+                  {activeTab === 'visas' && (
+                    visas.length === 0 ? <EmptyState label="visas" /> : (
+                      <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 gap-6" : "space-y-3"}>
+                        {visas.map(v => (
+                          <div key={v.id} className={viewMode === 'grid' ? "grid-item dark:bg-white/5 dark:border-white/10" : "flex items-center gap-4 p-4 border border-gray-100 dark:border-white/10 rounded-2xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"}>
+                            <div className={viewMode === 'grid' ? "h-40 overflow-hidden relative" : "w-16 h-16 rounded-xl overflow-hidden flex-shrink-0"}>
+                              {v.heroImageUrl ? (
+                                <img src={v.heroImageUrl} className="w-full h-full object-cover" alt={v.country} />
+                              ) : (
+                                <div className="w-full h-full bg-purple-50 dark:bg-white/5 flex items-center justify-center"><span className="material-symbols-outlined text-purple-300">passport</span></div>
+                              )}
+                              {viewMode === 'grid' && (
+                                <div className="absolute top-3 left-3"><span className={`pill ${v.difficulty === 'Easy' ? 'pill-green' : v.difficulty === 'Moderate' ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'} backdrop-blur-md bg-white/80 dark:bg-black/60`}>{v.difficulty}</span></div>
+                              )}
+                            </div>
+                            <div className={viewMode === 'grid' ? "p-5" : "flex-1 min-w-0"}>
+                              <div className="flex items-center justify-between mb-1">
+                                <h4 className="text-sm font-bold text-gray-900 dark:text-white truncate">{v.country}</h4>
+                                {viewMode === 'list' && <span className={`pill ${v.difficulty === 'Easy' ? 'pill-green' : v.difficulty === 'Moderate' ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'}`}>{v.difficulty}</span>}
+                              </div>
+                              <p className="text-xs text-gray-500 line-clamp-1 mb-3">{v.description || v.visaType || 'No description added.'}</p>
+                              <div className="flex items-center justify-between">
+                                <div className="flex gap-3">
+                                  <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">schedule</span>{v.processing}</span>
+                                  <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">payments</span>{v.fee}</span>
+                                  {v.documents && v.documents.length > 0 && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">description</span>{v.documents.length}</span>}
+                                </div>
+                                {canCRUD && <Link to="/visas" className="text-[10px] font-bold text-purple-600 hover:underline">Update →</Link>}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 

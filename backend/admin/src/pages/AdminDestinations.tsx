@@ -4,6 +4,7 @@ import { api } from '../lib/api';
 import { ImageUploader } from '../components/ImageUploader';
 import { useAdminAuth } from '../lib/adminAuth';
 import { Preloader } from '../components/Preloader';
+import { useOptimisticUpdate } from '../lib/hooks';
 
 const emptyForm: Partial<Destination> = {
   name: '', region: '', description: '', essenceText: '',
@@ -13,10 +14,13 @@ const emptyForm: Partial<Destination> = {
 
 const S = `
   .af-input{width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13.5px;background:#fafafa;color:#111827;transition:all .2s;outline:none;}
+  .dark .af-input{background:#1a1a1a;border-color:#333;color:#fff;}
   .af-input:focus{border-color:#111827;background:#fff;box-shadow:0 0 0 3px rgba(0,0,0,.06);}
+  .dark .af-input:focus{border-color:#fff;background:#000;box-shadow:0 0 0 3px rgba(255,255,255,.06);}
   .af-input::placeholder{color:#9ca3af;}
   .af-label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;margin-bottom:6px;}
   .af-section{background:#fff;border-radius:16px;padding:22px;border:1.5px solid #f0f0f0;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+  .dark .af-section{background:#1a1a1a;border-color:#333;box-shadow:none;}
   .af-sec-head{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:12px;}
   .af-sec-head.blue{border-bottom:2px solid #3b82f6;}
   .af-sec-head.violet{border-bottom:2px solid #7c3aed;}
@@ -28,15 +32,20 @@ const S = `
   .af-sec-icon.amber{background:#fef3c7;color:#d97706;}
   .af-sec-icon.emerald{background:#d1fae5;color:#059669;}
   .af-sub{background:#f9fafb;border-radius:12px;padding:16px;border:1.5px solid #f0f0f0;position:relative;}
+  .dark .af-sub{background:#222;border-color:#333;}
   .af-sub-num{position:absolute;top:-10px;left:14px;background:#111827;color:#fff;border-radius:20px;font-size:9px;font-weight:900;padding:2px 10px;letter-spacing:.1em;text-transform:uppercase;}
+  .dark .af-sub-num{background:#fff;color:#000;}
   .af-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:10px;font-size:13px;font-weight:700;letter-spacing:.02em;transition:all .2s;border:none;cursor:pointer;}
   .af-btn.dark{background:#111827;color:#fff;}
+  .dark .af-btn.dark{background:#fff;color:#000;}
   .af-btn.dark:hover{background:#1f2937;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.2);}
   .af-btn.dark:disabled{opacity:.6;cursor:not-allowed;transform:none;}
   .af-btn.light{background:#f3f4f6;color:#374151;}
+  .dark .af-btn.light{background:#333;color:#fff;}
   .af-btn.light:hover{background:#e5e7eb;}
   .af-btn-add{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;transition:all .15s;border:1.5px dashed;cursor:pointer;margin-top:12px;}
   .af-list-card{display:flex;align-items:center;background:#fff;border-radius:14px;border:1.5px solid #f0f0f0;overflow:hidden;transition:all .2s;}
+  .dark .af-list-card{background:#1a1a1a;border-color:#333;}
   .af-list-card:hover{border-color:#e5e7eb;box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-1px);}
   .af-thumb{width:80px;height:80px;flex-shrink:0;background:#f3f4f6;overflow:hidden;}
   .af-thumb img{width:100%;height:100%;object-fit:cover;}
@@ -115,6 +124,8 @@ export default function AdminDestinations() {
   const [showImport, setShowImport] = useState(false);
   const [importText, setImportText] = useState('');
 
+  const { data: optimisticDestinations, performOptimistic } = useOptimisticUpdate(destinations);
+
   useEffect(() => {
     loadDestinations();
     const iv = setInterval(loadDestinations, 5000);
@@ -123,6 +134,11 @@ export default function AdminDestinations() {
 
   const loadDestinations = () =>
     api.listDestinations().then((d) => { setDestinations(d || []); setLoading(false); }).catch(console.error);
+
+  const filtered = optimisticDestinations.filter(d =>
+    d.name.toLowerCase().includes(search.toLowerCase()) ||
+    (d.region || '').toLowerCase().includes(search.toLowerCase())
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); setSaving(true);
@@ -137,10 +153,10 @@ export default function AdminDestinations() {
     setTimeout(() => document.getElementById('dtop')?.scrollIntoView({ behavior: 'smooth' }), 50);
   };
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this destination? This cannot be undone.')) return;
-    try { 
-      await api.deleteDestination(id); 
-      loadDestinations(); 
+    if (!confirm('Delete this destination?')) return;
+    const nextData = optimisticDestinations.filter(d => d.id !== id);
+    try {
+      await performOptimistic(nextData, api.deleteDestination(id));
       if (selected.has(id)) {
         const newSet = new Set(selected);
         newSet.delete(id);
@@ -151,15 +167,14 @@ export default function AdminDestinations() {
 
   const handleBulkDelete = async () => {
     if (selected.size === 0) return;
-    if (!confirm(`Are you sure you want to delete ${selected.size} destinations? This cannot be undone.`)) return;
+    if (!confirm(`Are you sure you want to delete ${selected.size} destinations?`)) return;
+    const nextData = optimisticDestinations.filter(d => !selected.has(d.id));
     try {
-      await Promise.all(Array.from(selected).map(id => api.deleteDestination(id)));
-      loadDestinations();
+      await performOptimistic(nextData, Promise.all(Array.from(selected).map(id => api.deleteDestination(id))));
       setSelected(new Set());
       setSelectMode(false);
     } catch (err) {
       console.error('Bulk delete failed:', err);
-      alert('Some items failed to delete.');
     }
   };
 
@@ -171,11 +186,6 @@ export default function AdminDestinations() {
   };
 
   const upd = (patch: Partial<Destination>) => setFormData(f => ({ ...f, ...patch }));
-
-  const filtered = destinations.filter(d =>
-    d.name.toLowerCase().includes(search.toLowerCase()) ||
-    (d.region || '').toLowerCase().includes(search.toLowerCase())
-  );
 
   return (
     <div className="space-y-5 w-full max-w-5xl mx-auto" id="dtop">
@@ -193,14 +203,14 @@ export default function AdminDestinations() {
           {/* Import Modal */}
           {showImport && (
             <div style={{ position:'fixed', inset:0, zIndex:1000, background:'rgba(0,0,0,0.6)', display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
-              <div style={{ background:'#fff', borderRadius:20, padding:28, maxWidth:680, width:'100%', boxShadow:'0 20px 60px rgba(0,0,0,0.25)' }}>
+              <div className="dark:bg-[#111] dark:border dark:border-white/10" style={{ background:'#fff', borderRadius:20, padding:28, maxWidth:680, width:'100%', boxShadow:'0 20px 60px rgba(0,0,0,0.25)' }}>
                 <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
                   <div style={{ display:'flex', alignItems:'center', gap:10 }}>
                     <div style={{ width:36, height:36, background:'#1a1a2e', borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center' }}>
                       <span className="material-symbols-outlined" style={{ color:'#fff', fontSize:18 }}>content_paste</span>
                     </div>
                     <div>
-                      <h3 style={{ margin:0, fontSize:15, fontWeight:800, color:'#111' }}>Import from Document</h3>
+                      <h3 className="dark:text-white" style={{ margin:0, fontSize:15, fontWeight:800, color:'#111' }}>Import from Document</h3>
                       <p style={{ margin:0, fontSize:11, color:'#6b7280' }}>Paste your Word/quotation text — destination fields will auto-fill</p>
                     </div>
                   </div>
@@ -210,7 +220,8 @@ export default function AdminDestinations() {
                   value={importText}
                   onChange={e => setImportText(e.target.value)}
                   placeholder="Paste your full tour quotation or destination document text here..."
-                  style={{ width:'100%', height:260, padding:14, border:'1.5px solid #e5e7eb', borderRadius:12, fontSize:12.5, fontFamily:'monospace', resize:'vertical', outline:'none', boxSizing:'border-box' }}
+                  className="af-input"
+                  style={{ width:'100%', height:260, padding:14, fontSize:12.5, fontFamily:'monospace', resize:'vertical', outline:'none', boxSizing:'border-box' }}
                 />
                 <div style={{ display:'flex', gap:10, marginTop:14, justifyContent:'flex-end' }}>
                   <button onClick={() => setShowImport(false)}
@@ -241,7 +252,7 @@ export default function AdminDestinations() {
               <span className="material-symbols-outlined text-white text-xl">{editingId ? 'edit_location' : 'add_location_alt'}</span>
             </div>
             <div className="flex-1">
-              <h2 className="text-base font-bold text-on-surface">{editingId ? 'Edit Destination' : 'Create New Destination'}</h2>
+              <h2 className="text-base font-bold text-on-surface dark:text-white">{editingId ? 'Edit Destination' : 'Create New Destination'}</h2>
               <p className="text-xs text-on-surface-variant">{editingId ? 'Update the details below.' : 'Add a new destination to your collection.'}</p>
             </div>
             <button onClick={() => setShowImport(true)}
@@ -262,7 +273,7 @@ export default function AdminDestinations() {
             <div className="af-section">
               <div className="af-sec-head blue">
                 <div className="af-sec-icon blue"><span className="material-symbols-outlined text-base">public</span></div>
-                <span className="text-sm font-bold text-on-surface">Core Information</span>
+                <span className="text-sm font-bold text-on-surface dark:text-white">Core Information</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -290,7 +301,7 @@ export default function AdminDestinations() {
             <div className="af-section">
               <div className="af-sec-head violet">
                 <div className="af-sec-icon violet"><span className="material-symbols-outlined text-base">photo_library</span></div>
-                <span className="text-sm font-bold text-on-surface">Visual Media</span>
+                <span className="text-sm font-bold text-on-surface dark:text-white">Visual Media</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <ImageUploader value={formData.heroImageUrl || ''} onChange={(v: string) => upd({ heroImageUrl: v })} label="Hero Cover Image" />
@@ -302,7 +313,7 @@ export default function AdminDestinations() {
             <div className="af-section">
               <div className="af-sec-head amber">
                 <div className="af-sec-icon amber"><span className="material-symbols-outlined text-base">wb_sunny</span></div>
-                <span className="text-sm font-bold text-on-surface">Seasonal Rhythms</span>
+                <span className="text-sm font-bold text-on-surface dark:text-white">Seasonal Rhythms</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -344,8 +355,8 @@ export default function AdminDestinations() {
             <div className="af-section">
               <div className="af-sec-head emerald">
                 <div className="af-sec-icon emerald"><span className="material-symbols-outlined text-base">place</span></div>
-                <span className="text-sm font-bold text-on-surface flex-1">Iconic Landmarks</span>
-                <span className="text-[11px] font-black px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant">{(formData.landmarks||[]).length}</span>
+                <span className="text-sm font-bold text-on-surface dark:text-white flex-1">Iconic Landmarks</span>
+                <span className="text-[11px] font-black px-2 py-0.5 rounded-full bg-surface-container dark:bg-white/10 text-on-surface-variant dark:text-white/60">{(formData.landmarks||[]).length}</span>
               </div>
               <div className="space-y-4">
                 {(formData.landmarks || []).map((lm, i) => (
@@ -395,13 +406,13 @@ export default function AdminDestinations() {
       <div className="af-section">
         <div className="flex items-center justify-between gap-4 mb-5">
           <div className="flex items-center gap-3">
-            <span className="text-sm font-bold text-on-surface">All Destinations</span>
-            <span className="text-[11px] font-black px-2.5 py-0.5 rounded-full bg-black text-white">{destinations.length}</span>
+            <span className="text-sm font-bold text-on-surface dark:text-white">All Destinations</span>
+            <span className="text-[11px] font-black px-2.5 py-0.5 rounded-full bg-black dark:bg-white text-white dark:text-black">{optimisticDestinations.length}</span>
           </div>
           <div className="relative flex-1 max-w-xs">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-base pointer-events-none">search</span>
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search…"
-              className="w-full pl-9 pr-3 py-2 text-sm bg-surface-container-low border border-outline-variant/30 rounded-xl focus:outline-none focus:border-black focus:bg-white transition-all" />
+              className="w-full pl-9 pr-3 py-2 text-sm bg-surface-container-low dark:bg-white/5 border border-outline-variant/30 dark:border-white/10 rounded-xl focus:outline-none focus:border-black dark:focus:border-white focus:bg-white transition-all dark:text-white" />
           </div>
           {canCRUD && destinations.length > 0 && (
             <div className="flex items-center gap-2">
@@ -410,7 +421,7 @@ export default function AdminDestinations() {
                   setSelectMode(!selectMode);
                   if (selectMode) setSelected(new Set());
                 }}
-                className={`px-3 py-1.5 flex items-center gap-1 rounded-lg text-xs font-bold uppercase transition-colors ${selectMode ? 'bg-blue-100 text-blue-700' : 'bg-surface-container border border-outline-variant/30 text-on-surface'}`}
+                className={`px-3 py-1.5 flex items-center gap-1 rounded-lg text-xs font-bold uppercase transition-colors ${selectMode ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300' : 'bg-surface-container dark:bg-white/5 border border-outline-variant/30 dark:border-white/10 text-on-surface dark:text-white/60'}`}
               >
                 <span className="material-symbols-outlined text-sm">checklist</span>
                 {selectMode ? 'Cancel' : 'Select'}
@@ -438,33 +449,33 @@ export default function AdminDestinations() {
               <div key={dest.id} className="af-list-card relative">
                 {selectMode && (
                   <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10" onClick={(e) => { e.stopPropagation(); toggleSelect(dest.id); }}>
-                    <div className={`w-5 h-5 rounded flex items-center justify-center border cursor-pointer transition-all ${selected.has(dest.id) ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-outline-variant/50 hover:border-black'}`}>
+                    <div className={`w-5 h-5 rounded flex items-center justify-center border cursor-pointer transition-all ${selected.has(dest.id) ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white dark:bg-black border-outline-variant/50 dark:border-white/20 hover:border-black dark:hover:border-white'}`}>
                       {selected.has(dest.id) && <span className="material-symbols-outlined text-xs">check</span>}
                     </div>
                   </div>
                 )}
                 <div className={`af-thumb flex-shrink-0 transition-all ${selectMode ? 'ml-10' : ''}`}>
                   {dest.heroImageUrl ? <img src={dest.heroImageUrl} alt={dest.name} />
-                    : <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-on-surface-variant/30 text-2xl">image</span></div>}
+                    : <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-on-surface-variant/30 dark:text-white/10 text-2xl">image</span></div>}
                 </div>
                 <div className="flex-1 px-4 py-3 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <h4 className="text-sm font-bold text-on-surface">{dest.name}</h4>
-                    <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">{dest.region}</span>
+                    <h4 className="text-sm font-bold text-on-surface dark:text-white">{dest.name}</h4>
+                    <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400">{dest.region}</span>
                   </div>
-                  <p className="text-xs text-on-surface-variant line-clamp-1 mb-2">{dest.description || 'No description.'}</p>
+                  <p className="text-xs text-on-surface-variant dark:text-white/40 line-clamp-1 mb-2">{dest.description || 'No description.'}</p>
                   <div className="flex gap-3 flex-wrap">
-                    {(dest.landmarks?.length ?? 0) > 0 && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant"><span className="material-symbols-outlined text-sm" style={{color:'#10b981'}}>place</span>{dest.landmarks?.length} landmarks</span>}
-                    {(dest.galleryImages?.length ?? 0) > 0 && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant"><span className="material-symbols-outlined text-sm" style={{color:'#7c3aed'}}>photo_library</span>{dest.galleryImages?.length} photos</span>}
-                    {dest.bestSeasonsMonths && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant"><span className="material-symbols-outlined text-sm" style={{color:'#f59e0b'}}>wb_sunny</span>{dest.bestSeasonsMonths}</span>}
+                    {(dest.landmarks?.length ?? 0) > 0 && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant dark:text-white/30"><span className="material-symbols-outlined text-sm" style={{color:'#10b981'}}>place</span>{dest.landmarks?.length} landmarks</span>}
+                    {(dest.galleryImages?.length ?? 0) > 0 && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant dark:text-white/30"><span className="material-symbols-outlined text-sm" style={{color:'#7c3aed'}}>photo_library</span>{dest.galleryImages?.length} photos</span>}
+                    {dest.bestSeasonsMonths && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant dark:text-white/30"><span className="material-symbols-outlined text-sm" style={{color:'#f59e0b'}}>wb_sunny</span>{dest.bestSeasonsMonths}</span>}
                   </div>
                 </div>
                 {canCRUD && (
                   <div className="flex flex-col gap-1.5 px-3 flex-shrink-0">
-                    <button onClick={() => handleEdit(dest)} className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-bold transition-colors">
+                    <button onClick={() => handleEdit(dest)} className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-700 dark:text-blue-400 rounded-lg text-xs font-bold transition-colors">
                       <span className="material-symbols-outlined text-sm">edit</span> Edit
                     </button>
-                    <button onClick={() => handleDelete(dest.id)} className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-bold transition-colors">
+                    <button onClick={() => handleDelete(dest.id)} className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 rounded-lg text-xs font-bold transition-colors">
                       <span className="material-symbols-outlined text-sm">delete</span> Delete
                     </button>
                   </div>

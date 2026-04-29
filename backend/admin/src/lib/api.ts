@@ -92,6 +92,13 @@ export type SeoPage = {
   ogImage?: string;
 };
 
+export type Activity = {
+  id: string;
+  action: string;
+  timestamp: number;
+  user?: string;
+};
+
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
   const token = sessionStorage.getItem("jf_token");
   const headers: HeadersInit = {
@@ -217,6 +224,7 @@ export interface ApiInterface {
   updateSeoSettings: (settings: SeoPage[]) => Promise<void>;
   getApiSettings: () => Promise<any>;
   updateApiSettings: (settings: any) => Promise<void>;
+  listActivity: () => Promise<Activity[]>;
 }
 
 export const api: ApiInterface = {
@@ -268,4 +276,5 @@ export const api: ApiInterface = {
     method: "PUT",
     body: JSON.stringify(settings),
   }),
+  listActivity: () => http<Activity[]>("/admin/activity"),
 };

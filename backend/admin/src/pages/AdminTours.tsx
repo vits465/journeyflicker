@@ -4,6 +4,7 @@ import { api } from '../lib/api';
 import { ImageUploader } from '../components/ImageUploader';
 import { useAdminAuth } from '../lib/adminAuth';
 import { Preloader } from '../components/Preloader';
+import { useOptimisticUpdate } from '../lib/hooks';
 
 const emptyForm: Partial<Tour> = {
   name: '', region: '', days: 7, price: '', category: 'Signature Series',
@@ -14,10 +15,13 @@ const emptyForm: Partial<Tour> = {
 
 const S = `
   .at-input{width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13.5px;background:#fafafa;color:#111827;transition:all .2s;outline:none;}
+  .dark .at-input{background:#1a1a1a;border-color:#333;color:#fff;}
   .at-input:focus{border-color:#111827;background:#fff;box-shadow:0 0 0 3px rgba(0,0,0,.06);}
+  .dark .at-input:focus{border-color:#fff;background:#000;box-shadow:0 0 0 3px rgba(255,255,255,.06);}
   .at-input::placeholder{color:#9ca3af;}
   .at-label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;margin-bottom:6px;}
   .at-section{background:#fff;border-radius:16px;padding:22px;border:1.5px solid #f0f0f0;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+  .dark .at-section{background:#1a1a1a;border-color:#333;box-shadow:none;}
   .at-sh{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:12px;}
   .at-sh.blue{border-bottom:2px solid #3b82f6;}
   .at-sh.green{border-bottom:2px solid #10b981;}
@@ -33,15 +37,20 @@ const S = `
   .at-si.rose{background:#ffe4e6;color:#e11d48;}
   .at-si.sky{background:#e0f2fe;color:#0284c7;}
   .at-sub{background:#f9fafb;border-radius:12px;padding:16px;border:1.5px solid #f0f0f0;position:relative;}
+  .dark .at-sub{background:#222;border-color:#333;}
   .at-sub-num{position:absolute;top:-10px;left:14px;background:#111827;color:#fff;border-radius:20px;font-size:9px;font-weight:900;padding:2px 10px;letter-spacing:.1em;text-transform:uppercase;}
+  .dark .at-sub-num{background:#fff;color:#000;}
   .at-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:10px;font-size:13px;font-weight:700;letter-spacing:.02em;transition:all .2s;border:none;cursor:pointer;}
   .at-btn.dark{background:#111827;color:#fff;}
+  .dark .at-btn.dark{background:#fff;color:#000;}
   .at-btn.dark:hover{background:#1f2937;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.2);}
   .at-btn.dark:disabled{opacity:.6;cursor:not-allowed;transform:none;}
   .at-btn.light{background:#f3f4f6;color:#374151;}
+  .dark .at-btn.light{background:#333;color:#fff;}
   .at-btn.light:hover{background:#e5e7eb;}
   .at-btn-add{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;transition:all .15s;border:1.5px dashed;cursor:pointer;margin-top:12px;}
   .at-card{display:flex;align-items:center;background:#fff;border-radius:14px;border:1.5px solid #f0f0f0;overflow:hidden;transition:all .2s;}
+  .dark .at-card{background:#1a1a1a;border-color:#333;}
   .at-card:hover{border-color:#e5e7eb;box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-1px);}
   .at-thumb{width:80px;height:80px;flex-shrink:0;background:#f3f4f6;overflow:hidden;}
   .at-thumb img{width:100%;height:100%;object-fit:cover;}
@@ -153,6 +162,8 @@ export default function AdminTours() {
   const [showImport, setShowImport] = useState(false);
   const [importText, setImportText] = useState('');
 
+  const { data: optimisticTours, performOptimistic } = useOptimisticUpdate(tours);
+
   useEffect(() => {
     loadTours();
     const iv = setInterval(loadTours, 5000);
@@ -161,6 +172,11 @@ export default function AdminTours() {
 
   const loadTours = () =>
     api.listTours().then(d => { setTours(d || []); setLoading(false); }).catch(console.error);
+
+  const filtered = optimisticTours.filter(t =>
+    t.name.toLowerCase().includes(search.toLowerCase()) ||
+    (t.region || '').toLowerCase().includes(search.toLowerCase())
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); setSaving(true);
@@ -174,31 +190,30 @@ export default function AdminTours() {
     setFormData(t); setEditingId(t.id);
     setTimeout(() => document.getElementById('ttop')?.scrollIntoView({ behavior: 'smooth' }), 50);
   };
+  const handleBulkDelete = async () => {
+    if (selected.size === 0) return;
+    if (!confirm(`Are you sure you want to delete ${selected.size} tours?`)) return;
+    const nextData = optimisticTours.filter(t => !selected.has(t.id));
+    try {
+      await performOptimistic(nextData, Promise.all(Array.from(selected).map(id => api.deleteTour(id))));
+      setSelected(new Set());
+      setSelectMode(false);
+    } catch (err) {
+      console.error('Bulk delete failed:', err);
+    }
+  };
+
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this tour? This cannot be undone.')) return;
-    try { 
-      await api.deleteTour(id); 
-      loadTours(); 
+    if (!confirm('Delete this tour?')) return;
+    const nextData = optimisticTours.filter(t => t.id !== id);
+    try {
+      await performOptimistic(nextData, api.deleteTour(id));
       if (selected.has(id)) {
         const newSet = new Set(selected);
         newSet.delete(id);
         setSelected(newSet);
       }
     } catch (err) { console.error(err); }
-  };
-
-  const handleBulkDelete = async () => {
-    if (selected.size === 0) return;
-    if (!confirm(`Are you sure you want to delete ${selected.size} tours? This cannot be undone.`)) return;
-    try {
-      await Promise.all(Array.from(selected).map(id => api.deleteTour(id)));
-      loadTours();
-      setSelected(new Set());
-      setSelectMode(false);
-    } catch (err) {
-      console.error('Bulk delete failed:', err);
-      alert('Some items failed to delete.');
-    }
   };
 
   const toggleSelect = (id: string) => {
@@ -209,11 +224,6 @@ export default function AdminTours() {
   };
 
   const upd = (patch: Partial<Tour>) => setFormData(f => ({ ...f, ...patch }));
-
-  const filtered = tours.filter(t =>
-    t.name.toLowerCase().includes(search.toLowerCase()) ||
-    (t.region || '').toLowerCase().includes(search.toLowerCase())
-  );
 
   const updItin = (i: number, patch: object) => {
     const u = [...(formData.itinerary || [])]; u[i] = { ...u[i], ...patch }; upd({ itinerary: u });
@@ -238,14 +248,14 @@ export default function AdminTours() {
           {/* Import Modal */}
           {showImport && (
             <div style={{ position:'fixed', inset:0, zIndex:1000, background:'rgba(0,0,0,0.6)', display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
-              <div style={{ background:'#fff', borderRadius:20, padding:28, maxWidth:680, width:'100%', boxShadow:'0 20px 60px rgba(0,0,0,0.25)' }}>
+              <div className="dark:bg-[#111] dark:border dark:border-white/10" style={{ background:'#fff', borderRadius:20, padding:28, maxWidth:680, width:'100%', boxShadow:'0 20px 60px rgba(0,0,0,0.25)' }}>
                 <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
                   <div style={{ display:'flex', alignItems:'center', gap:10 }}>
                     <div style={{ width:36, height:36, background:'#1a1a2e', borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center' }}>
                       <span className="material-symbols-outlined" style={{ color:'#fff', fontSize:18 }}>content_paste</span>
                     </div>
                     <div>
-                      <h3 style={{ margin:0, fontSize:15, fontWeight:800, color:'#111' }}>Import from Document</h3>
+                      <h3 className="dark:text-white" style={{ margin:0, fontSize:15, fontWeight:800, color:'#111' }}>Import from Document</h3>
                       <p style={{ margin:0, fontSize:11, color:'#6b7280' }}>Paste your Word/quotation text below — fields will auto-fill</p>
                     </div>
                   </div>
@@ -255,7 +265,8 @@ export default function AdminTours() {
                   value={importText}
                   onChange={e => setImportText(e.target.value)}
                   placeholder="Paste your full tour quotation or Word document text here..."
-                  style={{ width:'100%', height:260, padding:14, border:'1.5px solid #e5e7eb', borderRadius:12, fontSize:12.5, fontFamily:'monospace', resize:'vertical', outline:'none', boxSizing:'border-box' }}
+                  className="at-input"
+                  style={{ width:'100%', height:260, padding:14, fontSize:12.5, fontFamily:'monospace', resize:'vertical', outline:'none', boxSizing:'border-box' }}
                 />
                 <div style={{ display:'flex', gap:10, marginTop:14, justifyContent:'flex-end' }}>
                   <button onClick={() => setShowImport(false)}
@@ -286,7 +297,7 @@ export default function AdminTours() {
               <span className="material-symbols-outlined text-white text-xl">{editingId ? 'edit_note' : 'tour'}</span>
             </div>
             <div className="flex-1">
-              <h2 className="text-base font-bold text-on-surface">{editingId ? 'Edit Tour' : 'Create New Tour'}</h2>
+              <h2 className="text-base font-bold text-on-surface dark:text-white">{editingId ? 'Edit Tour' : 'Create New Tour'}</h2>
               <p className="text-xs text-on-surface-variant">{editingId ? 'Update the tour details below.' : 'Design a new itinerary for your collection.'}</p>
             </div>
             <button onClick={() => setShowImport(true)}
@@ -308,7 +319,7 @@ export default function AdminTours() {
             <div className="at-section">
               <div className="at-sh blue">
                 <div className="at-si blue"><span className="material-symbols-outlined text-base">flight</span></div>
-                <span className="text-sm font-bold text-on-surface">Core Information</span>
+                <span className="text-sm font-bold text-on-surface dark:text-white">Core Information</span>
               </div>
               <div className="mb-4">
                 <label className="at-label">Tour Name <span className="text-rose-500">*</span></label>
@@ -346,7 +357,7 @@ export default function AdminTours() {
             <div className="at-section">
               <div className="at-sh sky">
                 <div className="at-si sky"><span className="material-symbols-outlined text-base">settings</span></div>
-                <span className="text-sm font-bold text-on-surface">Tour Logistics</span>
+                <span className="text-sm font-bold text-on-surface dark:text-white">Tour Logistics</span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
@@ -370,7 +381,7 @@ export default function AdminTours() {
             <div className="at-section">
               <div className="at-sh violet">
                 <div className="at-si violet"><span className="material-symbols-outlined text-base">photo_library</span></div>
-                <span className="text-sm font-bold text-on-surface">Visual Media</span>
+                <span className="text-sm font-bold text-on-surface dark:text-white">Visual Media</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-4">
                 <ImageUploader value={formData.heroImageUrl || ''} onChange={(v: string) => upd({ heroImageUrl: v })} label="Hero Cover Image" />
@@ -386,8 +397,8 @@ export default function AdminTours() {
             <div className="at-section">
               <div className="at-sh green">
                 <div className="at-si green"><span className="material-symbols-outlined text-base">route</span></div>
-                <span className="text-sm font-bold text-on-surface flex-1">Itinerary (Day-by-Day)</span>
-                <span className="text-[11px] font-black px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant">{(formData.itinerary || []).length}</span>
+                <span className="text-sm font-bold text-on-surface dark:text-white flex-1">Itinerary (Day-by-Day)</span>
+                <span className="text-[11px] font-black px-2 py-0.5 rounded-full bg-surface-container dark:bg-white/10 text-on-surface-variant dark:text-white/60">{(formData.itinerary || []).length}</span>
               </div>
               <div className="space-y-5">
                 {(formData.itinerary || []).map((day, i) => (
@@ -428,7 +439,7 @@ export default function AdminTours() {
             <div className="at-section">
               <div className="at-sh amber">
                 <div className="at-si amber"><span className="material-symbols-outlined text-base">place</span></div>
-                <span className="text-sm font-bold text-on-surface flex-1">Territory Landmarks</span>
+                <span className="text-sm font-bold text-on-surface dark:text-white flex-1">Territory Landmarks</span>
                 <span className="text-[11px] font-black px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant">{(formData.sightseeing || []).length}</span>
               </div>
               <div className="space-y-4">
@@ -459,7 +470,7 @@ export default function AdminTours() {
             <div className="at-section">
               <div className="at-sh rose">
                 <div className="at-si rose"><span className="material-symbols-outlined text-base">calendar_month</span></div>
-                <span className="text-sm font-bold text-on-surface flex-1">Departure Windows</span>
+                <span className="text-sm font-bold text-on-surface dark:text-white flex-1">Departure Windows</span>
                 <span className="text-[11px] font-black px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant">{(formData.departureWindows || []).length}</span>
               </div>
               <div className="space-y-2 mb-1">
@@ -504,13 +515,13 @@ export default function AdminTours() {
       <div className="at-section">
         <div className="flex items-center justify-between gap-4 mb-5">
           <div className="flex items-center gap-3">
-            <span className="text-sm font-bold text-on-surface">All Tours</span>
-            <span className="text-[11px] font-black px-2.5 py-0.5 rounded-full bg-black text-white">{tours.length}</span>
+            <span className="text-sm font-bold text-on-surface dark:text-white">All Tours</span>
+            <span className="text-[11px] font-black px-2.5 py-0.5 rounded-full bg-black dark:bg-white text-white dark:text-black">{optimisticTours.length}</span>
           </div>
           <div className="relative flex-1 max-w-xs">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-base pointer-events-none">search</span>
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search tours…"
-              className="w-full pl-9 pr-3 py-2 text-sm bg-surface-container-low border border-outline-variant/30 rounded-xl focus:outline-none focus:border-black focus:bg-white transition-all" />
+              className="w-full pl-9 pr-3 py-2 text-sm bg-surface-container-low dark:bg-white/5 border border-outline-variant/30 dark:border-white/10 rounded-xl focus:outline-none focus:border-black dark:focus:border-white focus:bg-white transition-all dark:text-white" />
           </div>
           {canCRUD && tours.length > 0 && (
             <div className="flex items-center gap-2">
@@ -519,7 +530,7 @@ export default function AdminTours() {
                   setSelectMode(!selectMode);
                   if (selectMode) setSelected(new Set());
                 }}
-                className={`px-3 py-1.5 flex items-center gap-1 rounded-lg text-xs font-bold uppercase transition-colors ${selectMode ? 'bg-blue-100 text-blue-700' : 'bg-surface-container border border-outline-variant/30 text-on-surface'}`}
+                className={`px-3 py-1.5 flex items-center gap-1 rounded-lg text-xs font-bold uppercase transition-colors ${selectMode ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300' : 'bg-surface-container dark:bg-white/5 border border-outline-variant/30 dark:border-white/10 text-on-surface dark:text-white/60'}`}
               >
                 <span className="material-symbols-outlined text-sm">checklist</span>
                 {selectMode ? 'Cancel' : 'Select'}
@@ -547,7 +558,7 @@ export default function AdminTours() {
               <div key={tour.id} className="at-card relative">
                 {selectMode && (
                   <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10" onClick={(e) => { e.stopPropagation(); toggleSelect(tour.id); }}>
-                    <div className={`w-5 h-5 rounded flex items-center justify-center border cursor-pointer transition-all ${selected.has(tour.id) ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-outline-variant/50 hover:border-black'}`}>
+                    <div className={`w-5 h-5 rounded flex items-center justify-center border cursor-pointer transition-all ${selected.has(tour.id) ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white dark:bg-black border-outline-variant/50 dark:border-white/20 hover:border-black dark:hover:border-white'}`}>
                       {selected.has(tour.id) && <span className="material-symbols-outlined text-xs">check</span>}
                     </div>
                   </div>
@@ -555,28 +566,28 @@ export default function AdminTours() {
                 <div className={`at-thumb flex-shrink-0 transition-all ${selectMode ? 'ml-10' : ''}`}>
                   {tour.heroImageUrl
                     ? <img src={tour.heroImageUrl} alt={tour.name} />
-                    : <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-on-surface-variant/30 text-2xl">flight</span></div>}
+                    : <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-on-surface-variant/30 dark:text-white/10 text-2xl">flight</span></div>}
                 </div>
                 <div className="flex-1 px-4 py-3 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <h4 className="text-sm font-bold text-on-surface">{tour.name}</h4>
-                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-green-50 text-green-700">{tour.days}d</span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant">{tour.category}</span>
+                    <h4 className="text-sm font-bold text-on-surface dark:text-white">{tour.name}</h4>
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400">{tour.days}d</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-container dark:bg-white/10 text-on-surface-variant dark:text-white/40">{tour.category}</span>
                   </div>
-                  <p className="text-xs text-on-surface-variant mb-2">{tour.region} · <span className="font-bold text-on-surface">{tour.price}</span></p>
+                  <p className="text-xs text-on-surface-variant dark:text-white/40 mb-2">{tour.region} · <span className="font-bold text-on-surface dark:text-white/60">{tour.price}</span></p>
                   <div className="flex gap-3 flex-wrap">
                     {tour.transport && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant"><span className="material-symbols-outlined text-sm" style={{ color: '#0ea5e9' }}>flight</span>{tour.transport}</span>}
                     {tour.maxGuests && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant"><span className="material-symbols-outlined text-sm" style={{ color: '#7c3aed' }}>group</span>Max {tour.maxGuests}</span>}
-                    {(tour.itinerary?.length ?? 0) > 0 && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant"><span className="material-symbols-outlined text-sm" style={{ color: '#10b981' }}>route</span>{tour.itinerary?.length} days</span>}
-                    {(tour.sightseeing?.length ?? 0) > 0 && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant"><span className="material-symbols-outlined text-sm" style={{ color: '#f59e0b' }}>place</span>{tour.sightseeing?.length} sites</span>}
+                    {(tour.itinerary?.length ?? 0) > 0 && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant dark:text-white/30"><span className="material-symbols-outlined text-sm" style={{ color: '#10b981' }}>route</span>{tour.itinerary?.length} days</span>}
+                    {(tour.sightseeing?.length ?? 0) > 0 && <span className="inline-flex items-center gap-1 text-[10px] text-on-surface-variant dark:text-white/30"><span className="material-symbols-outlined text-sm" style={{ color: '#f59e0b' }}>place</span>{tour.sightseeing?.length} sites</span>}
                   </div>
                 </div>
                 {canCRUD && (
                   <div className="flex flex-col gap-1.5 px-3 flex-shrink-0">
-                    <button onClick={() => handleEdit(tour)} className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-bold transition-colors">
+                    <button onClick={() => handleEdit(tour)} className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-700 dark:text-blue-400 rounded-lg text-xs font-bold transition-colors">
                       <span className="material-symbols-outlined text-sm">edit</span> Edit
                     </button>
-                    <button onClick={() => handleDelete(tour.id)} className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-bold transition-colors">
+                    <button onClick={() => handleDelete(tour.id)} className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 rounded-lg text-xs font-bold transition-colors">
                       <span className="material-symbols-outlined text-sm">delete</span> Delete
                     </button>
                   </div>

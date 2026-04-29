@@ -2,12 +2,21 @@ import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation, Navigate } from 'react-router-dom';
 import { useAdminAuth } from '../lib/adminAuth';
 import { api } from '../lib/api';
+import { useTheme } from '../context/ThemeContext';
+import { useAdminShortcuts } from '../lib/hooks';
 
 export function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();
-  const { role, username, logout, canEdit, canCRUD } = useAdminAuth();
+  const { theme, toggleTheme } = useTheme();
+
+  // Keyboard shortcuts
+  useAdminShortcuts({
+    onSearch: () => {
+      // Toggle search UI (handled globally via events too)
+    }
+  });
 
   // Poll for unread contact submissions
   useEffect(() => {
@@ -55,7 +64,7 @@ export function AdminLayout() {
     : { label: 'Viewer', color: 'bg-blue-500', icon: 'visibility' };
 
   return (
-    <div className="flex h-screen bg-surface-container-lowest font-sans">
+    <div className="flex h-screen bg-background dark:bg-[#121212] font-sans transition-colors duration-300">
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setSidebarOpen(false)} />
@@ -141,18 +150,28 @@ export function AdminLayout() {
           style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(0,0,0,0.03) 1px, transparent 0)', backgroundSize: '32px 32px' }} />
 
         {/* Top Bar */}
-        <div className="h-16 flex items-center justify-between px-4 md:px-8 flex-shrink-0 relative z-10 bg-white/80 backdrop-blur border-b border-outline-variant/20 shadow-sm">
+        <div className="h-16 flex items-center justify-between px-4 md:px-8 flex-shrink-0 relative z-10 bg-white/80 dark:bg-black/80 backdrop-blur border-b border-outline-variant/20 shadow-sm">
           <div className="flex items-center gap-3">
             <button onClick={() => setSidebarOpen(true)}
               className="md:hidden w-9 h-9 flex items-center justify-center bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
               <span className="material-symbols-outlined font-light text-lg">menu</span>
             </button>
-            <h1 className="text-base font-semibold text-on-surface tracking-tight">
+            <h1 className="text-base font-semibold text-on-surface dark:text-white tracking-tight">
               {allEditorLinks.find((l) => location.pathname === l.path)?.label ?? 'Admin'}
             </h1>
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-xl bg-surface-container-low dark:bg-white/5 text-on-surface-variant dark:text-white/60 hover:text-on-surface dark:hover:text-white transition-all border border-outline-variant/10"
+              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            >
+              <span className="material-symbols-outlined text-xl">
+                {theme === 'light' ? 'dark_mode' : 'light_mode'}
+              </span>
+            </button>
             {/* Unread notification bell */}
             {unreadCount > 0 && (
               <NavLink to="/contacts"

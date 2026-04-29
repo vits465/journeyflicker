@@ -111,26 +111,36 @@ const ATTEMPT_PFX = "jf:att:";
 const BACKUP_PFX  = "jf:bak:";
 const BACKUP_LIST = "jf:bak:index";
 const ACTIVE_PFX  = "jf:active:";
+const DB_CACHE_KEY = "jf:db:cache";
+const ACTIVITY_LIMIT = 50;
+let recentActivity = [];
 
 // ── DB helpers ────────────────────────────────────────────────────────────────
-let dbCache = null;
-let lastCacheTime = 0;
-const CACHE_TTL = 1000 * 30; // Cache for 30 seconds to reduce KV latency
-
 async function readDb() {
-  const now = Date.now();
-  if (dbCache && (now - lastCacheTime < CACHE_TTL)) {
-    return dbCache;
-  }
+  const cached = await kv.get(DB_CACHE_KEY);
+  if (cached) return cached;
+  
   const data = await kv.get(DB_KEY);
-  dbCache = data || { destinations: [], tours: [], visas: [], contacts: [], coEditorAccounts: [] };
-  lastCacheTime = now;
-  return dbCache;
+  const db = data || { destinations: [], tours: [], visas: [], contacts: [], coEditorAccounts: [] };
+  // Cache for 10 seconds in KV
+  await kv.set(DB_CACHE_KEY, db, { ex: 10 });
+  return db;
 }
 async function writeDb(next) { 
   await kv.set(DB_KEY, next); 
-  dbCache = next;
-  lastCacheTime = Date.now();
+  // Invalidate cache immediately
+  await kv.del(DB_CACHE_KEY);
+}
+
+async function logActivity(req, action) {
+  const user = req.user ? (req.user.identifier === "admin" ? "Admin" : `Editor (${req.user.identifier})`) : "System";
+  recentActivity.unshift({
+    id: newId("act"),
+    action,
+    timestamp: Date.now(),
+    user,
+  });
+  if (recentActivity.length > ACTIVITY_LIMIT) recentActivity.pop();
 }
 
 // ── Token helpers ─────────────────────────────────────────────────────────────
@@ -192,12 +202,14 @@ async function clearAttempts(ip) { await kv.del(`${ATTEMPT_PFX}${ip}`); }
 const requireAdmin = async (req, res, next) => {
   const data = await getTokenData(req);
   if (!data || data.role !== "editor") return res.status(401).json({ error: "Unauthorized" });
+  req.user = data;
   next();
 };
 const requireCRUD = async (req, res, next) => {
   const data = await getTokenData(req);
   if (!data || !["editor", "co-editor"].includes(data.role))
     return res.status(401).json({ error: "Unauthorized" });
+  req.user = data;
   next();
 };
 
@@ -271,6 +283,7 @@ app.post("/api/auth/co-editor-accounts", requireAdmin, async (req, res) => {
   const newAcc = { id: newId("coed"), username: parsed.data.username, password: hashedPassword };
   db.coEditorAccounts.push(newAcc);
   await writeDb(db);
+  await logActivity(req, `Created co-editor account: ${newAcc.username}`);
   res.status(201).json({ id: newAcc.id, username: newAcc.username });
 });
 app.put("/api/auth/co-editor-accounts/:id", requireAdmin, async (req, res) => {
@@ -285,15 +298,18 @@ app.put("/api/auth/co-editor-accounts/:id", requireAdmin, async (req, res) => {
   if (update.password) update.password = await hashPassword(update.password);
   db.coEditorAccounts[idx] = { ...db.coEditorAccounts[idx], ...update };
   await writeDb(db);
+  await logActivity(req, `Updated co-editor account: ${db.coEditorAccounts[idx].username}`);
   res.json({ id: db.coEditorAccounts[idx].id, username: db.coEditorAccounts[idx].username });
 });
 app.delete("/api/auth/co-editor-accounts/:id", requireAdmin, async (req, res) => {
   const db = await readDb();
   if (!db.coEditorAccounts) db.coEditorAccounts = [];
   const before = db.coEditorAccounts.length;
+  const deletedAcc = db.coEditorAccounts.find(a => a.id === req.params.id);
   db.coEditorAccounts = db.coEditorAccounts.filter(a => a.id !== req.params.id);
   if (db.coEditorAccounts.length === before) return res.status(404).json({ message: "Not found" });
   await writeDb(db);
+  if (deletedAcc) await logActivity(req, `Deleted co-editor account: ${deletedAcc.username}`);
   res.status(204).end();
 });
 
@@ -336,17 +352,33 @@ app.post("/api/upload", requireCRUD, async (req, res) => {
     const safeName   = name.replace(/[^a-zA-Z0-9._-]/g, "_");
     const filename   = `${Date.now()}_${safeName.replace(/\.[^.]+$/, "")}.${ext}`;
     const filePath   = path.join(uploadsDir, filename);
-    fs.writeFileSync(filePath, Buffer.from(base64Data, "base64"));
+    
+    // ASYNC WRITE
+    await fs.promises.writeFile(filePath, Buffer.from(base64Data, "base64"));
+    
     // Build the public URL
     const host = req.headers["x-forwarded-host"] || req.headers.host || `localhost:${process.env.PORT || 5174}`;
     const protocol = req.headers["x-forwarded-proto"] || (req.secure ? "https" : "http");
     const url = `${protocol}://${host}/uploads/${filename}`;
+    
     console.log(`[Upload] Saved locally: ${filePath}`);
+    await logActivity(req, `Uploaded file: ${filename}`);
     return res.json({ url, storage: "local" });
   } catch (err) {
     console.error("Local upload error:", err);
+    // Cleanup if partially written (though writeFile handles most of this)
+    try {
+      const filename = name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const filePath = path.join(uploadsDir, filename);
+      if (fs.existsSync(filePath)) await fs.promises.unlink(filePath);
+    } catch {}
+    
     return res.status(500).json({ error: "Upload failed: could not save to Cloudinary or local disk." });
   }
+});
+
+app.get("/api/admin/activity", async (_req, res) => {
+  res.json(recentActivity);
 });
 
 
@@ -373,6 +405,7 @@ app.post("/api/media", requireCRUD, async (req, res) => {
   const item = { id: newId("media"), ...parsed.data };
   db.media.unshift(item);
   await writeDb(db);
+  await logActivity(req, `Added media: ${item.name}`);
   res.status(201).json(item);
 });
 
@@ -381,6 +414,7 @@ app.delete("/api/media/:id", requireCRUD, async (req, res) => {
   if (!db.media) db.media = [];
   db.media = db.media.filter(m => m.id !== req.params.id);
   await writeDb(db);
+  await logActivity(req, "Deleted media item");
   res.status(204).end();
 });
 
@@ -443,7 +477,10 @@ app.post("/api/destinations", requireCRUD, async (req, res) => {
   if (!parsed.success) return res.status(400).json(parsed.error);
   const db = await readDb();
   const item = { id: newId("dest"), ...parsed.data, createdAt: Date.now() };
-  db.destinations.unshift(item); await writeDb(db); res.status(201).json(item);
+  db.destinations.unshift(item); 
+  await writeDb(db); 
+  await logActivity(req, `Created destination: ${item.name}`);
+  res.status(201).json(item);
 });
 app.put("/api/destinations/:id", requireCRUD, async (req, res) => {
   const parsed = DestinationSchema.partial().safeParse(req.body);
@@ -452,12 +489,16 @@ app.put("/api/destinations/:id", requireCRUD, async (req, res) => {
   const idx = db.destinations.findIndex(d => d.id === req.params.id);
   if (idx < 0) return res.status(404).json({ message: "Not found" });
   db.destinations[idx] = { ...db.destinations[idx], ...parsed.data };
-  await writeDb(db); res.json(db.destinations[idx]);
+  await writeDb(db); 
+  await logActivity(req, `Updated destination: ${db.destinations[idx].name}`);
+  res.json(db.destinations[idx]);
 });
 app.delete("/api/destinations/:id", requireCRUD, async (req, res) => {
-  const db = await readDb();
+  const deleted = db.destinations.find(d => d.id === req.params.id);
   db.destinations = db.destinations.filter(d => d.id !== req.params.id);
-  await writeDb(db); res.status(204).end();
+  await writeDb(db); 
+  if (deleted) await logActivity(req, `Deleted destination: ${deleted.name}`);
+  res.status(204).end();
 });
 
 // ── Search ────────────────────────────────────────────────────────────────────
@@ -487,7 +528,10 @@ app.post("/api/tours", requireCRUD, async (req, res) => {
   if (!parsed.success) return res.status(400).json(parsed.error);
   const db = await readDb();
   const item = { id: newId("tour"), ...parsed.data, createdAt: Date.now() };
-  db.tours.unshift(item); await writeDb(db); res.status(201).json(item);
+  db.tours.unshift(item); 
+  await writeDb(db); 
+  await logActivity(req, `Created tour: ${item.name}`);
+  res.status(201).json(item);
 });
 app.put("/api/tours/:id", requireCRUD, async (req, res) => {
   const parsed = TourSchema.partial().safeParse(req.body);
@@ -496,12 +540,16 @@ app.put("/api/tours/:id", requireCRUD, async (req, res) => {
   const idx = db.tours.findIndex(t => t.id === req.params.id);
   if (idx < 0) return res.status(404).json({ message: "Not found" });
   db.tours[idx] = { ...db.tours[idx], ...parsed.data };
-  await writeDb(db); res.json(db.tours[idx]);
+  await writeDb(db); 
+  await logActivity(req, `Updated tour: ${db.tours[idx].name}`);
+  res.json(db.tours[idx]);
 });
 app.delete("/api/tours/:id", requireCRUD, async (req, res) => {
-  const db = await readDb();
+  const deleted = db.tours.find(t => t.id === req.params.id);
   db.tours = db.tours.filter(t => t.id !== req.params.id);
-  await writeDb(db); res.status(204).end();
+  await writeDb(db); 
+  if (deleted) await logActivity(req, `Deleted tour: ${deleted.name}`);
+  res.status(204).end();
 });
 
 // ── Visas ─────────────────────────────────────────────────────────────────────
@@ -511,7 +559,10 @@ app.post("/api/visas", requireCRUD, async (req, res) => {
   if (!parsed.success) return res.status(400).json(parsed.error);
   const db = await readDb();
   const item = { id: newId("visa"), ...parsed.data, createdAt: Date.now() };
-  db.visas.unshift(item); await writeDb(db); res.status(201).json(item);
+  db.visas.unshift(item); 
+  await writeDb(db); 
+  await logActivity(req, `Created visa: ${item.country}`);
+  res.status(201).json(item);
 });
 app.put("/api/visas/:id", requireCRUD, async (req, res) => {
   const parsed = VisaSchema.partial().safeParse(req.body);
@@ -520,12 +571,16 @@ app.put("/api/visas/:id", requireCRUD, async (req, res) => {
   const idx = db.visas.findIndex(v => v.id === req.params.id);
   if (idx < 0) return res.status(404).json({ message: "Not found" });
   db.visas[idx] = { ...db.visas[idx], ...parsed.data };
-  await writeDb(db); res.json(db.visas[idx]);
+  await writeDb(db); 
+  await logActivity(req, `Updated visa: ${db.visas[idx].country}`);
+  res.json(db.visas[idx]);
 });
 app.delete("/api/visas/:id", requireCRUD, async (req, res) => {
-  const db = await readDb();
+  const deleted = db.visas.find(v => v.id === req.params.id);
   db.visas = db.visas.filter(v => v.id !== req.params.id);
-  await writeDb(db); res.status(204).end();
+  await writeDb(db); 
+  if (deleted) await logActivity(req, `Deleted visa: ${deleted.country}`);
+  res.status(204).end();
 });
 
 // ── Contacts ──────────────────────────────────────────────────────────────────
@@ -543,13 +598,18 @@ app.patch("/api/contacts/:id/read", requireAdmin, async (req, res) => {
   if (!db.contacts) db.contacts = [];
   const idx = db.contacts.findIndex(c => c.id === req.params.id);
   if (idx < 0) return res.status(404).json({ message: "Not found" });
-  db.contacts[idx].read = true; await writeDb(db); res.json(db.contacts[idx]);
+  db.contacts[idx].read = true; 
+  await writeDb(db); 
+  await logActivity(req, `Marked contact as read: ${db.contacts[idx].name}`);
+  res.json(db.contacts[idx]);
 });
 app.delete("/api/contacts/:id", requireAdmin, async (req, res) => {
   const db = await readDb();
   if (!db.contacts) db.contacts = [];
   db.contacts = db.contacts.filter(c => c.id !== req.params.id);
-  await writeDb(db); res.status(204).end();
+  await writeDb(db); 
+  await logActivity(req, "Deleted contact message");
+  res.status(204).end();
 });
 
 const HERO_KEY   = "jf:hero";
@@ -561,6 +621,7 @@ app.get("/api/hero-settings", async (_req, res) => {
 });
 app.put("/api/hero-settings", requireAdmin, async (req, res) => {
   await kv.set(HERO_KEY, req.body);
+  await logActivity(req, "Updated hero settings");
   res.json({ success: true });
 });
 
@@ -573,6 +634,7 @@ app.get("/api/seo-settings", async (_req, res) => {
 });
 app.put("/api/seo-settings", requireAdmin, async (req, res) => {
   await kv.set(SEO_KEY, req.body);
+  await logActivity(req, "Updated SEO settings");
   res.json({ success: true });
 });
 
@@ -591,6 +653,7 @@ app.get("/api/api-settings", async (_req, res) => {
 });
 app.put("/api/api-settings", requireAdmin, async (req, res) => {
   await kv.set(API_SETTINGS_KEY, req.body);
+  await logActivity(req, "Updated API settings");
   res.json({ success: true });
 });
 
@@ -614,9 +677,12 @@ app.get("/api/backups", requireAdmin, async (_req, res) => {
   const index = (await kv.get(BACKUP_LIST)) || [];
   res.json(index.map(b => ({ filename: b.timestamp, size: 0, createdAt: b.createdAt })));
 });
-app.post("/api/backups", requireAdmin, async (_req, res) => {
+app.post("/api/backups", requireAdmin, async (req, res) => {
   const name = await createBackup();
-  if (name) res.json({ success: true, filename: name });
+  if (name) {
+    await logActivity(req, "Created system backup");
+    res.json({ success: true, filename: name });
+  }
   else res.status(500).json({ error: "Backup failed" });
 });
 app.post("/api/backups/restore/:filename", requireAdmin, async (req, res) => {
@@ -625,6 +691,7 @@ app.post("/api/backups/restore/:filename", requireAdmin, async (req, res) => {
     const data = await kv.get(key);
     if (!data) return res.status(404).json({ error: "Backup not found" });
     await writeDb(data);
+    await logActivity(req, `Restored backup: ${req.params.filename}`);
     res.json({ success: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -645,13 +712,15 @@ console.log(`[Server] Admin Panel dist path: ${adminDistPath}`);
 app.use(express.static(adminDistPath));
 
 // ── SPA Fallback for Admin Panel ──────────────────────────────────────────────
-app.get("*", (req, res, next) => {
+app.get("*", async (req, res, next) => {
   if (req.path.startsWith("/api/")) return next();
   
   const indexPath = path.join(adminDistPath, "index.html");
-  if (fs.existsSync(indexPath)) {
+  try {
+    // ASYNC CHECK
+    await fs.promises.access(indexPath);
     res.sendFile(indexPath);
-  } else {
+  } catch {
     console.error(`[Server] Admin index.html not found at: ${indexPath}`);
     res.status(404).send(`Admin panel not built yet. Missing: ${indexPath}`);
   }
