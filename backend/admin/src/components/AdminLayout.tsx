@@ -6,6 +6,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useAdminShortcuts } from '../lib/hooks';
 
 export function AdminLayout() {
+  const { role, canEdit, canCRUD, username, logout } = useAdminAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();

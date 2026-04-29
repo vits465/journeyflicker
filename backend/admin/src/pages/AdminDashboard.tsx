@@ -244,6 +244,9 @@ export default function AdminDashboard() {
                     <Link to="/hero" className="action-btn dark:bg-white/5 dark:text-white dark:hover:bg-white/10">
                       <span className="material-symbols-outlined text-amber-600">view_carousel</span> Hero Engine
                     </Link>
+                    <Link to="/access" className="action-btn dark:bg-white/5 dark:text-white dark:hover:bg-white/10">
+                      <span className="material-symbols-outlined text-violet-600">key</span> Security & Access
+                    </Link>
                     <CSVUploader type="destination" onUploadComplete={loadAll} />
                     <CSVUploader type="tour" onUploadComplete={loadAll} />
                   </>

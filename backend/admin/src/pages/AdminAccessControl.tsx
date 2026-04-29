@@ -309,6 +309,50 @@ export default function AdminAccessControl() {
         </p>
       </div>
 
+      {/* Permissions Overview Section */}
+      <div className="bg-white rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden">
+        <div className="px-4 py-3 border-b border-outline-variant/20 bg-violet-50/30 flex items-center gap-2">
+          <span className="material-symbols-outlined text-violet-600 text-base">rule</span>
+          <span className="text-xs font-black uppercase tracking-widest text-violet-600">Permissions Matrix</span>
+        </div>
+        <div className="p-4">
+          <table className="w-full text-[11px] border-collapse">
+            <thead>
+              <tr className="border-b border-outline-variant/20 text-left text-on-surface-variant uppercase tracking-tighter">
+                <th className="py-2 font-black">Capability</th>
+                <th className="py-2 font-black">Editor</th>
+                <th className="py-2 font-black">Co-Editor</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-outline-variant/10 text-on-surface">
+              {[
+                { cap: 'Manage Tours & Destinations', ed: 'Full CRUD', co: 'Full CRUD' },
+                { cap: 'Visa Portal Intelligence', ed: 'Full CRUD', co: 'Full CRUD' },
+                { cap: 'Media Library Access', ed: 'Full CRUD', co: 'Full CRUD' },
+                { cap: 'Hero Engine & Homepage', ed: 'Full CRUD', co: 'Read Only' },
+                { cap: 'SEO & Metadata Strategy', ed: 'Full CRUD', co: 'Read Only' },
+                { cap: 'Database & System Backups', ed: 'Full Access', co: 'No Access' },
+                { cap: 'Co-Editor Account Management', ed: 'Full Access', co: 'No Access' },
+                { cap: 'Contact Inquiries & Privacy', ed: 'Full Access', co: 'No Access' },
+                { cap: 'API Keys & Secrets', ed: 'Full Access', co: 'No Access' },
+              ].map((row, i) => (
+                <tr key={i} className="hover:bg-surface-container-low transition-colors">
+                  <td className="py-2 font-medium">{row.cap}</td>
+                  <td className="py-2 text-emerald-600 font-bold">{row.ed}</td>
+                  <td className={`py-2 ${row.co === 'No Access' ? 'text-red-400' : row.co === 'Read Only' ? 'text-amber-500' : 'text-emerald-600'} font-bold`}>{row.co}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-xl flex gap-3">
+            <span className="material-symbols-outlined text-blue-500 text-lg">info</span>
+            <p className="text-[10px] text-blue-700 leading-relaxed font-medium">
+              Roles are enforced at the <strong className="text-blue-900">API Layer</strong>. Even if UI buttons are visible, co-editor requests to restricted endpoints (like Backups or Account Deletion) will be rejected by the server for maximum security.
+            </p>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }
