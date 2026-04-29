@@ -164,7 +164,7 @@ export default function AdminAccessControl() {
 
       {/* Form */}
       {(accounts.length < 5 || editingId) && (
-        <div className="bg-white rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden">
+        <div className="bg-surface rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden">
           <div className="px-4 py-3 border-b border-outline-variant/20 bg-surface-container-low flex items-center gap-2">
             <span className="material-symbols-outlined text-on-surface-variant text-base">
               {editingId ? 'edit' : 'person_add'}
@@ -183,7 +183,7 @@ export default function AdminAccessControl() {
                   type="text"
                   value={form.username}
                   onChange={e => setForm(f => ({ ...f, username: e.target.value }))}
-                  className="w-full px-3 py-2 border border-outline-variant rounded-xl text-sm font-mono focus:outline-none focus:border-black transition-colors"
+                  className="w-full px-3 py-2 border border-outline-variant rounded-xl text-sm font-mono focus:outline-none focus:border-primary bg-surface-container-low text-on-surface transition-colors"
                   placeholder="e.g., swift.falcon"
                   spellCheck={false}
                   required
@@ -199,7 +199,7 @@ export default function AdminAccessControl() {
                     type={showPass ? 'text' : 'password'}
                     value={form.password}
                     onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
-                    className="w-full px-3 py-2 pr-10 border border-outline-variant rounded-xl text-sm font-mono focus:outline-none focus:border-black transition-colors"
+                    className="w-full px-3 py-2 pr-10 border border-outline-variant rounded-xl text-sm font-mono focus:outline-none focus:border-primary bg-surface-container-low text-on-surface transition-colors"
                     placeholder={editingId ? 'New password (optional)' : 'Min. 6 characters'}
                     spellCheck={false}
                     minLength={editingId && !form.password ? undefined : 6}
@@ -213,13 +213,13 @@ export default function AdminAccessControl() {
             </div>
             <div className="flex items-center gap-2 pt-1">
               <button type="submit" disabled={saving}
-                className="flex items-center gap-1.5 px-4 py-2 bg-black text-white rounded-lg text-xs font-bold hover:bg-gray-800 transition-colors disabled:opacity-40">
+                className="flex items-center gap-1.5 px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold hover:opacity-90 transition-colors disabled:opacity-40">
                 <span className="material-symbols-outlined text-sm">{saving ? 'hourglass_top' : editingId ? 'save' : 'person_add'}</span>
                 {saving ? 'Saving…' : editingId ? 'Update Account' : 'Create Account'}
               </button>
               {editingId && (
                 <button type="button" onClick={() => { setEditingId(null); setForm(emptyForm); }}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-200 transition-colors">
+                  className="flex items-center gap-1.5 px-4 py-2 bg-surface-container text-on-surface-variant rounded-lg text-xs font-bold hover:bg-surface-container-low transition-colors">
                   <span className="material-symbols-outlined text-sm">close</span> Cancel
                 </button>
               )}
@@ -229,10 +229,10 @@ export default function AdminAccessControl() {
       )}
 
       {/* Accounts list */}
-      <div className="bg-white rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden">
+      <div className="bg-surface rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden">
         <div className="px-4 py-3 border-b border-outline-variant/20 bg-surface-container-low flex items-center justify-between">
           <span className="text-xs font-black uppercase tracking-widest text-on-surface-variant">Co-Editor Accounts</span>
-          <span className="text-[10px] font-bold bg-black text-white px-2 py-0.5 rounded-full">{accounts.length}</span>
+          <span className="text-[10px] font-bold bg-primary text-on-primary px-2 py-0.5 rounded-full">{accounts.length}</span>
         </div>
         {loading ? (
           <div className="p-8 text-center text-sm text-on-surface-variant">Loading…</div>
@@ -284,7 +284,7 @@ export default function AdminAccessControl() {
       </div>
 
       {/* Editor credentials (read-only info) */}
-      <div className="bg-white rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden">
+      <div className="bg-surface rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden">
         <div className="px-4 py-3 border-b border-outline-variant/20 bg-surface-container-low flex items-center gap-2">
           <span className="material-symbols-outlined text-on-surface-variant text-base">shield</span>
           <span className="text-xs font-black uppercase tracking-widest text-on-surface-variant">Editor Credentials (Fixed)</span>
@@ -310,8 +310,8 @@ export default function AdminAccessControl() {
       </div>
 
       {/* Permissions Overview Section */}
-      <div className="bg-white rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden">
-        <div className="px-4 py-3 border-b border-outline-variant/20 bg-violet-50/30 flex items-center gap-2">
+      <div className="bg-surface rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden">
+        <div className="px-4 py-3 border-b border-outline-variant/20 bg-violet-50/30 dark:bg-violet-900/10 flex items-center gap-2">
           <span className="material-symbols-outlined text-violet-600 text-base">rule</span>
           <span className="text-xs font-black uppercase tracking-widest text-violet-600">Permissions Matrix</span>
         </div>

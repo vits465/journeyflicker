@@ -27,7 +27,7 @@ const S = `
   }
   
   .stat-card {
-    background: white; border-radius: 20px; padding: 24px; border: 1px solid #f0f0f0;
+    background: var(--color-surface); border-radius: 20px; padding: 24px; border: 1px solid var(--color-outline-variant);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .stat-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.05); border-color: #e0e0e0; }
@@ -35,26 +35,26 @@ const S = `
   .action-btn {
     display: flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 14px;
     font-size: 13px; font-weight: 700; transition: all 0.2s; border: none; cursor: pointer;
-    background: #f8f9fa; color: #1a1a1a;
+    background: var(--color-surface-container); color: var(--color-on-surface);
   }
-  .action-btn:hover { background: #1a1a1a; color: white; transform: scale(1.02); }
+  .action-btn:hover { background: var(--color-primary); color: var(--color-on-primary); transform: scale(1.02); }
   
   .db-tab-btn {
     padding: 10px 20px; border-radius: 12px; font-size: 13px; font-weight: 600;
     transition: all 0.2s; display: flex; align-items: center; gap: 8px;
   }
-  .db-tab-btn.active { background: #000; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-  .db-tab-btn:not(.active) { color: #666; }
-  .db-tab-btn:not(.active):hover { background: #f0f0f0; color: #000; }
+  .db-tab-btn.active { background: var(--color-primary); color: var(--color-on-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .db-tab-btn:not(.active) { color: var(--color-on-surface-variant); }
+  .db-tab-btn:not(.active):hover { background: var(--color-surface-container); color: var(--color-on-surface); }
 
   .content-card {
-    background: white; border-radius: 24px; border: 1px solid #f0f0f0; overflow: hidden;
+    background: var(--color-surface); border-radius: 24px; border: 1px solid var(--color-outline-variant); overflow: hidden;
     box-shadow: 0 4px 20px rgba(0,0,0,0.02);
   }
   
   .grid-item {
-    border-radius: 20px; border: 1px solid #f0f0f0; overflow: hidden;
-    transition: all 0.3s; background: white;
+    border-radius: 20px; border: 1px solid var(--color-outline-variant); overflow: hidden;
+    transition: all 0.3s; background: var(--color-surface);
   }
   .grid-item:hover { border-color: #ddd; box-shadow: 0 10px 25px rgba(0,0,0,0.06); transform: translateY(-3px); }
   
@@ -311,16 +311,16 @@ export default function AdminDashboard() {
                             </div>
                             <div className={viewMode === 'grid' ? "p-5" : "flex-1 min-w-0"}>
                               <div className="flex items-center justify-between mb-1">
-                                <h4 className="text-sm font-bold text-gray-900 dark:text-white truncate">{d.name}</h4>
+                                <h4 className="text-sm font-bold text-on-surface truncate">{d.name}</h4>
                                 {viewMode === 'list' && <span className="pill pill-blue">{d.region}</span>}
                               </div>
-                              <p className="text-xs text-gray-500 line-clamp-1 mb-3">{d.description || 'No description added.'}</p>
+                              <p className="text-xs text-on-surface-variant line-clamp-1 mb-3">{d.description || 'No description added.'}</p>
                               <div className="flex items-center justify-between">
                                 <div className="flex gap-2">
-                                  {d.landmarks && d.landmarks.length > 0 && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">place</span>{d.landmarks.length}</span>}
-                                  {d.galleryImages && d.galleryImages.length > 0 && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">photo</span>{d.galleryImages.length}</span>}
+                                  {d.landmarks && d.landmarks.length > 0 && <span className="text-[10px] text-on-surface-variant flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">place</span>{d.landmarks.length}</span>}
+                                  {d.galleryImages && d.galleryImages.length > 0 && <span className="text-[10px] text-on-surface-variant flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">photo</span>{d.galleryImages.length}</span>}
                                 </div>
-                                {canCRUD && <Link to={`/destinations?edit=${d.id}`} className="text-[10px] font-bold text-indigo-600 hover:underline">Configure →</Link>}
+                                {canCRUD && <Link to={`/destinations?edit=${d.id}`} className="text-[10px] font-black uppercase tracking-widest text-indigo-500 hover:text-indigo-400">Configure →</Link>}
                               </div>
                             </div>
                           </div>
@@ -347,16 +347,16 @@ export default function AdminDashboard() {
                             </div>
                             <div className={viewMode === 'grid' ? "p-5" : "flex-1 min-w-0"}>
                               <div className="flex items-center justify-between mb-1">
-                                <h4 className="text-sm font-bold text-gray-900 dark:text-white truncate">{t.name}</h4>
+                                <h4 className="text-sm font-bold text-on-surface truncate">{t.name}</h4>
                                 {viewMode === 'list' && <span className="pill pill-green">{t.days} Days</span>}
                               </div>
-                              <p className="text-xs text-gray-500 mb-3">{t.region} · <span className="font-bold text-gray-900 dark:text-white/80">{t.price}</span></p>
+                              <p className="text-xs text-on-surface-variant mb-3">{t.region} · <span className="font-bold text-on-surface/80">{t.price}</span></p>
                               <div className="flex items-center justify-between">
                                 <div className="flex gap-3">
-                                  {t.itinerary && t.itinerary.length > 0 && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">route</span>{t.itinerary.length}</span>}
-                                  {t.transport && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">commute</span></span>}
+                                  {t.itinerary && t.itinerary.length > 0 && <span className="text-[10px] text-on-surface-variant flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">route</span>{t.itinerary.length}</span>}
+                                  {t.transport && <span className="text-[10px] text-on-surface-variant flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">commute</span></span>}
                                 </div>
-                                {canCRUD && <Link to={`/tours?edit=${t.id}`} className="text-[10px] font-bold text-emerald-600 hover:underline">Design →</Link>}
+                                {canCRUD && <Link to={`/tours?edit=${t.id}`} className="text-[10px] font-black uppercase tracking-widest text-emerald-500 hover:text-emerald-400">Design →</Link>}
                               </div>
                             </div>
                           </div>
@@ -383,17 +383,17 @@ export default function AdminDashboard() {
                             </div>
                             <div className={viewMode === 'grid' ? "p-5" : "flex-1 min-w-0"}>
                               <div className="flex items-center justify-between mb-1">
-                                <h4 className="text-sm font-bold text-gray-900 dark:text-white truncate">{v.country}</h4>
-                                {viewMode === 'list' && <span className={`pill ${v.difficulty === 'Easy' ? 'pill-green' : v.difficulty === 'Moderate' ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'}`}>{v.difficulty}</span>}
+                                <h4 className="text-sm font-bold text-on-surface truncate">{v.country}</h4>
+                                {viewMode === 'list' && <span className={`pill ${v.difficulty === 'Easy' ? 'pill-green' : v.difficulty === 'Moderate' ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400'}`}>{v.difficulty}</span>}
                               </div>
-                              <p className="text-xs text-gray-500 line-clamp-1 mb-3">{v.description || v.visaType || 'No description added.'}</p>
+                              <p className="text-xs text-on-surface-variant line-clamp-1 mb-3">{v.description || v.visaType || 'No description added.'}</p>
                               <div className="flex items-center justify-between">
                                 <div className="flex gap-3">
-                                  <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">schedule</span>{v.processing}</span>
-                                  <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">payments</span>{v.fee}</span>
-                                  {v.documents && v.documents.length > 0 && <span className="text-[10px] text-gray-400 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">description</span>{v.documents.length}</span>}
+                                  <span className="text-[10px] text-on-surface-variant flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">schedule</span>{v.processing}</span>
+                                  <span className="text-[10px] text-on-surface-variant flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">payments</span>{v.fee}</span>
+                                  {v.documents && v.documents.length > 0 && <span className="text-[10px] text-on-surface-variant flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">description</span>{v.documents.length}</span>}
                                 </div>
-                                {canCRUD && <Link to={`/visas?edit=${v.id}`} className="text-[10px] font-bold text-purple-600 hover:underline">Update →</Link>}
+                                {canCRUD && <Link to={`/visas?edit=${v.id}`} className="text-[10px] font-black uppercase tracking-widest text-purple-500 hover:text-purple-400">Update →</Link>}
                               </div>
                             </div>
                           </div>

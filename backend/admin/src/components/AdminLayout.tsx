@@ -147,17 +147,17 @@ export function AdminLayout() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden relative min-w-0">
         {/* Decorative background */}
-        <div className="absolute inset-0 z-0 pointer-events-none"
-          style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(0,0,0,0.03) 1px, transparent 0)', backgroundSize: '32px 32px' }} />
+        <div className="absolute inset-0 z-0 pointer-events-none opacity-50 dark:opacity-10"
+          style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, var(--color-on-surface) 1px, transparent 0)', backgroundSize: '32px 32px' }} />
 
         {/* Top Bar */}
-        <div className="h-16 flex items-center justify-between px-4 md:px-8 flex-shrink-0 relative z-10 bg-white/80 dark:bg-black/80 backdrop-blur border-b border-outline-variant/20 shadow-sm">
+        <div className="h-16 flex items-center justify-between px-4 md:px-8 flex-shrink-0 relative z-10 bg-surface/80 dark:bg-surface/60 backdrop-blur border-b border-outline-variant/20 shadow-sm">
           <div className="flex items-center gap-3">
             <button onClick={() => setSidebarOpen(true)}
-              className="md:hidden w-9 h-9 flex items-center justify-center bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
+              className="md:hidden w-9 h-9 flex items-center justify-center bg-primary text-on-primary rounded-lg hover:opacity-90 transition-opacity">
               <span className="material-symbols-outlined font-light text-lg">menu</span>
             </button>
-            <h1 className="text-base font-semibold text-on-surface dark:text-white tracking-tight">
+            <h1 className="text-base font-semibold text-on-surface tracking-tight">
               {allEditorLinks.find((l) => location.pathname === l.path)?.label ?? 'Admin'}
             </h1>
           </div>

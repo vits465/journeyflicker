@@ -56,14 +56,14 @@ function MediaPickerModal({
     <div className="fixed inset-0 z-[300] flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
       <div
-        className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden"
+        className="relative bg-surface dark:bg-surface-container rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden border border-outline-variant/10"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant/10 flex-shrink-0">
           <div>
-            <h2 className="text-base font-bold text-gray-900">Media Library</h2>
-            <p className="text-xs text-gray-400 mt-0.5">
+            <h2 className="text-base font-bold text-on-surface">Media Library</h2>
+            <p className="text-xs text-on-surface-variant mt-0.5">
               {multiple ? 'Click images to select, then confirm' : 'Click an image to use it'}
             </p>
           </div>
@@ -75,10 +75,10 @@ function MediaPickerModal({
                 placeholder="Search..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="pl-8 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black w-44"
+                className="pl-8 pr-3 py-1.5 text-sm border border-outline-variant/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-surface-container-low text-on-surface w-44"
               />
             </div>
-            <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-500">
+            <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container text-on-surface-variant">
               <span className="material-symbols-outlined text-lg">close</span>
             </button>
           </div>
@@ -106,7 +106,7 @@ function MediaPickerModal({
                     key={m.id}
                     onClick={() => toggle(m.url)}
                     className={`relative aspect-square rounded-xl overflow-hidden cursor-pointer border-2 transition-all ${
-                      isSelected ? 'border-black scale-95 shadow-lg' : 'border-transparent hover:border-gray-300'
+                      isSelected ? 'border-primary scale-95 shadow-lg' : 'border-transparent hover:border-outline-variant'
                     }`}
                   >
                     <img src={m.url} alt={m.name} className="w-full h-full object-cover" />
@@ -127,11 +127,11 @@ function MediaPickerModal({
 
         {/* Footer for multi-select */}
         {multiple && selected.size > 0 && (
-          <div className="flex items-center justify-between px-6 py-3 border-t border-gray-100 bg-gray-50 flex-shrink-0">
-            <span className="text-sm text-gray-600 font-medium">{selected.size} image{selected.size > 1 ? 's' : ''} selected</span>
+          <div className="flex items-center justify-between px-6 py-3 border-t border-outline-variant/10 bg-surface-container flex-shrink-0">
+            <span className="text-sm text-on-surface-variant font-medium">{selected.size} image{selected.size > 1 ? 's' : ''} selected</span>
             <button
               onClick={confirm}
-              className="bg-black text-white px-5 py-2 rounded-full text-xs font-bold tracking-widest uppercase hover:bg-gray-800 transition"
+              className="bg-primary text-on-primary px-5 py-2 rounded-full text-xs font-bold tracking-widest uppercase hover:opacity-90 transition"
             >
               Add to Form
             </button>
@@ -280,7 +280,7 @@ export function ImageUploader({ multiple, value, onChange, label = 'Upload Image
               <button
                 type="button"
                 onClick={() => setShowPicker(true)}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl border border-outline-variant/60 cursor-pointer hover:border-black hover:text-black transition-colors text-on-surface-variant bg-white text-xs font-medium"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl border border-outline-variant/60 cursor-pointer hover:border-primary hover:text-primary transition-colors text-on-surface-variant bg-surface text-xs font-medium"
               >
                 <span className="material-symbols-outlined text-base">photo_library</span>
                 Pick from Library
@@ -299,7 +299,7 @@ export function ImageUploader({ multiple, value, onChange, label = 'Upload Image
               <button
                 type="button"
                 onClick={() => setShowPicker(true)}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl border border-outline-variant/60 cursor-pointer hover:border-black hover:text-black transition-colors text-on-surface-variant bg-white text-xs font-medium"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl border border-outline-variant/60 cursor-pointer hover:border-primary hover:text-primary transition-colors text-on-surface-variant bg-surface text-xs font-medium"
               >
                 <span className="material-symbols-outlined text-base">photo_library</span>
                 Pick from Library

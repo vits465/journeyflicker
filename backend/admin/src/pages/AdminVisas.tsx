@@ -12,7 +12,7 @@ const emptyForm: Partial<Visa> = {
   documents: [], requirements: [],
 };
 
-const inputCls = 'w-full px-3 py-2 border border-outline-variant/40 rounded-lg text-sm focus:outline-none focus:border-black transition-colors';
+const inputCls = 'w-full px-3 py-2 border border-outline-variant/40 rounded-lg text-sm focus:outline-none focus:border-primary bg-surface-container-low text-on-surface transition-colors';
 const labelCls = 'block text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.15em] mb-1.5';
 
 export default function AdminVisas() {
@@ -123,7 +123,7 @@ export default function AdminVisas() {
 
       {/* ── Form ── */}
       {canCRUD && (
-        <div className="bg-white rounded-2xl shadow-sm p-5 md:p-7 border border-outline-variant/30 space-y-6">
+        <div className="bg-surface rounded-2xl shadow-sm p-5 md:p-7 border border-outline-variant/30 space-y-6">
           <h2 className="text-lg font-semibold text-on-surface">
             {editingId ? '✏️ Edit' : '+ Create'} Visa Dossier
           </h2>
@@ -206,7 +206,7 @@ export default function AdminVisas() {
                   className={`${inputCls} flex-1`}
                   placeholder="e.g., Valid Passport (6+ months validity)"
                 />
-                <button type="button" onClick={addDoc} className="px-4 py-2 bg-black text-white rounded-lg text-xs font-bold hover:bg-gray-800 transition-colors whitespace-nowrap">
+                <button type="button" onClick={addDoc} className="px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold hover:opacity-90 transition-colors whitespace-nowrap">
                   + Add
                 </button>
               </div>
@@ -242,7 +242,7 @@ export default function AdminVisas() {
 
             {/* Submit */}
             <div className="flex flex-wrap gap-3 pt-4 border-t border-outline-variant/10">
-              <button type="submit" className="px-6 py-2.5 bg-black text-white rounded-full text-xs font-bold tracking-widest uppercase hover:bg-gray-800 transition-colors shadow-md">
+              <button type="submit" className="px-6 py-2.5 bg-primary text-on-primary rounded-full text-xs font-bold tracking-widest uppercase hover:opacity-90 transition-colors shadow-md">
                 {editingId ? 'Update' : 'Create'} Visa
               </button>
               {editingId && (
@@ -257,7 +257,7 @@ export default function AdminVisas() {
       )}
 
       {/* ── Visa List ── */}
-      <div className="bg-white rounded-2xl shadow-sm border border-outline-variant/30 overflow-hidden">
+      <div className="bg-surface rounded-2xl shadow-sm border border-outline-variant/30 overflow-hidden">
         <div className="px-5 py-4 border-b border-outline-variant/20 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <h2 className="text-sm font-semibold text-on-surface">All Visa Dossiers</h2>
@@ -295,7 +295,7 @@ export default function AdminVisas() {
               <div key={visa.id} className="flex items-center gap-4 p-4 hover:bg-surface-container-low/40 transition-colors group relative">
                 {selectMode && (
                   <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10" onClick={(e) => { e.stopPropagation(); toggleSelect(visa.id); }}>
-                    <div className={`w-5 h-5 rounded flex items-center justify-center border cursor-pointer transition-all ${selected.has(visa.id) ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-outline-variant/50 hover:border-black'}`}>
+                    <div className={`w-5 h-5 rounded flex items-center justify-center border cursor-pointer transition-all ${selected.has(visa.id) ? 'bg-primary border-primary text-on-primary' : 'bg-surface border-outline-variant/50 hover:border-on-surface'}`}>
                       {selected.has(visa.id) && <span className="material-symbols-outlined text-xs">check</span>}
                     </div>
                   </div>
@@ -334,7 +334,7 @@ export default function AdminVisas() {
                 {/* Actions */}
                 {canCRUD && (
                   <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => handleEdit(visa)} className="w-8 h-8 rounded-lg bg-surface-container-low hover:bg-black hover:text-white flex items-center justify-center transition-all">
+                    <button onClick={() => handleEdit(visa)} className="w-8 h-8 rounded-lg bg-surface-container-low hover:bg-primary hover:text-on-primary flex items-center justify-center transition-all">
                       <span className="material-symbols-outlined text-sm">edit</span>
                     </button>
                     <button onClick={() => handleDelete(visa.id)} className="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-500 hover:text-white text-red-500 flex items-center justify-center transition-all">
