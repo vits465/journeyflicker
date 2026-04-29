@@ -12,10 +12,10 @@ function timeAgo(ts: number) {
 }
 
 const TYPE_COLORS: Record<string, string> = {
-  'Private Curation Strategy': 'bg-purple-50 text-purple-700 border-purple-100',
-  'Expedition Modification':   'bg-blue-50 text-blue-700 border-blue-100',
-  'Administrative Inquiry':    'bg-yellow-50 text-yellow-700 border-yellow-100',
-  'Corporate Partnership':     'bg-green-50 text-green-700 border-green-100',
+  'Private Curation Strategy': 'bg-primary/10 text-primary border-primary/20',
+  'Expedition Modification':   'bg-secondary/10 text-secondary border-secondary/20',
+  'Administrative Inquiry':    'bg-tertiary/10 text-tertiary border-tertiary/20',
+  'Corporate Partnership':     'bg-success/10 text-success border-success/20',
 };
 
 export default function AdminContacts() {
@@ -65,36 +65,36 @@ export default function AdminContacts() {
     <div className="max-w-6xl mx-auto space-y-6">
 
       {/* ── Header ── */}
-      <div className="bg-black text-white rounded-2xl p-6 md:p-8 relative overflow-hidden">
+      <div className="bg-on-surface text-surface rounded-2xl p-6 md:p-8 relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.04]"
-          style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+          style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }} />
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 bg-white/10 rounded-xl flex items-center justify-center">
-                <span className="material-symbols-outlined text-white text-lg">mail</span>
+              <div className="w-8 h-8 bg-surface/10 rounded-xl flex items-center justify-center">
+                <span className="material-symbols-outlined text-surface text-lg">mail</span>
               </div>
-              <span className="text-[10px] font-black tracking-[0.5em] uppercase text-white/40">Incoming Registry</span>
+              <span className="text-[10px] font-black tracking-[0.5em] uppercase text-surface/40">Incoming Registry</span>
               {unreadCount > 0 && (
-                <span className="bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full animate-pulse">
+                <span className="bg-error text-on-error text-[9px] font-black px-2 py-0.5 rounded-full animate-pulse">
                   {unreadCount} new
                 </span>
               )}
             </div>
-            <h1 className="text-xl font-semibold text-white tracking-tight">Contact Submissions</h1>
-            <p className="text-white/40 text-xs font-light mt-1">Inquiries submitted via the public contact form.</p>
+            <h1 className="text-xl font-semibold text-surface tracking-tight">Contact Submissions</h1>
+            <p className="text-surface/40 text-xs font-light mt-1">Inquiries submitted via the public contact form.</p>
           </div>
           <div className="flex items-center gap-3">
             {unreadCount > 0 && canEdit && (
               <button onClick={markAllRead}
-                className="flex items-center gap-1.5 px-4 py-2 bg-white/10 text-white/80 rounded-xl text-xs font-semibold hover:bg-white/20 transition-colors">
+                className="flex items-center gap-1.5 px-4 py-2 bg-surface/10 text-surface/80 rounded-xl text-xs font-semibold hover:bg-surface/20 transition-colors">
                 <span className="material-symbols-outlined text-sm">done_all</span>
                 Mark all read
               </button>
             )}
             <div className="flex flex-col items-center gap-0.5">
-              <span className="text-3xl font-light text-white leading-none">{String(contacts.length).padStart(2,'0')}</span>
-              <span className="text-[9px] font-black tracking-widest uppercase text-white/30">Total</span>
+              <span className="text-3xl font-light text-surface leading-none">{String(contacts.length).padStart(2,'0')}</span>
+              <span className="text-[9px] font-black tracking-widest uppercase text-surface/30">Total</span>
             </div>
           </div>
         </div>
@@ -105,7 +105,7 @@ export default function AdminContacts() {
         {(['unread', 'all'] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)}
             className={`px-5 py-2 rounded-full text-[10px] font-black tracking-[0.3em] uppercase transition-all border ${
-              filter === f ? 'bg-black text-white border-black shadow-md' : 'border-outline-variant/30 text-on-surface-variant hover:border-black/30'
+              filter === f ? 'bg-on-surface text-surface border-on-surface shadow-md' : 'border-outline-variant/30 text-on-surface-variant hover:border-on-surface/30'
             }`}>
             {f === 'unread' ? `Unread (${unreadCount})` : `All (${contacts.length})`}
           </button>
@@ -116,7 +116,7 @@ export default function AdminContacts() {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
 
         {/* Message List */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-outline-variant/30 shadow-sm overflow-hidden">
+        <div className="lg:col-span-2 bg-surface rounded-2xl border border-outline-variant/30 shadow-sm overflow-hidden">
           <div className="px-4 py-3 border-b border-outline-variant/20 bg-surface-container-low">
             <span className="text-xs font-black uppercase tracking-widest text-on-surface-variant">
               {filter === 'unread' ? 'Unread Messages' : 'All Messages'}
@@ -125,7 +125,7 @@ export default function AdminContacts() {
 
           {loading ? (
             <div className="p-8 flex items-center justify-center">
-              <div className="w-8 h-8 rounded-full border-2 border-black/10 border-t-black animate-spin" />
+              <div className="w-8 h-8 rounded-full border-2 border-on-surface/10 border-t-on-surface animate-spin" />
             </div>
           ) : displayed.length === 0 ? (
             <div className="p-10 text-center">
@@ -141,7 +141,7 @@ export default function AdminContacts() {
               {displayed.map(contact => (
                 <button key={contact.id} onClick={() => markRead(contact)}
                   className={`w-full text-left px-4 py-4 hover:bg-surface-container-low/60 transition-colors relative group ${
-                    selected?.id === contact.id ? 'bg-black/[0.03] border-l-2 border-black' : ''
+                    selected?.id === contact.id ? 'bg-on-surface/[0.03] border-l-2 border-on-surface' : ''
                   }`}>
                   {/* Unread dot */}
                   {!contact.read && (
@@ -150,13 +150,13 @@ export default function AdminContacts() {
                   <div className="flex items-start gap-3 pr-4">
                     {/* Avatar */}
                     <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-sm font-black ${
-                      contact.read ? 'bg-surface-container-low text-on-surface-variant' : 'bg-black text-white'
+                      contact.read ? 'bg-surface-container-low text-on-surface-variant' : 'bg-on-surface text-surface'
                     }`}>
                       {contact.name.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-0.5">
-                        <p className={`text-sm truncate ${contact.read ? 'font-normal text-on-surface-variant' : 'font-bold text-black'}`}>
+                        <p className={`text-sm truncate ${contact.read ? 'font-normal text-on-surface-variant' : 'font-bold text-on-surface'}`}>
                           {contact.name}
                         </p>
                         <span className="text-[9px] text-on-surface-variant/40 shrink-0 ml-2">{timeAgo(contact.createdAt)}</span>
@@ -178,11 +178,11 @@ export default function AdminContacts() {
               {/* Detail header */}
               <div className="px-6 py-5 border-b border-outline-variant/20 flex items-start justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center text-lg font-black shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-on-surface text-surface flex items-center justify-center text-lg font-black shrink-0">
                     {selected.name.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <h2 className="text-base font-semibold text-black">{selected.name}</h2>
+                    <h2 className="text-base font-semibold text-on-surface">{selected.name}</h2>
                     <a href={`mailto:${selected.email}`} className="text-sm text-on-surface-variant hover:text-primary transition-colors">
                       {selected.email}
                     </a>
@@ -190,7 +190,7 @@ export default function AdminContacts() {
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <a href={`mailto:${selected.email}`}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-black text-white rounded-xl text-xs font-semibold hover:bg-gray-800 transition-colors">
+                    className="flex items-center gap-1.5 px-4 py-2 bg-on-surface text-surface rounded-xl text-xs font-semibold hover:opacity-90 transition-colors">
                     <span className="material-symbols-outlined text-sm">mail</span>
                     Reply
                   </a>
@@ -244,11 +244,11 @@ export default function AdminContacts() {
               </div>
             </div>
           ) : (
-            <div className="bg-white rounded-2xl border border-outline-variant/20 shadow-sm h-full min-h-[400px] flex flex-col items-center justify-center text-center p-8">
+            <div className="bg-surface rounded-2xl border border-outline-variant/20 shadow-sm h-full min-h-[400px] flex flex-col items-center justify-center text-center p-8">
               <div className="w-16 h-16 bg-surface-container-low rounded-2xl flex items-center justify-center mb-4">
                 <span className="material-symbols-outlined text-3xl text-on-surface-variant/30 font-light">mark_as_unread</span>
               </div>
-              <h3 className="text-lg font-light tracking-tighter italic mb-2">Select a message</h3>
+              <h3 className="text-lg font-light tracking-tighter italic mb-2 text-on-surface">Select a message</h3>
               <p className="text-xs text-on-surface-variant opacity-50 max-w-[200px] leading-relaxed">
                 Click on a submission from the list to view its full details here.
               </p>

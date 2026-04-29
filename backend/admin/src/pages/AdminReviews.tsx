@@ -46,13 +46,13 @@ export default function AdminReviews() {
           <h2 className="text-2xl font-semibold text-on-surface tracking-tight">Reviews & Testimonials</h2>
           <p className="text-on-surface-variant text-sm mt-1">Curate customer feedback and select featured testimonials for the homepage.</p>
         </div>
-        <div className="flex bg-white rounded-full border border-outline-variant/30 p-1 shadow-sm">
+        <div className="flex bg-surface rounded-full border border-outline-variant/30 p-1 shadow-sm">
           {(['all', 'pending', 'approved', 'featured'] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
               className={`px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase transition-colors ${
-                filter === f ? 'bg-black text-white' : 'text-on-surface-variant hover:text-black'
+                filter === f ? 'bg-on-surface text-surface shadow-md' : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
               {f}
@@ -64,13 +64,13 @@ export default function AdminReviews() {
       {/* Reviews List */}
       <div className="space-y-4">
         {filteredReviews.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-outline-variant/30 p-12 text-center shadow-sm">
+          <div className="bg-surface rounded-2xl border border-outline-variant/30 p-12 text-center shadow-sm">
             <span className="material-symbols-outlined text-4xl text-on-surface-variant/40 mb-3">reviews</span>
             <p className="text-on-surface-variant">No reviews found for this filter.</p>
           </div>
         ) : (
           filteredReviews.map(review => (
-            <div key={review.id} className="bg-white rounded-2xl border border-outline-variant/30 p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col md:flex-row gap-5">
+            <div key={review.id} className="bg-surface rounded-2xl border border-outline-variant/30 p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col md:flex-row gap-5">
               
               <div className="flex-1 space-y-3">
                 <div className="flex items-start justify-between">

@@ -15,14 +15,11 @@ const emptyForm: Partial<Tour> = {
 };
 
 const S = `
-  .at-input{width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13.5px;background:#fafafa;color:#111827;transition:all .2s;outline:none;}
-  .dark .at-input{background:#1a1a1a;border-color:#333;color:#fff;}
-  .at-input:focus{border-color:#111827;background:#fff;box-shadow:0 0 0 3px rgba(0,0,0,.06);}
-  .dark .at-input:focus{border-color:#fff;background:#000;box-shadow:0 0 0 3px rgba(255,255,255,.06);}
-  .at-input::placeholder{color:#9ca3af;}
-  .at-label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;margin-bottom:6px;}
-  .at-section{background:#fff;border-radius:16px;padding:22px;border:1.5px solid #f0f0f0;box-shadow:0 1px 4px rgba(0,0,0,.05);}
-  .dark .at-section{background:#1a1a1a;border-color:#333;box-shadow:none;}
+  .at-input{width:100%;padding:10px 14px;border:1.5px solid var(--color-outline-variant);border-radius:10px;font-size:13.5px;background:var(--color-surface-container-low);color:var(--color-on-surface);transition:all .2s;outline:none;}
+  .at-input:focus{border-color:var(--color-primary);background:var(--color-surface);box-shadow:0 0 0 3px var(--color-primary-fixed-dim);}
+  .at-input::placeholder{color:var(--color-on-surface-variant);opacity:0.5;}
+  .at-label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--color-on-surface-variant);margin-bottom:6px;}
+  .at-section{background:var(--color-surface);border-radius:16px;padding:22px;border:1.5px solid var(--color-outline-variant);box-shadow:0 1px 4px rgba(0,0,0,.05);}
   .at-sh{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:12px;}
   .at-sh.blue{border-bottom:2px solid #3b82f6;}
   .at-sh.green{border-bottom:2px solid #10b981;}
@@ -37,23 +34,18 @@ const S = `
   .at-si.amber{background:#fef3c7;color:#d97706;}
   .at-si.rose{background:#ffe4e6;color:#e11d48;}
   .at-si.sky{background:#e0f2fe;color:#0284c7;}
-  .at-sub{background:#f9fafb;border-radius:12px;padding:16px;border:1.5px solid #f0f0f0;position:relative;}
-  .dark .at-sub{background:#222;border-color:#333;}
-  .at-sub-num{position:absolute;top:-10px;left:14px;background:#111827;color:#fff;border-radius:20px;font-size:9px;font-weight:900;padding:2px 10px;letter-spacing:.1em;text-transform:uppercase;}
-  .dark .at-sub-num{background:#fff;color:#000;}
+  .at-sub{background:var(--color-surface-container-low);border-radius:12px;padding:16px;border:1.5px solid var(--color-outline-variant);position:relative;}
+  .at-sub-num{position:absolute;top:-10px;left:14px;background:var(--color-on-surface);color:var(--color-surface);border-radius:20px;font-size:9px;font-weight:900;padding:2px 10px;letter-spacing:.1em;text-transform:uppercase;}
   .at-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:10px;font-size:13px;font-weight:700;letter-spacing:.02em;transition:all .2s;border:none;cursor:pointer;}
-  .at-btn.dark{background:#111827;color:#fff;}
-  .dark .at-btn.dark{background:#fff;color:#000;}
-  .at-btn.dark:hover{background:#1f2937;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.2);}
+  .at-btn.dark{background:var(--color-on-surface);color:var(--color-surface);}
+  .at-btn.dark:hover{opacity:0.9;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.2);}
   .at-btn.dark:disabled{opacity:.6;cursor:not-allowed;transform:none;}
-  .at-btn.light{background:#f3f4f6;color:#374151;}
-  .dark .at-btn.light{background:#333;color:#fff;}
-  .at-btn.light:hover{background:#e5e7eb;}
+  .at-btn.light{background:var(--color-surface-container);color:var(--color-on-surface-variant);}
+  .at-btn.light:hover{background:var(--color-surface-container-low);}
   .at-btn-add{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;transition:all .15s;border:1.5px dashed;cursor:pointer;margin-top:12px;}
-  .at-card{display:flex;align-items:center;background:#fff;border-radius:14px;border:1.5px solid #f0f0f0;overflow:hidden;transition:all .2s;}
-  .dark .at-card{background:#1a1a1a;border-color:#333;}
-  .at-card:hover{border-color:#e5e7eb;box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-1px);}
-  .at-thumb{width:80px;height:80px;flex-shrink:0;background:#f3f4f6;overflow:hidden;}
+  .at-card{display:flex;align-items:center;background:var(--color-surface);border-radius:14px;border:1.5px solid var(--color-outline-variant);overflow:hidden;transition:all .2s;}
+  .at-card:hover{border-color:var(--color-on-surface-variant);box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-1px);}
+  .at-thumb{width:80px;height:80px;flex-shrink:0;background:var(--color-surface-container-low);overflow:hidden;}
   .at-thumb img{width:100%;height:100%;object-fit:cover;}
 `;
 
@@ -259,19 +251,19 @@ export default function AdminTours() {
         <>
           {/* Import Modal */}
           {showImport && (
-            <div style={{ position:'fixed', inset:0, zIndex:1000, background:'rgba(0,0,0,0.6)', display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
-              <div className="dark:bg-[#111] dark:border dark:border-white/10" style={{ background:'#fff', borderRadius:20, padding:28, maxWidth:680, width:'100%', boxShadow:'0 20px 60px rgba(0,0,0,0.25)' }}>
+            <div style={{ position:'fixed', inset:0, zIndex:1000, background:'rgba(0,0,0,0.6)', backdropFilter:'blur(4px)', display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
+              <div className="bg-surface border border-outline-variant shadow-2xl" style={{ borderRadius:20, padding:28, maxWidth:680, width:'100%' }}>
                 <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
                   <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                    <div style={{ width:36, height:36, background:'#1a1a2e', borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                      <span className="material-symbols-outlined" style={{ color:'#fff', fontSize:18 }}>content_paste</span>
+                    <div style={{ width:36, height:36, background:'var(--color-on-surface)', borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                      <span className="material-symbols-outlined" style={{ color:'var(--color-surface)', fontSize:18 }}>content_paste</span>
                     </div>
                     <div>
-                      <h3 className="dark:text-white" style={{ margin:0, fontSize:15, fontWeight:800, color:'#111' }}>Import from Document</h3>
-                      <p style={{ margin:0, fontSize:11, color:'#6b7280' }}>Paste your Word/quotation text below — fields will auto-fill</p>
+                      <h3 className="text-on-surface" style={{ margin:0, fontSize:15, fontWeight:800 }}>Import from Document</h3>
+                      <p className="text-on-surface-variant" style={{ margin:0, fontSize:11 }}>Paste your Word/quotation text below — fields will auto-fill</p>
                     </div>
                   </div>
-                  <button onClick={() => setShowImport(false)} style={{ background:'none', border:'none', cursor:'pointer', color:'#6b7280', fontSize:22 }}>×</button>
+                  <button onClick={() => setShowImport(false)} className="text-on-surface-variant hover:text-on-surface transition-colors" style={{ background:'none', border:'none', cursor:'pointer', fontSize:22 }}>×</button>
                 </div>
                 <textarea
                   value={importText}
@@ -282,7 +274,8 @@ export default function AdminTours() {
                 />
                 <div style={{ display:'flex', gap:10, marginTop:14, justifyContent:'flex-end' }}>
                   <button onClick={() => setShowImport(false)}
-                    style={{ padding:'10px 20px', borderRadius:10, border:'1.5px solid #e5e7eb', background:'#f9fafb', fontSize:13, fontWeight:600, cursor:'pointer' }}>
+                    className="bg-surface-container text-on-surface-variant hover:bg-surface-container-low transition-colors"
+                    style={{ padding:'10px 20px', borderRadius:10, border:'1.5px solid var(--color-outline-variant)', fontSize:13, fontWeight:600, cursor:'pointer' }}>
                     Cancel
                   </button>
                   <button
@@ -294,7 +287,8 @@ export default function AdminTours() {
                       setShowImport(false);
                       document.getElementById('ttop')?.scrollIntoView({ behavior: 'smooth' });
                     }}
-                    style={{ padding:'10px 22px', borderRadius:10, border:'none', background:'#111827', color:'#fff', fontSize:13, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:8 }}>
+                    className="bg-primary text-on-primary hover:opacity-90 transition-colors"
+                    style={{ padding:'10px 22px', borderRadius:10, border:'none', fontSize:13, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:8 }}>
                     <span className="material-symbols-outlined" style={{ fontSize:16 }}>auto_awesome</span>
                     Auto-Fill Fields
                   </button>

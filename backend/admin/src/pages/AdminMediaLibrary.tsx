@@ -130,7 +130,7 @@ export default function AdminMediaLibrary() {
               placeholder="Search files..." 
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 bg-white border border-outline-variant/30 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-black w-64 shadow-sm"
+              className="pl-9 pr-4 py-2 bg-surface-container-low border border-outline-variant/30 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary w-64 shadow-sm text-on-surface"
             />
           </div>
           {canEdit && (
@@ -146,7 +146,7 @@ export default function AdminMediaLibrary() {
               <button 
                 onClick={handleUploadClick}
                 disabled={isUploading}
-                className="bg-black text-white px-5 py-2 rounded-full text-xs font-bold tracking-widest uppercase hover:bg-gray-800 transition flex items-center gap-2 shadow-md disabled:opacity-50"
+                className="bg-on-surface text-surface px-5 py-2 rounded-full text-xs font-bold tracking-widest uppercase hover:opacity-90 transition flex items-center gap-2 shadow-md disabled:opacity-50"
               >
                 <span className="material-symbols-outlined text-sm">{isUploading ? 'hourglass_empty' : 'upload'}</span>
                 {isUploading ? 'Uploading...' : 'Upload'}
@@ -164,8 +164,8 @@ export default function AdminMediaLibrary() {
             onClick={() => setActiveFolder(folder)}
             className={`px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase whitespace-nowrap transition-colors ${
               activeFolder === folder 
-                ? 'bg-black text-white shadow-md' 
-                : 'bg-white border border-outline-variant/30 text-on-surface hover:bg-surface-container-low'
+                ? 'bg-on-surface text-surface shadow-md' 
+                : 'bg-surface border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'
             }`}
           >
             {folder}
@@ -197,11 +197,11 @@ export default function AdminMediaLibrary() {
       </div>
 
       {/* Grid */}
-      <div className="flex-1 overflow-y-auto min-h-0 bg-white rounded-2xl border border-outline-variant/30 shadow-sm p-6">
+      <div className="flex-1 overflow-y-auto min-h-0 bg-surface rounded-2xl border border-outline-variant/30 shadow-sm p-6">
         {!canEdit && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-center gap-3">
-            <span className="material-symbols-outlined text-blue-500">info</span>
-            <p className="text-xs text-blue-700 font-medium">You are in <span className="font-bold">Read-Only Mode</span>. Upload and deletion privileges are restricted to Editor accounts.</p>
+          <div className="mb-6 p-4 bg-surface-container-low border border-primary/20 rounded-xl flex items-center gap-3">
+            <span className="material-symbols-outlined text-primary">info</span>
+            <p className="text-xs text-on-surface-variant font-medium">You are in <span className="font-bold text-on-surface">Read-Only Mode</span>. Upload and deletion privileges are restricted to Editor accounts.</p>
           </div>
         )}
         
@@ -218,8 +218,8 @@ export default function AdminMediaLibrary() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {filteredMedia.map(media => (
-              <div key={media.id} className="group relative rounded-xl overflow-hidden border border-outline-variant/20 bg-surface-container-lowest cursor-pointer aspect-square flex flex-col hover:shadow-md transition-shadow">
-                <div className="flex-1 overflow-hidden bg-gray-100">
+              <div key={media.id} className="group relative rounded-xl overflow-hidden border border-outline-variant/20 bg-surface-container-low cursor-pointer aspect-square flex flex-col hover:shadow-md transition-all">
+                <div className="flex-1 overflow-hidden bg-surface-container">
                   <img src={media.url} alt={media.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>
                 <div className="p-2 border-t border-outline-variant/10">
@@ -232,7 +232,7 @@ export default function AdminMediaLibrary() {
                 {/* Selection Overlay */}
                 {selectMode && (
                   <div className="absolute top-2 left-2 z-10" onClick={(e) => { e.stopPropagation(); toggleSelect(media.id); }}>
-                    <div className={`w-5 h-5 rounded flex items-center justify-center border transition-all ${selected.has(media.id) ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white/90 backdrop-blur border-outline-variant/50 hover:border-black'}`}>
+                    <div className={`w-5 h-5 rounded flex items-center justify-center border transition-all ${selected.has(media.id) ? 'bg-primary border-primary text-on-primary' : 'bg-surface/90 backdrop-blur border-outline-variant/50 hover:border-on-surface'}`}>
                       {selected.has(media.id) && <span className="material-symbols-outlined text-xs">check</span>}
                     </div>
                   </div>
@@ -242,7 +242,7 @@ export default function AdminMediaLibrary() {
                   <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button 
                       onClick={(e) => handleCopyUrl(e, media.url)}
-                      className="w-7 h-7 bg-white/90 backdrop-blur rounded-lg flex items-center justify-center text-black hover:bg-black hover:text-white transition-colors shadow-sm" title="Copy URL"
+                      className="w-7 h-7 bg-surface/90 backdrop-blur rounded-lg flex items-center justify-center text-on-surface hover:bg-on-surface hover:text-surface transition-colors shadow-sm" title="Copy URL"
                     >
                       <span className="material-symbols-outlined text-xs">link</span>
                     </button>
