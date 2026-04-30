@@ -11,6 +11,7 @@ import { v2 as cloudinary } from "cloudinary";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import fs from "node:fs";
+import { inject } from "@vercel/analytics";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,6 +25,9 @@ cloudinary.config({
 
 const app = express();
 app.use(compression()); // Compress all responses
+
+// ── Vercel Analytics ──────────────────────────────────────────────────────────
+inject();
 
 // ── Security ──────────────────────────────────────────────────────────────────
 app.use(helmet({
@@ -44,6 +48,8 @@ app.use(helmet({
         "https://*.vercel.app",
         "https://*.up.railway.app",
         "https://*.onrender.com",
+        // Vercel Analytics
+        "https://vitals.vercel-insights.com",
         ...(process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(",").map(o => o.trim()) : []),
       ],
     },
@@ -217,7 +223,7 @@ const requireCRUD = async (req, res, next) => {
   next();
 };
 
-// ── Utility ───────────────────────────────────────────────────────────────────
+// ── Utility ─────────���─────────────────────────────────────────────────────────
 function newId(prefix) {
   return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -574,7 +580,7 @@ app.delete("/api/tours/:id", requireCRUD, async (req, res) => {
   res.status(204).end();
 });
 
-// ── Visas ─────────────────────────────────────────────────────────────────────
+// ── Visas ──────���──────────────────────────────────────────────────────────────
 app.get("/api/visas", async (_req, res) => { res.json((await readDb()).visas); });
 app.post("/api/visas", requireCRUD, async (req, res) => {
   const parsed = VisaSchema.safeParse(req.body);
