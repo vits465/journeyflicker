@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { Tour } from '../lib/api';
-import { api, uploadImage } from '../lib/api';
+import { api } from '../lib/api';
 import { ImageUploader } from '../components/ImageUploader';
 import { useAdminAuth } from '../lib/adminAuth';
 import { Preloader } from '../components/Preloader';
@@ -182,7 +182,6 @@ function parseQuotationText(raw: string): Partial<Tour> {
 export default function AdminTours() {
   const { canCRUD } = useAdminAuth();
   const location = useLocation();
-  const navigate = useNavigate();
   const [tours, setTours] = useState<Tour[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);

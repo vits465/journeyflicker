@@ -102,7 +102,6 @@ function parseDestinationText(raw: string): Partial<Destination> {
 export default function AdminDestinations() {
   const { canCRUD } = useAdminAuth();
   const location = useLocation();
-  const navigate = useNavigate();
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
