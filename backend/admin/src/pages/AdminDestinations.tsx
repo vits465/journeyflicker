@@ -45,61 +45,55 @@ const S = `
 `;
 // ── Smart Destination Text Parser ──────────────────────────────────────────
 function parseDestinationText(raw: string): Partial<Destination> {
-  const text = raw;
+  const text = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim() + '\n';
 
-  // Extract destination name from DESTINATION: or first all-caps heading
-  const destMatch = text.match(/DESTINATION\s*[:\-]?\s*([A-Z][A-Z ]+)/i) ||
-    text.match(/^([A-Z][A-Z ]{2,})\s*TOUR/m) ||
-    text.match(/arrive in ([A-Za-z ]+)/i);
-  const name = destMatch ? destMatch[1].trim().replace(/\bTOUR\b/i, '').trim() : '';
-
-  // Region = same as name for destinations
+  // Extract destination name
+  const destMatch = text.match(/DESTINATION\s*[:\-]?\s*([^\n]+)/i) ||
+    text.match(/([A-Z][A-Z\s]+)\s+TOUR/i);
+  const name = destMatch ? destMatch[1].trim() : '';
   const region = name;
 
-  // Description - use first substantial paragraph
-  const paragraphs = raw.split(/\n{2,}/).map(p => p.trim()).filter(p => p.length > 60);
-  const description = paragraphs
-    .find(p => !/QUOTATION|TRAVELING|Dear Sir|Greeting|Option|Hotel|Per Person|Day-|Package/i.test(p)) || '';
+  // Extract description
+  const paragraphs = text.split(/\n{2,}/).map(p => p.trim()).filter(p => p.length > 50);
+  const description = paragraphs.find(p => !/QUOTATION|Day\s*\d+|Package|Logistics/i.test(p)) || '';
 
-  // Essence text - pull from itinerary intro if available
-  const essenceMatch = text.match(/(?:overview|about|discover)[:\-]?\s*([^\n]{40,200})/i);
-  const essenceText = essenceMatch ? essenceMatch[1].trim() : '';
-
-  // Best seasons - look for month mentions
+  // Extract best seasons
   const monthsMatch = text.match(/(?:best time|season|month)[s]?[:\-]?[^\n]*([A-Z][a-z]+ (?:to|-) [A-Z][a-z]+)/i);
   const bestSeasonsMonths = monthsMatch ? monthsMatch[1] : '';
 
-  // Extract landmarks from Day itinerary visits (Visit X, Y, Z)
-  const visitMatches = [...text.matchAll(/[Vv]isit ([^.\n]+)/g)];
+  // Deep Scan for Landmarks (Iconic Places)
   const landmarks: Destination['landmarks'] = [];
   const seen = new Set<string>();
-  visitMatches.forEach(m => {
-    const places = m[1].split(/,|and/).map(p => p.trim()).filter(p => p.length > 3 && p.length < 60);
-    places.forEach(place => {
-      if (!seen.has(place) && landmarks.length < 6) {
-        seen.add(place);
-        landmarks.push({ title: place.replace(/^the /i, ''), category: 'Attraction', description: `A must-visit landmark in ${name}.`, imageUrl: '' });
-      }
-    });
+  const landmarkMatches = [...text.matchAll(/(?:^|\n)\s*[•\-\d.]+\s*([^\n]+)\n([^]*?)(?=\n\s*[•\-\d.]+\s*|Day\s*\d+|Accommodation|Logistics|$)/gi)];
+  
+  landmarkMatches.forEach(m => {
+    const lName = m[1].trim();
+    const lDesc = m[2].trim();
+    if (lName.length > 3 && !seen.has(lName.toLowerCase())) {
+      seen.add(lName.toLowerCase());
+      landmarks.push({
+        title: lName,
+        category: /Beach/i.test(lName) ? 'Beach' : /Jail|Museum|Heritage/i.test(lName) ? 'History' : 'Attraction',
+        description: lDesc || `A must-visit landmark in ${name}.`,
+        imageUrl: '',
+      });
+    }
   });
-
-  // Season highlights from days - extract unique activities
-  const seasonsHighlights: Destination['seasonsHighlights'] = [
-    { season: 'Peak Season', description: `The best time to visit ${name} for sightseeing and cultural experiences.` },
-    { season: 'Off-Peak', description: `Fewer crowds and lower prices while still enjoying the beauty of ${name}.` },
-  ];
 
   return {
     name,
     region,
-    description: description.substring(0, 500),
-    essenceText,
+    description: description.substring(0, 1000),
+    essenceText: `Discover the true soul of ${name}, where every corner tells a story of culture and nature.`,
     heroImageUrl: '',
     galleryImages: [],
     bestSeasonsTitle: `Best Time to Visit ${name}`,
     bestSeasonsMonths,
-    landmarks,
-    seasonsHighlights,
+    landmarks: landmarks.slice(0, 10),
+    seasonsHighlights: [
+      { season: 'Peak Season', description: `Optimal weather for exploring all major landmarks in ${name}.` },
+      { season: 'Monsoon', description: `Experience the lush green landscapes of ${name} in a peaceful atmosphere.` },
+    ],
   };
 }
 

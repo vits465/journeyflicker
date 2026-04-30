@@ -51,7 +51,7 @@ const S = `
 
 // ── Smart Word/Quotation Text Parser ──────────────────────────────────────────
 function parseQuotationText(raw: string): Partial<Tour> {
-  // Normalize newlines for cross-platform compatibility
+  // Normalize newlines
   const text = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim() + '\n';
 
   // Extract tour name
@@ -68,9 +68,12 @@ function parseQuotationText(raw: string): Partial<Tour> {
   const priceMatch = text.match(/USD[.\s]*(\d+[,\d]*)/i) || text.match(/Price\s*[:\-]?\s*([^\n]+)/i);
   const price = priceMatch ? (priceMatch[1].startsWith('$') ? priceMatch[1] : `$${priceMatch[1]}`) : '';
 
-  // Extract itinerary - robust Day N pattern
+  const sightseeing: Tour['sightseeing'] = [];
+  const seenLandmarks = new Set<string>();
+
+  // Extract itinerary
   const dayMatches = [...text.matchAll(/Day\s*(\d+)\s*[:\-]?\s*([^\n]*)\n([^]*?)(?=Day\s*\d+|Above Package|Package Includes|Package Excludes|Logistics|$)/gi)];
-  const itinerary = dayMatches.slice(0, 20).map(m => {
+  const itinerary = dayMatches.slice(0, 25).map(m => {
     const dayNum = m[1];
     const title = m[2].trim();
     const content = m[3].trim();
@@ -80,9 +83,29 @@ function parseQuotationText(raw: string): Partial<Tour> {
     const accommodation = accMatch ? accMatch[1].trim() : '';
     const schedule = schMatch ? schMatch[1].trim() : '';
 
+    // Deep Scan for Landmarks within the day
+    const dayBullets = content.match(/(?:^|\n)\s*[•\-\d.]+\s*([^\n]+)\n([^]*?)(?=\n\s*[•\-\d.]+\s*|Day\s*\d+|Accommodation|Schedule|$)/gi) || [];
+    dayBullets.forEach(b => {
+      const bMatch = b.match(/(?:^|\n)\s*[•\-\d.]+\s*([^\n]+)\n?([^]*)/i);
+      if (bMatch) {
+        const lName = bMatch[1].trim();
+        const lDesc = bMatch[2].trim();
+        if (lName.length > 3 && !seenLandmarks.has(lName.toLowerCase())) {
+          seenLandmarks.add(lName.toLowerCase());
+          sightseeing.push({
+            title: lName,
+            description: lDesc || `A featured landmark in the ${lName} region.`,
+            icon: /Beach/i.test(lName) ? 'beach_access' : /Jail|Museum|Heritage/i.test(lName) ? 'museum' : 'star',
+            imageUrl: '',
+          });
+        }
+      }
+    });
+
     const cleanDesc = content
-      .replace(/Accommodation\s*[:\-]\s*[^\n]*/i, '')
-      .replace(/Schedule\s*[:\-]\s*[^\n]*/i, '')
+      .replace(/Accommodation\s*[:\-]\s*[^\n]*/gi, '')
+      .replace(/Schedule\s*[:\-]\s*[^\n]*/gi, '')
+      .replace(/(?:^|\n)\s*[•\-\d.]+\s*([^\n]+)\n([^]*?)(?=\n\s*[•\-\d.]+\s*|Day\s*\d+|$)/gi, '')
       .replace(/\([BLD,\s/-]+\)/gi, '')
       .trim();
 
@@ -93,7 +116,7 @@ function parseQuotationText(raw: string): Partial<Tour> {
 
     return {
       title: `Day ${dayNum}${title ? ': ' + title : ''}`,
-      description: cleanDesc,
+      description: cleanDesc || content.split('\n')[0], // Fallback to first line if everything was landmarks
       meals,
       accommodation,
       schedule,
@@ -104,20 +127,23 @@ function parseQuotationText(raw: string): Partial<Tour> {
   const overviewMatch = text.match(/OVERVIEW\s*[:\-]?\s*([^]*?)(?=Day\s*\d+|Above Package|Package Includes|Logistics|$)/i);
   const overviewExtended = overviewMatch ? overviewMatch[1].trim() : '';
 
+  // Also scan Package Includes for global highlights
   const includesMatch = text.match(/Package Includes\s*[:\-]?\s*([^]*?)(?=Package Excludes|Cancellation|Logistics|$)/i);
-  const sightseeing: Tour['sightseeing'] = [];
   if (includesMatch) {
     const bullets = includesMatch[1].match(/(?:^|\n)\s*[•\-\d.]+\s*([^\n]+)/gm) || [];
-    bullets.slice(0, 8).forEach(b => {
+    bullets.forEach(b => {
       const t = b.replace(/^[\s•\-\d.]+/, '').trim();
-      if (t.length > 3) sightseeing.push({ title: t.substring(0, 50), description: t, icon: 'star', imageUrl: '' });
+      if (t.length > 3 && !seenLandmarks.has(t.toLowerCase())) {
+        seenLandmarks.add(t.toLowerCase());
+        sightseeing.push({ title: t, description: t, icon: 'verified', imageUrl: '' });
+      }
     });
   }
 
   const transport = text.match(/Transport\s*[:\-]?\s*([^\n]+)/i)?.[1] || 
                    (/flight|private transfer|ferry/i.test(text) ? 'Private Transfers & Ferry' : '');
   const guide = text.match(/Guide\s*[:\-]?\s*([^\n]+)/i)?.[1] || '';
-  const pickup = text.match(/Arrive in\s*([^\n]+)/i)?.[1] || text.match(/Airport\s*Dropping/i) ? 'Airport Transfer' : '';
+  const pickup = text.match(/Arrive in\s*([^\n]+)/i)?.[1] || (text.match(/Airport\s*Dropping/i) ? 'Airport Transfer' : '');
 
   return {
     name, region, days, price,
@@ -127,7 +153,7 @@ function parseQuotationText(raw: string): Partial<Tour> {
     overviewDescription: name ? `A curated ${days}-day journey through ${region}.` : '',
     overviewExtended: overviewExtended || `An expertly crafted itinerary covering the highlights, culture, and natural beauty of ${region}.`,
     itinerary: itinerary.length > 0 ? itinerary : [],
-    sightseeing: sightseeing.length > 0 ? sightseeing : [],
+    sightseeing: sightseeing.slice(0, 12), // Keep up to 12 top landmarks
     visualArchive: [], departureWindows: [], maxGuests: 8, heroImageUrl: '',
   };
 }
