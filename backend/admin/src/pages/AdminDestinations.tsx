@@ -161,12 +161,16 @@ export default function AdminDestinations() {
     const nextData = optimisticDestinations.filter(d => d.id !== id);
     try {
       await performOptimistic(nextData, api.deleteDestination(id));
+      setDestinations(nextData);
       if (selected.has(id)) {
         const newSet = new Set(selected);
         newSet.delete(id);
         setSelected(newSet);
       }
-    } catch (err) { console.error(err); }
+    } catch (err) { 
+      console.error(err);
+      loadDestinations();
+    }
   };
 
   const handleBulkDelete = async () => {
@@ -175,10 +179,12 @@ export default function AdminDestinations() {
     const nextData = optimisticDestinations.filter(d => !selected.has(d.id));
     try {
       await performOptimistic(nextData, Promise.all(Array.from(selected).map(id => api.deleteDestination(id))));
+      setDestinations(nextData);
       setSelected(new Set());
       setSelectMode(false);
     } catch (err) {
       console.error('Bulk delete failed:', err);
+      loadDestinations();
     }
   };
 

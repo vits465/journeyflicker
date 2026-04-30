@@ -62,28 +62,37 @@ export default function AdminVisas() {
   const handleEdit = (visa: Visa) => { setFormData({ ...visa }); setEditingId(visa.id); };
   const handleDelete = async (id: string) => {
     if (confirm('Delete this visa requirement?')) {
+      // Locally filter immediately to prevent "back back" behavior
+      setVisas(prev => prev.filter(v => v.id !== id));
       try { 
         await api.deleteVisa(id); 
-        loadVisas(); 
+        // Optional: wait a bit before refreshing to let KV propagate
+        setTimeout(loadVisas, 1000);
         if (selected.has(id)) {
           const newSet = new Set(selected);
           newSet.delete(id);
           setSelected(newSet);
         }
-      } catch (err) { console.error(err); }
+      } catch (err) { 
+        console.error(err);
+        loadVisas(); // Revert on failure
+      }
     }
   };
 
   const handleBulkDelete = async () => {
     if (selected.size === 0) return;
     if (!confirm(`Are you sure you want to delete ${selected.size} visas? This cannot be undone.`)) return;
+    // Filter locally first
+    setVisas(prev => prev.filter(v => !selected.has(v.id)));
     try {
       await Promise.all(Array.from(selected).map(id => api.deleteVisa(id)));
-      loadVisas();
+      setTimeout(loadVisas, 1000);
       setSelected(new Set());
       setSelectMode(false);
     } catch (err) {
       console.error('Bulk delete failed:', err);
+      loadVisas();
       alert('Some items failed to delete.');
     }
   };

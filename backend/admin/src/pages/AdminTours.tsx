@@ -190,10 +190,12 @@ export default function AdminTours() {
     const nextData = optimisticTours.filter(t => !selected.has(t.id));
     try {
       await performOptimistic(nextData, Promise.all(Array.from(selected).map(id => api.deleteTour(id))));
+      setTours(nextData);
       setSelected(new Set());
       setSelectMode(false);
     } catch (err) {
       console.error('Bulk delete failed:', err);
+      loadTours();
     }
   };
 
@@ -202,12 +204,18 @@ export default function AdminTours() {
     const nextData = optimisticTours.filter(t => t.id !== id);
     try {
       await performOptimistic(nextData, api.deleteTour(id));
+      // Also update the base tours list to prevent the interval from bringing it back
+      setTours(nextData);
       if (selected.has(id)) {
         const newSet = new Set(selected);
         newSet.delete(id);
         setSelected(newSet);
       }
-    } catch (err) { console.error(err); }
+    } catch (err) { 
+      console.error(err);
+      // Re-fetch to ensure we have the real state if something failed
+      loadTours();
+    }
   };
 
   const toggleSelect = (id: string) => {
