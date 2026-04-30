@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import type { Visa } from '../lib/api';
-import { api, uploadImage } from '../lib/api';
+import { api } from '../lib/api';
 import { useAdminAuth } from '../lib/adminAuth';
 import { ImageUploader } from '../components/ImageUploader';
 import { Preloader } from '../components/Preloader';
@@ -30,8 +30,8 @@ function parseVisaText(raw: string): Partial<Visa> {
   const documents: string[] = [];
   const docsMatch = text.match(/(?:DOCUMENTS|REQUIRED DOCUMENTS|CHECKLIST)\s*[:\-]?\s*([^]*?)(?=REQUIREMENTS|FEE|PROCESSING|COST|$)/i);
   if (docsMatch) {
-    const bullets = docsMatch[1].match(/(?:^|\n)\s*[•\-\d.]+\s*([^\n]+)/gm) || [];
-    bullets.forEach(b => {
+    const bullets = docsMatch[1].match(/(?:^|\n)\s*[•\-\d.]+\s*([^\n]+)/gm) || [] as string[];
+    bullets.forEach((b: string) => {
       const t = b.replace(/^[\s•\-\d.]+/, '').trim();
       if (t.length > 2) documents.push(t);
     });
@@ -60,14 +60,11 @@ export default function AdminVisas() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<Visa>>(emptyForm);
   const [newDoc, setNewDoc] = useState('');
-  const [newReqLabel, setNewReqLabel] = useState('');
   const [newReqDetail, setNewReqDetail] = useState('');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [selectMode, setSelectMode] = useState(false);
-  const [isDocUploading, setIsDocUploading] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [importText, setImportText] = useState('');
-  const docInputRef = useRef<HTMLInputElement>(null);
 
   // Handle cross-page import from dashboard
   useEffect(() => {
@@ -159,22 +156,6 @@ export default function AdminVisas() {
     if (!newDoc.trim()) return;
     upd({ documents: [...(formData.documents || []), newDoc.trim()] });
     setNewDoc('');
-  };
-
-  const handleDocUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setIsDocUploading(true);
-    try {
-      const url = await uploadImage(file);
-      upd({ documents: [...(formData.documents || []), `${file.name}|${url}`] });
-    } catch (err) {
-      console.error('Doc upload failed:', err);
-      alert('Upload failed.');
-    } finally {
-      setIsDocUploading(false);
-      if (docInputRef.current) docInputRef.current.value = '';
-    }
   };
 
   const removeDoc = (i: number) => upd({ documents: (formData.documents || []).filter((_, j) => j !== i) });

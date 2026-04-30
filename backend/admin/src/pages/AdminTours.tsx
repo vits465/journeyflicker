@@ -108,7 +108,7 @@ function parseQuotationText(raw: string): Partial<Tour> {
 
     // Deep Scan for Landmarks within the day
     const dayBullets = content.match(/(?:^|\n)\s*[•\-\d.]+\s*([^\n]+)\n([^]*?)(?=\n\s*[•\-\d.]+\s*|Day\s*\d+|Accommodation|Schedule|$)/gi) || [];
-    dayBullets.forEach(b => {
+    dayBullets.forEach((b: string) => {
       const bMatch = b.match(/(?:^|\n)\s*[•\-\d.]+\s*([^\n]+)\n?([^]*)/i);
       if (bMatch) {
         const lName = bMatch[1].trim();
@@ -152,7 +152,7 @@ function parseQuotationText(raw: string): Partial<Tour> {
   const includesMatch = text.match(/Package Includes\s*[:\-]?\s*([^]*?)(?=Package Excludes|Cancellation|Logistics|$)/i);
   if (includesMatch) {
     const bullets = includesMatch[1].match(/(?:^|\n)\s*[•\-\d.]+\s*([^\n]+)/gm) || [];
-    bullets.forEach(b => {
+    bullets.forEach((b: string) => {
       const t = b.replace(/^[\s•\-\d.]+/, '').trim();
       if (t.length > 3 && !seenLandmarks.has(t.toLowerCase())) {
         seenLandmarks.add(t.toLowerCase());

@@ -145,21 +145,16 @@ function parseVisaText(raw: string) {
   const docsMatch = text.match(/(?:Required Documents|Documents)[:\s]*([^]*?)(?=Requirements|Process|Cancellation|$)/i);
   const documents: string[] = [];
   if (docsMatch) {
-    const bullets = docsMatch[1].match(/(?:^|\n)\s*[•\-\d.]+\s*(.+)/gm) || [];
-    bullets.forEach(b => documents.push(b.replace(/^[\s•\-\d.]+/, '').trim()));
+    const bullets = docsMatch[1].match(/(?:^|\n)\s*[•\-\d.]+\s*(.+)/gm) || [] as string[];
+    bullets.forEach((b: string) => documents.push(b.replace(/^[\s•\-\d.]+/, '').trim()));
   }
 
   const reqMatch = text.match(/Requirements[:\s]*([^]*?)(?=Process|Cancellation|$)/i);
-  const requirements: {label: string, detail: string}[] = [];
+  const requirements: string[] = [];
   if (reqMatch) {
-    const bullets = reqMatch[1].match(/(?:^|\n)\s*[•\-\d.]+\s*(.+)/gm) || [];
-    bullets.forEach(b => {
-      const parts = b.replace(/^[\s•\-\d.]+/, '').split(':');
-      if (parts.length > 1) {
-        requirements.push({ label: parts[0].trim(), detail: parts.slice(1).join(':').trim() });
-      } else {
-        requirements.push({ label: 'Requirement', detail: parts[0].trim() });
-      }
+    const bullets = reqMatch[1].match(/(?:^|\n)\s*[•\-\d.]+\s*(.+)/gm) || [] as string[];
+    bullets.forEach((b: string) => {
+      requirements.push(b.replace(/^[\s•\-\d.]+/, '').trim());
     });
   }
 
