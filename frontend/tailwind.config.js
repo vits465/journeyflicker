@@ -17,21 +17,22 @@ export default {
         primary:        '#1a1a1a',
         'on-primary':   '#ffffff',
 
-        // Surfaces
+        // Surfaces (Light)
         background:                  '#fafaf9',
         surface:                     '#ffffff',
         'surface-container':         '#f5f5f4',
         'surface-container-low':     '#f0efed',
         'surface-container-lowest':  '#fafaf9',
 
-        // Text
+        // Text (Light)
         'on-surface':         '#1c1b1a',
         'on-surface-variant': '#6b6860',
 
-        // Borders
+        // Borders (Light)
         'outline-variant': '#cac7c0',
       },
     },
   },
+  // We use standard tailwind for dark mode, but we'll add explicit overrides in components
   plugins: [],
 }

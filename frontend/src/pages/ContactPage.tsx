@@ -41,7 +41,7 @@ export default function ContactPage() {
       </section>
 
       {/* ── CONTACT LAYOUT ── */}
-      <section className="py-12 sm:py-16 md:py-24 px-4 sm:px-8 md:px-16 bg-surface-container-lowest">
+      <section className="py-14 sm:py-20 md:py-28 px-4 sm:px-8 md:px-16 bg-surface-container-lowest dark:bg-black">
         <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-16 items-start">
 
           {/* Left: Info */}
@@ -113,7 +113,7 @@ export default function ContactPage() {
 
           {/* Right: Form */}
           <div className="lg:col-span-3 animate-reveal-up" style={{ animationDelay: '0.15s' }}>
-            <div className="bg-white p-6 sm:p-8 md:p-10 rounded-2xl shadow-sm border border-outline-variant/20">
+            <div className="bg-surface dark:bg-white/[0.03] p-6 sm:p-8 md:p-10 rounded-2xl shadow-sm border border-outline-variant/20 dark:border-white/10">
               <span className="text-primary text-[10px] font-black tracking-[0.5em] uppercase mb-6 block">Inception Protocol</span>
 
               {submitted ? (
@@ -138,10 +138,10 @@ export default function ContactPage() {
                         className="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm font-light focus:ring-2 focus:ring-primary/20 outline-none placeholder:opacity-30" />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[9px] font-bold tracking-[0.4em] uppercase text-on-surface-variant block">Email</label>
+                      <label className="text-[9px] font-bold tracking-[0.4em] uppercase text-on-surface-variant dark:text-white/40 block">Email</label>
                       <input type="email" placeholder="email@example.com" required value={form.email}
                         onChange={e => setForm({ ...form, email: e.target.value })}
-                        className="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm font-light focus:ring-2 focus:ring-primary/20 outline-none placeholder:opacity-30" />
+                        className="w-full bg-surface-container-low dark:bg-white/10 border-none rounded-xl px-4 py-3 text-sm font-light focus:ring-2 focus:ring-primary/20 dark:focus:ring-white/20 outline-none dark:text-white placeholder:opacity-30" />
                     </div>
                   </div>
 
@@ -168,7 +168,7 @@ export default function ContactPage() {
                       Identity secured by curator protocols.
                     </p>
                     <button type="submit" disabled={sending}
-                      className="bg-black text-white px-8 py-3 rounded-full text-[10px] font-black tracking-[0.4em] uppercase hover:bg-primary transition-all shadow-lg active:scale-95 w-full sm:w-auto disabled:opacity-60 flex items-center justify-center gap-2">
+                      className="bg-on-surface dark:bg-white text-surface dark:text-black px-8 py-3 rounded-full text-[10px] font-black tracking-[0.4em] uppercase hover:bg-primary dark:hover:bg-gray-200 transition-all shadow-lg active:scale-95 w-full sm:w-auto disabled:opacity-60 flex items-center justify-center gap-2">
                       {sending ? (
                         <><span className="material-symbols-outlined text-base animate-spin">progress_activity</span> Sending...</>
                       ) : 'Authorize Transmission'}

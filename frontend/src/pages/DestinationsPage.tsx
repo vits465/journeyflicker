@@ -116,16 +116,16 @@ export default function DestinationsPage() {
       <HeroSlider slides={heroSlides} loading={loading} autoPlayMs={5000} height="h-[65vh] min-h-[480px] max-h-[700px]" />
 
       {/* ── FILTER + GRID ── */}
-      <section className="py-10 sm:py-14 md:py-20 px-4 sm:px-8 md:px-16 bg-surface-container-lowest">
+      <section className="py-10 sm:py-14 md:py-20 px-4 sm:px-8 md:px-16 bg-surface-container-lowest dark:bg-black">
         <div className="max-w-6xl mx-auto">
 
           {/* ── Section header ── */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-6 pb-5 border-b border-outline-variant/20">
             <div>
-              <span className="text-[10px] font-black tracking-[0.5em] text-primary uppercase mb-1.5 block">The Dossiers</span>
-              <h1 className="text-4xl sm:text-5xl font-light tracking-tighter leading-tight italic">Territories</h1>
+              <span className="text-[10px] font-black tracking-[0.5em] text-primary dark:text-white/60 uppercase mb-1.5 block">The Dossiers</span>
+              <h1 className="text-4xl sm:text-5xl font-light tracking-tighter leading-tight italic dark:text-white">Territories</h1>
             </div>
-            <div className="hidden sm:flex flex-col items-end opacity-20">
+            <div className="hidden sm:flex flex-col items-end opacity-20 dark:text-white">
               <span className="text-4xl font-light tracking-tighter leading-none">
                 {loading ? '—' : String(filtered.length).padStart(2,'0')}
               </span>
@@ -157,8 +157,8 @@ export default function DestinationsPage() {
             ))}
           </div>
 
-          {/* ── CASCADING DROPDOWNS: Region → Country → State ── */}
-          <div className="sticky top-14 md:top-[58px] z-30 bg-white/95 backdrop-blur-sm rounded-2xl border border-outline-variant/15 shadow-sm px-5 py-4 mb-7 flex flex-wrap items-center gap-6 md:gap-8">
+          {/* ── CASCADING DROPDOWNS ── */}
+          <div className="sticky top-14 md:top-[58px] z-30 bg-white/95 dark:bg-black/80 backdrop-blur-md rounded-2xl border border-outline-variant/15 dark:border-white/10 shadow-sm px-5 py-4 mb-7 flex flex-wrap items-center gap-6 md:gap-8">
             {/* Breadcrumb trail */}
             <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.4em] text-on-surface-variant/30 flex-nowrap overflow-x-auto no-scrollbar">
               <span className={filter.territory ? 'text-black' : ''}>
@@ -204,11 +204,11 @@ export default function DestinationsPage() {
               )}
 
               {/* View toggle */}
-              <div className="flex items-center border border-outline-variant/30 rounded-full p-1 gap-1 bg-white shadow-sm ml-2">
+              <div className="flex items-center border border-outline-variant/30 dark:border-white/10 rounded-full p-1 gap-1 bg-surface dark:bg-white/5 shadow-sm ml-2">
                 {(['grid', 'list'] as ViewMode[]).map(mode => (
                   <button key={mode} onClick={() => setViewMode(mode)}
                     className={`flex items-center justify-center w-7 h-7 rounded-full transition-all duration-200 ${
-                      viewMode === mode ? 'bg-black text-white' : 'text-on-surface-variant/50 hover:text-black'
+                      viewMode === mode ? 'bg-on-surface dark:bg-white text-surface dark:text-black shadow-md' : 'text-on-surface-variant/50 hover:text-black dark:hover:text-white'
                     }`}>
                     <span className="material-symbols-outlined font-light text-base">
                       {mode === 'grid' ? 'grid_view' : 'view_agenda'}

@@ -147,9 +147,9 @@ export default function HomePage() {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <div className="h-px bg-primary w-8" />
-                <span className="text-primary text-[10px] font-black tracking-[0.5em] uppercase">Global Directory</span>
+                <span className="text-primary dark:text-primary-variant text-[10px] font-black tracking-[0.5em] uppercase">Global Directory</span>
               </div>
-              <h2 className="text-4xl sm:text-5xl font-light tracking-tighter leading-tight italic">Territories</h2>
+              <h2 className="text-4xl sm:text-5xl font-light tracking-tighter leading-tight italic dark:text-white">Territories</h2>
             </div>
             <button onClick={() => navigate('/destinations')}
               className="text-[10px] font-black tracking-[0.4em] uppercase border-b border-primary pb-1.5 hover:text-primary transition-all flex items-center gap-2 shrink-0">
@@ -180,13 +180,13 @@ export default function HomePage() {
       </section>
 
       {/* ────────────────────────── 4. HOW IT WORKS ────────────────────────── */}
-      <section className="py-14 sm:py-20 md:py-28 px-4 sm:px-8 md:px-16 bg-surface-container-low border-t border-outline-variant/10">
+      <section className="py-14 sm:py-20 md:py-28 px-4 sm:px-8 md:px-16 bg-surface-container-low dark:bg-black border-t border-outline-variant/10 dark:border-white/5">
         <div className="max-w-6xl mx-auto">
           {/* Heading */}
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12 md:mb-16 animate-reveal-up">
             <div>
               <span className="text-primary text-[10px] font-black tracking-[0.6em] uppercase mb-3 block">The Process</span>
-              <h2 className="text-4xl sm:text-5xl font-light tracking-tighter leading-tight">
+              <h2 className="text-4xl sm:text-5xl font-light tracking-tighter leading-tight dark:text-white">
                 How We <span className="italic font-serif">Curate.</span>
               </h2>
             </div>
@@ -198,7 +198,7 @@ export default function HomePage() {
           {/* Steps */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
             {STEPS.map((s, i) => (
-              <div key={i} className="group bg-white rounded-2xl p-6 md:p-7 border border-outline-variant/10 shadow-sm hover:shadow-lg transition-all duration-500 flex flex-col gap-4 animate-reveal-up relative overflow-hidden"
+              <div key={i} className="group bg-surface dark:bg-white/5 rounded-2xl p-6 md:p-7 border border-outline-variant/10 dark:border-white/10 shadow-sm hover:shadow-lg transition-all duration-500 flex flex-col gap-4 animate-reveal-up relative overflow-hidden"
                 style={{ animationDelay: `${i * 0.08}s` }}>
                 {/* Step number (decorative bg) */}
                 <span className="absolute top-4 right-4 text-5xl font-black text-outline-variant/10 select-none group-hover:text-outline-variant/20 transition-colors duration-500 leading-none">{s.step}</span>
@@ -236,7 +236,7 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col items-center text-center mb-10 md:mb-14 animate-reveal-up">
             <span className="text-primary text-[10px] font-black tracking-[0.6em] uppercase mb-3 block">Curated Formats</span>
-            <h2 className="text-4xl sm:text-5xl font-light tracking-tighter leading-tight mb-3">
+            <h2 className="text-4xl sm:text-5xl font-light tracking-tighter leading-tight mb-3 dark:text-white">
               Experience <span className="italic font-serif">Categories.</span>
             </h2>
             <p className="text-sm font-light text-on-surface-variant opacity-60 max-w-md leading-relaxed">
@@ -290,7 +290,7 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col items-center text-center mb-10 md:mb-14 animate-reveal-up">
             <span className="text-primary text-[10px] font-black tracking-[0.7em] uppercase mb-3 block">The Portfolio</span>
-            <h2 className="text-4xl sm:text-5xl font-light tracking-tighter leading-tight mb-3">
+            <h2 className="text-4xl sm:text-5xl font-light tracking-tighter leading-tight mb-3 dark:text-white">
               Signature<br/><span className="italic font-serif">Expeditions.</span>
             </h2>
             <div className="h-px bg-outline-variant/30 w-24" />
@@ -341,7 +341,7 @@ export default function HomePage() {
           {tours.length > 0 && (
             <div className="text-center mt-12 animate-reveal-up">
               <button onClick={() => navigate('/tours')}
-                className="inline-flex items-center gap-2 border-2 border-black text-black px-8 py-3 rounded-full text-[10px] font-black tracking-[0.4em] uppercase hover:bg-black hover:text-white transition-all duration-300">
+                className="inline-flex items-center gap-2 border-2 border-on-surface dark:border-white text-on-surface dark:text-white px-8 py-3 rounded-full text-[10px] font-black tracking-[0.4em] uppercase hover:bg-on-surface dark:hover:bg-white hover:text-surface dark:hover:text-black transition-all duration-300">
                 View Full Portfolio <span className="material-symbols-outlined font-light text-sm">east</span>
               </button>
             </div>

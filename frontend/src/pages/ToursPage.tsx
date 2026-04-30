@@ -130,7 +130,7 @@ export default function ToursPage() {
             <div>
               <span className="text-[9px] font-black tracking-[0.6em] uppercase text-on-surface-variant/50 mb-1.5 block">Collections</span>
               <h1 className="text-4xl sm:text-5xl font-light tracking-tighter leading-tight mb-1 italic">
-                Curated <span className="not-italic font-black text-black">Expeditions.</span>
+                Curated <span className="not-italic font-black text-on-surface dark:text-white">Expeditions.</span>
               </h1>
               <p className="text-sm font-light text-on-surface-variant opacity-70 max-w-xl leading-relaxed">
                 A rigorous selection of cinematic journeys across the globe.
@@ -167,7 +167,7 @@ export default function ToursPage() {
         </div>
 
         {/* ── STICKY FILTER BAR ── */}
-        <section className="sticky top-14 md:top-[58px] bg-white/95 backdrop-blur-sm z-40 rounded-2xl border border-outline-variant/15 shadow-sm px-4 py-3 mb-7">
+        <section className="sticky top-14 md:top-[58px] bg-white/95 dark:bg-black/80 backdrop-blur-md z-40 rounded-2xl border border-outline-variant/15 dark:border-white/10 shadow-sm px-4 py-3 mb-7">
           <div className="flex flex-wrap items-center gap-4 md:gap-6">
 
             {/* Location breadcrumb */}
@@ -240,10 +240,10 @@ export default function ToursPage() {
               )}
 
               {/* View toggle */}
-              <div className="flex items-center border border-outline-variant/30 rounded-full p-1 gap-1 bg-white shadow-sm">
+              <div className="flex items-center border border-outline-variant/30 dark:border-white/10 rounded-full p-1 gap-1 bg-surface dark:bg-white/5 shadow-sm">
                 {(['grid', 'list'] as ViewMode[]).map(mode => (
                   <button key={mode} onClick={() => setViewMode(mode)}
-                    className={`flex items-center justify-center w-7 h-7 rounded-full transition-all duration-200 ${viewMode === mode ? 'bg-black text-white' : 'text-on-surface-variant/50 hover:text-black'}`}>
+                    className={`flex items-center justify-center w-7 h-7 rounded-full transition-all duration-200 ${viewMode === mode ? 'bg-on-surface dark:bg-white text-surface dark:text-black' : 'text-on-surface-variant/50 hover:text-black dark:hover:text-white'}`}>
                     <span className="material-symbols-outlined font-light text-base">{mode === 'grid' ? 'grid_view' : 'view_agenda'}</span>
                   </button>
                 ))}
@@ -309,7 +309,7 @@ export default function ToursPage() {
                     </div>
                     <h3 className="text-lg font-light tracking-tight mb-1 leading-tight group-hover:text-primary transition-colors duration-200">{tour.name}</h3>
                     <span className="text-[9px] font-black tracking-[0.3em] uppercase text-on-surface-variant/40 mb-2 block">{tour.category}</span>
-                    <button className="inline-flex items-center gap-1.5 text-[9px] font-black tracking-[0.3em] uppercase border-b border-black/20 pb-0.5 hover:border-black transition-all duration-200">
+                    <button className="inline-flex items-center gap-1.5 text-[9px] font-black tracking-[0.3em] uppercase border-b border-on-surface/20 dark:border-white/20 pb-0.5 hover:border-primary dark:hover:border-white transition-all duration-200 dark:text-white/60">
                       View Dossier <span className="material-symbols-outlined font-light text-sm">arrow_forward</span>
                     </button>
                   </div>

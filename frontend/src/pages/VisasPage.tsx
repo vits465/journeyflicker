@@ -98,7 +98,7 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
 
   return (
     <div
-      className="group relative rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-outline-variant/10 dark:border-white/5 bg-white dark:bg-[#111] flex flex-col h-full"
+      className="group relative rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-outline-variant/10 dark:border-white/5 bg-surface dark:bg-white/[0.03] flex flex-col h-full"
       style={{ animationDelay: `${(index % 3) * 0.08}s` }}
     >
       {/* ── Hero Image or Plain Header ── */}
@@ -530,7 +530,7 @@ export default function VisasPage() {
                 placeholder="Search country..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="pl-9 pr-4 py-2 text-sm border border-outline-variant/30 dark:border-white/10 rounded-full bg-white dark:bg-black focus:outline-none focus:ring-2 focus:ring-primary/30 dark:focus:ring-white/20 dark:text-white w-52"
+                className="pl-9 pr-4 py-2 text-sm border border-outline-variant/30 dark:border-white/10 rounded-full bg-surface dark:bg-white/5 focus:outline-none focus:ring-2 focus:ring-primary/30 dark:focus:ring-white/20 dark:text-white w-52"
               />
             </div>
           </div>

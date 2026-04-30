@@ -40,12 +40,12 @@ function SightseeingSlider({ items }: { items: NonNullable<Tour['sightseeing']> 
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {items.map((site, i) => (
-          <div key={i} className="bg-white border border-outline-variant/20 rounded-2xl p-5 hover:shadow-md transition-shadow group">
-            <div className="w-10 h-10 rounded-full bg-surface-container-low group-hover:bg-black group-hover:text-white transition-all flex items-center justify-center mb-3">
+          <div key={i} className="bg-surface dark:bg-white/5 border border-outline-variant/20 dark:border-white/10 rounded-2xl p-5 hover:shadow-md transition-shadow group">
+            <div className="w-10 h-10 rounded-full bg-surface-container-low dark:bg-white/10 group-hover:bg-on-surface dark:group-hover:bg-white group-hover:text-surface dark:group-hover:text-black transition-all flex items-center justify-center mb-3">
               <span className="material-symbols-outlined font-light text-xl">{site.icon || 'star'}</span>
             </div>
-            <h4 className="text-lg font-light tracking-tighter italic mb-1">{site.title}</h4>
-            <p className="text-sm font-light text-on-surface-variant leading-relaxed opacity-60">{site.description}</p>
+            <h4 className="text-lg font-light tracking-tighter italic mb-1 dark:text-white">{site.title}</h4>
+            <p className="text-sm font-light text-on-surface-variant dark:text-white/50 leading-relaxed opacity-60">{site.description}</p>
           </div>
         ))}
       </div>
@@ -97,7 +97,7 @@ function SightseeingSlider({ items }: { items: NonNullable<Tour['sightseeing']> 
       <div className="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-y-auto lg:max-h-[420px] lg:w-56 shrink-0 pr-1">
         {items.map((site, i) => (
           <button key={i} onClick={() => go(i)}
-            className={`shrink-0 flex lg:flex items-center gap-3 rounded-xl border p-2 transition-all text-left ${i === idx ? 'border-black bg-black/5 shadow-sm' : 'border-outline-variant/20 hover:border-black/30'}`}>
+            className={`shrink-0 flex lg:flex items-center gap-3 rounded-xl border p-2 transition-all text-left ${i === idx ? 'border-on-surface dark:border-white bg-on-surface/5 dark:bg-white/10 shadow-sm' : 'border-outline-variant/20 dark:border-white/5 hover:border-on-surface/30 dark:hover:border-white/30'}`}>
             {site.imageUrl ? (
               <img src={site.imageUrl} alt={site.title}
                 className={`w-12 h-12 lg:w-10 lg:h-10 object-cover rounded-lg shrink-0 transition-all duration-300 ${i === idx ? 'grayscale-0' : 'grayscale opacity-50'}`} />

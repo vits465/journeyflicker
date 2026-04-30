@@ -41,12 +41,12 @@ export default function AboutPage() {
         <div className="max-w-5xl mx-auto flex flex-col lg:flex-row gap-10 lg:gap-20 items-center">
           <div className="w-full lg:w-1/2 animate-reveal-up">
             <span className="text-[10px] font-bold tracking-[0.4em] text-on-surface-variant uppercase mb-3 block">Our Ethos</span>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tighter leading-tight text-on-surface">
-              Luxury is found in<br/><span className="italic font-serif opacity-40">Precision.</span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tighter leading-tight text-on-surface dark:text-white">
+              Luxury is found in<br/><span className="italic font-serif opacity-40 dark:opacity-20">Precision.</span>
             </h2>
           </div>
           <div className="w-full lg:w-1/2 space-y-6 animate-reveal-up" style={{ animationDelay: '0.15s' }}>
-            <p className="text-base font-serif italic text-primary/80 border-l-4 border-primary/20 pl-6 py-2 leading-relaxed">
+            <p className="text-base font-serif italic text-primary/80 dark:text-white border-l-4 border-primary/20 dark:border-white/20 pl-6 py-2 leading-relaxed">
               "We began with a simple observation: the modern traveler is overwhelmed by noise. Authentic exploration requires a curated lens."
             </p>
             <p className="text-sm font-light text-on-surface-variant leading-relaxed opacity-70">
@@ -57,13 +57,13 @@ export default function AboutPage() {
       </section>
 
       {/* ── MISSION BENTO ── */}
-      <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-8 md:px-16 bg-surface-container-low">
+      <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-8 md:px-16 bg-surface-container-low dark:bg-[#0a0a0a]">
         <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-5 auto-rows-[220px]">
           {/* Mission — spans 2 cols */}
-          <div className="sm:col-span-2 bg-white p-7 md:p-10 flex flex-col justify-end shadow-sm hover:shadow-xl transition-all duration-500 rounded-2xl group border border-outline-variant/5">
-            <span className="material-symbols-outlined text-primary text-3xl mb-4 group-hover:scale-110 transition-transform font-light">auto_awesome</span>
-            <span className="text-[9px] font-bold tracking-[0.4em] text-on-surface-variant uppercase mb-2 block">The Mission</span>
-            <h3 className="text-xl sm:text-2xl font-light tracking-tighter leading-snug">To redefine the digital travel experience through editorial precision.</h3>
+          <div className="sm:col-span-2 bg-surface dark:bg-white/5 p-7 md:p-10 flex flex-col justify-end shadow-sm hover:shadow-xl transition-all duration-500 rounded-2xl group border border-outline-variant/5 dark:border-white/10">
+            <span className="material-symbols-outlined text-primary dark:text-white text-3xl mb-4 group-hover:scale-110 transition-transform font-light">auto_awesome</span>
+            <span className="text-[9px] font-bold tracking-[0.4em] text-on-surface-variant dark:text-white/40 uppercase mb-2 block">The Mission</span>
+            <h3 className="text-xl sm:text-2xl font-light tracking-tighter leading-snug dark:text-white">To redefine the digital travel experience through editorial precision.</h3>
           </div>
           {/* Global network */}
           <div className="bg-black flex flex-col justify-center items-center text-center p-6 text-white shadow-xl rounded-2xl group relative overflow-hidden">
@@ -71,9 +71,9 @@ export default function AboutPage() {
             <p className="text-[10px] font-bold tracking-[0.5em] uppercase">Global Sanctuary<br/>Network</p>
           </div>
           {/* Vision */}
-          <div className="bg-white p-7 md:p-10 shadow-sm hover:shadow-xl transition-all duration-500 rounded-2xl flex flex-col justify-between border border-outline-variant/10">
-            <div className="text-3xl font-light italic font-serif">Vision</div>
-            <p className="text-sm font-light leading-relaxed text-on-surface-variant opacity-70">A world where journey is a curated masterpiece of quiet architectural beauty.</p>
+          <div className="bg-surface dark:bg-white/5 p-7 md:p-10 shadow-sm hover:shadow-xl transition-all duration-500 rounded-2xl flex flex-col justify-between border border-outline-variant/10 dark:border-white/10">
+            <div className="text-3xl font-light italic font-serif dark:text-white">Vision</div>
+            <p className="text-sm font-light leading-relaxed text-on-surface-variant dark:text-white/50 opacity-70">A world where journey is a curated masterpiece of quiet architectural beauty.</p>
           </div>
           {/* Image — spans 2 cols */}
           <div className="sm:col-span-2 relative overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all duration-700 group">
@@ -88,8 +88,8 @@ export default function AboutPage() {
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col items-center text-center mb-10 md:mb-14 animate-reveal-up">
             <span className="text-[10px] font-bold tracking-[0.4em] text-on-surface-variant uppercase mb-3 block">The Collective</span>
-            <h2 className="text-3xl sm:text-4xl font-light tracking-tighter leading-none italic opacity-25">Architects of Experience</h2>
-            <div className="h-px bg-outline-variant/30 w-24 mt-5" />
+            <h2 className="text-3xl sm:text-4xl font-light tracking-tighter leading-none italic opacity-25 dark:opacity-10 dark:text-white">Architects of Experience</h2>
+            <div className="h-px bg-outline-variant/30 dark:bg-white/10 w-24 mt-5" />
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-8">
             {team.map((member, i) => (
@@ -99,8 +99,8 @@ export default function AboutPage() {
                     alt={member.name} src={member.img} />
                 </div>
                 <div className="text-center px-2">
-                  <h5 className="text-base font-light tracking-tighter mb-1 leading-none">{member.name}</h5>
-                  <p className="text-[9px] font-bold tracking-[0.3em] text-primary uppercase">{member.role}</p>
+                  <h5 className="text-base font-light tracking-tighter mb-1 leading-none dark:text-white">{member.name}</h5>
+                  <p className="text-[9px] font-bold tracking-[0.3em] text-primary dark:text-white/60 uppercase">{member.role}</p>
                 </div>
               </div>
             ))}
