@@ -164,15 +164,10 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
           </div>
         )}
 
-        {/* Footer: Processing & Fee */}
-        <div className="mt-auto pt-6 border-t border-outline-variant/10 dark:border-white/5 grid grid-cols-2 gap-4">
+        <div className="mt-auto pt-6 border-t border-outline-variant/10 dark:border-white/5">
           <div className="bg-surface-container-lowest dark:bg-white/5 p-3 rounded-2xl border border-outline-variant/10 dark:border-white/10 text-center">
             <span className="text-[9px] text-on-surface-variant dark:text-white/40 uppercase font-bold tracking-widest block mb-1 opacity-60">Processing</span>
             <span className="text-sm font-semibold text-on-surface dark:text-white">{visa?.processing || '—'}</span>
-          </div>
-          <div className="bg-surface-container-lowest dark:bg-white/5 p-3 rounded-2xl border border-outline-variant/10 dark:border-white/10 text-center">
-            <span className="text-[9px] text-on-surface-variant dark:text-white/40 uppercase font-bold tracking-widest block mb-1 opacity-60">Fee</span>
-            <span className="text-sm font-semibold text-on-surface dark:text-white">{visa?.fee || '—'}</span>
           </div>
         </div>
       </div>

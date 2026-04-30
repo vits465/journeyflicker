@@ -8,7 +8,7 @@ import { Preloader } from '../components/Preloader';
 import { DocxUploader } from '../components/DocxUploader';
 
 const emptyForm: Partial<Visa> = {
-  country: '', processing: '', difficulty: 'Moderate', fee: '',
+  country: '', processing: '', difficulty: 'Moderate',
   heroImageUrl: '', description: '', visaType: '',
   documents: [], requirements: [],
 };
@@ -24,7 +24,6 @@ function parseVisaText(raw: string): Partial<Visa> {
   const country = text.match(/(?:COUNTRY|DESTINATION|FOR)\s*[:\-]?\s*([^\n]+)/i)?.[1].trim() || '';
   const visaType = text.match(/(?:VISA TYPE|CATEGORY)\s*[:\-]?\s*([^\n]+)/i)?.[1].trim() || '';
   const processing = text.match(/(?:PROCESSING|DURATION|TIME)\s*[:\-]?\s*([^\n]+)/i)?.[1].trim() || '';
-  const fee = text.match(/(?:FEE|PRICE|COST)\s*[:\-]?\s*([^\n]+)/i)?.[1].trim() || '';
   const description = text.match(/OVERVIEW\s*[:\-]?\s*([^]*?)(?=DOCUMENTS|REQUIREMENTS|$) /i)?.[1].trim() || '';
 
   const documents: string[] = [];
@@ -46,7 +45,7 @@ function parseVisaText(raw: string): Partial<Visa> {
     });
   }
 
-  return { country, visaType, processing, fee, description, documents, requirements };
+  return { country, visaType, processing, description, documents, requirements };
 }
 
 const inputCls = 'w-full px-3 py-2 border border-outline-variant/40 rounded-lg text-sm focus:outline-none focus:border-primary bg-surface-container-low text-on-surface transition-colors';
@@ -65,6 +64,7 @@ export default function AdminVisas() {
   const [selectMode, setSelectMode] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [importText, setImportText] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Handle cross-page import from dashboard
   useEffect(() => {
@@ -102,10 +102,26 @@ export default function AdminVisas() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
     try {
-      editingId ? await api.updateVisa(editingId, formData) : await api.createVisa(formData);
-      setFormData(emptyForm); setEditingId(null); loadVisas();
-    } catch (err) { console.error(err); }
+      if (editingId) {
+        await api.updateVisa(editingId, formData);
+        alert('✅ Visa dossier updated successfully.');
+      } else {
+        await api.createVisa(formData);
+        alert('✅ New visa dossier created.');
+      }
+      setFormData(emptyForm); 
+      setEditingId(null); 
+      loadVisas();
+    } catch (err: any) { 
+      console.error(err); 
+      alert(`❌ Failed to save visa: ${err.message || 'Unknown error'}`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleEdit = (visa: Visa) => { setFormData({ ...visa }); setEditingId(visa.id); };
@@ -281,11 +297,6 @@ export default function AdminVisas() {
                   className={inputCls} placeholder="e.g., 2–4 weeks" required />
               </div>
               <div>
-                <label className={labelCls}>Estimated Fee *</label>
-                <input type="text" value={formData.fee || ''} onChange={e => upd({ fee: e.target.value })}
-                  className={inputCls} placeholder="e.g., $100–$150" required />
-              </div>
-              <div>
                 <label className={labelCls}>Difficulty *</label>
                 <select value={formData.difficulty || 'Moderate'} onChange={e => upd({ difficulty: e.target.value })} className={inputCls}>
                   <option>Easy</option>
@@ -381,8 +392,20 @@ export default function AdminVisas() {
 
             {/* Submit */}
             <div className="flex flex-wrap gap-3 pt-4 border-t border-outline-variant/10">
-              <button type="submit" className="px-6 py-2.5 bg-primary text-on-primary rounded-full text-xs font-bold tracking-widest uppercase hover:opacity-90 transition-colors shadow-md">
-                {editingId ? 'Update' : 'Create'} Visa
+              <button 
+                type="submit" 
+                disabled={isSubmitting}
+                className={`px-6 py-2.5 bg-primary text-on-primary rounded-full text-xs font-bold tracking-widest uppercase transition-all shadow-md flex items-center gap-2 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'}`}
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  editingId ? 'Update' : 'Create'
+                )}
+                {!isSubmitting && <span className="material-symbols-outlined text-sm">rocket_launch</span>}
               </button>
               {editingId && (
                 <button type="button" onClick={() => { setEditingId(null); setFormData(emptyForm); }}
@@ -459,8 +482,6 @@ export default function AdminVisas() {
                   </div>
                   <div className="flex items-center gap-3 text-xs text-on-surface-variant">
                     <span>{visa.processing}</span>
-                    <span>·</span>
-                    <span>{visa.fee}</span>
                     {visa.documents && visa.documents.length > 0 && (
                       <><span>·</span><span>{visa.documents.length} docs</span></>
                     )}

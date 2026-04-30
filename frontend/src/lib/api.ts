@@ -100,7 +100,6 @@ export type Visa = {
   country: string;
   processing: string;
   difficulty: string;
-  fee: string;
   heroImageUrl?: string;
   description?: string;
   visaType?: string;
