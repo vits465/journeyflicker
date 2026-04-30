@@ -5,10 +5,10 @@
   "scripts": {
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
-    "build:admin": "cd admin && npm install && npm run build",
+    "build:admin": "cd admin && npm run build",
     "build": "npm run build:admin",
-    "vercel-build": "npm run build",
-    "postinstall": "npm run build:admin"
+    "vercel-build": "cd admin && npm install && npm run build",
+    "postinstall": ""
   },
   "dependencies": {
     "@vercel/kv": "^3.0.0",
