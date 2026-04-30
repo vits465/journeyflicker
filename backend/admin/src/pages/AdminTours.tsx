@@ -52,8 +52,12 @@ const S = `
 
 // ── Smart Word/Quotation Text Parser ──────────────────────────────────────────
 function parseQuotationText(raw: string): Partial<Tour> {
-  // Normalize newlines
-  const text = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim() + '\n';
+  // Normalize characters and newlines
+  const text = raw
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    .replace(/\u00A0/g, ' ') // Replace non-breaking spaces
+    .trim() + '\n';
 
   // Extract tour name
   const destMatch = text.match(/DESTINATION\s*[:\-]?\s*([^\n]+)/i);
@@ -72,9 +76,9 @@ function parseQuotationText(raw: string): Partial<Tour> {
   const sightseeing: Tour['sightseeing'] = [];
   const seenLandmarks = new Set<string>();
 
-  // Extract itinerary
-  const dayMatches = [...text.matchAll(/Day\s*(\d+)\s*[:\-]?\s*([^\n]*)\n([^]*?)(?=Day\s*\d+|Above Package|Package Includes|Package Excludes|Logistics|$)/gi)];
-  const itinerary = dayMatches.slice(0, 25).map(m => {
+  // Extract itinerary - Ultra-flexible Day N pattern
+  const dayMatches = [...text.matchAll(/(?:^|\n)Day\s*(\d+)\s*[:\-]?\s*([^\n]*)\n([^]*?)(?=(?:\nDay\s*\d+)|Above Package|Package Includes|Package Excludes|Logistics|$)/gi)];
+  const itinerary = dayMatches.slice(0, 31).map(m => {
     const dayNum = m[1];
     const title = m[2].trim();
     const content = m[3].trim();
@@ -106,7 +110,6 @@ function parseQuotationText(raw: string): Partial<Tour> {
     const cleanDesc = content
       .replace(/Accommodation\s*[:\-]\s*[^\n]*/gi, '')
       .replace(/Schedule\s*[:\-]\s*[^\n]*/gi, '')
-      .replace(/\([BLD,\s/-]+\)/gi, '')
       .trim();
 
     const mealsMatch = content.match(/\(([BLD,\s/-]+)\)/i);
@@ -116,7 +119,7 @@ function parseQuotationText(raw: string): Partial<Tour> {
 
     return {
       title: `Day ${dayNum}${title ? ': ' + title : ''}`,
-      description: cleanDesc || content.split('\n')[0], // Fallback to first line if everything was landmarks
+      description: cleanDesc || content,
       meals,
       accommodation,
       schedule,
