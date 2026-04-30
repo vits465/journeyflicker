@@ -64,9 +64,14 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
   const documents = Array.isArray(visa?.documents) ? visa.documents : [];
   const hasDetails = requirements.length > 0 || documents.length > 0;
 
+  const handlePrint = () => {
+    // Create a temporary hidden print-friendly version of JUST this visa
+    window.print();
+  };
+
   return (
     <div
-      className="group relative rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-outline-variant/10 dark:border-white/5 bg-surface dark:bg-white/[0.03] flex flex-col h-full"
+      className="group relative rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-outline-variant/10 dark:border-white/5 bg-surface dark:bg-white/[0.03] flex flex-col h-full print:shadow-none print:border-none print:rounded-none"
       style={{ animationDelay: `${(index % 3) * 0.08}s` }}
     >
       {/* Background Image Strip */}
@@ -103,14 +108,32 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
 
       {/* Core Info */}
       <div className="px-6 py-6 flex-1 flex flex-col gap-6">
+        <div className="flex items-start justify-between">
+          <div>
+            {visa?.visaType && (
+              <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-on-surface-variant/50 dark:text-white/30 mb-2 block">
+                {visa.visaType}
+              </span>
+            )}
+          </div>
+          <button 
+            onClick={handlePrint}
+            className="w-8 h-8 rounded-full bg-surface-container-low dark:bg-white/5 flex items-center justify-center text-on-surface-variant hover:bg-primary hover:text-white transition-all shadow-sm print:hidden group/print"
+            title="Print Dossier"
+          >
+            <span className="material-symbols-outlined text-[18px]">print</span>
+          </button>
+        </div>
+
+        {/* Print-only Official Header */}
+        <div className="hidden print:block mb-8 border-b-2 border-black pb-4">
+          <h1 className="text-3xl font-black uppercase tracking-tighter">Official Visa Dossier</h1>
+          <p className="text-xs uppercase tracking-widest font-bold opacity-60">JourneyFlicker Intelligence Bureau · Global Mobility Division</p>
+        </div>
+
         <div>
-          {visa?.visaType && (
-            <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-on-surface-variant/50 dark:text-white/30 mb-2 block">
-              {visa.visaType}
-            </span>
-          )}
           {visa?.description && (
-            <p className="text-sm font-light text-on-surface-variant dark:text-white/60 leading-relaxed">
+            <p className="text-sm font-light text-on-surface-variant dark:text-white/60 leading-relaxed print:text-black">
               {visa.description}
             </p>
           )}
@@ -150,11 +173,17 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
 
                 {/* Requirements nested here */}
                 {requirements.length > 0 && (
-                  <div className="space-y-3 pt-4 border-t border-outline-variant/10">
-                    <p className="text-[9px] font-bold tracking-widest text-primary/60 uppercase">Dossier Requirements</p>
-                    <div className="space-y-2">
+                  <div className="space-y-3 pt-4 border-t border-outline-variant/10 print:border-black/20">
+                    <p className="text-[9px] font-bold tracking-widest text-primary/60 dark:text-white/60 uppercase print:text-black">Dossier Requirements</p>
+                    <div className="space-y-2 print:space-y-4">
                       {requirements.map((req, i) => (
-                        <RequirementAccordion key={i} label={req || ''} index={i} />
+                        <div key={i} className="print:block">
+                          <RequirementAccordion label={req || ''} index={i} />
+                          {/* Force detail reveal in print */}
+                          <div className="hidden print:block mt-2 pl-4 border-l-2 border-black/10">
+                            <p className="text-sm italic">{req}</p>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -249,6 +278,19 @@ export default function VisasPage() {
 
   return (
     <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          nav, header, footer, .print\\:hidden, button, .no-print { display: none !important; }
+          body { background: white !important; color: black !important; padding: 2cm !important; margin: 0 !important; }
+          .group { page-break-inside: avoid; border: none !important; box-shadow: none !important; }
+          .max-h-0 { max-h: none !important; opacity: 1 !important; }
+          .rounded-3xl, .rounded-2xl, .rounded-xl { border-radius: 0 !important; }
+          img { display: none !important; }
+          .bg-surface, .bg-white, .bg-surface-container-low, .dark\\:bg-\\[\\#0a0a0a\\] { background: transparent !important; }
+          * { color: black !important; text-shadow: none !important; border-color: #eee !important; }
+          h1, h2, h3 { color: black !important; margin-top: 1rem; }
+        }
+      `}} />
       <SEO pageId="visas" />
       {/* ── HERO ── */}
       <HeroSlider
