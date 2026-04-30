@@ -175,15 +175,9 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
                 {requirements.length > 0 && (
                   <div className="space-y-3 pt-4 border-t border-outline-variant/10 print:border-black/20">
                     <p className="text-[9px] font-bold tracking-widest text-primary/60 dark:text-white/60 uppercase print:text-black">Dossier Requirements</p>
-                    <div className="space-y-2 print:space-y-4">
+                    <div className="space-y-2 print:space-y-3">
                       {requirements.map((req, i) => (
-                        <div key={i} className="print:block">
-                          <RequirementAccordion label={req || ''} index={i} />
-                          {/* Force detail reveal in print */}
-                          <div className="hidden print:block mt-2 pl-4 border-l-2 border-black/10">
-                            <p className="text-sm italic">{req}</p>
-                          </div>
-                        </div>
+                        <RequirementAccordion key={i} label={req || ''} index={i} />
                       ))}
                     </div>
                   </div>
@@ -281,14 +275,21 @@ export default function VisasPage() {
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           nav, header, footer, .print\\:hidden, button, .no-print { display: none !important; }
-          body { background: white !important; color: black !important; padding: 2cm !important; margin: 0 !important; }
+          body { background: white !important; color: black !important; padding: 1cm !important; margin: 0 !important; }
           .group { page-break-inside: avoid; border: none !important; box-shadow: none !important; }
-          .max-h-0 { max-h: none !important; opacity: 1 !important; }
-          .rounded-3xl, .rounded-2xl, .rounded-xl { border-radius: 0 !important; }
-          img { display: none !important; }
-          .bg-surface, .bg-white, .bg-surface-container-low, .dark\\:bg-\\[\\#0a0a0a\\] { background: transparent !important; }
-          * { color: black !important; text-shadow: none !important; border-color: #eee !important; }
+          
+          /* Force Accordions Open in Print */
+          .max-h-0 { max-h: none !important; opacity: 1 !important; display: block !important; }
+          .max-h-60 { max-h: none !important; }
+          
+          .rounded-3xl, .rounded-2xl, .rounded-xl { border-radius: 12px !important; }
+          img { display: block !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .bg-surface, .bg-white, .bg-surface-container-low, .dark\\:bg-\\[\\#0a0a0a\\] { background: white !important; }
+          * { color: black !important; text-shadow: none !important; border-color: #ddd !important; }
           h1, h2, h3 { color: black !important; margin-top: 1rem; }
+          
+          /* Image Strip Fix */
+          .h-32 { height: 180px !important; }
         }
       `}} />
       <SEO pageId="visas" />
