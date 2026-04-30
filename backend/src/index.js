@@ -519,6 +519,7 @@ app.put("/api/destinations/:id", requireCRUD, async (req, res) => {
   res.json(db.destinations[idx]);
 });
 app.delete("/api/destinations/:id", requireCRUD, async (req, res) => {
+  const db = await readDb();
   const deleted = db.destinations.find(d => d.id === req.params.id);
   db.destinations = db.destinations.filter(d => d.id !== req.params.id);
   await writeDb(db); 
@@ -570,6 +571,7 @@ app.put("/api/tours/:id", requireCRUD, async (req, res) => {
   res.json(db.tours[idx]);
 });
 app.delete("/api/tours/:id", requireCRUD, async (req, res) => {
+  const db = await readDb();
   const deleted = db.tours.find(t => t.id === req.params.id);
   db.tours = db.tours.filter(t => t.id !== req.params.id);
   await writeDb(db); 
@@ -601,6 +603,7 @@ app.put("/api/visas/:id", requireCRUD, async (req, res) => {
   res.json(db.visas[idx]);
 });
 app.delete("/api/visas/:id", requireCRUD, async (req, res) => {
+  const db = await readDb();
   const deleted = db.visas.find(v => v.id === req.params.id);
   db.visas = db.visas.filter(v => v.id !== req.params.id);
   await writeDb(db); 
