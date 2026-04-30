@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import type { Tour } from '../lib/api';
 import { api } from '../lib/api';
 import { ImageUploader } from '../components/ImageUploader';
