@@ -250,14 +250,23 @@ export default function AdminDashboard() {
                     </Link>
                     <CSVUploader type="destination" onUploadComplete={loadAll} />
                     <CSVUploader type="tour" onUploadComplete={loadAll} />
-                    <DocxUploader 
-                      label="Import Tour Doc" 
-                      onParsed={(text) => navigate('/tours', { state: { importText: text } })} 
-                    />
-                    <DocxUploader 
-                      label="Import Dest Doc" 
-                      onParsed={(text) => navigate('/destinations', { state: { importText: text } })} 
-                    />
+                    <div className="col-span-full h-px bg-outline-variant/10 my-1" />
+                    <div className="col-span-full space-y-2">
+                      <p className="text-[9px] font-black tracking-[0.2em] uppercase text-primary/60 px-1 flex items-center gap-2">
+                        <span className="material-symbols-outlined text-xs">auto_awesome</span>
+                        AI Smart Import
+                      </p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <DocxUploader 
+                          label="Tour from Doc" 
+                          onParsed={(text) => navigate('/tours', { state: { importText: text } })} 
+                        />
+                        <DocxUploader 
+                          label="Dest from Doc" 
+                          onParsed={(text) => navigate('/destinations', { state: { importText: text } })} 
+                        />
+                      </div>
+                    </div>
                   </>
                 )}
               </div>

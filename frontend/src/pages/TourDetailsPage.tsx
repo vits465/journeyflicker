@@ -124,25 +124,46 @@ function ItineraryDay({ day, index, total }: { day: NonNullable<Tour['itinerary'
   // Helper to parse description for bullet points and format them
   const renderDescription = (text: string) => {
     if (!text) return null;
-    const lines = text.split('\n');
-    return lines.map((line, i) => {
-      const trimmed = line.trim();
-      if (trimmed.startsWith('•')) {
-        return (
-          <div key={i} className="mt-4 mb-2 pl-4 border-l-2 border-primary/20 bg-primary/[0.02] p-4 rounded-r-xl">
-            <h5 className="text-sm font-bold tracking-tight text-on-surface mb-1 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-              {trimmed.replace('•', '').trim()}
-            </h5>
-          </div>
-        );
-      }
-      return (
-        <p key={i} className={`text-sm font-light text-on-surface-variant leading-relaxed opacity-70 ${i > 0 ? 'mt-2' : ''}`}>
-          {trimmed}
-        </p>
-      );
-    });
+    
+    const [isExpanded, setIsExpanded] = useState(false);
+    const CHAR_LIMIT = 280; // Reasonable limit before showing "Show More"
+    
+    const needsTruncation = text.length > CHAR_LIMIT;
+    const displayText = isExpanded ? text : text.slice(0, CHAR_LIMIT);
+
+    const lines = displayText.split('\n');
+    return (
+      <>
+        {lines.map((line, i) => {
+          const trimmed = line.trim();
+          if (trimmed.startsWith('•')) {
+            return (
+              <div key={i} className="mt-4 mb-2 pl-4 border-l-2 border-primary/20 bg-primary/[0.02] p-4 rounded-r-xl">
+                <h5 className="text-sm font-bold tracking-tight text-on-surface mb-1 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  {trimmed.replace('•', '').trim()}
+                </h5>
+              </div>
+            );
+          }
+          return (
+            <p key={i} className={`text-sm font-light text-on-surface-variant leading-relaxed opacity-70 ${i > 0 ? 'mt-2' : ''}`}>
+              {trimmed}
+            </p>
+          );
+        })}
+        {needsTruncation && (
+          <button 
+            onClick={(e) => { e.stopPropagation(); setIsExpanded(!isExpanded); }}
+            className="mt-4 flex items-center gap-2 text-[10px] font-black tracking-[0.3em] uppercase text-black hover:text-primary transition-all group/more"
+          >
+            <span className="w-6 h-px bg-black group-hover/more:bg-primary transition-all" />
+            {isExpanded ? 'Show Less' : 'Show Full Details'}
+            <span className={`material-symbols-outlined text-xs transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>expand_more</span>
+          </button>
+        )}
+      </>
+    );
   };
 
   return (
