@@ -80,8 +80,26 @@ function parseQuotationText(raw: string): Partial<Tour> {
   const dayMatches = [...text.matchAll(/(?:^|\n)Day\s*(\d+)\s*[:\-]?\s*([^\n]*)\n([^]*?)(?=(?:\nDay\s*\d+)|Above Package|Package Includes|Package Excludes|Logistics|$)/gi)];
   const itinerary = dayMatches.slice(0, 31).map(m => {
     const dayNum = m[1];
-    const title = m[2].trim();
-    const content = m[3].trim();
+    const fullFirstLine = m[2].trim();
+    const restOfContent = m[3].trim();
+    
+    // Smart split: If the first line is very long, it's likely description text merged with the title
+    let title = fullFirstLine;
+    let descriptionPrefix = '';
+    
+    if (fullFirstLine.length > 60 || fullFirstLine.includes('.') || fullFirstLine.includes('  ')) {
+      const splitPoint = fullFirstLine.match(/[:\-.]\s| {2,}/);
+      if (splitPoint && splitPoint.index !== undefined) {
+        title = fullFirstLine.substring(0, splitPoint.index).trim();
+        descriptionPrefix = fullFirstLine.substring(splitPoint.index + splitPoint[0].length).trim() + '\n';
+      } else if (fullFirstLine.length > 40) {
+        // Fallback for long lines without clear separators
+        title = fullFirstLine.substring(0, 40).trim() + '...';
+        descriptionPrefix = fullFirstLine + '\n';
+      }
+    }
+
+    const content = descriptionPrefix + restOfContent;
     
     const accMatch = content.match(/Accommodation\s*[:\-]\s*([^\n]*)/i);
     const schMatch = content.match(/Schedule\s*[:\-]\s*([^\n]*)/i);
