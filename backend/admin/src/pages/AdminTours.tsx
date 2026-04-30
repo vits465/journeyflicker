@@ -177,6 +177,8 @@ function parseQuotationText(raw: string): Partial<Tour> {
     sightseeing: sightseeing.slice(0, 12), // Keep up to 12 top landmarks
     visualArchive: [], departureWindows: [], maxGuests: 8, heroImageUrl: '',
   };
+}
+
 export default function AdminTours() {
   const { canCRUD } = useAdminAuth();
   const location = useLocation();
