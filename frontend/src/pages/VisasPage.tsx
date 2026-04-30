@@ -19,32 +19,24 @@ const diffDot = (d: string) =>
 
 const DEFAULT_VISA_BG = 'https://images.unsplash.com/photo-1544016768-982d1554f0b9?q=80&w=1974&auto=format&fit=crop';
 
-// Sub-component: Handles long requirement detail text with Read More toggle
+// Sub-component: Simple requirement detail text
 function RequirementRow({ label, detail }: { label: string; detail: string }) {
-  const [expanded, setExpanded] = useState(false);
-  const isLong = detail.length > 120;
   return (
     <div className="flex flex-col gap-1 text-sm pb-3 border-b border-outline-variant/5 dark:border-white/5 last:border-0 last:pb-0">
       <span className="font-semibold text-on-surface dark:text-white">{label}</span>
       <span className="font-light text-on-surface-variant dark:text-white/60 leading-relaxed">
-        {isLong && !expanded ? `${detail.slice(0, 120)}…` : detail}
+        {detail}
       </span>
-      {isLong && (
-        <button
-          onClick={() => setExpanded(e => !e)}
-          className="text-[10px] font-bold text-primary/70 hover:text-primary transition-colors text-left mt-0.5 uppercase tracking-wide"
-        >
-          {expanded ? 'Show Less ▲' : 'Read More ▼'}
-        </button>
-      )}
     </div>
   );
 }
 
 // Hardened Visa Card — crash-proof with safe array/object guards
 function VisaCard({ visa, index }: { visa: Visa; index: number }) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const requirements = Array.isArray(visa?.requirements) ? visa.requirements : [];
   const documents = Array.isArray(visa?.documents) ? visa.documents : [];
+  const hasDetails = requirements.length > 0 || documents.length > 0;
 
   return (
     <div
@@ -98,35 +90,50 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
           )}
         </div>
 
-        {/* Documents */}
-        {documents.length > 0 && (
-          <div>
-            <p className="text-[10px] font-black tracking-[0.4em] uppercase text-on-surface-variant/50 mb-3 border-b border-outline-variant/10 pb-2">
-              📄 Required Documents
-            </p>
-            <ul className="space-y-3">
-              {documents.map((doc, i) => (
-                <li key={i} className="flex items-start gap-3 text-sm font-light text-on-surface-variant dark:text-white/60 leading-relaxed">
-                  <span className="w-5 h-5 rounded-full bg-primary/5 dark:bg-white/5 text-primary dark:text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 border border-primary/10 dark:border-white/10">
-                    {i + 1}
-                  </span>
-                  {doc || '—'}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        {/* Unified Collapsible Entry Protocol */}
+        {hasDetails && (
+          <div className={`rounded-2xl border transition-all duration-500 overflow-hidden ${isExpanded ? 'border-primary/20 bg-primary/[0.02] dark:bg-white/[0.02]' : 'border-outline-variant/10 bg-surface-container-lowest dark:bg-white/5'}`}>
+            <button 
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="w-full px-5 py-4 flex items-center justify-between group/btn"
+            >
+              <span className="text-[10px] font-black tracking-[0.4em] uppercase text-on-surface-variant/60 dark:text-white/40">
+                ✅ Entry Protocol
+              </span>
+              <div className={`w-7 h-7 rounded-full border border-outline-variant/20 flex items-center justify-center transition-all duration-500 ${isExpanded ? 'bg-primary text-white border-primary' : 'group-hover/btn:border-primary/50'}`}>
+                <span className={`material-symbols-outlined text-sm transition-transform duration-500 ${isExpanded ? 'rotate-180' : ''}`}>expand_more</span>
+              </div>
+            </button>
 
-        {/* Requirements */}
-        {requirements.length > 0 && (
-          <div>
-            <p className="text-[10px] font-black tracking-[0.4em] uppercase text-on-surface-variant/50 mb-3 border-b border-outline-variant/10 pb-2">
-              ✅ Key Requirements
-            </p>
-            <div className="space-y-3">
-              {requirements.map((req, i) => (
-                <RequirementRow key={i} label={req?.label || '—'} detail={req?.detail || '—'} />
-              ))}
+            <div className={`transition-all duration-700 ease-[cubic-bezier(0.2,1,0.3,1)] ${isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+              <div className="px-5 pb-6 pt-2 space-y-6">
+                {/* Documents nested here */}
+                {documents.length > 0 && (
+                  <div className="space-y-3">
+                    <p className="text-[9px] font-bold tracking-widest text-primary/60 uppercase">Documentation</p>
+                    <ul className="space-y-3">
+                      {documents.map((doc, i) => (
+                        <li key={i} className="flex items-start gap-3 text-sm font-light text-on-surface-variant dark:text-white/60 leading-relaxed italic">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary/40 mt-2 shrink-0" />
+                          {doc || '—'}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {/* Requirements nested here */}
+                {requirements.length > 0 && (
+                  <div className="space-y-3 pt-4 border-t border-outline-variant/10">
+                    <p className="text-[9px] font-bold tracking-widest text-primary/60 uppercase">Critical Requirements</p>
+                    <div className="space-y-3">
+                      {requirements.map((req, i) => (
+                        <RequirementRow key={i} label={req?.label || '—'} detail={req?.detail || '—'} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
