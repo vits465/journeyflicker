@@ -259,15 +259,15 @@ export default function AdminDashboard() {
                       <div className="grid grid-cols-2 gap-2">
                         <DocxUploader 
                           label="Tour from Doc" 
-                          onParsed={(text) => navigate('/tours', { state: { importText: text } })} 
+                          onParsed={(text: string) => navigate('/tours', { state: { importText: text } })} 
                         />
                         <DocxUploader 
                           label="Dest from Doc" 
-                          onParsed={(text) => navigate('/destinations', { state: { importText: text } })} 
+                          onParsed={(text: string) => navigate('/destinations', { state: { importText: text } })} 
                         />
                         <DocxUploader 
                           label="Visa from Doc" 
-                          onParsed={(text) => navigate('/visas', { state: { importText: text } })} 
+                          onParsed={(text: string) => navigate('/visas', { state: { importText: text } })} 
                         />
                       </div>
                     </div>

@@ -5,6 +5,7 @@ import { api, uploadImage } from '../lib/api';
 import { useAdminAuth } from '../lib/adminAuth';
 import { ImageUploader } from '../components/ImageUploader';
 import { Preloader } from '../components/Preloader';
+import { DocxUploader } from '../components/DocxUploader';
 
 const emptyForm: Partial<Visa> = {
   country: '', processing: '', difficulty: 'Moderate', fee: '',
@@ -224,7 +225,7 @@ export default function AdminVisas() {
             </div>
             
             <DocxUploader 
-              onParsed={(text) => setImportText(text)} 
+              onParsed={(text: string) => setImportText(text)} 
               label="Upload Word Document (.docx)"
               className="mb-4"
             />
