@@ -12,6 +12,50 @@ const emptyForm: Partial<Visa> = {
   documents: [], requirements: [],
 };
 
+// ── Smart Visa Document Parser ──────────────────────────────────────────────
+function parseVisaText(raw: string): Partial<Visa> {
+  const text = raw
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    .replace(/\u00A0/g, ' ') 
+    .trim() + '\n';
+  
+  const country = text.match(/(?:COUNTRY|DESTINATION|FOR)\s*[:\-]?\s*([^\n]+)/i)?.[1].trim() || '';
+  const visaType = text.match(/(?:VISA TYPE|CATEGORY)\s*[:\-]?\s*([^\n]+)/i)?.[1].trim() || '';
+  const processing = text.match(/(?:PROCESSING|DURATION|TIME)\s*[:\-]?\s*([^\n]+)/i)?.[1].trim() || '';
+  const fee = text.match(/(?:FEE|PRICE|COST)\s*[:\-]?\s*([^\n]+)/i)?.[1].trim() || '';
+  const description = text.match(/OVERVIEW\s*[:\-]?\s*([^]*?)(?=DOCUMENTS|REQUIREMENTS|$) /i)?.[1].trim() || '';
+
+  const documents: string[] = [];
+  const docsMatch = text.match(/(?:DOCUMENTS|REQUIRED DOCUMENTS|CHECKLIST)\s*[:\-]?\s*([^]*?)(?=REQUIREMENTS|FEE|PROCESSING|COST|$)/i);
+  if (docsMatch) {
+    const bullets = docsMatch[1].match(/(?:^|\n)\s*[•\-\d.]+\s*([^\n]+)/gm) || [];
+    bullets.forEach(b => {
+      const t = b.replace(/^[\s•\-\d.]+/, '').trim();
+      if (t.length > 2) documents.push(t);
+    });
+  }
+
+  const requirements: Visa['requirements'] = [];
+  const reqsMatch = text.match(/(?:REQUIREMENTS|KEY REQUIREMENTS|CRITERIA)\s*[:\-]?\s*([^]*?)(?=DOCUMENTS|FEE|PROCESSING|COST|$)/i);
+  if (reqsMatch) {
+    const lines = reqsMatch[1].split('\n').filter(l => l.trim().length > 3);
+    lines.forEach(line => {
+      const parts = line.split(/[:\-]/);
+      if (parts.length >= 2) {
+        requirements.push({ 
+          label: parts[0].replace(/^[\s•\-\d.]+/, '').trim(), 
+          detail: parts.slice(1).join(':').trim() 
+        });
+      } else {
+         requirements.push({ label: 'Requirement', detail: line.replace(/^[\s•\-\d.]+/, '').trim() });
+      }
+    });
+  }
+
+  return { country, visaType, processing, fee, description, documents, requirements };
+}
+
 const inputCls = 'w-full px-3 py-2 border border-outline-variant/40 rounded-lg text-sm focus:outline-none focus:border-primary bg-surface-container-low text-on-surface transition-colors';
 const labelCls = 'block text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.15em] mb-1.5';
 
@@ -28,7 +72,20 @@ export default function AdminVisas() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [selectMode, setSelectMode] = useState(false);
   const [isDocUploading, setIsDocUploading] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+  const [importText, setImportText] = useState('');
   const docInputRef = useRef<HTMLInputElement>(null);
+
+  // Handle cross-page import from dashboard
+  useEffect(() => {
+    const state = location.state as { importText?: string };
+    if (state?.importText) {
+      const parsed = parseVisaText(state.importText);
+      setFormData(prev => ({ ...prev, ...parsed }));
+      // Clear state to prevent re-importing on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     loadVisas();
@@ -141,7 +198,7 @@ export default function AdminVisas() {
     d === 'Easy' ? 'bg-green-50 text-green-700' : d === 'Moderate' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700';
 
   return (
-    <div className="space-y-6 w-full max-w-4xl mx-auto pb-12">
+    <div className="space-y-6 w-full max-w-4xl mx-auto pb-12" id="vtop">
       {!canCRUD && (
         <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-700 text-xs font-semibold">
           <span className="material-symbols-outlined text-base">visibility</span>
@@ -149,12 +206,85 @@ export default function AdminVisas() {
         </div>
       )}
 
+      {/* Import Modal */}
+      {showImport && (
+        <div style={{ position:'fixed', inset:0, zIndex:1000, background:'rgba(0,0,0,0.6)', backdropFilter:'blur(4px)', display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
+          <div className="bg-surface border border-outline-variant shadow-2xl" style={{ borderRadius:20, padding:28, maxWidth:680, width:'100%' }}>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                <div style={{ width:36, height:36, background:'var(--color-on-surface)', borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                  <span className="material-symbols-outlined" style={{ color:'var(--color-surface)', fontSize:18 }}>description</span>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-on-surface mb-1">Import Visa Dossier</h3>
+                  <p className="text-[10px] text-on-surface-variant leading-relaxed uppercase tracking-widest font-bold opacity-60">Upload .docx or paste visa requirements.</p>
+                </div>
+              </div>
+              <button onClick={() => setShowImport(false)} className="text-on-surface-variant hover:text-on-surface transition-colors" style={{ background:'none', border:'none', cursor:'pointer', fontSize:22 }}>×</button>
+            </div>
+            
+            <DocxUploader 
+              onParsed={(text) => setImportText(text)} 
+              label="Upload Word Document (.docx)"
+              className="mb-4"
+            />
+
+            <textarea
+              value={importText}
+              onChange={e => setImportText(e.target.value)}
+              className="w-full h-48 px-4 py-3 border-2 border-outline-variant/30 rounded-2xl text-[11px] font-mono focus:border-primary transition-all bg-surface-container-low"
+              placeholder="Paste raw visa text here..."
+            />
+
+            <div style={{ display:'flex', gap:10, marginTop:18, justifyContent:'flex-end' }}>
+              <button onClick={() => setShowImport(false)} className="px-5 py-2 bg-gray-100 text-gray-600 rounded-xl text-xs font-bold">Cancel</button>
+              <button
+                onClick={() => {
+                  if (!importText.trim()) return;
+                  const parsed = parseVisaText(importText);
+                  setFormData(f => ({ ...f, ...parsed }));
+                  setImportText('');
+                  setShowImport(false);
+                  document.getElementById('vtop')?.scrollIntoView({ behavior:'smooth' });
+                }}
+                className="px-6 py-2 bg-primary text-on-primary rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg"
+              >
+                <span className="material-symbols-outlined text-sm">auto_awesome</span>
+                Auto-Fill Visa
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-11 h-11 rounded-xl bg-black flex items-center justify-center">
+            <span className="material-symbols-outlined text-white text-xl">description</span>
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-on-surface">Visa Intelligence</h2>
+            <p className="text-xs text-on-surface-variant">Manage global mobility dossiers and entry requirements.</p>
+          </div>
+        </div>
+        <button onClick={() => setShowImport(true)} className="px-4 py-2 bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md hover:scale-105 transition-all active:scale-95">
+          <span className="material-symbols-outlined text-sm">upload_file</span>
+          Import Doc
+        </button>
+      </div>
+
       {/* ── Form ── */}
       {canCRUD && (
         <div className="bg-surface rounded-2xl shadow-sm p-5 md:p-7 border border-outline-variant/30 space-y-6">
-          <h2 className="text-lg font-semibold text-on-surface">
-            {editingId ? '✏️ Edit' : '+ Create'} Visa Dossier
-          </h2>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-sm font-bold text-on-surface uppercase tracking-widest opacity-60">
+              {editingId ? '✏️ Edit' : '+ Create'} Visa Dossier
+            </h2>
+            {editingId && (
+              <button onClick={() => { setEditingId(null); setFormData(emptyForm); }} className="text-[10px] font-bold text-red-500 uppercase tracking-widest">Discard Changes</button>
+            )}
+          </div>
           <form onSubmit={handleSubmit} className="space-y-6">
 
             {/* Basic Info */}

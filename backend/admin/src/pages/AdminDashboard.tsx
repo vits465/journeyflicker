@@ -265,6 +265,10 @@ export default function AdminDashboard() {
                           label="Dest from Doc" 
                           onParsed={(text) => navigate('/destinations', { state: { importText: text } })} 
                         />
+                        <DocxUploader 
+                          label="Visa from Doc" 
+                          onParsed={(text) => navigate('/visas', { state: { importText: text } })} 
+                        />
                       </div>
                     </div>
                   </>
