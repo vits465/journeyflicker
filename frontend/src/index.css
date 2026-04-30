@@ -311,6 +311,20 @@
   .HeroSlider-controls, .absolute.left-3.top-1\/2, .absolute.right-3.top-1\/2, .absolute.bottom-4.left-1\/2 {
     display: none !important;
   }
+
+  /* Force open all collapsible itinerary items for printing */
+  .max-h-0 {
+    max-height: none !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+  
+  .itinerary-day-content {
+    display: block !important;
+    opacity: 1 !important;
+    max-height: none !important;
+  }
 }
 
 

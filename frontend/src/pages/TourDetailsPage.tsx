@@ -117,6 +117,117 @@ function SightseeingSlider({ items }: { items: NonNullable<Tour['sightseeing']> 
   );
 }
 
+/* ─── collapsible itinerary item ─── */
+function ItineraryDay({ day, index, total }: { day: NonNullable<Tour['itinerary']>[0], index: number, total: number }) {
+  const [isOpen, setIsOpen] = useState(index === 0);
+
+  // Helper to parse description for bullet points and format them
+  const renderDescription = (text: string) => {
+    if (!text) return null;
+    const lines = text.split('\n');
+    return lines.map((line, i) => {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('•')) {
+        return (
+          <div key={i} className="mt-4 mb-2 pl-4 border-l-2 border-primary/20 bg-primary/[0.02] p-4 rounded-r-xl">
+            <h5 className="text-sm font-bold tracking-tight text-on-surface mb-1 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+              {trimmed.replace('•', '').trim()}
+            </h5>
+          </div>
+        );
+      }
+      return (
+        <p key={i} className={`text-sm font-light text-on-surface-variant leading-relaxed opacity-70 ${i > 0 ? 'mt-2' : ''}`}>
+          {trimmed}
+        </p>
+      );
+    });
+  };
+
+  return (
+    <div className="relative pl-8 sm:pl-12 group print:pl-0 print:mb-8 break-inside-avoid">
+      {/* Timeline dot */}
+      <div className={`absolute left-[-5px] sm:left-[35px] top-7 w-3 h-3 rounded-full ring-8 ring-white ${index === 0 ? 'bg-black' : 'bg-outline-variant group-hover:bg-black transition-colors duration-300'} z-10 print:hidden`} />
+      
+      {/* Connector line for print/last item */}
+      {index < total - 1 && (
+        <div className="absolute left-px sm:left-[41px] top-10 bottom-0 w-px bg-outline-variant/20 print:hidden" />
+      )}
+
+      <div className="bg-white border border-outline-variant/15 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-500 print:border-none print:shadow-none">
+        <button 
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full text-left p-5 sm:p-6 flex items-start justify-between gap-4 group/btn print:cursor-default"
+        >
+          <div className="flex-1 min-w-0">
+            <span className="bg-black/5 text-black px-3 py-1 rounded-full text-[8px] font-black tracking-[0.3em] uppercase mb-3 inline-block">Phase {String(index + 1).padStart(2, '0')}</span>
+            <h3 className="text-xl sm:text-2xl font-light tracking-tighter italic break-words flex items-center gap-2">
+              {day.title}
+            </h3>
+          </div>
+          <div className={`mt-8 w-8 h-8 rounded-full border border-outline-variant/30 flex items-center justify-center transition-all duration-500 group-hover/btn:border-black print:hidden ${isOpen ? 'bg-black text-white' : ''}`}>
+            <span className={`material-symbols-outlined text-base transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`}>expand_more</span>
+          </div>
+        </button>
+
+        <div className={`transition-all duration-700 ease-[cubic-bezier(0.2,1,0.3,1)] overflow-hidden ${isOpen ? 'max-h-[3000px] opacity-100' : 'max-h-0 opacity-0'} print:max-h-none print:opacity-100`}>
+          <div className="px-5 sm:px-6 pb-6 pt-2 border-t border-outline-variant/10 space-y-6">
+            {day.imageUrl && (
+              <div className="aspect-[16/7] overflow-hidden rounded-xl bg-surface-container-low">
+                <img src={day.imageUrl} alt={day.title} className="w-full h-full object-cover transition-transform duration-[5s] hover:scale-105" />
+              </div>
+            )}
+            
+            <div className="space-y-4">
+              {renderDescription(day.description)}
+            </div>
+
+            {/* Detail chips: Schedule / Accommodation / Meals */}
+            {(day.schedule || day.accommodation || day.meals) && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-outline-variant/15">
+                {day.schedule && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-primary font-light text-lg">schedule</span>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[8px] font-black tracking-[0.3em] uppercase text-on-surface-variant/40 mb-1">Schedule</p>
+                      <p className="text-xs font-light text-on-surface-variant leading-relaxed truncate hover:text-clip hover:whitespace-normal">{day.schedule}</p>
+                    </div>
+                  </div>
+                )}
+                {day.accommodation && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-primary font-light text-lg">hotel</span>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[8px] font-black tracking-[0.3em] uppercase text-on-surface-variant/40 mb-1">Accommodation</p>
+                      <p className="text-xs font-light text-on-surface-variant leading-relaxed truncate">{day.accommodation}</p>
+                    </div>
+                  </div>
+                )}
+                {day.meals && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-primary font-light text-lg">restaurant</span>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[8px] font-black tracking-[0.3em] uppercase text-on-surface-variant/40 mb-1">Meals</p>
+                      <p className="text-xs font-light text-on-surface-variant leading-relaxed">{day.meals}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── main page ─── */
 export default function TourDetailsPage() {
   const navigate = useNavigate();
@@ -291,69 +402,8 @@ export default function TourDetailsPage() {
                 <h2 className="text-[10px] font-black tracking-[0.6em] uppercase text-on-surface">Day-by-Day Sequence</h2>
               </div>
               <div className="space-y-6 pl-0 sm:pl-10 relative">
-                <div className="absolute left-px sm:left-[41px] top-3 bottom-6 w-px bg-outline-variant/20" />
                 {itinerary.map((day, idx) => (
-                  <div key={idx} className="relative pl-8 sm:pl-12 group">
-                    {/* Timeline dot */}
-                    <div className={`absolute left-[-5px] sm:left-[35px] top-5 w-3 h-3 rounded-full ring-8 ring-white ${idx === 0 ? 'bg-black' : 'bg-outline-variant group-hover:bg-black transition-colors duration-300'} z-10`} />
-
-                    <div className="bg-white border border-outline-variant/15 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-500 group-hover:-translate-x-0.5">
-                      {/* Day image */}
-                      {day.imageUrl && (
-                        <div className="aspect-[16/5] overflow-hidden relative">
-                          <img src={day.imageUrl} alt={day.title}
-                            className="w-full h-full object-cover transition-transform duration-[5s] group-hover:scale-105" />
-                          <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent" />
-                          <div className="absolute left-4 bottom-3 flex items-center gap-2">
-                            <span className="bg-black/60 text-white/90 text-[8px] font-black tracking-[0.4em] uppercase px-3 py-1 rounded-full backdrop-blur">
-                              Phase {String(idx + 1).padStart(2, '0')}
-                            </span>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="p-5">
-                        {!day.imageUrl && (
-                          <span className="bg-black/5 text-black px-3 py-1 rounded-full text-[8px] font-black tracking-[0.3em] uppercase mb-3 inline-block">Phase {String(idx + 1).padStart(2, '0')}</span>
-                        )}
-                        <h3 className="text-xl sm:text-2xl font-light mb-2 tracking-tighter italic break-words">{day.title}</h3>
-                        <p className="text-sm font-light text-on-surface-variant leading-relaxed opacity-70 mb-4">{day.description}</p>
-
-                        {/* Detail chips: Schedule / Accommodation / Meals */}
-                        {(day.schedule || day.accommodation || day.meals) && (
-                          <div className="flex flex-wrap gap-3 pt-3 border-t border-outline-variant/15">
-                            {day.schedule && (
-                              <div className="flex items-start gap-2">
-                                <span className="material-symbols-outlined text-primary/60 font-light text-base mt-0.5">schedule</span>
-                                <div>
-                                  <p className="text-[8px] font-black tracking-[0.3em] uppercase text-on-surface-variant/40 mb-0.5">Schedule</p>
-                                  <p className="text-xs font-light text-on-surface-variant leading-relaxed">{day.schedule}</p>
-                                </div>
-                              </div>
-                            )}
-                            {day.accommodation && (
-                              <div className="flex items-start gap-2">
-                                <span className="material-symbols-outlined text-primary/60 font-light text-base mt-0.5">hotel</span>
-                                <div>
-                                  <p className="text-[8px] font-black tracking-[0.3em] uppercase text-on-surface-variant/40 mb-0.5">Accommodation</p>
-                                  <p className="text-xs font-light text-on-surface-variant leading-relaxed">{day.accommodation}</p>
-                                </div>
-                              </div>
-                            )}
-                            {day.meals && (
-                              <div className="flex items-start gap-2">
-                                <span className="material-symbols-outlined text-primary/60 font-light text-base mt-0.5">restaurant</span>
-                                <div>
-                                  <p className="text-[8px] font-black tracking-[0.3em] uppercase text-on-surface-variant/40 mb-0.5">Meals</p>
-                                  <p className="text-xs font-light text-on-surface-variant leading-relaxed">{day.meals}</p>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                  <ItineraryDay key={idx} day={day} index={idx} total={itinerary.length} />
                 ))}
               </div>
             </section>

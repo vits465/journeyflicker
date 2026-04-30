@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import type { Visa } from '../lib/api';
-import { api } from '../lib/api';
+import { api, uploadImage } from '../lib/api';
 import { useAdminAuth } from '../lib/adminAuth';
 import { ImageUploader } from '../components/ImageUploader';
 import { Preloader } from '../components/Preloader';
@@ -27,6 +27,8 @@ export default function AdminVisas() {
   const [newReqDetail, setNewReqDetail] = useState('');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [selectMode, setSelectMode] = useState(false);
+  const [isDocUploading, setIsDocUploading] = useState(false);
+  const docInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     loadVisas();
@@ -99,6 +101,23 @@ export default function AdminVisas() {
     upd({ documents: [...(formData.documents || []), newDoc.trim()] });
     setNewDoc('');
   };
+
+  const handleDocUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsDocUploading(true);
+    try {
+      const url = await uploadImage(file);
+      upd({ documents: [...(formData.documents || []), `${file.name}|${url}`] });
+    } catch (err) {
+      console.error('Doc upload failed:', err);
+      alert('Upload failed.');
+    } finally {
+      setIsDocUploading(false);
+      if (docInputRef.current) docInputRef.current.value = '';
+    }
+  };
+
   const removeDoc = (i: number) => upd({ documents: (formData.documents || []).filter((_, j) => j !== i) });
 
   // Requirements helpers
@@ -187,29 +206,53 @@ export default function AdminVisas() {
             <div className="pt-4 border-t border-outline-variant/10">
               <label className={labelCls}>Required Documents</label>
               <div className="space-y-2 mb-3">
-                {(formData.documents || []).map((doc, i) => (
-                  <div key={i} className="flex items-center gap-2 p-2 bg-surface-container-low rounded-lg">
-                    <span className="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px] font-bold flex-shrink-0">{i + 1}</span>
-                    <span className="text-sm flex-1">{doc}</span>
-                    <button type="button" onClick={() => removeDoc(i)} className="text-red-400 hover:text-red-600">
-                      <span className="material-symbols-outlined text-base">close</span>
+                {(formData.documents || []).map((doc, i) => {
+                  const [name, url] = doc.includes('|') ? doc.split('|') : [doc, null];
+                  return (
+                    <div key={i} className="flex items-center gap-2 p-2 bg-surface-container-low rounded-lg">
+                      <span className="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px] font-bold flex-shrink-0">{i + 1}</span>
+                      <div className="flex-1 flex items-center gap-2 min-w-0">
+                        <span className="text-sm truncate">{name}</span>
+                        {url && (
+                          <a href={url} target="_blank" rel="noreferrer" className="text-primary hover:underline text-[10px] font-bold uppercase shrink-0 flex items-center gap-0.5">
+                            <span className="material-symbols-outlined text-[12px]">open_in_new</span> View
+                          </a>
+                        )}
+                      </div>
+                      <button type="button" onClick={() => removeDoc(i)} className="text-red-400 hover:text-red-600 shrink-0">
+                        <span className="material-symbols-outlined text-base">close</span>
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="flex-1 flex gap-2">
+                    <input
+                      type="text"
+                      value={newDoc}
+                      onChange={e => setNewDoc(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addDoc())}
+                      className={`${inputCls} flex-1`}
+                      placeholder="e.g., Valid Passport (6+ months validity)"
+                    />
+                    <button type="button" onClick={addDoc} className="px-4 py-2 bg-surface-container-low border border-outline-variant/30 text-on-surface rounded-lg text-xs font-bold hover:bg-surface-container transition-colors whitespace-nowrap">
+                      + Add
                     </button>
                   </div>
-                ))}
-              </div>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={newDoc}
-                  onChange={e => setNewDoc(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addDoc())}
-                  className={`${inputCls} flex-1`}
-                  placeholder="e.g., Valid Passport (6+ months validity)"
-                />
-                <button type="button" onClick={addDoc} className="px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold hover:opacity-90 transition-colors whitespace-nowrap">
-                  + Add
-                </button>
-              </div>
+                  <div className="shrink-0 flex gap-2">
+                    <input type="file" ref={docInputRef} onChange={handleDocUpload} className="hidden" accept=".pdf,.doc,.docx,image/*" />
+                    <button 
+                      type="button" 
+                      onClick={() => docInputRef.current?.click()}
+                      disabled={isDocUploading}
+                      className="px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold hover:opacity-90 transition-colors whitespace-nowrap flex items-center gap-2 disabled:opacity-50"
+                    >
+                      <span className="material-symbols-outlined text-sm">{isDocUploading ? 'hourglass_empty' : 'upload_file'}</span>
+                      {isDocUploading ? 'Uploading...' : 'Upload Doc'}
+                    </button>
+                  </div>
+                </div>
             </div>
 
             {/* Key Requirements */}

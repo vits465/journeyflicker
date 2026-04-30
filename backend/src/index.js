@@ -363,11 +363,14 @@ app.post("/api/upload", requireCRUD, async (req, res) => {
       'image/png': 'png',
       'image/webp': 'webp',
       'image/gif': 'gif',
-      'image/svg+xml': 'svg'
+      'image/svg+xml': 'svg',
+      'application/pdf': 'pdf',
+      'application/msword': 'doc',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx'
     };
     const ext = extMap[mimeType] || (data.match(/^data:image\/(\w+)/)?.[1] || "jpg");
     
-    if (!['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'].includes(ext.toLowerCase())) {
+    if (!['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'pdf', 'doc', 'docx'].includes(ext.toLowerCase())) {
       return res.status(400).json({ error: `File type ${ext} not allowed for security reasons.` });
     }
 

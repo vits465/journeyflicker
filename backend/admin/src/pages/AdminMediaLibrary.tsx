@@ -140,7 +140,7 @@ export default function AdminMediaLibrary() {
                 ref={fileInputRef} 
                 onChange={handleFileChange} 
                 className="hidden" 
-                accept="image/*"
+                accept="image/*,.pdf,.doc,.docx"
                 multiple 
               />
               <button 
@@ -219,8 +219,17 @@ export default function AdminMediaLibrary() {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {filteredMedia.map(media => (
               <div key={media.id} className="group relative rounded-xl overflow-hidden border border-outline-variant/20 bg-surface-container-low cursor-pointer aspect-square flex flex-col hover:shadow-md transition-all">
-                <div className="flex-1 overflow-hidden bg-surface-container">
-                  <img src={media.url} alt={media.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <div className="flex-1 overflow-hidden bg-surface-container flex items-center justify-center relative">
+                  {media.type.startsWith('image/') ? (
+                    <img src={media.url} alt={media.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center p-4 text-on-surface-variant/40">
+                      <span className="material-symbols-outlined text-4xl mb-2">
+                        {media.type.includes('pdf') ? 'picture_as_pdf' : 'description'}
+                      </span>
+                      <span className="text-[8px] font-bold uppercase tracking-widest">{media.type.split('/')[1]}</span>
+                    </div>
+                  )}
                 </div>
                 <div className="p-2 border-t border-outline-variant/10">
                   <p className="text-[10px] font-medium truncate text-on-surface">{media.name}</p>
