@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import type { Tour } from '../lib/api';
-import { api } from '../lib/api';
+import { api, uploadImage } from '../lib/api';
 import { ImageUploader } from '../components/ImageUploader';
 import { useAdminAuth } from '../lib/adminAuth';
 import { Preloader } from '../components/Preloader';
 import { useOptimisticUpdate } from '../lib/hooks';
+import { DocxUploader } from '../components/DocxUploader';
 
 const emptyForm: Partial<Tour> = {
   name: '', region: '', days: 7, price: '', category: 'Signature Series',
@@ -105,7 +106,6 @@ function parseQuotationText(raw: string): Partial<Tour> {
     const cleanDesc = content
       .replace(/Accommodation\s*[:\-]\s*[^\n]*/gi, '')
       .replace(/Schedule\s*[:\-]\s*[^\n]*/gi, '')
-      .replace(/(?:^|\n)\s*[•\-\d.]+\s*([^\n]+)\n([^]*?)(?=\n\s*[•\-\d.]+\s*|Day\s*\d+|$)/gi, '')
       .replace(/\([BLD,\s/-]+\)/gi, '')
       .trim();
 
@@ -156,11 +156,10 @@ function parseQuotationText(raw: string): Partial<Tour> {
     sightseeing: sightseeing.slice(0, 12), // Keep up to 12 top landmarks
     visualArchive: [], departureWindows: [], maxGuests: 8, heroImageUrl: '',
   };
-}
-
 export default function AdminTours() {
   const { canCRUD } = useAdminAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [tours, setTours] = useState<Tour[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -189,6 +188,17 @@ export default function AdminTours() {
       if (tour) handleEdit(tour);
     }
   }, [location.search, tours]);
+
+  // Handle incoming Docx imports from Dashboard
+  useEffect(() => {
+    const state = location.state as { importText?: string };
+    if (state?.importText) {
+      setImportText(state.importText);
+      setShowImport(true);
+      // Clear the state so it doesn't trigger again on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const loadTours = () =>
     api.listTours().then(d => { setTours(d || []); setLoading(false); }).catch(console.error);
@@ -283,19 +293,27 @@ export default function AdminTours() {
                       <span className="material-symbols-outlined" style={{ color:'var(--color-surface)', fontSize:18 }}>content_paste</span>
                     </div>
                     <div>
-                      <h3 className="text-on-surface" style={{ margin:0, fontSize:15, fontWeight:800 }}>Import from Document</h3>
-                      <p className="text-on-surface-variant" style={{ margin:0, fontSize:11 }}>Paste your Word/quotation text below — fields will auto-fill</p>
+                      <h3 className="text-sm font-bold text-on-surface mb-2">Import from Doc</h3>
+                      <p className="text-[10px] text-on-surface-variant mb-4 leading-relaxed uppercase tracking-widest font-bold opacity-60">Paste your itinerary text or upload a .docx file below. The AI will automatically structure all fields including landmarks and schedules.</p>
+                      
+                      <div className="flex gap-2 mb-3">
+                        <DocxUploader 
+                          onParsed={(text) => setImportText(text)} 
+                          label="Upload Word Document (.docx)"
+                          className="w-full"
+                        />
+                      </div>
+
+                      <textarea
+                        value={importText}
+                        onChange={e => setImportText(e.target.value)}
+                        className="at-input w-full h-48 text-[11px] font-mono leading-relaxed p-4 mb-4 border-2 border-primary/10 focus:border-primary/30 transition-all rounded-2xl"
+                        placeholder="Paste raw itinerary text here..."
+                      />
                     </div>
                   </div>
                   <button onClick={() => setShowImport(false)} className="text-on-surface-variant hover:text-on-surface transition-colors" style={{ background:'none', border:'none', cursor:'pointer', fontSize:22 }}>×</button>
                 </div>
-                <textarea
-                  value={importText}
-                  onChange={e => setImportText(e.target.value)}
-                  placeholder="Paste your full tour quotation or Word document text here..."
-                  className="at-input"
-                  style={{ width:'100%', height:260, padding:14, fontSize:12.5, fontFamily:'monospace', resize:'vertical', outline:'none', boxSizing:'border-box' }}
-                />
                 <div style={{ display:'flex', gap:10, marginTop:14, justifyContent:'flex-end' }}>
                   <button onClick={() => setShowImport(false)}
                     className="bg-surface-container text-on-surface-variant hover:bg-surface-container-low transition-colors"

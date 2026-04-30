@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import type { Destination } from '../lib/api';
 import { api } from '../lib/api';
 import { ImageUploader } from '../components/ImageUploader';
 import { useAdminAuth } from '../lib/adminAuth';
 import { Preloader } from '../components/Preloader';
 import { useOptimisticUpdate } from '../lib/hooks';
+import { DocxUploader } from '../components/DocxUploader';
 
 const emptyForm: Partial<Destination> = {
   name: '', region: '', description: '', essenceText: '',
@@ -101,6 +102,7 @@ function parseDestinationText(raw: string): Partial<Destination> {
 export default function AdminDestinations() {
   const { canCRUD } = useAdminAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -129,6 +131,16 @@ export default function AdminDestinations() {
       if (dest) handleEdit(dest);
     }
   }, [location.search, destinations]);
+
+  // Handle incoming Docx imports from Dashboard
+  useEffect(() => {
+    const state = location.state as { importText?: string };
+    if (state?.importText) {
+      setImportText(state.importText);
+      setShowImport(true);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const loadDestinations = () =>
     api.listDestinations().then((d) => { setDestinations(d || []); setLoading(false); }).catch(console.error);
@@ -214,19 +226,28 @@ export default function AdminDestinations() {
                       <span className="material-symbols-outlined" style={{ color:'var(--color-surface)', fontSize:18 }}>content_paste</span>
                     </div>
                     <div>
-                      <h3 className="text-on-surface" style={{ margin:0, fontSize:15, fontWeight:800 }}>Import from Document</h3>
-                      <p className="text-on-surface-variant" style={{ margin:0, fontSize:11 }}>Paste your Word/quotation text — destination fields will auto-fill</p>
+                      <h3 className="text-sm font-bold text-on-surface mb-2">Import from Doc</h3>
+                      <p className="text-[10px] text-on-surface-variant mb-4 leading-relaxed uppercase tracking-widest font-bold opacity-60">Paste your itinerary text or upload a .docx file below. The AI will automatically structure all fields including landmarks.</p>
+                      
+                      <div className="flex gap-2 mb-3">
+                        <DocxUploader 
+                          onParsed={(text) => setImportText(text)} 
+                          label="Upload Word Document (.docx)"
+                          className="w-full"
+                        />
+                      </div>
+
+                      <textarea
+                        value={importText}
+                        onChange={e => setImportText(e.target.value)}
+                        className="af-input"
+                        style={{ width:'100%', height:260, padding:14, fontSize:12.5, fontFamily:'monospace', resize:'vertical', outline:'none', boxSizing:'border-box' }}
+                        placeholder="Paste raw itinerary text here..."
+                      />
                     </div>
                   </div>
                   <button onClick={() => setShowImport(false)} className="text-on-surface-variant hover:text-on-surface transition-colors" style={{ background:'none', border:'none', cursor:'pointer', fontSize:22 }}>×</button>
                 </div>
-                <textarea
-                  value={importText}
-                  onChange={e => setImportText(e.target.value)}
-                  placeholder="Paste your full tour quotation or destination document text here..."
-                  className="af-input"
-                  style={{ width:'100%', height:260, padding:14, fontSize:12.5, fontFamily:'monospace', resize:'vertical', outline:'none', boxSizing:'border-box' }}
-                />
                 <div style={{ display:'flex', gap:10, marginTop:14, justifyContent:'flex-end' }}>
                   <button onClick={() => setShowImport(false)}
                     className="bg-surface-container text-on-surface-variant hover:bg-surface-container-low transition-colors"

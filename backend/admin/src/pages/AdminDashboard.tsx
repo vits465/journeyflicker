@@ -4,6 +4,8 @@ import { api } from '../lib/api';
 import type { Destination, Tour, Visa } from '../lib/api';
 import { useAdminAuth } from '../lib/adminAuth';
 import { CSVUploader } from '../components/CSVUploader';
+import { DocxUploader } from '../components/DocxUploader';
+import { useNavigate } from 'react-router-dom';
 import { Preloader } from '../components/Preloader';
 import { formatDistanceToNow } from 'date-fns';
 import type { Activity } from '../lib/api';
@@ -66,6 +68,7 @@ const S = `
 
 export default function AdminDashboard() {
   const { role: _role, canEdit, canCRUD } = useAdminAuth();
+  const navigate = useNavigate();
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [tours, setTours] = useState<Tour[]>([]);
   const [visas, setVisas] = useState<Visa[]>([]);
@@ -247,6 +250,14 @@ export default function AdminDashboard() {
                     </Link>
                     <CSVUploader type="destination" onUploadComplete={loadAll} />
                     <CSVUploader type="tour" onUploadComplete={loadAll} />
+                    <DocxUploader 
+                      label="Import Tour Doc" 
+                      onParsed={(text) => navigate('/tours', { state: { importText: text } })} 
+                    />
+                    <DocxUploader 
+                      label="Import Dest Doc" 
+                      onParsed={(text) => navigate('/destinations', { state: { importText: text } })} 
+                    />
                   </>
                 )}
               </div>
