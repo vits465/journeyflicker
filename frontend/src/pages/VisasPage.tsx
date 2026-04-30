@@ -19,17 +19,6 @@ const diffDot = (d: string) =>
 
 const DEFAULT_VISA_BG = 'https://images.unsplash.com/photo-1544016768-982d1554f0b9?q=80&w=1974&auto=format&fit=crop';
 
-// Sub-component: Simple requirement detail text
-function RequirementRow({ label, detail }: { label: string; detail: string }) {
-  return (
-    <div className="flex flex-col gap-1 text-sm pb-3 border-b border-outline-variant/5 dark:border-white/5 last:border-0 last:pb-0">
-      <span className="font-semibold text-on-surface dark:text-white">{label}</span>
-      <span className="font-light text-on-surface-variant dark:text-white/60 leading-relaxed">
-        {detail}
-      </span>
-    </div>
-  );
-}
 
 // Hardened Visa Card — crash-proof with safe array/object guards
 function VisaCard({ visa, index }: { visa: Visa; index: number }) {
@@ -126,11 +115,14 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
                 {requirements.length > 0 && (
                   <div className="space-y-3 pt-4 border-t border-outline-variant/10">
                     <p className="text-[9px] font-bold tracking-widest text-primary/60 uppercase">Critical Requirements</p>
-                    <div className="space-y-3">
+                    <ul className="space-y-3">
                       {requirements.map((req, i) => (
-                        <RequirementRow key={i} label={req?.label || '—'} detail={req?.detail || '—'} />
+                        <li key={i} className="flex items-start gap-3 text-sm font-light text-on-surface dark:text-white leading-relaxed">
+                          <span className="w-1 h-1 rounded-full bg-primary mt-2 shrink-0" />
+                          {req || '—'}
+                        </li>
                       ))}
-                    </div>
+                    </ul>
                   </div>
                 )}
               </div>

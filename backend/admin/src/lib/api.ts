@@ -54,7 +54,7 @@ export type Visa = {
   description?: string;
   visaType?: string;
   documents?: string[];
-  requirements?: { label: string; detail: string }[];
+  requirements?: string[];
 };
 
 export type Contact = {

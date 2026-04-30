@@ -37,20 +37,12 @@ function parseVisaText(raw: string): Partial<Visa> {
     });
   }
 
-  const requirements: Visa['requirements'] = [];
+  const requirements: string[] = [];
   const reqsMatch = text.match(/(?:REQUIREMENTS|KEY REQUIREMENTS|CRITERIA)\s*[:\-]?\s*([^]*?)(?=DOCUMENTS|FEE|PROCESSING|COST|$)/i);
   if (reqsMatch) {
     const lines = reqsMatch[1].split('\n').filter(l => l.trim().length > 3);
     lines.forEach(line => {
-      const parts = line.split(/[:\-]/);
-      if (parts.length >= 2) {
-        requirements.push({ 
-          label: parts[0].replace(/^[\s•\-\d.]+/, '').trim(), 
-          detail: parts.slice(1).join(':').trim() 
-        });
-      } else {
-         requirements.push({ label: 'Requirement', detail: line.replace(/^[\s•\-\d.]+/, '').trim() });
-      }
+      requirements.push(line.replace(/^[\s•\-\d.]+/, '').trim());
     });
   }
 
@@ -189,9 +181,9 @@ export default function AdminVisas() {
 
   // Requirements helpers
   const addReq = () => {
-    if (!newReqLabel.trim() || !newReqDetail.trim()) return;
-    upd({ requirements: [...(formData.requirements || []), { label: newReqLabel.trim(), detail: newReqDetail.trim() }] });
-    setNewReqLabel(''); setNewReqDetail('');
+    if (!newReqDetail.trim()) return;
+    upd({ requirements: [...(formData.requirements || []), newReqDetail.trim()] });
+    setNewReqDetail('');
   };
   const removeReq = (i: number) => upd({ requirements: (formData.requirements || []).filter((_, j) => j !== i) });
 
@@ -366,61 +358,42 @@ export default function AdminVisas() {
                   );
                 })}
               </div>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <div className="flex-1 flex gap-2">
-                    <input
-                      type="text"
-                      value={newDoc}
-                      onChange={e => setNewDoc(e.target.value)}
-                      onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addDoc())}
-                      className={`${inputCls} flex-1`}
-                      placeholder="e.g., Valid Passport (6+ months validity)"
-                    />
-                    <button type="button" onClick={addDoc} className="px-4 py-2 bg-surface-container-low border border-outline-variant/30 text-on-surface rounded-lg text-xs font-bold hover:bg-surface-container transition-colors whitespace-nowrap">
-                      + Add
-                    </button>
-                  </div>
-                  <div className="shrink-0 flex gap-2">
-                    <input type="file" ref={docInputRef} onChange={handleDocUpload} className="hidden" accept=".pdf,.doc,.docx,image/*" />
-                    <button 
-                      type="button" 
-                      onClick={() => docInputRef.current?.click()}
-                      disabled={isDocUploading}
-                      className="px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold hover:opacity-90 transition-colors whitespace-nowrap flex items-center gap-2 disabled:opacity-50"
-                    >
-                      <span className="material-symbols-outlined text-sm">{isDocUploading ? 'hourglass_empty' : 'upload_file'}</span>
-                      {isDocUploading ? 'Uploading...' : 'Upload Doc'}
-                    </button>
-                  </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newDoc}
+                    onChange={e => setNewDoc(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addDoc())}
+                    className={inputCls}
+                    placeholder="e.g., Valid Passport (6+ months validity)"
+                  />
+                  <button type="button" onClick={addDoc} className="px-4 py-2 bg-surface-container-low border border-outline-variant/30 text-on-surface rounded-lg text-xs font-bold hover:bg-surface-container transition-colors whitespace-nowrap">
+                    + Add
+                  </button>
                 </div>
             </div>
 
             {/* Key Requirements */}
             <div className="pt-4 border-t border-outline-variant/10">
-              <label className={labelCls}>Key Requirements (Label + Detail)</label>
+              <label className={labelCls}>Key Requirements</label>
               <div className="space-y-2 mb-3">
                 {(formData.requirements || []).map((req, i) => (
                   <div key={i} className="flex items-center gap-2 p-2 bg-surface-container-low rounded-lg">
-                    <div className="flex-1 grid grid-cols-2 gap-2">
-                      <span className="text-xs font-semibold">{req.label}</span>
-                      <span className="text-xs text-on-surface-variant">{req.detail}</span>
-                    </div>
+                    <span className="text-xs flex-1">{req}</span>
                     <button type="button" onClick={() => removeReq(i)} className="text-red-400 hover:text-red-600 flex-shrink-0">
                       <span className="material-symbols-outlined text-base">close</span>
                     </button>
                   </div>
                 ))}
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <input type="text" value={newReqLabel} onChange={e => setNewReqLabel(e.target.value)}
-                  className={inputCls} placeholder="Label e.g., Min. Funds" />
+              <div className="flex gap-2">
                 <input type="text" value={newReqDetail} onChange={e => setNewReqDetail(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addReq())}
-                  className={inputCls} placeholder="Detail e.g., €3,000 / month" />
+                  className={inputCls} placeholder="e.g., Proof of sufficient funds ($2,000)" />
+                <button type="button" onClick={addReq} className="px-4 py-2 bg-surface-container-low border border-outline-variant/30 rounded-lg text-xs font-bold hover:bg-surface-container transition-colors whitespace-nowrap">
+                  + Add
+                </button>
               </div>
-              <button type="button" onClick={addReq} className="mt-2 px-4 py-2 bg-surface-container-low border border-outline-variant/30 rounded-lg text-xs font-bold hover:bg-surface-container transition-colors">
-                + Add Requirement
-              </button>
             </div>
 
             {/* Submit */}
