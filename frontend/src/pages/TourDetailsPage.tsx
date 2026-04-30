@@ -120,14 +120,12 @@ function SightseeingSlider({ items }: { items: NonNullable<Tour['sightseeing']> 
 /* ─── collapsible itinerary item ─── */
 function ItineraryDay({ day, index, total }: { day: NonNullable<Tour['itinerary']>[0], index: number, total: number }) {
   const [isOpen, setIsOpen] = useState(index === 0);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // Helper to parse description for bullet points and format them
-  const renderDescription = (text: string) => {
+  const renderDescription = (text: string, isExpanded: boolean, setIsExpanded: (v: boolean) => void) => {
     if (!text) return null;
-    
-    const [isExpanded, setIsExpanded] = useState(false);
-    const CHAR_LIMIT = 280; // Reasonable limit before showing "Show More"
-    
+    const CHAR_LIMIT = 280; 
     const needsTruncation = text.length > CHAR_LIMIT;
     const displayText = isExpanded ? text : text.slice(0, CHAR_LIMIT);
 
@@ -201,7 +199,7 @@ function ItineraryDay({ day, index, total }: { day: NonNullable<Tour['itinerary'
             )}
             
             <div className="space-y-4">
-              {renderDescription(day.description)}
+              {renderDescription(day.description, isExpanded, setIsExpanded)}
             </div>
 
             {/* Detail chips: Schedule / Accommodation / Meals */}
