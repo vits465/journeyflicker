@@ -89,11 +89,11 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
   const [docsOpen, setDocsOpen] = useState(false);
   const [reqsOpen, setReqsOpen] = useState(false);
 
-  const requirements: string[] = Array.isArray(visa?.requirements)
-    ? (visa.requirements as string[])
+  const requirements = Array.isArray(visa?.requirements)
+    ? visa.requirements
     : [];
-  const documents: string[] = Array.isArray(visa?.documents)
-    ? (visa.documents as string[])
+  const documents = Array.isArray(visa?.documents)
+    ? visa.documents
     : [];
 
   return (
