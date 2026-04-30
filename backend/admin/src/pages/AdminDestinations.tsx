@@ -117,7 +117,7 @@ export default function AdminDestinations() {
 
   useEffect(() => {
     loadDestinations();
-    const iv = setInterval(loadDestinations, 5000);
+    const iv = setInterval(() => loadDestinations(true), 5000);
     return () => clearInterval(iv);
   }, []);
 
@@ -141,8 +141,10 @@ export default function AdminDestinations() {
     }
   }, [location.state]);
 
-  const loadDestinations = () =>
+  const loadDestinations = (silent = false) => {
+    if (!silent) setLoading(true);
     api.listDestinations().then((d) => { setDestinations(d || []); setLoading(false); }).catch(console.error);
+  };
 
   const filtered = optimisticDestinations.filter(d =>
     d.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -473,14 +475,14 @@ export default function AdminDestinations() {
           <div className="space-y-3">
             {filtered.map(dest => (
               <div key={dest.id} className="af-list-card relative">
-                {selectMode && (
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10" onClick={(e) => { e.stopPropagation(); toggleSelect(dest.id); }}>
-                    <div className={`w-5 h-5 rounded flex items-center justify-center border cursor-pointer transition-all ${selected.has(dest.id) ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white dark:bg-black border-outline-variant/50 dark:border-white/20 hover:border-black dark:hover:border-white'}`}>
-                      {selected.has(dest.id) && <span className="material-symbols-outlined text-xs">check</span>}
+                <div className={`af-thumb flex-shrink-0 flex items-center gap-4 transition-all ${selectMode ? 'ml-0' : ''}`}>
+                  {selectMode && (
+                    <div onClick={(e) => { e.stopPropagation(); toggleSelect(dest.id); }} className="z-10">
+                      <div className={`w-5 h-5 rounded flex items-center justify-center border cursor-pointer transition-all ${selected.has(dest.id) ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white dark:bg-black border-outline-variant/50 dark:border-white/20 hover:border-black dark:hover:border-white'}`}>
+                        {selected.has(dest.id) && <span className="material-symbols-outlined text-xs">check</span>}
+                      </div>
                     </div>
-                  </div>
-                )}
-                <div className={`af-thumb flex-shrink-0 transition-all ${selectMode ? 'ml-10' : ''}`}>
+                  )}
                   {dest.heroImageUrl ? <img src={dest.heroImageUrl} alt={dest.name} />
                     : <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-on-surface-variant/30 dark:text-white/10 text-2xl">image</span></div>}
                 </div>

@@ -50,7 +50,7 @@ export function DocxUploader({ onParsed, label = 'Import .docx', className = '' 
       <button
         onClick={() => fileInputRef.current?.click()}
         disabled={isReading}
-        className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-xs font-bold hover:bg-indigo-100 transition-all border border-indigo-100 disabled:opacity-50"
+        className="flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-xl text-xs font-bold hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-all border border-indigo-100 dark:border-indigo-900/30 disabled:opacity-50"
       >
         <span className="material-symbols-outlined text-sm">
           {isReading ? 'hourglass_empty' : 'description'}

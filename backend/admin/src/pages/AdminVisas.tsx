@@ -79,7 +79,7 @@ export default function AdminVisas() {
 
   useEffect(() => {
     loadVisas();
-    const interval = setInterval(loadVisas, 3000);
+    const interval = setInterval(() => loadVisas(true), 3000);
     return () => clearInterval(interval);
   }, []);
 
@@ -93,8 +93,10 @@ export default function AdminVisas() {
     }
   }, [location.search, visas]);
 
-  const loadVisas = () =>
+  const loadVisas = (silent = false) => {
+    if (!silent) setLoading(true);
     api.listVisas().then(data => { setVisas(data || []); setLoading(false); }).catch(console.error);
+  };
 
   const upd = (patch: Partial<Visa>) => setFormData(prev => ({ ...prev, ...patch }));
 
@@ -430,15 +432,15 @@ export default function AdminVisas() {
           <div className="divide-y divide-outline-variant/10">
             {visas.map(visa => (
               <div key={visa.id} className="flex items-center gap-4 p-4 hover:bg-surface-container-low/40 transition-colors group relative">
-                {selectMode && (
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10" onClick={(e) => { e.stopPropagation(); toggleSelect(visa.id); }}>
-                    <div className={`w-5 h-5 rounded flex items-center justify-center border cursor-pointer transition-all ${selected.has(visa.id) ? 'bg-primary border-primary text-on-primary' : 'bg-surface border-outline-variant/50 hover:border-on-surface'}`}>
-                      {selected.has(visa.id) && <span className="material-symbols-outlined text-xs">check</span>}
-                    </div>
-                  </div>
-                )}
                 {/* Thumbnail */}
-                <div className={`flex-shrink-0 transition-all ${selectMode ? 'ml-8' : ''}`}>
+                <div className={`flex-shrink-0 flex items-center gap-4 transition-all ${selectMode ? 'ml-0' : ''}`}>
+                  {selectMode && (
+                    <div onClick={(e) => { e.stopPropagation(); toggleSelect(visa.id); }} className="z-10">
+                      <div className={`w-5 h-5 rounded flex items-center justify-center border cursor-pointer transition-all ${selected.has(visa.id) ? 'bg-primary border-primary text-on-primary' : 'bg-surface dark:bg-white/5 border-outline-variant/50 dark:border-white/20 hover:border-on-surface'}`}>
+                        {selected.has(visa.id) && <span className="material-symbols-outlined text-xs">check</span>}
+                      </div>
+                    </div>
+                  )}
                   {visa.heroImageUrl ? (
                     <div className="w-14 h-14 rounded-xl overflow-hidden border border-outline-variant/20">
                       <img src={visa.heroImageUrl} alt={visa.country} className="w-full h-full object-cover" />

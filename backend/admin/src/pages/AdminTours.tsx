@@ -197,8 +197,8 @@ export default function AdminTours() {
 
   useEffect(() => {
     loadTours();
-    const iv = setInterval(loadTours, 5000);
-    return () => clearInterval(iv);
+    const interval = setInterval(() => loadTours(true), 5000);
+    return () => clearInterval(interval);
   }, []);
 
   // Handle deep-link editing via URL
@@ -222,8 +222,10 @@ export default function AdminTours() {
     }
   }, [location.state]);
 
-  const loadTours = () =>
+  const loadTours = (silent = false) => {
+    if (!silent) setLoading(true);
     api.listTours().then(d => { setTours(d || []); setLoading(false); }).catch(console.error);
+  };
 
   const filtered = optimisticTours.filter(t =>
     t.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -626,14 +628,14 @@ export default function AdminTours() {
           <div className="space-y-3">
             {filtered.map(tour => (
               <div key={tour.id} className="at-card relative">
-                {selectMode && (
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10" onClick={(e) => { e.stopPropagation(); toggleSelect(tour.id); }}>
-                    <div className={`w-5 h-5 rounded flex items-center justify-center border cursor-pointer transition-all ${selected.has(tour.id) ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white dark:bg-black border-outline-variant/50 dark:border-white/20 hover:border-black dark:hover:border-white'}`}>
-                      {selected.has(tour.id) && <span className="material-symbols-outlined text-xs">check</span>}
+                <div className={`at-thumb flex-shrink-0 flex items-center gap-4 transition-all ${selectMode ? 'ml-0' : ''}`}>
+                  {selectMode && (
+                    <div onClick={(e) => { e.stopPropagation(); toggleSelect(tour.id); }} className="z-10">
+                      <div className={`w-5 h-5 rounded flex items-center justify-center border cursor-pointer transition-all ${selected.has(tour.id) ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white dark:bg-black border-outline-variant/50 dark:border-white/20 hover:border-black dark:hover:border-white'}`}>
+                        {selected.has(tour.id) && <span className="material-symbols-outlined text-xs">check</span>}
+                      </div>
                     </div>
-                  </div>
-                )}
-                <div className={`at-thumb flex-shrink-0 transition-all ${selectMode ? 'ml-10' : ''}`}>
+                  )}
                   {tour.heroImageUrl
                     ? <img src={tour.heroImageUrl} alt={tour.name} />
                     : <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-on-surface-variant/30 dark:text-white/10 text-2xl">flight</span></div>}

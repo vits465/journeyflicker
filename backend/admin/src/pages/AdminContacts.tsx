@@ -25,7 +25,8 @@ export default function AdminContacts() {
   const [selected, setSelected] = useState<Contact | null>(null);
   const [filter, setFilter] = useState<'all' | 'unread'>('unread');
 
-  const load = useCallback(() => {
+  const load = useCallback((silent = false) => {
+    if (!silent) setLoading(true);
     api.listContacts()
       .then(data => { setContacts(data); setLoading(false); })
       .catch(() => setLoading(false));
@@ -33,7 +34,7 @@ export default function AdminContacts() {
 
   useEffect(() => {
     load();
-    const interval = setInterval(load, 8000); // poll every 8s for new messages
+    const interval = setInterval(() => load(true), 8000); // silent poll
     return () => clearInterval(interval);
   }, [load]);
 
@@ -65,7 +66,7 @@ export default function AdminContacts() {
     <div className="max-w-6xl mx-auto space-y-6">
 
       {/* ── Header ── */}
-      <div className="bg-on-surface text-surface rounded-2xl p-6 md:p-8 relative overflow-hidden">
+      <div className="bg-on-surface dark:bg-white/10 text-surface dark:text-white rounded-2xl p-6 md:p-8 relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.04]"
           style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }} />
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -116,7 +117,7 @@ export default function AdminContacts() {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
 
         {/* Message List */}
-        <div className="lg:col-span-2 bg-surface rounded-2xl border border-outline-variant/30 shadow-sm overflow-hidden">
+        <div className="lg:col-span-2 bg-surface dark:bg-white/5 rounded-2xl border border-outline-variant/30 shadow-sm overflow-hidden">
           <div className="px-4 py-3 border-b border-outline-variant/20 bg-surface-container-low">
             <span className="text-xs font-black uppercase tracking-widest text-on-surface-variant">
               {filter === 'unread' ? 'Unread Messages' : 'All Messages'}
@@ -174,7 +175,7 @@ export default function AdminContacts() {
         {/* Detail Panel */}
         <div className="lg:col-span-3">
           {selected ? (
-            <div className="bg-white rounded-2xl border border-outline-variant/30 shadow-sm overflow-hidden h-full">
+            <div className="bg-surface dark:bg-white/5 rounded-2xl border border-outline-variant/30 shadow-sm overflow-hidden h-full">
               {/* Detail header */}
               <div className="px-6 py-5 border-b border-outline-variant/20 flex items-start justify-between gap-4">
                 <div className="flex items-center gap-4">

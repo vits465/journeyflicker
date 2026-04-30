@@ -157,7 +157,7 @@ export default function AdminHeroSettings() {
 
         {/* ── LEFT: Item Picker ── */}
         <div className="lg:col-span-3">
-          <div className="bg-white rounded-2xl border border-outline-variant/20 shadow-sm overflow-hidden">
+          <div className="bg-surface dark:bg-white/5 rounded-2xl border border-outline-variant/20 shadow-sm overflow-hidden">
             <div className="px-4 py-3 border-b border-outline-variant/10 flex items-center justify-between">
               <h3 className="text-sm font-semibold">
                 Available {currentTab.type === 'destination' ? 'Destinations' : currentTab.type === 'tour' ? 'Tours' : 'Hero Image'}
@@ -248,7 +248,7 @@ export default function AdminHeroSettings() {
         {/* ── RIGHT: Slide Order ── */}
         {currentTab.type !== 'single' && (
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-2xl border border-outline-variant/20 shadow-sm overflow-hidden sticky top-4">
+          <div className="bg-surface dark:bg-white/5 rounded-2xl border border-outline-variant/20 shadow-sm overflow-hidden sticky top-4">
             <div className="px-4 py-3 border-b border-outline-variant/10 flex items-center justify-between">
               <h3 className="text-sm font-semibold">Slide Order</h3>
               {selectedIds.length > 0 && (
@@ -349,7 +349,7 @@ export default function AdminHeroSettings() {
 
         {currentTab.type === 'single' && (
         <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl border border-outline-variant/20 shadow-sm overflow-hidden p-6 text-center sticky top-4">
+            <div className="bg-surface dark:bg-white/5 rounded-2xl border border-outline-variant/20 shadow-sm overflow-hidden p-6 text-center sticky top-4">
                 <span className="material-symbols-outlined text-4xl mb-4 text-on-surface-variant/40">public</span>
                 <h3 className="text-lg font-semibold mb-2">Live Preview Available</h3>
                 <p className="text-sm text-on-surface-variant/70 leading-relaxed italic mb-6">

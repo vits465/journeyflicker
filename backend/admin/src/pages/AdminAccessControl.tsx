@@ -164,7 +164,7 @@ export default function AdminAccessControl() {
 
       {/* Form */}
       {(accounts.length < 5 || editingId) && (
-        <div className="bg-surface rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden">
+        <div className="bg-surface dark:bg-white/5 rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden">
           <div className="px-4 py-3 border-b border-outline-variant/20 bg-surface-container-low flex items-center gap-2">
             <span className="material-symbols-outlined text-on-surface-variant text-base">
               {editingId ? 'edit' : 'person_add'}
@@ -229,7 +229,7 @@ export default function AdminAccessControl() {
       )}
 
       {/* Accounts list */}
-      <div className="bg-surface rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden">
+      <div className="bg-surface dark:bg-white/5 rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden">
         <div className="px-4 py-3 border-b border-outline-variant/20 bg-surface-container-low flex items-center justify-between">
           <span className="text-xs font-black uppercase tracking-widest text-on-surface-variant">Co-Editor Accounts</span>
           <span className="text-[10px] font-bold bg-primary text-on-primary px-2 py-0.5 rounded-full">{accounts.length}</span>
@@ -245,7 +245,7 @@ export default function AdminAccessControl() {
           <div className="divide-y divide-outline-variant/20">
             {accounts.map((acc, idx) => (
               <div key={acc.id} className="flex items-center gap-3 px-4 py-3">
-                <div className="w-8 h-8 rounded-lg bg-violet-100 text-violet-700 flex items-center justify-center text-sm font-black flex-shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-sm font-black flex-shrink-0">
                   {idx + 1}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -284,7 +284,7 @@ export default function AdminAccessControl() {
       </div>
 
       {/* Editor credentials (read-only info) */}
-      <div className="bg-surface rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden">
+      <div className="bg-surface dark:bg-white/5 rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden">
         <div className="px-4 py-3 border-b border-outline-variant/20 bg-surface-container-low flex items-center gap-2">
           <span className="material-symbols-outlined text-on-surface-variant text-base">shield</span>
           <span className="text-xs font-black uppercase tracking-widest text-on-surface-variant">Editor Credentials (Fixed)</span>
@@ -310,7 +310,7 @@ export default function AdminAccessControl() {
       </div>
 
       {/* Permissions Overview Section */}
-      <div className="bg-surface rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden">
+      <div className="bg-surface dark:bg-white/5 rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden">
         <div className="px-4 py-3 border-b border-outline-variant/20 bg-violet-50/30 dark:bg-violet-900/10 flex items-center gap-2">
           <span className="material-symbols-outlined text-violet-600 text-base">rule</span>
           <span className="text-xs font-black uppercase tracking-widest text-violet-600">Permissions Matrix</span>

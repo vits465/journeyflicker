@@ -18,11 +18,13 @@ export default function AdminMediaLibrary() {
 
   useEffect(() => {
     loadMedia();
+    const iv = setInterval(() => loadMedia(true), 15000); // refresh every 15s
+    return () => clearInterval(iv);
   }, []);
 
-  const loadMedia = async () => {
+  const loadMedia = async (silent = false) => {
     try {
-      setIsLoading(true);
+      if (!silent) setIsLoading(true);
       const data = await api.listMedia();
       setMediaFiles(data);
     } catch (err) {
@@ -197,7 +199,7 @@ export default function AdminMediaLibrary() {
       </div>
 
       {/* Grid */}
-      <div className="flex-1 overflow-y-auto min-h-0 bg-surface rounded-2xl border border-outline-variant/30 shadow-sm p-6">
+      <div className="flex-1 overflow-y-auto min-h-0 bg-surface dark:bg-white/5 rounded-2xl border border-outline-variant/30 shadow-sm p-6">
         {!canEdit && (
           <div className="mb-6 p-4 bg-surface-container-low border border-primary/20 rounded-xl flex items-center gap-3">
             <span className="material-symbols-outlined text-primary">info</span>
@@ -239,13 +241,11 @@ export default function AdminMediaLibrary() {
                   </p>
                 </div>
                 {/* Selection Overlay */}
-                {selectMode && (
-                  <div className="absolute top-2 left-2 z-10" onClick={(e) => { e.stopPropagation(); toggleSelect(media.id); }}>
-                    <div className={`w-5 h-5 rounded flex items-center justify-center border transition-all ${selected.has(media.id) ? 'bg-primary border-primary text-on-primary' : 'bg-surface/90 backdrop-blur border-outline-variant/50 hover:border-on-surface'}`}>
-                      {selected.has(media.id) && <span className="material-symbols-outlined text-xs">check</span>}
-                    </div>
+                <div className={`absolute top-2 left-2 z-10 transition-opacity ${selectMode ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={(e) => { e.stopPropagation(); toggleSelect(media.id); }}>
+                  <div className={`w-5 h-5 rounded flex items-center justify-center border transition-all ${selected.has(media.id) ? 'bg-primary border-primary text-on-primary' : 'bg-surface/90 dark:bg-black/60 backdrop-blur border-outline-variant/50 hover:border-on-surface'}`}>
+                    {selected.has(media.id) && <span className="material-symbols-outlined text-xs">check</span>}
                   </div>
-                )}
+                </div>
                 {/* Actions Overlay */}
                 {canEdit && (
                   <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

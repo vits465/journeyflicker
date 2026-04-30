@@ -145,27 +145,27 @@ export default function AdminFrontendBackups() {
 
       {/* Status cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-2xl border border-outline-variant/30 shadow-sm p-5">
+        <div className="bg-surface dark:bg-white/5 rounded-2xl border border-outline-variant/30 shadow-sm p-5">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center">
               <span className="material-symbols-outlined text-indigo-600 text-lg">layers</span>
             </div>
             <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Snapshots</span>
           </div>
-          <p className="text-3xl font-light font-serif italic text-gray-900">{snapshots.length}</p>
-          <p className="text-xs text-gray-400 mt-1">of 8 max kept</p>
+          <p className="text-3xl font-light font-serif italic text-on-surface">{snapshots.length}</p>
+          <p className="text-xs text-on-surface-variant opacity-60 mt-1">of 8 max kept</p>
         </div>
-        <div className="bg-white rounded-2xl border border-outline-variant/30 shadow-sm p-5">
+        <div className="bg-surface dark:bg-white/5 rounded-2xl border border-outline-variant/30 shadow-sm p-5">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center">
               <span className="material-symbols-outlined text-emerald-600 text-lg">storage</span>
             </div>
             <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Size</span>
           </div>
-          <p className="text-3xl font-light font-serif italic text-gray-900">{formatBytes(totalBytes)}</p>
-          <p className="text-xs text-gray-400 mt-1">in localStorage</p>
+          <p className="text-3xl font-light font-serif italic text-on-surface">{formatBytes(totalBytes)}</p>
+          <p className="text-xs text-on-surface-variant opacity-60 mt-1">in localStorage</p>
         </div>
-        <div className="bg-white rounded-2xl border border-outline-variant/30 shadow-sm p-5">
+        <div className="bg-surface dark:bg-white/5 rounded-2xl border border-outline-variant/30 shadow-sm p-5">
           <div className="flex items-center gap-3 mb-3">
             <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${cache ? 'bg-green-50' : 'bg-amber-50'}`}>
               <span className={`material-symbols-outlined text-lg ${cache ? 'text-green-600' : 'text-amber-500'}`}>
@@ -192,7 +192,7 @@ export default function AdminFrontendBackups() {
       </div>
 
       {/* Snapshots table */}
-      <div className="bg-white rounded-2xl border border-outline-variant/30 shadow-sm overflow-hidden">
+      <div className="bg-surface dark:bg-white/5 rounded-2xl border border-outline-variant/30 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-outline-variant/10 flex items-center gap-2">
           <span className="material-symbols-outlined text-gray-500 text-sm">history</span>
           <span className="text-xs font-bold text-gray-700 uppercase tracking-widest">Snapshot History</span>

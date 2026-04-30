@@ -67,7 +67,7 @@ const S = `
 `;
 
 export default function AdminDashboard() {
-  const { role: _role, canEdit, canCRUD } = useAdminAuth();
+  const { canEdit, canCRUD } = useAdminAuth();
   const navigate = useNavigate();
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [tours, setTours] = useState<Tour[]>([]);
@@ -79,16 +79,16 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     loadAll();
-    const interval = setInterval(() => {
-      loadAll();
-      loadActivity();
-    }, 10000); // Sync every 10s
     loadActivity();
+    const interval = setInterval(() => {
+      loadAll(true); // Silent background refresh
+      loadActivity();
+    }, 10000); 
     return () => clearInterval(interval);
   }, []);
 
-  const loadAll = () => {
-    setLoading(true);
+  const loadAll = (silent = false) => {
+    if (!silent) setLoading(true);
     Promise.all([
       api.listDestinations(),
       api.listTours(),

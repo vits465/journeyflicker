@@ -70,7 +70,7 @@ export default function AdminBackups() {
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl border border-outline-variant/30 shadow-sm overflow-hidden">
+      <div className="bg-surface dark:bg-white/5 rounded-2xl border border-outline-variant/30 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-outline-variant/10 bg-surface-container-lowest flex items-center gap-2">
           <span className="material-symbols-outlined text-green-600 text-sm">check_circle</span>
           <span className="text-xs font-bold text-gray-700 uppercase tracking-widest">Self-Healing Active</span>
@@ -100,7 +100,7 @@ export default function AdminBackups() {
                   <tr key={b.filename} className="hover:bg-surface-container-lowest transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+                        <div className="w-8 h-8 rounded-lg bg-surface-container-low dark:bg-white/10 flex items-center justify-center text-on-surface-variant group-hover:bg-primary/10 group-hover:text-primary transition-colors">
                           <span className="material-symbols-outlined text-sm">description</span>
                         </div>
                         <span className="text-sm font-semibold text-gray-900">{b.filename}</span>

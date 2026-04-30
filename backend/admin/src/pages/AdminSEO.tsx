@@ -70,7 +70,7 @@ export default function AdminSEO() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         
         {/* Page List Sidebar */}
-        <div className="bg-white rounded-2xl border border-outline-variant/30 p-4 shadow-sm h-fit">
+        <div className="bg-surface dark:bg-white/5 rounded-2xl border border-outline-variant/30 p-4 shadow-sm h-fit">
           <h3 className="text-xs font-black uppercase tracking-widest text-on-surface-variant mb-4 px-2">Static Pages</h3>
           <div className="space-y-1">
             {pages.map(page => (
@@ -95,7 +95,7 @@ export default function AdminSEO() {
 
         {/* Editor Area */}
         <div className="lg:col-span-3 space-y-6">
-          <div className="bg-white rounded-2xl border border-outline-variant/30 p-6 md:p-8 shadow-sm">
+          <div className="bg-surface dark:bg-white/5 rounded-2xl border border-outline-variant/30 p-6 md:p-8 shadow-sm">
             <div className="flex items-center justify-between mb-8 border-b border-outline-variant/20 pb-4">
               <div>
                 <h3 className="text-xl font-bold text-on-surface">{activePage.name}</h3>
@@ -172,7 +172,7 @@ export default function AdminSEO() {
           </div>
           
           {/* Google Preview */}
-          <div className="bg-white rounded-2xl border border-outline-variant/30 p-6 md:p-8 shadow-sm">
+          <div className="bg-surface dark:bg-white/5 rounded-2xl border border-outline-variant/30 p-6 md:p-8 shadow-sm">
             <h3 className="text-xs font-black uppercase tracking-widest text-on-surface-variant mb-4">Search Engine Preview</h3>
             <div className="p-5 bg-surface-container-lowest border border-outline-variant/30 rounded-xl max-w-2xl">
               <div className="flex items-center gap-2 mb-1">
