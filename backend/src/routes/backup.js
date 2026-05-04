@@ -13,7 +13,11 @@ import AdmZip from "adm-zip";
 import cron from "node-cron";
 import { isMongoConnected } from "../db/mongoose.js";
 import { Destination, Tour, Visa, Contact, Media, Backup, Settings, CoEditor } from "../db/models/index.js";
-import { kv } from "@vercel/kv";
+import { Redis } from "@upstash/redis";
+const kv = new Redis({
+  url:   process.env.KV_REST_API_URL,
+  token: process.env.KV_REST_API_TOKEN,
+});
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);

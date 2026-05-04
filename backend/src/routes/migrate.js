@@ -6,7 +6,11 @@ import express from "express";
 import { isMongoConnected } from "../db/mongoose.js";
 import mongoose from "mongoose";
 import { Destination, Tour, Visa, Contact, Media, CoEditor, Settings } from "../db/models/index.js";
-import { kv } from "@vercel/kv";
+import { Redis } from "@upstash/redis";
+const kv = new Redis({
+  url:   process.env.KV_REST_API_URL,
+  token: process.env.KV_REST_API_TOKEN,
+});
 
 export const router = express.Router();
 
