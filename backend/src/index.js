@@ -482,7 +482,8 @@ const cacheEdge = (req, res, next) => {
 
 // ── Destinations ──────────────────────────────────────────────────────────────
 app.get("/api/destinations", cacheEdge, async (_req, res) => {
-  res.json(await DestModel.find({}).sort({ createdAt: -1 }).lean());
+  // Exclude heavy arrays from the list view to improve performance
+  res.json(await DestModel.find({}, { galleryImages: 0, seasonsHighlights: 0 }).sort({ createdAt: -1 }).lean());
 });
 app.get("/api/destinations/:id", cacheEdge, async (req, res) => {
   const found = await DestModel.findOne({ id: req.params.id }).lean();
@@ -537,15 +538,17 @@ app.get("/api/tours", cacheEdge, async (req, res) => {
   
   if (page && limit) {
     const skip = (page - 1) * limit;
-    const [data, total] = await Promise.all([
-      TourModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-      TourModel.countDocuments(query)
-    ]);
-    return res.json({ items: data, total, page, pages: Math.ceil(total / limit) });
+    const total = await TourModel.countDocuments(query);
+    const tours = await TourModel.find(query, { itinerary: 0, sightseeing: 0, testimonials: 0, visualArchive: 0 })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+    return res.json({ items: tours, total, page, pages: Math.ceil(total / limit) });
   }
   
   // Legacy support for non-paginated requests
-  res.json(await TourModel.find(query).sort({ createdAt: -1 }).lean());
+  res.json(await TourModel.find(query, { itinerary: 0, sightseeing: 0, testimonials: 0, visualArchive: 0 }).sort({ createdAt: -1 }).lean());
 });
 app.get("/api/tours/:id", cacheEdge, async (req, res) => {
   const found = await TourModel.findOne({ id: req.params.id }).lean();
