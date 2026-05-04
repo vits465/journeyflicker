@@ -473,11 +473,18 @@ app.get("/api/db-status", (_req, res) => {
   });
 });
 
+// ── Cache Middleware for Public APIs (Vercel Edge Caching) ────────────────────
+const cacheEdge = (req, res, next) => {
+  // Cache at Vercel's Edge for 60 seconds, serve stale data for up to 5 minutes while revalidating
+  res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
+  next();
+};
+
 // ── Destinations ──────────────────────────────────────────────────────────────
-app.get("/api/destinations", async (_req, res) => {
+app.get("/api/destinations", cacheEdge, async (_req, res) => {
   res.json(await DestModel.find({}).sort({ createdAt: -1 }).lean());
 });
-app.get("/api/destinations/:id", async (req, res) => {
+app.get("/api/destinations/:id", cacheEdge, async (req, res) => {
   const found = await DestModel.findOne({ id: req.params.id }).lean();
   if (!found) return res.status(404).json({ message: "Not found" });
   res.json(found);
@@ -517,7 +524,7 @@ app.get("/api/search", async (req, res) => {
 });
 
 // ── Tours ─────────────────────────────────────────────────────────────────────
-app.get("/api/tours", async (req, res) => {
+app.get("/api/tours", cacheEdge, async (req, res) => {
   const page = parseInt(req.query.page, 10);
   const limit = parseInt(req.query.limit, 10);
   const search = req.query.search ? String(req.query.search) : "";
@@ -540,7 +547,7 @@ app.get("/api/tours", async (req, res) => {
   // Legacy support for non-paginated requests
   res.json(await TourModel.find(query).sort({ createdAt: -1 }).lean());
 });
-app.get("/api/tours/:id", async (req, res) => {
+app.get("/api/tours/:id", cacheEdge, async (req, res) => {
   const found = await TourModel.findOne({ id: req.params.id }).lean();
   if (!found) return res.status(404).json({ message: "Not found" });
   res.json(found);
@@ -568,7 +575,7 @@ app.delete("/api/tours/:id", requireCRUD, async (req, res) => {
 });
 
 // ── Visas ─────────────────────────────────────────────────────────────────────
-app.get("/api/visas", async (_req, res) => {
+app.get("/api/visas", cacheEdge, async (_req, res) => {
   res.json(await VisaModel.find({}).sort({ createdAt: -1 }).lean());
 });
 app.post("/api/visas", requireCRUD, async (req, res) => {
