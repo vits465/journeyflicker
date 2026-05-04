@@ -64,19 +64,6 @@ export default function DestinationsPage() {
     };
 
     fetchData(); // Initial fetch
-    const intervalId = setInterval(() => {
-      if (document.visibilityState === 'visible') fetchData();
-    }, 3000); // Poll every 3 seconds only if tab is visible
-
-    const onFocus = () => { if (document.visibilityState === 'visible') fetchData(); };
-    window.addEventListener('visibilitychange', onFocus);
-    window.addEventListener('focus', onFocus);
-
-    return () => {
-      clearInterval(intervalId);
-      window.removeEventListener('visibilitychange', onFocus);
-      window.removeEventListener('focus', onFocus);
-    };
   }, []);
 
   // Build hero slides

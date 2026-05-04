@@ -292,19 +292,6 @@ export default function VisasPage() {
     };
 
     fetchVisas(); // Initial fetch
-    const intervalId = setInterval(() => {
-      if (document.visibilityState === 'visible') fetchVisas();
-    }, 30000); // Poll every 30 seconds only if tab is visible
-
-    const onFocus = () => { if (document.visibilityState === 'visible') fetchVisas(); };
-    window.addEventListener('visibilitychange', onFocus);
-    window.addEventListener('focus', onFocus);
-
-    return () => {
-      clearInterval(intervalId);
-      window.removeEventListener('visibilitychange', onFocus);
-      window.removeEventListener('focus', onFocus);
-    };
   }, []);
 
   const filtered = visas.filter(v =>
