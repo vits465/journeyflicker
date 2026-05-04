@@ -61,6 +61,18 @@ export default function AdminReviews() {
         </div>
       </div>
 
+      <div className="bg-blue-50 border border-blue-200 text-blue-800 px-5 py-4 rounded-2xl flex items-start gap-3 shadow-sm mb-6">
+        <span className="material-symbols-outlined text-blue-500 mt-0.5">info</span>
+        <div>
+          <strong className="block text-sm mb-1">Google Reviews Integration Active</strong>
+          <p className="text-xs opacity-90 leading-relaxed">
+            The frontend is currently configured to randomly display 4-5 verified 5-star Google Reviews at the bottom of every <strong>Tour</strong> and <strong>Destination</strong> page. 
+            Because Google restricts automatic syncing from share links, these global reviews are securely stored in your application code.
+            To update the review text or authors, please edit the <code>frontend/src/components/GoogleReviews.tsx</code> file.
+          </p>
+        </div>
+      </div>
+
       {/* Reviews List */}
       <div className="space-y-4">
         {filteredReviews.length === 0 ? (

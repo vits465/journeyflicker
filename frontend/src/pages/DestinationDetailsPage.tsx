@@ -4,6 +4,7 @@ import { SEO } from '../components/SEO';
 import type { Destination, Tour } from '../lib/api';
 import { api } from '../lib/api';
 import { Preloader } from '../components/Preloader';
+import { GoogleReviews } from '../components/GoogleReviews';
 
 const DEFAULT_IMG = 'https://images.unsplash.com/photo-1493246232918-d78b97076ac9?q=80&w=2070&auto=format&fit=crop';
 
@@ -368,6 +369,11 @@ export default function DestinationDetailsPage() {
               </div>
             </section>
           )}
+
+          {/* ── GOOGLE REVIEWS ── */}
+          <div className="animate-reveal-up pl-0 sm:pl-10">
+            <GoogleReviews max={4} />
+          </div>
 
           {/* ── INQUIRY CTA ── */}
           <div className="bg-black rounded-2xl p-8 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 animate-reveal-up">
