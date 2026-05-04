@@ -26,6 +26,12 @@ export default function AdminAccessControl() {
   const [success, setSuccess] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
+  // Admin state
+  const [adminUsername, setAdminUsername] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [showAdminPass, setShowAdminPass] = useState(false);
+  const [adminSaving, setAdminSaving] = useState(false);
+
   if (!canEdit) {
     return (
       <div className="max-w-xl mx-auto mt-8">
@@ -50,9 +56,17 @@ export default function AdminAccessControl() {
 
   async function loadAccounts() {
     try {
-      const res = await fetch(`${API_BASE}/auth/co-editor-accounts`, { headers: authHeaders() });
-      if (!res.ok) throw new Error(await res.text());
-      setAccounts(await res.json());
+      const [coRes, adminRes] = await Promise.all([
+        fetch(`${API_BASE}/auth/co-editor-accounts`, { headers: authHeaders() }),
+        fetch(`${API_BASE}/auth/admin-credentials`, { headers: authHeaders() })
+      ]);
+      if (!coRes.ok) throw new Error(await coRes.text());
+      setAccounts(await coRes.json());
+      
+      if (adminRes.ok) {
+        const adminData = await adminRes.json();
+        setAdminUsername(adminData.username || '');
+      }
     } catch (e: unknown) {
       flash(e instanceof Error ? e.message : 'Failed to load accounts', true);
     } finally {
@@ -110,6 +124,31 @@ export default function AdminAccessControl() {
       await loadAccounts();
     } catch (e: unknown) {
       flash(e instanceof Error ? e.message : 'Delete failed', true);
+    }
+  }
+
+  async function handleAdminSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!adminUsername.trim() || adminUsername.trim().length < 3) {
+      return flash('Admin username must be at least 3 characters.', true);
+    }
+    if (adminPassword && adminPassword.length < 6) {
+      return flash('Admin password must be at least 6 characters.', true);
+    }
+    setAdminSaving(true);
+    try {
+      const body: any = { username: adminUsername };
+      if (adminPassword) body.password = adminPassword;
+      const res = await fetch(`${API_BASE}/auth/admin-credentials`, { 
+        method: 'PUT', headers: authHeaders(), body: JSON.stringify(body) 
+      });
+      if (!res.ok) throw new Error(await res.text());
+      flash('Master Admin credentials updated!');
+      setAdminPassword('');
+    } catch (e: unknown) {
+      flash(e instanceof Error ? e.message : 'Admin update failed', true);
+    } finally {
+      setAdminSaving(false);
     }
   }
 
@@ -283,30 +322,58 @@ export default function AdminAccessControl() {
         )}
       </div>
 
-      {/* Editor credentials (read-only info) */}
-      <div className="bg-surface dark:bg-white/5 rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden">
-        <div className="px-4 py-3 border-b border-outline-variant/20 bg-surface-container-low flex items-center gap-2">
-          <span className="material-symbols-outlined text-on-surface-variant text-base">shield</span>
-          <span className="text-xs font-black uppercase tracking-widest text-on-surface-variant">Editor Credentials (Fixed)</span>
+      {/* Master Admin Credentials (Editable) */}
+      <div className="bg-surface dark:bg-white/5 rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden border-blue-500/20">
+        <div className="px-4 py-3 border-b border-outline-variant/20 bg-blue-50/50 dark:bg-blue-900/20 flex items-center gap-2">
+          <span className="material-symbols-outlined text-blue-600 text-base">admin_panel_settings</span>
+          <span className="text-xs font-black uppercase tracking-widest text-blue-700 dark:text-blue-400">Master Admin Credentials</span>
         </div>
-        <div className="p-4">
-          <p className="text-[10px] text-on-surface-variant mb-3">
-            The main editor account has unrestricted access to all admin sections including contacts, backups, hero settings, SEO, and this access control panel.
+        <form onSubmit={handleAdminSubmit} className="p-4 space-y-4">
+          <p className="text-[10px] text-on-surface-variant leading-relaxed">
+            These are your master credentials. Updating them here will sync them to the database and override the default environment variables. Keep them safe!
           </p>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-3 bg-surface-container-low rounded-xl border border-outline-variant/20">
-              <p className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant mb-1">Username</p>
-              <p className="text-sm font-mono text-on-surface">Fliker</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[9px] font-black uppercase tracking-widest text-on-surface-variant mb-1">
+                Master Username
+              </label>
+              <input
+                type="text"
+                value={adminUsername}
+                onChange={e => setAdminUsername(e.target.value)}
+                className="w-full px-3 py-2 border border-outline-variant rounded-xl text-sm font-mono focus:outline-none focus:border-blue-500 bg-surface-container-low text-on-surface transition-colors"
+                required
+                minLength={3}
+              />
             </div>
-            <div className="p-3 bg-surface-container-low rounded-xl border border-outline-variant/20">
-              <p className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant mb-1">Password</p>
-              <p className="text-sm font-mono text-on-surface">••••••••</p>
+            <div>
+              <label className="block text-[9px] font-black uppercase tracking-widest text-on-surface-variant mb-1">
+                New Password <span className="normal-case font-normal opacity-60">(leave blank to keep)</span>
+              </label>
+              <div className="relative">
+                <input
+                  type={showAdminPass ? 'text' : 'password'}
+                  value={adminPassword}
+                  onChange={e => setAdminPassword(e.target.value)}
+                  className="w-full px-3 py-2 pr-10 border border-outline-variant rounded-xl text-sm font-mono focus:outline-none focus:border-blue-500 bg-surface-container-low text-on-surface transition-colors"
+                  placeholder="Min. 6 characters"
+                  minLength={adminPassword ? 6 : undefined}
+                />
+                <button type="button" onClick={() => setShowAdminPass(p => !p)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface transition-colors">
+                  <span className="material-symbols-outlined text-sm">{showAdminPass ? 'visibility_off' : 'visibility'}</span>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-        <p className="px-4 pb-3 text-[10px] text-on-surface-variant italic">
-          Editor credentials are hardcoded and cannot be changed from this panel.
-        </p>
+          <div className="pt-1">
+            <button type="submit" disabled={adminSaving}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-1.5 shadow-sm">
+              <span className="material-symbols-outlined text-sm">{adminSaving ? 'sync' : 'save'}</span>
+              {adminSaving ? 'Updating...' : 'Update Master Credentials'}
+            </button>
+          </div>
+        </form>
       </div>
 
       {/* Permissions Overview Section */}

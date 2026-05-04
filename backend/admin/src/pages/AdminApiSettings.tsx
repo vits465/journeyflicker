@@ -244,7 +244,7 @@ export default function AdminApiSettings() {
                 <span className="material-symbols-outlined text-red-500 mt-0.5 text-lg">warning</span>
                 <div className="text-xs">
                   <strong className="block mb-0.5">Critical Security Alert</strong>
-                  You are using the default admin password. Set ADMIN_PASSWORD in Vercel to secure your panel.
+                  {systemStatus?.auth?.warningMsg || 'You are using insecure credentials.'}
                 </div>
               </div>
             )}

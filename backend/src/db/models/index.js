@@ -111,10 +111,18 @@ const BackupSchema = new mongoose.Schema({
 
 // ── CoEditor ──────────────────────────────────────────────────────────────────
 const CoEditorSchema = new mongoose.Schema({
-  id: { type: String, required: true, unique: true, index: true },
+  id: { type: String, required: true, unique: true },
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-}, { timestamps: false, versionKey: false });
+  createdAt: { type: Date, default: Date.now },
+});
+
+const AdminSchema = new mongoose.Schema({
+  id: { type: String, required: true, unique: true },
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
+});
 
 // ── Settings ──────────────────────────────────────────────────────────────────
 const SettingsSchema = new mongoose.Schema({
@@ -130,4 +138,5 @@ export const Contact      = mongoose.models.Contact      || mongoose.model("Cont
 export const Media        = mongoose.models.Media        || mongoose.model("Media",         MediaSchema);
 export const Backup       = mongoose.models.Backup       || mongoose.model("Backup",        BackupSchema);
 export const CoEditor     = mongoose.models.CoEditor     || mongoose.model("CoEditor",      CoEditorSchema);
+export const Admin        = mongoose.models.Admin        || mongoose.model("Admin",         AdminSchema);
 export const Settings     = mongoose.models.Settings     || mongoose.model("Settings",      SettingsSchema);

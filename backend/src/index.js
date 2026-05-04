@@ -18,7 +18,7 @@ import fs from "node:fs";
 
 // ── MongoDB ────────────────────────────────────────────────────────────────────
 import { connectMongo, isMongoConnected } from "./db/mongoose.js";
-import { Destination as DestModel, Tour as TourModel, Visa as VisaModel, Contact as ContactModel, Settings as SettingsModel, CoEditor as CoEditorModel, Media as MediaModel } from "./db/models/index.js";
+import { Destination as DestModel, Tour as TourModel, Visa as VisaModel, Contact as ContactModel, Settings as SettingsModel, CoEditor as CoEditorModel, Media as MediaModel, Admin as AdminModel } from "./db/models/index.js";
 import { router as backupRouter, startScheduledBackup } from "./routes/backup.js";
 import { router as importExportRouter } from "./routes/import-export.js";
 import { router as enhancedMediaRouter } from "./routes/media.js";
@@ -225,15 +225,59 @@ app.post("/api/auth/login", loginLimiter, async (req, res) => {
   const bf = await checkBruteForce(ip);
   if (bf.blocked) return res.status(429).json({ error: `Too many failed attempts. Try again in ${bf.waitMins} minute(s).` });
   const { username, password } = req.body || {};
-  // Timing-safe credential check
-  const userMatch = safeEqual(String(username || ""), ADMIN_USERNAME);
-  const passMatch = safeEqual(String(password || ""), ADMIN_PASSWORD);
-  if (userMatch && passMatch) {
-    await clearAttempts(ip);
-    return res.json({ token: await issueToken("editor", "admin"), role: "editor" });
-  }
+  try {
+    const admin = await AdminModel.findOne({ username: String(username || "") }).lean();
+    if (admin) {
+      if (await verifyPassword(String(password || ""), admin.password)) {
+        await clearAttempts(ip);
+        return res.json({ token: await issueToken("editor", admin.id), role: "editor", id: admin.id });
+      }
+    } else {
+      // Fallback to ENV if no admins exist (Migration / First run)
+      const totalAdmins = await AdminModel.countDocuments();
+      if (totalAdmins === 0) {
+        const userMatch = safeEqual(String(username || ""), ADMIN_USERNAME);
+        const passMatch = safeEqual(String(password || ""), ADMIN_PASSWORD);
+        if (userMatch && passMatch) {
+          await clearAttempts(ip);
+          // Auto-seed the database with the env credentials
+          const hashed = await hashPassword(String(password || ""));
+          const newAdminId = newId("admin");
+          await AdminModel.create({ id: newAdminId, username: String(username || ""), password: hashed });
+          return res.json({ token: await issueToken("editor", newAdminId), role: "editor", id: newAdminId });
+        }
+      }
+    }
+  } catch (e) { console.error(e); }
+
   await recordFailedAttempt(ip);
   return res.status(401).json({ error: "Invalid credentials" });
+});
+
+app.get("/api/auth/admin-credentials", requireAdmin, async (req, res) => {
+  try {
+    const admin = await AdminModel.findOne({ id: req.user.identifier }).lean();
+    if (!admin) return res.status(404).json({ error: "Admin not found" });
+    res.json({ username: admin.username });
+  } catch (e) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+app.put("/api/auth/admin-credentials", requireAdmin, async (req, res) => {
+  const { username, password } = req.body;
+  if (!username && !password) return res.status(400).json({ error: "No changes provided" });
+  
+  try {
+    const update = {};
+    if (username) update.username = username;
+    if (password) update.password = await hashPassword(password);
+    
+    await AdminModel.updateOne({ id: req.user.identifier }, { $set: update });
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: "Server error" });
+  }
 });
 
 app.post("/api/auth/co-editor-login", loginLimiter, async (req, res) => {
@@ -659,13 +703,13 @@ app.get("/api/admin/system-status", requireAdmin, async (req, res) => {
   const mongoOk = isMongoConnected();
   const redisOk = !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
   const cloudOk = !!(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
-  const passOk  = !!process.env.ADMIN_PASSWORD;
+  const passOk  = await AdminModel.countDocuments() > 0;
 
   res.json({
     mongodb: { status: mongoOk ? 'operational' : 'error', connected: mongoOk, dbName: process.env.MONGODB_DB || "journeyflicker" },
     redis: { status: redisOk ? 'operational' : 'offline', connected: redisOk },
     cloudinary: { status: cloudOk ? 'operational' : 'offline', connected: cloudOk, cloudName: process.env.CLOUDINARY_CLOUD_NAME || "Not Set" },
-    auth: { status: passOk ? 'operational' : 'warning', secure: passOk, warningMsg: passOk ? null : "Using default insecure password" }
+    auth: { status: passOk ? 'operational' : 'warning', secure: passOk, warningMsg: passOk ? null : "Master Admin is using default environment variables. Log out and log back in to automatically migrate to the database." }
   });
 });
 const DEFAULT_REVIEWS = [
