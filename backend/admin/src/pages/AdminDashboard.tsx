@@ -83,7 +83,7 @@ export default function AdminDashboard() {
     const interval = setInterval(() => {
       loadAll(true); // Silent background refresh
       loadActivity();
-    }, 10000); 
+    }, 60000); // Changed from 10s to 60s for better performance
     return () => clearInterval(interval);
   }, []);
 
@@ -316,7 +316,7 @@ export default function AdminDashboard() {
                   {activeTab === 'destinations' && (
                     destinations.length === 0 ? <EmptyState label="destinations" /> : (
                       <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 gap-6" : "space-y-3"}>
-                        {destinations.map(d => (
+                        {destinations.slice(0, 12).map(d => (
                           <div key={d.id} className={viewMode === 'grid' ? "grid-item dark:bg-white/5 dark:border-white/10" : "flex items-center gap-4 p-4 border border-gray-100 dark:border-white/10 rounded-2xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"}>
                             <div className={viewMode === 'grid' ? "h-40 overflow-hidden relative" : "w-16 h-16 rounded-xl overflow-hidden flex-shrink-0"}>
                               {d.heroImageUrl ? (
@@ -352,7 +352,7 @@ export default function AdminDashboard() {
                   {activeTab === 'tours' && (
                     tours.length === 0 ? <EmptyState label="tours" /> : (
                       <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 gap-6" : "space-y-3"}>
-                        {tours.map(t => (
+                        {tours.slice(0, 12).map(t => (
                           <div key={t.id} className={viewMode === 'grid' ? "grid-item dark:bg-white/5 dark:border-white/10" : "flex items-center gap-4 p-4 border border-gray-100 dark:border-white/10 rounded-2xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"}>
                             <div className={viewMode === 'grid' ? "h-40 overflow-hidden relative" : "w-16 h-16 rounded-xl overflow-hidden flex-shrink-0"}>
                               {t.heroImageUrl ? (
@@ -388,7 +388,7 @@ export default function AdminDashboard() {
                   {activeTab === 'visas' && (
                     visas.length === 0 ? <EmptyState label="visas" /> : (
                       <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 gap-6" : "space-y-3"}>
-                        {visas.map(v => (
+                        {visas.slice(0, 12).map(v => (
                           <div key={v.id} className={viewMode === 'grid' ? "grid-item dark:bg-white/5 dark:border-white/10" : "flex items-center gap-4 p-4 border border-gray-100 dark:border-white/10 rounded-2xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"}>
                             <div className={viewMode === 'grid' ? "h-40 overflow-hidden relative" : "w-16 h-16 rounded-xl overflow-hidden flex-shrink-0"}>
                               {v.heroImageUrl ? (
@@ -420,6 +420,9 @@ export default function AdminDashboard() {
                       </div>
                     )
                   )}
+                  {activeTab === 'destinations' && destinations.length > 12 && <div className="text-center mt-6"><Link to="/destinations" className="text-[10px] font-bold uppercase tracking-widest text-indigo-500 hover:text-indigo-400">View All {destinations.length} Destinations →</Link></div>}
+                  {activeTab === 'tours' && tours.length > 12 && <div className="text-center mt-6"><Link to="/tours" className="text-[10px] font-bold uppercase tracking-widest text-emerald-500 hover:text-emerald-400">View All {tours.length} Tours →</Link></div>}
+                  {activeTab === 'visas' && visas.length > 12 && <div className="text-center mt-6"><Link to="/visas" className="text-[10px] font-bold uppercase tracking-widest text-purple-500 hover:text-purple-400">View All {visas.length} Visas →</Link></div>}
                 </div>
               )}
             </div>

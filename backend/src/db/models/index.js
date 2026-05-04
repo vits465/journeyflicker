@@ -16,7 +16,7 @@ const DestinationSchema = new mongoose.Schema({
   bestSeasonsMonths: { type: String, default: "" },
   seasonsHighlights: [{ season: String, description: String, _id: false }],
   galleryImages: [String],
-  createdAt: { type: Number, default: () => Date.now() },
+  createdAt: { type: Number, default: () => Date.now(), index: -1 },
 }, { timestamps: false, versionKey: false });
 
 // ── Tour ──────────────────────────────────────────────────────────────────────
@@ -43,7 +43,7 @@ const TourSchema = new mongoose.Schema({
   testimonials: [{ quote: String, author: String, _id: false }],
   departureWindows: [{ range: String, label: String, _id: false }],
   maxGuests: { type: Number, default: 8 },
-  createdAt: { type: Number, default: () => Date.now() },
+  createdAt: { type: Number, default: () => Date.now(), index: -1 },
 }, { timestamps: false, versionKey: false });
 
 // ── Visa ──────────────────────────────────────────────────────────────────────
@@ -59,7 +59,7 @@ const VisaSchema = new mongoose.Schema({
   documents: [String],
   requirements: [mongoose.Schema.Types.Mixed],
   additionalDetails: [String],
-  createdAt: { type: Number, default: () => Date.now() },
+  createdAt: { type: Number, default: () => Date.now(), index: -1 },
 }, { timestamps: false, versionKey: false });
 
 // ── Contact ───────────────────────────────────────────────────────────────────
@@ -70,7 +70,7 @@ const ContactSchema = new mongoose.Schema({
   type: { type: String, default: "General Inquiry" },
   message: { type: String, default: "" },
   read: { type: Boolean, default: false, index: true },
-  createdAt: { type: Number, default: () => Date.now() },
+  createdAt: { type: Number, default: () => Date.now(), index: -1 },
 }, { timestamps: false, versionKey: false });
 
 // ── Media ─────────────────────────────────────────────────────────────────────
@@ -87,7 +87,7 @@ const MediaSchema = new mongoose.Schema({
   hash: { type: String, default: "", index: true },
   usedIn: [{ entity: String, id: String, field: String }],
   deletedAt: { type: Number, default: null },
-  createdAt: { type: Number, default: () => Date.now() },
+  createdAt: { type: Number, default: () => Date.now(), index: -1 },
 }, { timestamps: false, versionKey: false });
 
 // ── Backup ────────────────────────────────────────────────────────────────────
@@ -104,7 +104,7 @@ const BackupSchema = new mongoose.Schema({
     media: { type: Number, default: 0 },
   },
   storagePath: { type: String, default: "" },
-  createdAt: { type: Number, default: () => Date.now() },
+  createdAt: { type: Number, default: () => Date.now(), index: -1 },
   restoredAt: { type: Number, default: null },
   createdBy: { type: String, default: "System" },
 }, { timestamps: false, versionKey: false });
