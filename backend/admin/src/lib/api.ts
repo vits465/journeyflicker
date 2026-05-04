@@ -347,6 +347,8 @@ export interface ApiInterface {
   getSeoSettings: () => Promise<SeoPage[]>;
   updateSeoSettings: (settings: SeoPage[]) => Promise<void>;
   getSystemStatus: () => Promise<any>;
+  getReviews: () => Promise<any[]>;
+  updateReviews: (reviews: any[]) => Promise<void>;
   listActivity: () => Promise<Activity[]>;
   // MongoDB migration
   getMigrationStatus: () => Promise<MigrationStatus>;
@@ -448,6 +450,8 @@ export const api: ApiInterface = {
   getSeoSettings:     () => http<SeoPage[]>("/seo-settings"),
   updateSeoSettings:  (settings) => http<void>("/seo-settings", { method: "PUT", body: JSON.stringify(settings) }),
   getSystemStatus:    () => http<any>("/admin/system-status"),
+  getReviews:         () => http<any[]>("/reviews"),
+  updateReviews:      (reviews) => http<void>("/admin/reviews", { method: "PUT", body: JSON.stringify(reviews) }),
   listActivity:       () => http<Activity[]>("/admin/activity"),
 
   getMigrationStatus: () => http<MigrationStatus>("/admin/migrate/status"),

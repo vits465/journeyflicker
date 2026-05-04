@@ -1,22 +1,22 @@
-import { useMemo } from 'react';
-
-const GLOBAL_GOOGLE_REVIEWS = [
-  { id: 1, author: 'Prapti Patel', date: 'a day ago', rating: 5, content: 'We recently booked a tour with JourneyFlicker and was thoroughly impressed by their professionalism. PARSHWA and TUSHAR BHAI helped curate an amazing 10 day itinerary that was both flexible and cost-effective.' },
-  { id: 2, author: 'Priyanka Thakor', date: '3 months ago', rating: 5, content: 'Excellent service from Journey Flicker. They managed our Andaman itinerary perfectly. What stood out most was their proactive support and rapid communication.' },
-  { id: 3, author: 'Gaurang kher', date: '3 months ago', rating: 5, content: 'Had an amazing trip to the Andaman Islands organized by Journey Flicker. The team was incredibly supportive and provided a very quick response to all our queries. Highly recommended!' },
-  { id: 4, author: 'janvi patel', date: 'a month ago', rating: 5, content: 'We had a wonderful Vietnam trip. All the arrangements like hotel, travel and activities were very well managed by Journey Flickers. Thank you for making our trip so comfortable and memorable.' },
-  { id: 5, author: 'Akshar Patel', date: '3 months ago', rating: 5, content: 'Amazing Bali experience with JourneyFlikers! Great planning, lovely hotels, hassle-free transfers, and a super friendly guide. Excellent communication throughout. Totally worth it!' },
-  { id: 6, author: 'ashish patel', date: '6 months ago', rating: 5, content: 'We booked a trip to Hong Kong and Macau through JourneyFlicker. The tour was very well organized and we had a truly amazing experience throughout the trip. Every moment was memorable.' },
-  { id: 7, author: 'Sagar Goplani', date: '6 months ago', rating: 5, content: 'Best experience ever....hotel location, management service, tour guide. food quality was best.... We are very happy and satisfied with your service from start to end. Thank you!' },
-  { id: 8, author: 'Hiren Mehta', date: '7 months ago', rating: 5, content: 'I booked a trip to Ayodhya-Prayagraj-Varanasi along with my parents who are senior citizens. JourneyFlicker is the best travel partner. The meticulous planning is commendable.' },
-];
+import { useMemo, useState, useEffect } from 'react';
+import { api } from '../lib/api';
 
 export function GoogleReviews({ max = 4 }: { max?: number }) {
-  // Randomly select 'max' reviews on component mount
+  const [reviews, setReviews] = useState<any[]>([]);
+
+  useEffect(() => {
+    api.getReviews()
+      .then(data => setReviews(Array.isArray(data) ? data : []))
+      .catch(err => console.error("Failed to load reviews:", err));
+  }, []);
+  // Randomly select 'max' reviews
   const randomReviews = useMemo(() => {
-    const shuffled = [...GLOBAL_GOOGLE_REVIEWS].sort(() => 0.5 - Math.random());
+    if (!reviews.length) return [];
+    const shuffled = [...reviews].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, max);
-  }, [max]);
+  }, [max, reviews]);
+
+  if (!reviews.length) return null;
 
   return (
     <div className="py-12 border-t border-outline-variant/20 mt-16">

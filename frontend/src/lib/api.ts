@@ -162,4 +162,5 @@ export const api = {
   getHeroSettings: () => http<any>("/hero-settings"),
   search: (q: string) => http<{ destinations: Destination[]; tours: Tour[] }>(`/search?q=${encodeURIComponent(q)}`),
   getSeoSettings: () => http<SeoPage[]>("/seo-settings"),
+  getReviews: () => http<any[]>("/reviews"),
 };

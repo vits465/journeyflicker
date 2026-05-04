@@ -1,137 +1,142 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
-
-type ReviewStatus = 'pending' | 'approved' | 'featured';
+import { api } from '../lib/api';
 
 interface Review {
-  id: string;
+  id: string | number;
   author: string;
-  location: string;
+  date: string;
   rating: number;
   content: string;
-  status: ReviewStatus;
-  date: string;
 }
-
-const DUMMY_REVIEWS: Review[] = [
-  { id: '1', author: 'Eleanor Vance', location: 'Santorini, Greece', rating: 5, content: 'Absolutely breathtaking experience. The attention to detail from the JourneyFlicker team made our honeymoon unforgettable.', status: 'featured', date: 'Oct 20, 2026' },
-  { id: '2', author: 'Marcus Sterling', location: 'Kyoto, Japan', rating: 5, content: 'A masterclass in cultural immersion. The private tea ceremony was the highlight of our trip.', status: 'approved', date: 'Oct 15, 2026' },
-  { id: '3', author: 'Sarah Jenkins', location: 'Swiss Alps', rating: 4, content: 'Beautiful scenery and great hotels, though the weather was a bit unpredictable on the second day. Still highly recommended.', status: 'pending', date: 'Oct 12, 2026' },
-  { id: '4', author: 'David Chen', location: 'Maldives', rating: 5, content: 'Literal paradise. Everything was seamless from the seaplane transfer to the overwater villa.', status: 'featured', date: 'Sep 28, 2026' },
-];
 
 export default function AdminReviews() {
   const { canEdit } = useOutletContext<{ canEdit: boolean }>();
-  const [filter, setFilter] = useState<'all' | ReviewStatus>('all');
-  const [reviews, setReviews] = useState<Review[]>(DUMMY_REVIEWS);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-  const filteredReviews = reviews.filter(r => filter === 'all' || r.status === filter);
+  useEffect(() => {
+    api.getReviews()
+      .then(data => setReviews(Array.isArray(data) ? data : []))
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false));
+  }, []);
 
-  const updateStatus = (id: string, newStatus: ReviewStatus) => {
+  const handleSave = async () => {
     if (!canEdit) return;
-    setReviews(prev => prev.map(r => r.id === id ? { ...r, status: newStatus } : r));
+    setSaving(true);
+    try {
+      await api.updateReviews(reviews);
+      alert('Reviews saved successfully!');
+    } catch (err) {
+      alert('Failed to save reviews');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const statusColors = {
-    pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    approved: 'bg-green-100 text-green-800 border-green-200',
-    featured: 'bg-purple-100 text-purple-800 border-purple-200',
+  const addReview = () => {
+    const newRev: Review = { id: Date.now().toString(), author: 'New Reviewer', date: 'Just now', rating: 5, content: 'Excellent experience.' };
+    setReviews([newRev, ...reviews]);
   };
+
+  const removeReview = (id: string | number) => {
+    if (!confirm('Remove this review?')) return;
+    setReviews(reviews.filter(r => r.id !== id));
+  };
+
+  const updateReview = (id: string | number, field: keyof Review, value: any) => {
+    setReviews(reviews.map(r => r.id === id ? { ...r, [field]: value } : r));
+  };
+
+  if (loading) return <div className="p-10 text-center text-on-surface-variant font-medium animate-pulse">Loading reviews database...</div>;
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
-          <h2 className="text-2xl font-semibold text-on-surface tracking-tight">Reviews & Testimonials</h2>
-          <p className="text-on-surface-variant text-sm mt-1">Curate customer feedback and select featured testimonials for the homepage.</p>
+          <h2 className="text-2xl font-semibold text-on-surface tracking-tight">Google Reviews Integration</h2>
+          <p className="text-on-surface-variant text-sm mt-1">Manage the global reviews that randomly appear on Tour and Destination pages.</p>
         </div>
-        <div className="flex bg-surface rounded-full border border-outline-variant/30 p-1 shadow-sm">
-          {(['all', 'pending', 'approved', 'featured'] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase transition-colors ${
-                filter === f ? 'bg-on-surface text-surface shadow-md' : 'text-on-surface-variant hover:text-on-surface'
-              }`}
-            >
-              {f}
+        {canEdit && (
+          <div className="flex gap-3">
+            <button onClick={addReview} className="px-4 py-2 bg-surface text-on-surface border border-outline-variant/30 rounded-xl hover:bg-surface-container transition-colors text-sm font-bold flex items-center gap-2">
+              <span className="material-symbols-outlined text-[18px]">add</span> Add Review
             </button>
-          ))}
-        </div>
+            <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors text-sm font-bold flex items-center gap-2 disabled:opacity-50">
+              <span className="material-symbols-outlined text-[18px]">save</span> {saving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="bg-blue-50 border border-blue-200 text-blue-800 px-5 py-4 rounded-2xl flex items-start gap-3 shadow-sm mb-6">
-        <span className="material-symbols-outlined text-blue-500 mt-0.5">info</span>
+        <span className="material-symbols-outlined text-blue-500 mt-0.5">cloud_sync</span>
         <div>
-          <strong className="block text-sm mb-1">Google Reviews Integration Active</strong>
+          <strong className="block text-sm mb-1">Live Database Sync Active</strong>
           <p className="text-xs opacity-90 leading-relaxed">
-            The frontend is currently configured to randomly display 4-5 verified 5-star Google Reviews at the bottom of every <strong>Tour</strong> and <strong>Destination</strong> page. 
-            Because Google restricts automatic syncing from share links, these global reviews are securely stored in your application code.
-            To update the review text or authors, please edit the <code>frontend/src/components/GoogleReviews.tsx</code> file.
+            These reviews are synced directly to your live frontend. The website will randomly select 4 of these reviews to display at the bottom of every page. Make sure they represent your best 5-star feedback! Click "Save Changes" to publish your edits to the website immediately.
           </p>
         </div>
       </div>
 
       {/* Reviews List */}
       <div className="space-y-4">
-        {filteredReviews.length === 0 ? (
+        {reviews.length === 0 ? (
           <div className="bg-surface rounded-2xl border border-outline-variant/30 p-12 text-center shadow-sm">
             <span className="material-symbols-outlined text-4xl text-on-surface-variant/40 mb-3">reviews</span>
-            <p className="text-on-surface-variant">No reviews found for this filter.</p>
+            <p className="text-on-surface-variant">No reviews found. Click "Add Review" to get started.</p>
           </div>
         ) : (
-          filteredReviews.map(review => (
-            <div key={review.id} className="bg-surface rounded-2xl border border-outline-variant/30 p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col md:flex-row gap-5">
+          reviews.map(review => (
+            <div key={review.id} className="bg-surface rounded-2xl border border-outline-variant/30 p-5 shadow-sm flex flex-col md:flex-row gap-5 hover:border-outline-variant/60 transition-colors">
               
               <div className="flex-1 space-y-3">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-bold text-on-surface text-lg">{review.author}</h3>
-                    <div className="flex items-center gap-2 text-xs text-on-surface-variant mt-0.5">
-                      <span className="material-symbols-outlined text-[14px]">location_on</span>
-                      {review.location} • {review.date}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between">
+                  <div className="flex items-center gap-3 flex-1 w-full">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg shrink-0">
+                      {review.author.charAt(0) || 'U'}
                     </div>
+                    <input 
+                      type="text" 
+                      value={review.author} 
+                      onChange={e => updateReview(review.id, 'author', e.target.value)}
+                      className="font-bold text-on-surface text-lg bg-transparent border-b border-transparent hover:border-outline-variant/30 focus:border-primary outline-none px-1 py-0.5 w-full sm:w-auto transition-colors"
+                      placeholder="Reviewer Name"
+                      disabled={!canEdit}
+                    />
                   </div>
-                  <div className="flex text-yellow-400">
-                    {[...Array(5)].map((_, i) => (
-                      <span key={i} className="material-symbols-outlined" style={{ fontVariationSettings: i < review.rating ? "'FILL' 1" : "'FILL' 0" }}>star</span>
-                    ))}
+                  <div className="flex items-center gap-3">
+                    <div className="flex text-amber-400 text-sm">★★★★★</div>
+                    <input 
+                      type="text" 
+                      value={review.date} 
+                      onChange={e => updateReview(review.id, 'date', e.target.value)}
+                      className="text-xs text-on-surface-variant bg-transparent border-b border-transparent hover:border-outline-variant/30 focus:border-primary outline-none px-1 py-0.5 text-right w-24 transition-colors"
+                      placeholder="e.g. 2 months ago"
+                      disabled={!canEdit}
+                    />
                   </div>
                 </div>
-                <p className="text-sm text-on-surface-variant leading-relaxed italic">"{review.content}"</p>
+                
+                <textarea 
+                  value={review.content} 
+                  onChange={e => updateReview(review.id, 'content', e.target.value)}
+                  className="text-sm text-on-surface-variant leading-relaxed italic w-full bg-transparent border border-outline-variant/10 hover:border-outline-variant/30 rounded-lg p-3 focus:border-primary outline-none resize-none min-h-[80px] transition-colors"
+                  placeholder="Review content..."
+                  disabled={!canEdit}
+                />
               </div>
 
-              <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-start gap-3 border-t md:border-t-0 md:border-l border-outline-variant/20 pt-4 md:pt-0 md:pl-5 w-full md:w-48">
-                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${statusColors[review.status]}`}>
-                  {review.status}
-                </span>
-
-                {canEdit && (
-                  <div className="flex gap-2 w-full md:w-auto md:mt-auto">
-                    {review.status === 'pending' && (
-                      <>
-                        <button onClick={() => updateStatus(review.id, 'approved')} className="flex-1 md:flex-none px-3 py-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-xs font-bold shadow-sm" title="Approve">
-                          <span className="material-symbols-outlined text-sm block">check</span>
-                        </button>
-                        <button className="flex-1 md:flex-none px-3 py-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-xs font-bold" title="Reject/Delete">
-                          <span className="material-symbols-outlined text-sm block">close</span>
-                        </button>
-                      </>
-                    )}
-                    {review.status === 'approved' && (
-                      <button onClick={() => updateStatus(review.id, 'featured')} className="w-full px-3 py-1.5 bg-purple-50 text-purple-700 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors text-[10px] font-bold uppercase tracking-wider shadow-sm flex items-center justify-center gap-1">
-                        <span className="material-symbols-outlined text-xs">auto_awesome</span> Feature
-                      </button>
-                    )}
-                    {review.status === 'featured' && (
-                      <button onClick={() => updateStatus(review.id, 'approved')} className="w-full px-3 py-1.5 bg-surface-container-low text-on-surface-variant rounded-lg hover:bg-surface-container transition-colors text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1">
-                        Un-Feature
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
+              {canEdit && (
+                <div className="flex flex-row md:flex-col items-center justify-center md:justify-center gap-3 border-t md:border-t-0 md:border-l border-outline-variant/20 pt-4 md:pt-0 md:pl-5 w-full md:w-32 shrink-0">
+                  <button onClick={() => removeReview(review.id)} className="w-full px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-xs font-bold flex items-center justify-center gap-1 shadow-sm">
+                    <span className="material-symbols-outlined text-[16px]">delete</span> Delete
+                  </button>
+                </div>
+              )}
             </div>
           ))
         )}
