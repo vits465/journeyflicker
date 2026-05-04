@@ -12,6 +12,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5.100.8",
     "@tanstack/react-query-devtools": "^5.100.8",
+    "@vercel/speed-insights": "^2.0.0",
     "date-fns": "^4.1.0",
     "jszip": "^3.10.1",
     "mammoth": "^1.12.0",
