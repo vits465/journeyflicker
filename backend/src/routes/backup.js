@@ -25,8 +25,17 @@ const __dirname  = path.dirname(__filename);
 export const router = express.Router();
 
 // ── Backup storage directory ──────────────────────────────────────────────────
-const BACKUP_DIR = path.resolve(__dirname, "../../backups");
-if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR, { recursive: true });
+// On Vercel: /var/task is read-only → use /tmp (ephemeral but writable)
+// On Railway/local: use project-level backups/ folder
+const BACKUP_DIR = process.env.VERCEL
+  ? "/tmp/jf-backups"
+  : path.resolve(__dirname, "../../backups");
+
+try {
+  if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR, { recursive: true });
+} catch (e) {
+  console.warn("[Backup] Could not create backup dir:", e.message);
+}
 
 const MAX_BACKUPS = 20;
 const PROJECT_VERSION = "1.0.0";
