@@ -654,24 +654,19 @@ app.put("/api/seo-settings", requireAdmin, async (req, res) => {
   res.json({ success: true });
 });
 
-const API_SETTINGS_KEY = "jf:api_settings";
+// ── API System Status ──────────────────────────────────────────────────────────
+app.get("/api/admin/system-status", requireAdmin, async (req, res) => {
+  const mongoOk = isMongoConnected();
+  const redisOk = !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+  const cloudOk = !!(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
+  const passOk  = !!process.env.ADMIN_PASSWORD;
 
-// ── API Settings ──────────────────────────────────────────────────────────────
-app.get("/api/api-settings", async (_req, res) => {
-  const settings = await SettingsModel.findOne({ key: "api_settings" }).lean();
-  if (settings && settings.value) return res.json(settings.value);
   res.json({
-    stripeSecret: '',
-    stripePublic: '',
-    sendgridKey: '',
-    googleMapsKey: '',
-    awsAccessKey: '',
+    mongodb: { status: mongoOk ? 'operational' : 'error', connected: mongoOk, dbName: process.env.MONGODB_DB || "journeyflicker" },
+    redis: { status: redisOk ? 'operational' : 'offline', connected: redisOk },
+    cloudinary: { status: cloudOk ? 'operational' : 'offline', connected: cloudOk, cloudName: process.env.CLOUDINARY_CLOUD_NAME || "Not Set" },
+    auth: { status: passOk ? 'operational' : 'warning', secure: passOk, warningMsg: passOk ? null : "Using default insecure password" }
   });
-});
-app.put("/api/api-settings", requireAdmin, async (req, res) => {
-  await SettingsModel.updateOne({ key: "api_settings" }, { $set: { value: req.body, updatedAt: Date.now() } }, { upsert: true });
-  await logActivity(req, "Updated API settings");
-  res.json({ success: true });
 });
 
 // ── Serve Admin Panel (Static Files) ──────────────────────────────────────────

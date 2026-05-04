@@ -346,8 +346,7 @@ export interface ApiInterface {
   search: (q: string) => Promise<{ destinations: Destination[]; tours: Tour[] }>;
   getSeoSettings: () => Promise<SeoPage[]>;
   updateSeoSettings: (settings: SeoPage[]) => Promise<void>;
-  getApiSettings: () => Promise<unknown>;
-  updateApiSettings: (settings: unknown) => Promise<void>;
+  getSystemStatus: () => Promise<any>;
   listActivity: () => Promise<Activity[]>;
   // MongoDB migration
   getMigrationStatus: () => Promise<MigrationStatus>;
@@ -448,8 +447,7 @@ export const api: ApiInterface = {
   search:             (q) => http<{ destinations: Destination[]; tours: Tour[] }>(`/search?q=${encodeURIComponent(q)}`),
   getSeoSettings:     () => http<SeoPage[]>("/seo-settings"),
   updateSeoSettings:  (settings) => http<void>("/seo-settings", { method: "PUT", body: JSON.stringify(settings) }),
-  getApiSettings:     () => http<unknown>("/api-settings"),
-  updateApiSettings:  (settings) => http<void>("/api-settings", { method: "PUT", body: JSON.stringify(settings) }),
+  getSystemStatus:    () => http<any>("/admin/system-status"),
   listActivity:       () => http<Activity[]>("/admin/activity"),
 
   getMigrationStatus: () => http<MigrationStatus>("/admin/migrate/status"),

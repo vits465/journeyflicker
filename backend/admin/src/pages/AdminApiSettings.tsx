@@ -5,28 +5,19 @@ import { Preloader } from '../components/Preloader';
 
 export default function AdminApiSettings() {
   const { canEdit } = useOutletContext<{ canEdit: boolean }>();
-  const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   
-  const [apiKeys, setApiKeys] = useState({
-    stripeSecret: '',
-    stripePublic: '',
-    sendgridKey: '',
-    googleMapsKey: '',
-    awsAccessKey: '',
-  });
-
+  const [systemStatus, setSystemStatus] = useState<any>(null);
   const [migrationStatus, setMigrationStatus] = useState<MigrationStatus | null>(null);
   const [migrating, setMigrating] = useState(false);
   const [migrationLog, setMigrationLog] = useState<string[]>([]);
 
-  type ApiKeys = { stripeSecret: string; stripePublic: string; sendgridKey: string; googleMapsKey: string; awsAccessKey: string };
   const fetchSettings = () => {
     Promise.all([
-      api.getApiSettings().catch(() => null),
+      api.getSystemStatus().catch(() => null),
       api.getMigrationStatus().catch(() => null)
-    ]).then(([apiData, migrationData]) => {
-      if (apiData) setApiKeys(apiData as ApiKeys);
+    ]).then(([statusData, migrationData]) => {
+      if (statusData) setSystemStatus(statusData);
       if (migrationData) setMigrationStatus(migrationData);
       setLoading(false);
     }).catch(err => {
@@ -52,30 +43,6 @@ export default function AdminApiSettings() {
     };
   }, []);
 
-  const [webhooks, _setWebhooks] = useState([
-    { id: 1, name: 'Stripe Payments', url: 'https://api.journeyflicker.com/webhooks/stripe', status: 'active', lastTriggered: '10 mins ago' },
-    { id: 2, name: 'SendGrid Bounces', url: 'https://api.journeyflicker.com/webhooks/email', status: 'active', lastTriggered: '2 hours ago' },
-  ]);
-
-  const handleSave = async () => {
-    if (!canEdit) return;
-    setSaving(true);
-    try {
-      await api.updateApiSettings(apiKeys);
-      alert('API settings saved successfully');
-    } catch (err) {
-      console.error(err);
-      alert('Failed to save settings');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleKeyChange = (key: string, value: string) => {
-    if (!canEdit) return;
-    setApiKeys(prev => ({ ...prev, [key]: value }));
-  };
-
   const handleMigrate = async () => {
     if (!confirm('Are you sure you want to migrate data from KV to MongoDB? Existing MongoDB data will be skipped.')) return;
     setMigrating(true);
@@ -84,7 +51,7 @@ export default function AdminApiSettings() {
       const res = await api.runMigration();
       setMigrationLog(res.log);
       if (res.success) alert('Migration completed successfully!');
-      fetchSettings(); // Refresh counts
+      fetchSettings();
     } catch (err: any) {
       console.error(err);
       alert('Migration failed: ' + (err.message || String(err)));
@@ -99,23 +66,23 @@ export default function AdminApiSettings() {
     <div className="max-w-5xl mx-auto space-y-8 pb-12">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-semibold text-on-surface tracking-tight">API Management</h2>
+        <h2 className="text-2xl font-semibold text-on-surface tracking-tight">System Integrations</h2>
         <p className="text-on-surface-variant text-sm mt-1">
-          Manage system integrations, third-party API keys, and webhook endpoints.
+          Live monitoring of database, cache, media CDN, and security configurations.
         </p>
       </div>
 
       {!canEdit && (
         <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-xl flex items-center gap-3">
           <span className="material-symbols-outlined text-blue-500">info</span>
-          <span className="text-sm">You are in read-only mode. Contact an administrator to modify API settings.</span>
+          <span className="text-sm">You are in read-only mode. Contact an administrator to modify settings.</span>
         </div>
       )}
 
       {/* Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* Left Column: API Keys & DB Migration */}
+        {/* Left Column: DB Migration */}
         <div className="lg:col-span-2 space-y-6">
 
           {/* Database Migration Dashboard */}
@@ -135,7 +102,7 @@ export default function AdminApiSettings() {
                 <span className="material-symbols-outlined">database</span>
               </div>
               <div>
-                <h3 className="font-semibold text-on-surface">Database Engine</h3>
+                <h3 className="font-semibold text-on-surface">MongoDB Atlas</h3>
                 <div className="flex items-center gap-2">
                   <p className="text-xs text-on-surface-variant">Primary data storage (Mandatory)</p>
                   {migrationStatus?.mongoConnected && migrationStatus.dbName && (
@@ -191,224 +158,96 @@ export default function AdminApiSettings() {
               )}
             </div>
           </div>
-
-          {/* Payment Gateway */}
-          <div className="bg-white rounded-2xl border border-outline-variant/30 p-6 shadow-sm">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                <span className="material-symbols-outlined">payments</span>
-              </div>
-              <div>
-                <h3 className="font-semibold text-on-surface">Payment Gateway</h3>
-                <p className="text-xs text-on-surface-variant">Stripe integration for booking processing</p>
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Publishable Key</label>
-                <input
-                  type="text"
-                  value={apiKeys.stripePublic}
-                  onChange={(e) => handleKeyChange('stripePublic', e.target.value)}
-                  disabled={!canEdit}
-                  className="w-full px-4 py-2.5 bg-surface-container-lowest border border-outline-variant/50 rounded-xl text-sm focus:ring-2 focus:ring-black focus:outline-none disabled:opacity-50 font-mono"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Secret Key</label>
-                <input
-                  type="password"
-                  value={apiKeys.stripeSecret}
-                  onChange={(e) => handleKeyChange('stripeSecret', e.target.value)}
-                  disabled={!canEdit}
-                  className="w-full px-4 py-2.5 bg-surface-container-lowest border border-outline-variant/50 rounded-xl text-sm focus:ring-2 focus:ring-black focus:outline-none disabled:opacity-50 font-mono"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Email Services */}
-          <div className="bg-white rounded-2xl border border-outline-variant/30 p-6 shadow-sm">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                <span className="material-symbols-outlined">mail</span>
-              </div>
-              <div>
-                <h3 className="font-semibold text-on-surface">Email Delivery</h3>
-                <p className="text-xs text-on-surface-variant">SendGrid API for transactional emails</p>
-              </div>
-            </div>
-            
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">API Key</label>
-              <input
-                type="password"
-                value={apiKeys.sendgridKey}
-                onChange={(e) => handleKeyChange('sendgridKey', e.target.value)}
-                disabled={!canEdit}
-                className="w-full px-4 py-2.5 bg-surface-container-lowest border border-outline-variant/50 rounded-xl text-sm focus:ring-2 focus:ring-black focus:outline-none disabled:opacity-50 font-mono"
-              />
-            </div>
-          </div>
-
-          {/* Maps & Infrastructure */}
-          <div className="bg-white rounded-2xl border border-outline-variant/30 p-6 shadow-sm">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center">
-                <span className="material-symbols-outlined">map</span>
-              </div>
-              <div>
-                <h3 className="font-semibold text-on-surface">Maps & Infrastructure</h3>
-                <p className="text-xs text-on-surface-variant">Google Maps and AWS S3 Storage</p>
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Google Maps API Key</label>
-                <input
-                  type="password"
-                  value={apiKeys.googleMapsKey}
-                  onChange={(e) => handleKeyChange('googleMapsKey', e.target.value)}
-                  disabled={!canEdit}
-                  className="w-full px-4 py-2.5 bg-surface-container-lowest border border-outline-variant/50 rounded-xl text-sm focus:ring-2 focus:ring-black focus:outline-none disabled:opacity-50 font-mono"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">AWS Access Key</label>
-                <input
-                  type="password"
-                  value={apiKeys.awsAccessKey}
-                  onChange={(e) => handleKeyChange('awsAccessKey', e.target.value)}
-                  disabled={!canEdit}
-                  className="w-full px-4 py-2.5 bg-surface-container-lowest border border-outline-variant/50 rounded-xl text-sm focus:ring-2 focus:ring-black focus:outline-none disabled:opacity-50 font-mono"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Webhooks & System Status */}
-        <div className="space-y-6">
           
-          {/* Actions */}
-          <div className="bg-white rounded-2xl border border-outline-variant/30 p-6 shadow-sm flex flex-col gap-3">
-            <button
-              onClick={handleSave}
-              disabled={!canEdit || saving}
-              className="w-full bg-black text-white px-6 py-3 rounded-xl text-sm font-bold tracking-widest uppercase hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {saving ? (
-                <>
-                  <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <span className="material-symbols-outlined text-sm">save</span>
-                  Save Configuration
-                </>
-              )}
-            </button>
-            <button
-              disabled={!canEdit}
-              className="w-full bg-white text-black border border-outline-variant/30 px-6 py-3 rounded-xl text-sm font-bold tracking-widest uppercase hover:bg-surface-container-low transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              <span className="material-symbols-outlined text-sm">sync</span>
-              Test Connections
-            </button>
-          </div>
-
-          {/* Webhooks */}
-          <div className="bg-white rounded-2xl border border-outline-variant/30 p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="font-semibold text-on-surface flex items-center gap-2">
-                <span className="material-symbols-outlined text-gray-500">webhook</span>
-                Webhooks
-              </h3>
-              {canEdit && (
-                <button className="text-black hover:bg-surface-container-low p-1.5 rounded-lg transition-colors">
-                  <span className="material-symbols-outlined text-sm">add</span>
-                </button>
-              )}
-            </div>
-
-            <div className="space-y-4">
-              {webhooks.map(hook => (
-                <div key={hook.id} className="p-4 rounded-xl border border-outline-variant/20 bg-surface-container-lowest">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-sm text-on-surface">{hook.name}</span>
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${hook.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                      {hook.status}
-                    </span>
-                  </div>
-                  <div className="text-xs text-on-surface-variant font-mono truncate mb-2">{hook.url}</div>
-                  <div className="flex items-center justify-between text-[10px] text-on-surface-variant/70 uppercase font-bold">
-                    <span>Last triggered:</span>
-                    <span>{hook.lastTriggered}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* API Health */}
+          {/* Environment Variables Info */}
           <div className="bg-white rounded-2xl border border-outline-variant/30 p-6 shadow-sm">
             <h3 className="font-semibold text-on-surface flex items-center gap-2 mb-4">
+              <span className="material-symbols-outlined text-gray-500">terminal</span>
+              Environment Configuration
+            </h3>
+            <p className="text-sm text-on-surface-variant mb-4">
+              To update your infrastructure connections, you must modify your deployment Environment Variables in Vercel. 
+              The application connects to the following services automatically when valid keys are detected.
+            </p>
+            <div className="space-y-3 font-mono text-xs text-on-surface-variant bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/20">
+              <div className="flex flex-col gap-1"><strong className="text-blue-600">MongoDB:</strong> <span>MONGODB_URI, MONGODB_DB</span></div>
+              <div className="flex flex-col gap-1"><strong className="text-red-500">Upstash Redis:</strong> <span>KV_REST_API_URL, KV_REST_API_TOKEN</span></div>
+              <div className="flex flex-col gap-1"><strong className="text-orange-500">Cloudinary:</strong> <span>CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET</span></div>
+              <div className="flex flex-col gap-1"><strong className="text-purple-600">Admin Auth:</strong> <span>ADMIN_USERNAME, ADMIN_PASSWORD</span></div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Right Column: API Health */}
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl border border-outline-variant/30 p-6 shadow-sm">
+            <h3 className="font-semibold text-on-surface flex items-center gap-2 mb-6">
               <span className="material-symbols-outlined text-gray-500">monitor_heart</span>
-              System Status
+              Live Service Status
             </h3>
             
-            <div className="space-y-3">
+            <div className="space-y-6">
               {[
                 { 
-                  name: 'Database Engine', 
-                  status: migrationStatus?.mongoConnected ? 'operational' : 'error', 
-                  ping: migrationStatus?.mongoConnected ? 'MongoDB' : 'Offline',
-                  icon: 'database'
+                  name: 'MongoDB Primary', 
+                  desc: 'Document storage engine',
+                  status: systemStatus?.mongodb?.status || 'offline', 
+                  meta: systemStatus?.mongodb?.dbName || 'Not configured',
+                  icon: 'database', color: 'text-green-500'
                 },
                 { 
-                  name: 'Payment Gateway', 
-                  status: apiKeys.stripeSecret ? 'operational' : 'offline', 
-                  ping: 'Stripe',
-                  icon: 'payments'
+                  name: 'Upstash Redis', 
+                  desc: 'Session cache & rate limiting',
+                  status: systemStatus?.redis?.status || 'offline', 
+                  meta: systemStatus?.redis?.connected ? 'Connected' : 'Missing credentials',
+                  icon: 'memory', color: 'text-red-500'
                 },
                 { 
-                  name: 'Email Delivery', 
-                  status: apiKeys.sendgridKey ? 'operational' : 'offline', 
-                  ping: 'SendGrid',
-                  icon: 'mail'
+                  name: 'Cloudinary CDN', 
+                  desc: 'Media delivery network',
+                  status: systemStatus?.cloudinary?.status || 'offline', 
+                  meta: systemStatus?.cloudinary?.cloudName || 'Missing credentials',
+                  icon: 'cloud', color: 'text-orange-500'
                 },
                 { 
-                  name: 'Maps & Location', 
-                  status: apiKeys.googleMapsKey ? 'operational' : 'offline', 
-                  ping: 'Google',
-                  icon: 'map'
-                },
-                { 
-                  name: 'Storage Service', 
-                  status: apiKeys.awsAccessKey ? 'operational' : 'offline', 
-                  ping: 'AWS S3',
-                  icon: 'cloud'
+                  name: 'Admin Security', 
+                  desc: 'Custom authentication',
+                  status: systemStatus?.auth?.status || 'offline', 
+                  meta: systemStatus?.auth?.secure ? 'Secured' : 'Insecure (Default PW)',
+                  icon: 'security', color: 'text-purple-500'
                 },
               ].map(service => (
-                <div key={service.name} className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
-                    <span className={`material-symbols-outlined text-[16px] ${service.status === 'operational' ? 'text-green-500' : service.status === 'warning' ? 'text-amber-500' : 'text-gray-400'}`}>
+                <div key={service.name} className="flex items-start justify-between border-b border-outline-variant/10 pb-4 last:border-0 last:pb-0">
+                  <div className="flex items-start gap-3">
+                    <span className={`material-symbols-outlined mt-0.5 ${service.color}`}>
                       {service.icon}
                     </span>
-                    <span className="text-on-surface-variant">{service.name}</span>
+                    <div>
+                      <div className="font-semibold text-sm text-on-surface">{service.name}</div>
+                      <div className="text-[10px] text-on-surface-variant uppercase tracking-wider mb-1">{service.desc}</div>
+                      <div className="text-xs font-mono text-on-surface-variant/70">{service.meta}</div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-[10px] font-bold uppercase tracking-tighter ${service.status === 'operational' ? 'text-green-600' : service.status === 'warning' ? 'text-amber-600' : 'text-gray-400'}`}>
-                      {service.ping}
+                  <div className="flex items-center gap-1.5 shrink-0 mt-1">
+                    <span className={`text-[10px] font-bold uppercase tracking-tighter ${service.status === 'operational' ? 'text-green-600' : service.status === 'warning' ? 'text-amber-600' : 'text-red-500'}`}>
+                      {service.status}
                     </span>
-                    <span className={`w-2 h-2 rounded-full ${service.status === 'operational' ? 'bg-green-500' : service.status === 'warning' ? 'bg-amber-500' : 'bg-gray-300'}`} />
+                    <span className={`w-2 h-2 rounded-full ${service.status === 'operational' ? 'bg-green-500' : service.status === 'warning' ? 'bg-amber-500' : 'bg-red-500 animate-pulse'}`} />
                   </div>
                 </div>
               ))}
             </div>
+            
+            {systemStatus?.auth?.status === 'warning' && (
+              <div className="mt-6 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl flex items-start gap-3">
+                <span className="material-symbols-outlined text-red-500 mt-0.5 text-lg">warning</span>
+                <div className="text-xs">
+                  <strong className="block mb-0.5">Critical Security Alert</strong>
+                  You are using the default admin password. Set ADMIN_PASSWORD in Vercel to secure your panel.
+                </div>
+              </div>
+            )}
           </div>
 
         </div>
