@@ -297,7 +297,104 @@ export default function TourDetailsPage() {
   const visualArchive = tour.visualArchive?.length ? tour.visualArchive : [tour.heroImageUrl || defaultHero];
   const itinerary = tour.itinerary || [];
   const sightseeing = tour.sightseeing || [];
-  const departureWindows = tour.departureWindows || ['By Private Request'];
+  const departureWindows = tour.departureWindows || [];
+
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+    
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${tour?.name} Brochure - JourneyFlicker</title>
+          <style>
+            @media print { @page { margin: 15mm; } }
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #000; padding: 0; margin: 0; line-height: 1.6; max-width: 800px; margin: 0 auto; }
+            .header { text-align: center; border-bottom: 3px solid #000; padding-bottom: 25px; margin-bottom: 30px; margin-top: 20px; }
+            .logo { display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 36px; font-weight: 300; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 25px; }
+            .logo b { font-weight: 900; }
+            .favicon { width: 36px; height: 36px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .hero-img { width: 100%; height: 300px; object-fit: cover; border-radius: 16px; margin-bottom: 25px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            h1 { font-size: 46px; font-weight: 300; text-transform: uppercase; margin: 0 0 5px 0; letter-spacing: -2px; line-height: 1.1; font-style: italic; }
+            .subtitle { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; opacity: 0.6; margin: 0; }
+            
+            .section { margin-bottom: 35px; page-break-inside: avoid; }
+            .section-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-bottom: 15px; color: #000; }
+            
+            ul { padding-left: 20px; margin: 0; }
+            li { margin-bottom: 8px; font-size: 14px; color: #333; }
+            p { font-size: 14px; color: #333; margin-top: 0; line-height: 1.7; }
+            
+            .info-grid { display: flex; flex-wrap: wrap; gap: 40px; margin-bottom: 35px; background: #f9f9f9; padding: 20px 25px; border-radius: 12px; -webkit-print-color-adjust: exact; print-color-adjust: exact; border: 1px solid #eee; page-break-inside: avoid; }
+            .info-item { display: flex; flex-direction: column; }
+            .info-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #666; margin-bottom: 4px; }
+            .info-value { font-size: 16px; font-weight: 700; color: #000; }
+            
+            .itinerary-day { margin-bottom: 20px; padding-left: 15px; border-left: 2px solid #ddd; }
+            .day-title { font-size: 16px; font-weight: 700; margin: 0 0 5px 0; font-style: italic; }
+            .day-desc { font-size: 13px; color: #444; margin: 0; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="logo">
+              <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="JF Logo" />
+              <span>Journey<b>Flicker</b></span>
+            </div>
+            ${tour?.heroImageUrl ? `<img src="${tour.heroImageUrl}" class="hero-img" />` : ''}
+            <h1>${tour?.name}</h1>
+            <p class="subtitle">${tour?.region} • ${tour?.category}</p>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Duration</span>
+              <span class="info-value">${tour?.days} Days</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Starting Price</span>
+              <span class="info-value">${tour?.price}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Transport</span>
+              <span class="info-value">${tour?.transport || 'Private Air'}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Specialist</span>
+              <span class="info-value">${tour?.guide || 'Curator'}</span>
+            </div>
+          </div>
+
+          ${tour?.overviewDescription ? `
+          <div class="section">
+            <div class="section-title">The Narrative</div>
+            <p style="font-size: 18px; font-style: italic; opacity: 0.9;">${tour.overviewDescription}</p>
+            ${tour.overviewExtended ? `<p>${tour.overviewExtended.replace(/\n/g, '<br>')}</p>` : ''}
+          </div>` : ''}
+
+          ${itinerary.length > 0 ? `
+          <div class="section">
+            <div class="section-title">Day-by-Day Sequence</div>
+            ${itinerary.map((day, i) => `
+              <div class="itinerary-day">
+                <h4 class="day-title">Phase ${String(i + 1).padStart(2, '0')}: ${day.title}</h4>
+                <p class="day-desc">${day.description}</p>
+              </div>
+            `).join('')}
+          </div>` : ''}
+
+          <script>
+            window.onload = () => { 
+              setTimeout(() => { window.print(); window.close(); }, 250);
+            };
+          </script>
+        </body>
+      </html>
+    `;
+    printWindow.document.write(html);
+    printWindow.document.close();
+  };
 
   return (
     <div className="overflow-x-hidden w-full">
@@ -313,7 +410,7 @@ export default function TourDetailsPage() {
             <span className="mx-3 text-outline-variant/30">/</span>
             <span className="text-on-surface font-black opacity-40 truncate">{tour.name}</span>
           </nav>
-          <button onClick={() => window.print()} className="no-print flex items-center gap-1.5 text-[9px] font-black tracking-[0.3em] uppercase bg-black/5 hover:bg-black hover:text-white transition-all px-4 py-2 rounded-full">
+          <button onClick={handlePrint} className="no-print flex items-center gap-1.5 text-[9px] font-black tracking-[0.3em] uppercase bg-black/5 hover:bg-black hover:text-white transition-all px-4 py-2 rounded-full">
             <span className="material-symbols-outlined text-sm">print</span> Brochure
           </button>
         </div>
@@ -492,12 +589,17 @@ export default function TourDetailsPage() {
               <div className="h-px bg-outline-variant/30 w-14" />
               <h2 className="text-[10px] font-black tracking-[0.6em] uppercase text-on-surface">Departure Windows</h2>
             </div>
-            <div className="pl-0 sm:pl-10 flex flex-wrap gap-3">
-              {departureWindows.map((win, idx) => (
-                <span key={idx} className="bg-black/5 hover:bg-black hover:text-white transition-all duration-300 px-5 py-2.5 rounded-full text-[9px] tracking-[0.3em] uppercase font-black cursor-default">
-                  {win}
-                </span>
-              ))}
+            <div className="pl-0 sm:pl-10 flex flex-wrap gap-4">
+              {departureWindows.length > 0 ? departureWindows.map((win, idx) => (
+                <div key={idx} className="bg-white dark:bg-white/5 hover:bg-black hover:text-white transition-all duration-500 px-6 py-4 rounded-2xl border border-outline-variant/20 shadow-sm cursor-default group/win min-w-[140px]">
+                  <span className="text-xs tracking-[0.2em] font-black uppercase block mb-1">{typeof win === 'string' ? win : win.range}</span>
+                  {typeof win === 'object' && win.label && (
+                    <span className="text-[9px] tracking-[0.3em] font-bold uppercase text-on-surface-variant/40 group-hover/win:text-white/40 block">{win.label}</span>
+                  )}
+                </div>
+              )) : (
+                <span className="bg-black/5 px-5 py-2.5 rounded-full text-[9px] tracking-[0.3em] uppercase font-black opacity-30 italic">By Private Request Only</span>
+              )}
             </div>
           </section>
 

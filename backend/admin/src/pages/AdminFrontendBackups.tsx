@@ -52,11 +52,12 @@ export default function AdminFrontendBackups() {
     if (!confirm('Snapshot current site data to your browser right now?')) return;
     setSaving(true);
     try {
-      const [destinations, tours, visas] = await Promise.all([
+      const [destinations, toursRes, visas] = await Promise.all([
         api.listDestinations(),
         api.listTours(),
         api.listVisas(),
       ]);
+      const tours = Array.isArray(toursRes) ? toursRes : toursRes.items;
       saveSnapshot({ destinations, tours, visas }, false);
       refresh();
       showToast('Snapshot saved successfully!');

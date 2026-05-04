@@ -12,6 +12,17 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import fs from "node:fs";
 
+// ── MongoDB ────────────────────────────────────────────────────────────────────
+import { connectMongo, isMongoConnected } from "./db/mongoose.js";
+import { Destination as DestModel, Tour as TourModel, Visa as VisaModel, Contact as ContactModel, Settings as SettingsModel, CoEditor as CoEditorModel, Media as MediaModel } from "./db/models/index.js";
+import { router as backupRouter, startScheduledBackup } from "./routes/backup.js";
+import { router as importExportRouter } from "./routes/import-export.js";
+import { router as enhancedMediaRouter } from "./routes/media.js";
+import { router as migrateRouter } from "./routes/migrate.js";
+
+// Start MongoDB connection — awaited before server listens (see bottom of file)
+const mongoReady = connectMongo();
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -108,34 +119,16 @@ function safeEqual(a, b) {
   } catch { return false; }
 }
 
-// ── KV key prefixes ───────────────────────────────────────────────────────────
-const DB_KEY      = "jf:db";
+// ── KV key prefixes (Infrastructure only) ────────────────────────────────────
 const TOKEN_PFX   = "jf:tok:";
 const ATTEMPT_PFX = "jf:att:";
 const BACKUP_PFX  = "jf:bak:";
 const BACKUP_LIST = "jf:bak:index";
 const ACTIVE_PFX  = "jf:active:";
-const DB_CACHE_KEY = "jf:db:cache";
 const ACTIVITY_LIMIT = 50;
 let recentActivity = [];
 
-// ── DB helpers ────────────────────────────────────────────────────────────────
-async function readDb() {
-  const cached = await kv.get(DB_CACHE_KEY);
-  if (cached) return cached;
-  
-  const data = await kv.get(DB_KEY);
-  const db = data || { destinations: [], tours: [], visas: [], contacts: [], coEditorAccounts: [] };
-  // Cache for 10 seconds in KV
-  await kv.set(DB_CACHE_KEY, db, { ex: 10 });
-  return db;
-}
-async function writeDb(next) { 
-  await kv.set(DB_KEY, next); 
-  // Invalidate cache immediately
-  await kv.del(DB_CACHE_KEY);
-}
-
+// Activity logger
 async function logActivity(req, action) {
   const user = req.user ? (req.user.identifier === "admin" ? "Admin" : `Editor (${req.user.identifier})`) : "System";
   recentActivity.unshift({
@@ -245,9 +238,7 @@ app.post("/api/auth/co-editor-login", loginLimiter, async (req, res) => {
   if (bf.blocked) return res.status(429).json({ error: `Too many failed attempts. Try again in ${bf.waitMins} minute(s).` });
   const { username, password } = req.body || {};
   try {
-    const db = await readDb();
-    // Find by username first (safe to do), then verify password separately
-    const account = (db.coEditorAccounts || []).find(a => a.username === username);
+    const account = await CoEditorModel.findOne({ username }).lean();
     if (account && await verifyPassword(String(password || ""), account.password)) {
       await clearAttempts(ip);
       return res.json({ token: await issueToken("co-editor", account.id), role: "co-editor", id: account.id });
@@ -272,49 +263,40 @@ app.get("/api/auth/me", async (req, res) => {
 const CoEditorAccountSchema = z.object({ username: z.string().min(3), password: z.string().min(6) });
 
 app.get("/api/auth/co-editor-accounts", requireAdmin, async (_req, res) => {
-  const db = await readDb();
-  res.json((db.coEditorAccounts || []).map(({ id, username }) => ({ id, username })));
+  const accounts = await CoEditorModel.find({}).lean();
+  return res.json(accounts.map(({ id, username }) => ({ id, username })));
 });
 app.post("/api/auth/co-editor-accounts", requireAdmin, async (req, res) => {
   const parsed = CoEditorAccountSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
-  const db = await readDb();
-  if (!db.coEditorAccounts) db.coEditorAccounts = [];
-  if (db.coEditorAccounts.length >= 5) return res.status(400).json({ error: "Maximum 5 co-editor accounts." });
-  if (db.coEditorAccounts.find(a => a.username === parsed.data.username)) return res.status(400).json({ error: "Username already exists." });
-  // Hash password before storing
   const hashedPassword = await hashPassword(parsed.data.password);
   const newAcc = { id: newId("coed"), username: parsed.data.username, password: hashedPassword };
-  db.coEditorAccounts.push(newAcc);
-  await writeDb(db);
+
+  const count = await CoEditorModel.countDocuments();
+  if (count >= 5) return res.status(400).json({ error: "Maximum 5 co-editor accounts." });
+  const exists = await CoEditorModel.findOne({ username: parsed.data.username });
+  if (exists) return res.status(400).json({ error: "Username already exists." });
+  await CoEditorModel.create(newAcc);
+  
   await logActivity(req, `Created co-editor account: ${newAcc.username}`);
   res.status(201).json({ id: newAcc.id, username: newAcc.username });
 });
 app.put("/api/auth/co-editor-accounts/:id", requireAdmin, async (req, res) => {
   const parsed = CoEditorAccountSchema.partial().safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
-  const db = await readDb();
-  if (!db.coEditorAccounts) db.coEditorAccounts = [];
-  const idx = db.coEditorAccounts.findIndex(a => a.id === req.params.id);
-  if (idx < 0) return res.status(404).json({ message: "Not found" });
   const update = { ...parsed.data };
-  // If password is being updated, hash it first
   if (update.password) update.password = await hashPassword(update.password);
-  db.coEditorAccounts[idx] = { ...db.coEditorAccounts[idx], ...update };
-  await writeDb(db);
-  await logActivity(req, `Updated co-editor account: ${db.coEditorAccounts[idx].username}`);
-  res.json({ id: db.coEditorAccounts[idx].id, username: db.coEditorAccounts[idx].username });
+
+  const updated = await CoEditorModel.findOneAndUpdate({ id: req.params.id }, { $set: update }, { new: true }).lean();
+  if (!updated) return res.status(404).json({ message: "Not found" });
+  await logActivity(req, `Updated co-editor account: ${updated.username}`);
+  return res.json({ id: updated.id, username: updated.username });
 });
 app.delete("/api/auth/co-editor-accounts/:id", requireAdmin, async (req, res) => {
-  const db = await readDb();
-  if (!db.coEditorAccounts) db.coEditorAccounts = [];
-  const before = db.coEditorAccounts.length;
-  const deletedAcc = db.coEditorAccounts.find(a => a.id === req.params.id);
-  db.coEditorAccounts = db.coEditorAccounts.filter(a => a.id !== req.params.id);
-  if (db.coEditorAccounts.length === before) return res.status(404).json({ message: "Not found" });
-  await writeDb(db);
-  if (deletedAcc) await logActivity(req, `Deleted co-editor account: ${deletedAcc.username}`);
-  res.status(204).end();
+  const deleted = await CoEditorModel.findOneAndDelete({ id: req.params.id }).lean();
+  if (!deleted) return res.status(404).json({ message: "Not found" });
+  await logActivity(req, `Deleted co-editor account: ${deleted.username}`);
+  return res.status(204).end();
 });
 
 // ── Serve local uploads (dev fallback) ────────────────────────────────────────
@@ -406,42 +388,26 @@ app.get("/api/admin/activity", async (_req, res) => {
   res.json(recentActivity);
 });
 
-
-// ── Media Library ─────────────────────────────────────────────────────────────
-const MediaSchema = z.object({
-  url: z.string().url(),
-  name: z.string(),
-  size: z.string(),
-  type: z.string(),
-  date: z.string(),
-  folder: z.string().optional().default("General"),
+// Admin-only rate limiter for backup/import operations
+const adminOpLimiter = rateLimit({
+  windowMs: 60 * 1000, max: 20,
+  message: { error: "Too many operations. Please wait." },
 });
 
-app.get("/api/media", async (_req, res) => {
-  const db = await readDb();
-  res.json(db.media || []);
-});
+app.use("/api/admin/backup",  adminOpLimiter, requireAdmin, backupRouter);
+app.use("/api/admin/export",  requireAdmin,   importExportRouter);
+app.use("/api/admin/import",  adminOpLimiter, requireAdmin, importExportRouter);
+app.use("/api/admin/media",   requireCRUD,    enhancedMediaRouter);
+app.use("/api/admin/migrate", requireAdmin,   migrateRouter);
 
-app.post("/api/media", requireCRUD, async (req, res) => {
-  const parsed = MediaSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json(parsed.error);
-  const db = await readDb();
-  if (!db.media) db.media = [];
-  const item = { id: newId("media"), ...parsed.data };
-  db.media.unshift(item);
-  await writeDb(db);
-  await logActivity(req, `Added media: ${item.name}`);
-  res.status(201).json(item);
-});
 
-app.delete("/api/media/:id", requireCRUD, async (req, res) => {
-  const db = await readDb();
-  if (!db.media) db.media = [];
-  db.media = db.media.filter(m => m.id !== req.params.id);
-  await writeDb(db);
-  await logActivity(req, "Deleted media item");
-  res.status(204).end();
-});
+
+
+
+
+
+
+
 
 // ── Schemas ───────────────────────────────────────────────────────────────────
 const DestinationSchema = z.object({
@@ -467,7 +433,7 @@ const TourSchema = z.object({
   sightseeing: z.array(z.object({ title: z.string(), description: z.string(), icon: z.string(), imageUrl: z.string().optional().default("") })).optional().default([]),
   visualArchive: z.array(z.string()).optional().default([]),
   testimonials: z.array(z.object({ quote: z.string(), author: z.string() })).optional().default([]),
-  departureWindows: z.array(z.string()).optional().default([]),
+  departureWindows: z.array(z.object({ range: z.string(), label: z.string() })).optional().default([]),
   maxGuests: z.number().optional().default(8),
 });
 const VisaSchema = z.object({
@@ -480,6 +446,7 @@ const VisaSchema = z.object({
   visaType: z.string().optional().default(""),
   documents: z.array(z.string()).optional().default([]),
   requirements: z.array(z.union([z.string(), z.object({ label: z.string(), detail: z.string() })])).optional().default([]),
+  additionalDetails: z.array(z.string()).optional().default([]),
 });
 const ContactSchema = z.object({
   name: z.string().min(1), email: z.string().email(),
@@ -490,39 +457,45 @@ const ContactSchema = z.object({
 // ── Health ────────────────────────────────────────────────────────────────────
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
+// ── DB Status (diagnostic) ────────────────────────────────────────────────────
+app.get("/api/db-status", (_req, res) => {
+  const mongoOk = isMongoConnected();
+  res.json({
+    mongodb:   mongoOk ? "connected" : "disconnected",
+    database:  mongoOk ? (process.env.MONGODB_DB || "journeyflicker") : null,
+    storage:   mongoOk ? "mongodb" : "offline",
+    uriSet:    !!process.env.MONGODB_URI,
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // ── Destinations ──────────────────────────────────────────────────────────────
-app.get("/api/destinations", async (_req, res) => { res.json((await readDb()).destinations); });
+app.get("/api/destinations", async (_req, res) => {
+  res.json(await DestModel.find({}).sort({ createdAt: -1 }).lean());
+});
 app.get("/api/destinations/:id", async (req, res) => {
-  const found = (await readDb()).destinations.find(d => d.id === req.params.id);
+  const found = await DestModel.findOne({ id: req.params.id }).lean();
   if (!found) return res.status(404).json({ message: "Not found" });
   res.json(found);
 });
 app.post("/api/destinations", requireCRUD, async (req, res) => {
   const parsed = DestinationSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
-  const db = await readDb();
   const item = { id: newId("dest"), ...parsed.data, createdAt: Date.now() };
-  db.destinations.unshift(item); 
-  await writeDb(db); 
+  await DestModel.create(item);
   await logActivity(req, `Created destination: ${item.name}`);
   res.status(201).json(item);
 });
 app.put("/api/destinations/:id", requireCRUD, async (req, res) => {
   const parsed = DestinationSchema.partial().safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
-  const db = await readDb();
-  const idx = db.destinations.findIndex(d => d.id === req.params.id);
-  if (idx < 0) return res.status(404).json({ message: "Not found" });
-  db.destinations[idx] = { ...db.destinations[idx], ...parsed.data };
-  await writeDb(db); 
-  await logActivity(req, `Updated destination: ${db.destinations[idx].name}`);
-  res.json(db.destinations[idx]);
+  const updated = await DestModel.findOneAndUpdate({ id: req.params.id }, { $set: parsed.data }, { new: true }).lean();
+  if (!updated) return res.status(404).json({ message: "Not found" });
+  await logActivity(req, `Updated destination: ${updated.name}`);
+  res.json(updated);
 });
 app.delete("/api/destinations/:id", requireCRUD, async (req, res) => {
-  const db = await readDb();
-  const deleted = db.destinations.find(d => d.id === req.params.id);
-  db.destinations = db.destinations.filter(d => d.id !== req.params.id);
-  await writeDb(db); 
+  const deleted = await DestModel.findOneAndDelete({ id: req.params.id }).lean();
   if (deleted) await logActivity(req, `Deleted destination: ${deleted.name}`);
   res.status(204).end();
 });
@@ -531,124 +504,124 @@ app.delete("/api/destinations/:id", requireCRUD, async (req, res) => {
 app.get("/api/search", async (req, res) => {
   const q = (req.query.q || "").toString().toLowerCase();
   if (!q) return res.json({ destinations: [], tours: [] });
-  const db = await readDb();
-  res.json({
-    destinations: db.destinations.filter(d =>
-      d.name.toLowerCase().includes(q) || d.region.toLowerCase().includes(q) ||
-      (d.description && d.description.toLowerCase().includes(q))),
-    tours: db.tours.filter(t =>
-      t.name.toLowerCase().includes(q) || t.region.toLowerCase().includes(q) ||
-      (t.overviewDescription && t.overviewDescription.toLowerCase().includes(q))),
-  });
+  const regex = new RegExp(q, "i");
+  const [destinations, tours] = await Promise.all([
+    DestModel.find({ $or: [{ name: regex }, { region: regex }, { description: regex }] }).lean(),
+    TourModel.find({ $or: [{ name: regex }, { region: regex }, { overviewDescription: regex }] }).lean(),
+  ]);
+  res.json({ destinations, tours });
 });
 
 // ── Tours ─────────────────────────────────────────────────────────────────────
-app.get("/api/tours", async (_req, res) => { res.json((await readDb()).tours); });
+app.get("/api/tours", async (req, res) => {
+  const page = parseInt(req.query.page, 10);
+  const limit = parseInt(req.query.limit, 10);
+  const search = req.query.search ? String(req.query.search) : "";
+  
+  const query = {};
+  if (search) {
+    const regex = new RegExp(search, "i");
+    query.$or = [{ name: regex }, { region: regex }];
+  }
+  
+  if (page && limit) {
+    const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+      TourModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      TourModel.countDocuments(query)
+    ]);
+    return res.json({ items: data, total, page, pages: Math.ceil(total / limit) });
+  }
+  
+  // Legacy support for non-paginated requests
+  res.json(await TourModel.find(query).sort({ createdAt: -1 }).lean());
+});
 app.get("/api/tours/:id", async (req, res) => {
-  const found = (await readDb()).tours.find(t => t.id === req.params.id);
+  const found = await TourModel.findOne({ id: req.params.id }).lean();
   if (!found) return res.status(404).json({ message: "Not found" });
   res.json(found);
 });
 app.post("/api/tours", requireCRUD, async (req, res) => {
   const parsed = TourSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
-  const db = await readDb();
   const item = { id: newId("tour"), ...parsed.data, createdAt: Date.now() };
-  db.tours.unshift(item); 
-  await writeDb(db); 
+  await TourModel.create(item);
   await logActivity(req, `Created tour: ${item.name}`);
   res.status(201).json(item);
 });
 app.put("/api/tours/:id", requireCRUD, async (req, res) => {
   const parsed = TourSchema.partial().safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
-  const db = await readDb();
-  const idx = db.tours.findIndex(t => t.id === req.params.id);
-  if (idx < 0) return res.status(404).json({ message: "Not found" });
-  db.tours[idx] = { ...db.tours[idx], ...parsed.data };
-  await writeDb(db); 
-  await logActivity(req, `Updated tour: ${db.tours[idx].name}`);
-  res.json(db.tours[idx]);
+  const updated = await TourModel.findOneAndUpdate({ id: req.params.id }, { $set: parsed.data }, { new: true }).lean();
+  if (!updated) return res.status(404).json({ message: "Not found" });
+  await logActivity(req, `Updated tour: ${updated.name}`);
+  res.json(updated);
 });
 app.delete("/api/tours/:id", requireCRUD, async (req, res) => {
-  const db = await readDb();
-  const deleted = db.tours.find(t => t.id === req.params.id);
-  db.tours = db.tours.filter(t => t.id !== req.params.id);
-  await writeDb(db); 
+  const deleted = await TourModel.findOneAndDelete({ id: req.params.id }).lean();
   if (deleted) await logActivity(req, `Deleted tour: ${deleted.name}`);
   res.status(204).end();
 });
 
 // ── Visas ─────────────────────────────────────────────────────────────────────
-app.get("/api/visas", async (_req, res) => { res.json((await readDb()).visas); });
+app.get("/api/visas", async (_req, res) => {
+  res.json(await VisaModel.find({}).sort({ createdAt: -1 }).lean());
+});
 app.post("/api/visas", requireCRUD, async (req, res) => {
   const parsed = VisaSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
-  const db = await readDb();
   const item = { id: newId("visa"), ...parsed.data, createdAt: Date.now() };
-  db.visas.unshift(item); 
-  await writeDb(db); 
+  await VisaModel.create(item);
   await logActivity(req, `Created visa: ${item.country}`);
   res.status(201).json(item);
 });
 app.put("/api/visas/:id", requireCRUD, async (req, res) => {
   const parsed = VisaSchema.partial().safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
-  const db = await readDb();
-  const idx = db.visas.findIndex(v => v.id === req.params.id);
-  if (idx < 0) return res.status(404).json({ message: "Not found" });
-  db.visas[idx] = { ...db.visas[idx], ...parsed.data };
-  await writeDb(db); 
-  await logActivity(req, `Updated visa: ${db.visas[idx].country}`);
-  res.json(db.visas[idx]);
+  const updated = await VisaModel.findOneAndUpdate({ id: req.params.id }, { $set: parsed.data }, { new: true }).lean();
+  if (!updated) return res.status(404).json({ message: "Not found" });
+  await logActivity(req, `Updated visa: ${updated.country}`);
+  res.json(updated);
 });
 app.delete("/api/visas/:id", requireCRUD, async (req, res) => {
-  const db = await readDb();
-  const deleted = db.visas.find(v => v.id === req.params.id);
-  db.visas = db.visas.filter(v => v.id !== req.params.id);
-  await writeDb(db); 
+  const deleted = await VisaModel.findOneAndDelete({ id: req.params.id }).lean();
   if (deleted) await logActivity(req, `Deleted visa: ${deleted.country}`);
   res.status(204).end();
 });
 
 // ── Contacts ──────────────────────────────────────────────────────────────────
-app.get("/api/contacts", requireAdmin, async (_req, res) => { res.json((await readDb()).contacts || []); });
+app.get("/api/contacts", requireAdmin, async (_req, res) => {
+  res.json(await ContactModel.find({}).sort({ createdAt: -1 }).lean());
+});
 app.post("/api/contacts", async (req, res) => {
   const parsed = ContactSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
-  const db = await readDb();
-  if (!db.contacts) db.contacts = [];
   const item = { id: newId("msg"), ...parsed.data, read: false, createdAt: Date.now() };
-  db.contacts.unshift(item); await writeDb(db); res.status(201).json(item);
+  await ContactModel.create(item);
+  res.status(201).json(item);
 });
 app.patch("/api/contacts/:id/read", requireAdmin, async (req, res) => {
-  const db = await readDb();
-  if (!db.contacts) db.contacts = [];
-  const idx = db.contacts.findIndex(c => c.id === req.params.id);
-  if (idx < 0) return res.status(404).json({ message: "Not found" });
-  db.contacts[idx].read = true; 
-  await writeDb(db); 
-  await logActivity(req, `Marked contact as read: ${db.contacts[idx].name}`);
-  res.json(db.contacts[idx]);
+  const updated = await ContactModel.findOneAndUpdate({ id: req.params.id }, { $set: { read: true } }, { new: true }).lean();
+  if (!updated) return res.status(404).json({ message: "Not found" });
+  await logActivity(req, `Marked contact as read: ${updated.name}`);
+  res.json(updated);
 });
 app.delete("/api/contacts/:id", requireAdmin, async (req, res) => {
-  const db = await readDb();
-  if (!db.contacts) db.contacts = [];
-  db.contacts = db.contacts.filter(c => c.id !== req.params.id);
-  await writeDb(db); 
+  await ContactModel.deleteOne({ id: req.params.id });
   await logActivity(req, "Deleted contact message");
-  res.status(204).end();
+  return res.status(204).end();
 });
 
 const HERO_KEY   = "jf:hero";
 
 // ── Hero Settings ─────────────────────────────────────────────────────────────
 app.get("/api/hero-settings", async (_req, res) => {
-  const data = await kv.get(HERO_KEY);
-  res.json(data || { home: [], tours: [], destinations: [], visaBanner: "" });
+  const settings = await SettingsModel.findOne({ key: "hero" }).lean();
+  if (settings && settings.value) return res.json(settings.value);
+  res.json({ home: [], tours: [], destinations: [], visaBanner: "" });
 });
 app.put("/api/hero-settings", requireAdmin, async (req, res) => {
-  await kv.set(HERO_KEY, req.body);
+  await SettingsModel.updateOne({ key: "hero" }, { $set: { value: req.body, updatedAt: Date.now() } }, { upsert: true });
   await logActivity(req, "Updated hero settings");
   res.json({ success: true });
 });
@@ -657,11 +630,12 @@ const SEO_KEY = "jf:seo";
 
 // ── SEO Settings ──────────────────────────────────────────────────────────────
 app.get("/api/seo-settings", async (_req, res) => {
-  const data = await kv.get(SEO_KEY);
-  res.json(data || []);
+  const settings = await SettingsModel.findOne({ key: "seo" }).lean();
+  if (settings && settings.value) return res.json(settings.value);
+  res.json([]);
 });
 app.put("/api/seo-settings", requireAdmin, async (req, res) => {
-  await kv.set(SEO_KEY, req.body);
+  await SettingsModel.updateOne({ key: "seo" }, { $set: { value: req.body, updatedAt: Date.now() } }, { upsert: true });
   await logActivity(req, "Updated SEO settings");
   res.json({ success: true });
 });
@@ -670,8 +644,9 @@ const API_SETTINGS_KEY = "jf:api_settings";
 
 // ── API Settings ──────────────────────────────────────────────────────────────
 app.get("/api/api-settings", async (_req, res) => {
-  const data = await kv.get(API_SETTINGS_KEY);
-  res.json(data || {
+  const settings = await SettingsModel.findOne({ key: "api_settings" }).lean();
+  if (settings && settings.value) return res.json(settings.value);
+  res.json({
     stripeSecret: '',
     stripePublic: '',
     sendgridKey: '',
@@ -680,48 +655,9 @@ app.get("/api/api-settings", async (_req, res) => {
   });
 });
 app.put("/api/api-settings", requireAdmin, async (req, res) => {
-  await kv.set(API_SETTINGS_KEY, req.body);
+  await SettingsModel.updateOne({ key: "api_settings" }, { $set: { value: req.body, updatedAt: Date.now() } }, { upsert: true });
   await logActivity(req, "Updated API settings");
   res.json({ success: true });
-});
-
-// ── Backups (KV-based snapshots) ───────────────────────────────────────────────
-async function createBackup() {
-  try {
-    const db = await readDb();
-    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-    const key = `${BACKUP_PFX}${timestamp}`;
-    await kv.set(key, db, { ex: 30 * 24 * 60 * 60 }); // Keep 30 days
-    // Maintain index list (max 10)
-    const index = (await kv.get(BACKUP_LIST)) || [];
-    index.unshift({ key, timestamp, createdAt: Date.now() });
-    if (index.length > 10) index.splice(10);
-    await kv.set(BACKUP_LIST, index);
-    return timestamp;
-  } catch (err) { console.error("Backup failed:", err); return null; }
-}
-
-app.get("/api/backups", requireAdmin, async (_req, res) => {
-  const index = (await kv.get(BACKUP_LIST)) || [];
-  res.json(index.map(b => ({ filename: b.timestamp, size: 0, createdAt: b.createdAt })));
-});
-app.post("/api/backups", requireAdmin, async (req, res) => {
-  const name = await createBackup();
-  if (name) {
-    await logActivity(req, "Created system backup");
-    res.json({ success: true, filename: name });
-  }
-  else res.status(500).json({ error: "Backup failed" });
-});
-app.post("/api/backups/restore/:filename", requireAdmin, async (req, res) => {
-  try {
-    const key  = `${BACKUP_PFX}${req.params.filename}`;
-    const data = await kv.get(key);
-    if (!data) return res.status(404).json({ error: "Backup not found" });
-    await writeDb(data);
-    await logActivity(req, `Restored backup: ${req.params.filename}`);
-    res.json({ success: true });
-  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // ── Serve Admin Panel (Static Files) ──────────────────────────────────────────
@@ -758,7 +694,21 @@ app.get("*", async (req, res, next) => {
 // Local dev: still start the server normally
 if (!process.env.VERCEL) {
   const port = process.env.PORT ? Number(process.env.PORT) : 5174;
-  app.listen(port, () => console.log(`API listening on http://localhost:${port}`));
+  // ✅ Await MongoDB before accepting any requests — eliminates the race condition
+  mongoReady.then(() => {
+    if (isMongoConnected()) {
+      console.log("[Server] MongoDB ready — starting HTTP listener.");
+    } else {
+      console.error("[Server] ❌ MongoDB mandatory — could not start HTTP listener.");
+      process.exit(1);
+    }
+    app.listen(port, () => {
+      console.log(`API listening on http://localhost:${port}`);
+      startScheduledBackup();
+    });
+  });
+} else {
+  // On Vercel: serverless — connection is re-established per cold start.
 }
 
 export default app;

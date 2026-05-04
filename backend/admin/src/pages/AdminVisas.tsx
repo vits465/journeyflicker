@@ -8,9 +8,9 @@ import { Preloader } from '../components/Preloader';
 import { DocxUploader } from '../components/DocxUploader';
 
 const emptyForm: Partial<Visa> = {
-  country: '', processing: '', difficulty: 'Moderate',
-  heroImageUrl: '', description: '', visaType: '',
-  documents: [], requirements: [],
+  country: '', processing: '', difficulty: 'Medium',
+  heroImageUrl: '', description: '', visaType: '', fee: '',
+  documents: [], requirements: [], additionalDetails: [],
 };
 
 // ── Smart Visa Document Parser ──────────────────────────────────────────────
@@ -22,12 +22,21 @@ function parseVisaText(raw: string): Partial<Visa> {
     .trim() + '\n';
   
   const country = text.match(/(?:COUNTRY|DESTINATION|FOR)\s*[:\-]?\s*([^\n]+)/i)?.[1].trim() || '';
-  const visaType = text.match(/(?:VISA TYPE|CATEGORY)\s*[:\-]?\s*([^\n]+)/i)?.[1].trim() || '';
-  const processing = text.match(/(?:PROCESSING|DURATION|TIME)\s*[:\-]?\s*([^\n]+)/i)?.[1].trim() || '';
-  const description = text.match(/OVERVIEW\s*[:\-]?\s*([^]*?)(?=DOCUMENTS|REQUIREMENTS|$) /i)?.[1].trim() || '';
+  const visaType = text.match(/(?:VISA TYPE|TYPE|CATEGORY)\s*[:\-]?\s*([^\n]+)/i)?.[1].trim() || '';
+  const processing = text.match(/(?:PROCESSING TIME|PROCESSING|DURATION|TIME)\s*[:\-]?\s*([^\n]+)/i)?.[1].trim() || '';
+  const fee = text.match(/(?:FEE|VISA CHARGES|COST)\s*[:\-]?\s*([^\n]+)/i)?.[1].trim() || '';
+  
+  let difficulty = text.match(/(?:DIFFICULTY)\s*[:\-]?\s*([^\n]+)/i)?.[1].trim() || 'Medium';
+  if (difficulty) {
+    difficulty = difficulty.charAt(0).toUpperCase() + difficulty.slice(1).toLowerCase();
+    if (difficulty === 'Moderate' || difficulty === 'Median') difficulty = 'Medium';
+    if (difficulty === 'Difficult' || difficulty === 'Challenging') difficulty = 'High';
+  }
+
+  const description = text.match(/(?:OVERVIEW|DESCRIPTION)\s*[:\-]?\s*([\s\S]*?)(?=DOCUMENTS|REQUIRED DOCUMENTS|REQUIREMENTS|ADDITIONAL DETAILS|FEE|PROCESSING|COST|VISA CHARGES|$)/i)?.[1].trim() || '';
 
   const documents: string[] = [];
-  const docsMatch = text.match(/(?:DOCUMENTS|REQUIRED DOCUMENTS|CHECKLIST)\s*[:\-]?\s*([^]*?)(?=REQUIREMENTS|FEE|PROCESSING|COST|$)/i);
+  const docsMatch = text.match(/(?:DOCUMENTS|REQUIRED DOCUMENTS|CHECKLIST)\s*[:\-]?\s*([\s\S]*?)(?=REQUIREMENTS|ADDITIONAL DETAILS|FEE|PROCESSING|COST|VISA CHARGES|$)/i);
   if (docsMatch) {
     const bullets = docsMatch[1].match(/(?:^|\n)\s*[•\-\d.]+\s*([^\n]+)/gm) || [] as string[];
     bullets.forEach((b: string) => {
@@ -37,7 +46,7 @@ function parseVisaText(raw: string): Partial<Visa> {
   }
 
   const requirements: string[] = [];
-  const reqsMatch = text.match(/(?:REQUIREMENTS|KEY REQUIREMENTS|CRITERIA)\s*[:\-]?\s*([^]*?)(?=DOCUMENTS|FEE|PROCESSING|COST|$)/i);
+  const reqsMatch = text.match(/(?:REQUIREMENTS|KEY REQUIREMENTS|CRITERIA)\s*[:\-]?\s*([\s\S]*?)(?=ADDITIONAL DETAILS|DOCUMENTS|FEE|PROCESSING|COST|VISA CHARGES|$)/i);
   if (reqsMatch) {
     const lines = reqsMatch[1].split('\n').filter(l => l.trim().length > 3);
     lines.forEach(line => {
@@ -45,7 +54,16 @@ function parseVisaText(raw: string): Partial<Visa> {
     });
   }
 
-  return { country, visaType, processing, description, documents, requirements };
+  const additionalDetails: string[] = [];
+  const addMatch = text.match(/(?:ADDITIONAL DETAILS|NOTES|IMPORTANT)\s*[:\-]?\s*([\s\S]*?)(?=DOCUMENTS|REQUIREMENTS|FEE|PROCESSING|COST|VISA CHARGES|$)/i);
+  if (addMatch) {
+    const lines = addMatch[1].split('\n').filter(l => l.trim().length > 3);
+    lines.forEach(line => {
+      additionalDetails.push(line.replace(/^[\s•\-\d.]+/, '').trim());
+    });
+  }
+
+  return { country, visaType, processing, fee, description, difficulty, documents, requirements, additionalDetails };
 }
 
 const inputCls = 'w-full px-3 py-2 border border-outline-variant/40 rounded-lg text-sm focus:outline-none focus:border-primary bg-surface-container-low text-on-surface transition-colors';
@@ -60,6 +78,7 @@ export default function AdminVisas() {
   const [formData, setFormData] = useState<Partial<Visa>>(emptyForm);
   const [newDoc, setNewDoc] = useState('');
   const [newReqDetail, setNewReqDetail] = useState('');
+  const [newAddDetail, setNewAddDetail] = useState('');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [selectMode, setSelectMode] = useState(false);
   const [showImport, setShowImport] = useState(false);
@@ -186,8 +205,16 @@ export default function AdminVisas() {
   };
   const removeReq = (i: number) => upd({ requirements: (formData.requirements || []).filter((_, j) => j !== i) });
 
+  // Additional Details helpers
+  const addAddDetail = () => {
+    if (!newAddDetail.trim()) return;
+    upd({ additionalDetails: [...(formData.additionalDetails || []), newAddDetail.trim()] });
+    setNewAddDetail('');
+  };
+  const removeAddDetail = (i: number) => upd({ additionalDetails: (formData.additionalDetails || []).filter((_, j) => j !== i) });
+
   const difficultyBadge = (d?: string) =>
-    d === 'Easy' ? 'bg-green-50 text-green-700' : d === 'Moderate' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700';
+    d === 'Easy' ? 'bg-green-50 text-green-700' : d === 'Medium' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700';
 
   return (
     <div className="space-y-6 w-full max-w-4xl mx-auto pb-12" id="vtop">
@@ -298,10 +325,10 @@ export default function AdminVisas() {
               </div>
               <div>
                 <label className={labelCls}>Difficulty *</label>
-                <select value={formData.difficulty || 'Moderate'} onChange={e => upd({ difficulty: e.target.value })} className={inputCls}>
+                <select value={formData.difficulty || 'Medium'} onChange={e => upd({ difficulty: e.target.value })} className={inputCls}>
                   <option>Easy</option>
-                  <option>Moderate</option>
-                  <option>Difficult</option>
+                  <option>Medium</option>
+                  <option>High</option>
                 </select>
               </div>
             </div>
@@ -385,6 +412,29 @@ export default function AdminVisas() {
                   onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addReq())}
                   className={inputCls} placeholder="e.g., Proof of sufficient funds ($2,000)" />
                 <button type="button" onClick={addReq} className="px-4 py-2 bg-surface-container-low border border-outline-variant/30 rounded-lg text-xs font-bold hover:bg-surface-container transition-colors whitespace-nowrap">
+                  + Add
+                </button>
+              </div>
+            </div>
+
+            {/* Additional Details */}
+            <div className="pt-4 border-t border-outline-variant/10">
+              <label className={labelCls}>Additional Details</label>
+              <div className="space-y-2 mb-3">
+                {(formData.additionalDetails || []).map((detail, i) => (
+                  <div key={i} className="flex items-center gap-2 p-2 bg-surface-container-low rounded-lg">
+                    <span className="text-xs flex-1">{detail}</span>
+                    <button type="button" onClick={() => removeAddDetail(i)} className="text-red-400 hover:text-red-600 flex-shrink-0">
+                      <span className="material-symbols-outlined text-base">close</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input type="text" value={newAddDetail} onChange={e => setNewAddDetail(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addAddDetail())}
+                  className={inputCls} placeholder="e.g., E-visa is issued as a single-entry visa." />
+                <button type="button" onClick={addAddDetail} className="px-4 py-2 bg-surface-container-low border border-outline-variant/30 rounded-lg text-xs font-bold hover:bg-surface-container transition-colors whitespace-nowrap">
                   + Add
                 </button>
               </div>

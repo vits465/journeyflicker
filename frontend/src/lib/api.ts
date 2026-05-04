@@ -1,4 +1,4 @@
-export const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5174/api";
+export const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
 export async function uploadImage(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -91,7 +91,7 @@ export type Tour = {
   sightseeing?: { title: string; description: string; icon: string; imageUrl?: string }[];
   visualArchive?: string[];
   testimonials?: { quote: string; author: string }[];
-  departureWindows?: string[];
+  departureWindows?: { range: string; label: string }[];
   maxGuests?: number;
 };
 
@@ -105,6 +105,7 @@ export type Visa = {
   visaType?: string;
   documents?: string[];
   requirements?: string[];
+  additionalDetails?: string[];
 };
 
 export type Contact = {

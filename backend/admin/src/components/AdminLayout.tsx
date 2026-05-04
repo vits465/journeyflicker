@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation, Navigate } from 'react-router-dom';
 import { useAdminAuth } from '../lib/adminAuth';
 import { api } from '../lib/api';
-import { useTheme } from '../context/ThemeContext';
 import { useAdminShortcuts } from '../lib/hooks';
 
 export function AdminLayout() {
@@ -10,7 +9,6 @@ export function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();
-  const { theme, toggleTheme } = useTheme();
 
   // Keyboard shortcuts
   useAdminShortcuts({
@@ -45,13 +43,14 @@ export function AdminLayout() {
   ];
 
   const editorOnlyLinks = [
-    { path: '/hero',         label: 'Hero Slides',    icon: 'slideshow' },
-    { path: '/seo',          label: 'SEO Manager',    icon: 'search' },
-    { path: '/backups',      label: 'DB Backups',     icon: 'database' },
-    { path: '/fe-backups',   label: 'FE Backups',     icon: 'browser_updated' },
-    { path: '/access',       label: 'Access Control', icon: 'key' },
-    { path: '/api-settings', label: 'API Settings',   icon: 'api' },
-    { path: '/contacts',     label: 'Contacts',     icon: 'mail', badge: unreadCount },
+    { path: '/hero',           label: 'Hero Slides',      icon: 'slideshow' },
+    { path: '/seo',            label: 'SEO Manager',      icon: 'search' },
+    { path: '/backup-manager', label: 'Backup Manager',   icon: 'database' },
+    { path: '/fe-backups',     label: 'FE Backups',       icon: 'browser_updated' },
+    { path: '/import-export',  label: 'Import / Export',  icon: 'import_export' },
+    { path: '/access',         label: 'Access Control',   icon: 'key' },
+    { path: '/api-settings',   label: 'API Settings',     icon: 'api' },
+    { path: '/contacts',       label: 'Contacts',         icon: 'mail', badge: unreadCount },
   ];
 
   const allLinks = canEdit ? [...adminLinks, ...editorOnlyLinks] : adminLinks;
@@ -163,16 +162,7 @@ export function AdminLayout() {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Theme Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-xl bg-surface-container-low dark:bg-white/5 text-on-surface-variant dark:text-white/60 hover:text-on-surface dark:hover:text-white transition-all border border-outline-variant/10"
-              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-            >
-              <span className="material-symbols-outlined text-xl">
-                {theme === 'light' ? 'dark_mode' : 'light_mode'}
-              </span>
-            </button>
+
             {/* Unread notification bell */}
             {unreadCount > 0 && (
               <NavLink to="/contacts"

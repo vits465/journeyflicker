@@ -9,64 +9,122 @@ import { SEO } from '../components/SEO';
 
 const diffColor = (d: string) =>
   d === 'Easy' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
-    : d === 'Moderate' ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800'
+    : d === 'Medium' ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800'
       : 'bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800';
 
 const diffDot = (d: string) =>
   d === 'Easy' ? 'bg-emerald-400'
-    : d === 'Moderate' ? 'bg-amber-400'
+    : d === 'Medium' ? 'bg-amber-400'
       : 'bg-rose-400';
 
 const DEFAULT_VISA_BG = 'https://images.unsplash.com/photo-1544016768-982d1554f0b9?q=80&w=1974&auto=format&fit=crop';
 
-// Sub-component: Expandable requirement detail
-function RequirementAccordion({ label, index }: { label: string; index: number }) {
-  const [open, setOpen] = useState(false);
-  
-  // Fixed label as requested, with full dynamic detail inside
-  const title = `Requirement ${index + 1}`;
-  const detail = String(label || '—');
 
-  return (
-    <div className={`rounded-xl border transition-all duration-300 ${open ? 'border-primary/20 bg-primary/[0.03] dark:bg-white/[0.05]' : 'border-outline-variant/10 bg-transparent'}`}>
-      <button 
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left group"
-      >
-        <div className="flex items-center gap-3">
-          <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black transition-all ${open ? 'bg-primary text-white' : 'bg-surface-container-low dark:bg-white/10 text-on-surface-variant'}`}>
-            {index + 1}
-          </span>
-          <span className={`text-sm tracking-tight transition-colors ${open ? 'font-bold text-on-surface dark:text-white' : 'font-medium text-on-surface-variant dark:text-white/60'}`}>
-            {title}
-          </span>
-        </div>
-        <span className={`material-symbols-outlined text-sm transition-transform duration-300 ${open ? 'rotate-180 text-primary' : 'text-on-surface-variant/30'}`}>
-          expand_more
-        </span>
-      </button>
-      
-      <div className={`transition-all duration-500 overflow-hidden ${open ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'}`}>
-        <div className="px-4 pb-4 pt-0">
-          <p className="text-xs font-light text-on-surface-variant dark:text-white/50 leading-relaxed border-l-2 border-primary/20 pl-4 ml-2 italic">
-            {detail}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // Hardened Visa Card — crash-proof with safe array/object guards
 function VisaCard({ visa, index }: { visa: Visa; index: number }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const requirements = Array.isArray(visa?.requirements) ? visa.requirements : [];
   const documents = Array.isArray(visa?.documents) ? visa.documents : [];
-  const hasDetails = requirements.length > 0 || documents.length > 0;
+  const additionalDetails = Array.isArray(visa?.additionalDetails) ? visa.additionalDetails : [];
+  const hasDetails = requirements.length > 0 || documents.length > 0 || additionalDetails.length > 0;
 
   const handlePrint = () => {
-    // Create a temporary hidden print-friendly version of JUST this visa
-    window.print();
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+    
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${visa.country} Visa Dossier - JourneyFlicker</title>
+          <style>
+            @media print { @page { margin: 15mm; } }
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #000; padding: 0; margin: 0; line-height: 1.6; max-width: 800px; margin: 0 auto; }
+            .header { text-align: center; border-bottom: 3px solid #000; padding-bottom: 25px; margin-bottom: 30px; margin-top: 20px; }
+            .logo { display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 36px; font-weight: 300; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 25px; }
+            .logo b { font-weight: 900; }
+            .favicon { width: 36px; height: 36px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .hero-img { width: 100%; height: 260px; object-fit: cover; border-radius: 16px; margin-bottom: 25px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            h1 { font-size: 42px; font-weight: 900; text-transform: uppercase; margin: 0 0 5px 0; letter-spacing: -1px; line-height: 1.1; }
+            .subtitle { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; opacity: 0.6; margin: 0; }
+            
+            .section { margin-bottom: 35px; page-break-inside: avoid; }
+            .section-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-bottom: 15px; color: #000; }
+            
+            ul { padding-left: 20px; margin: 0; }
+            li { margin-bottom: 8px; font-size: 14px; color: #333; }
+            p { font-size: 14px; color: #333; margin-top: 0; }
+            
+            .info-grid { display: flex; gap: 40px; margin-bottom: 35px; background: #f9f9f9; padding: 20px 25px; border-radius: 12px; -webkit-print-color-adjust: exact; print-color-adjust: exact; border: 1px solid #eee; page-break-inside: avoid; }
+            .info-item { display: flex; flex-direction: column; }
+            .info-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #666; margin-bottom: 4px; }
+            .info-value { font-size: 16px; font-weight: 700; color: #000; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="logo">
+              <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="JF Logo" />
+              <span>Journey<b>Flicker</b></span>
+            </div>
+            ${visa.heroImageUrl ? `<img src="${visa.heroImageUrl}" class="hero-img" />` : ''}
+            <h1>${visa.country} Visa</h1>
+            <p class="subtitle">Official Entry Protocol & Requirements</p>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Processing Time</span>
+              <span class="info-value">${visa.processing || '—'}</span>
+            </div>
+            ${visa.visaType ? `
+            <div class="info-item">
+              <span class="info-label">Visa Type</span>
+              <span class="info-value">${visa.visaType}</span>
+            </div>` : ''}
+          </div>
+
+          ${visa.description ? `
+          <div class="section">
+            <div class="section-title">Overview</div>
+            <p>${visa.description}</p>
+          </div>` : ''}
+
+          ${documents.length > 0 ? `
+          <div class="section">
+            <div class="section-title">Required Documents</div>
+            <ul>
+              ${documents.map(d => `<li>${d}</li>`).join('')}
+            </ul>
+          </div>` : ''}
+
+          ${requirements.length > 0 ? `
+          <div class="section">
+            <div class="section-title">Key Requirements</div>
+            <ul>
+              ${requirements.map(r => `<li>${r}</li>`).join('')}
+            </ul>
+          </div>` : ''}
+
+          ${additionalDetails.length > 0 ? `
+          <div class="section">
+            <div class="section-title">Additional Details</div>
+            <ul>
+              ${additionalDetails.map(d => `<li>${d}</li>`).join('')}
+            </ul>
+          </div>` : ''}
+
+          <script>
+            window.onload = () => { 
+              setTimeout(() => { window.print(); window.close(); }, 250);
+            };
+          </script>
+        </body>
+      </html>
+    `;
+    printWindow.document.write(html);
+    printWindow.document.close();
   };
 
   return (
@@ -125,11 +183,7 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
           </button>
         </div>
 
-        {/* Print-only Official Header */}
-        <div className="hidden print:block mb-8 border-b-2 border-black pb-4">
-          <h1 className="text-3xl font-black uppercase tracking-tighter">Official Visa Dossier</h1>
-          <p className="text-xs uppercase tracking-widest font-bold opacity-60">JourneyFlicker Intelligence Bureau · Global Mobility Division</p>
-        </div>
+
 
         <div>
           {visa?.description && (
@@ -175,11 +229,29 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
                 {requirements.length > 0 && (
                   <div className="space-y-3 pt-4 border-t border-outline-variant/10 print:border-black/20">
                     <p className="text-[9px] font-bold tracking-widest text-primary/60 dark:text-white/60 uppercase print:text-black">Dossier Requirements</p>
-                    <div className="space-y-2 print:space-y-3">
+                    <ul className="space-y-3 print:space-y-3">
                       {requirements.map((req, i) => (
-                        <RequirementAccordion key={i} label={req || ''} index={i} />
+                        <li key={i} className="flex items-start gap-3 text-sm font-light text-on-surface-variant dark:text-white/60 leading-relaxed italic">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary/40 mt-2 shrink-0" />
+                          {req || '—'}
+                        </li>
                       ))}
-                    </div>
+                    </ul>
+                  </div>
+                )}
+
+                {/* Additional Details nested here */}
+                {additionalDetails.length > 0 && (
+                  <div className="space-y-3 pt-4 border-t border-outline-variant/10 print:border-black/20">
+                    <p className="text-[9px] font-bold tracking-widest text-primary/60 dark:text-white/60 uppercase print:text-black">Additional Details</p>
+                    <ul className="space-y-3 print:space-y-3">
+                      {additionalDetails.map((detail, i) => (
+                        <li key={i} className="flex items-start gap-3 text-sm font-light text-on-surface-variant dark:text-white/60 leading-relaxed italic">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary/40 mt-2 shrink-0" />
+                          {detail || '—'}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </div>
@@ -199,7 +271,7 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
 }
 
 // ── Filter Bar ──────────────────────────────────────────────────────────────
-const FILTERS = ['All', 'Easy', 'Moderate', 'Challenging'];
+const FILTERS = ['All', 'Easy', 'Medium', 'High'];
 
 export default function VisasPage() {
   const navigate = useNavigate();

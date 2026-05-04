@@ -17,7 +17,7 @@ export function useHeroSettings(page: HeroPage): string[] {
 
   useEffect(() => {
     api.getHeroSettings()
-      .then(s => setIds(s[page] || []))
+      .then(s => { const hs = s as HeroSettings; setIds(hs[page] || []); })
       .catch(console.error);
   }, [page]);
 
@@ -31,7 +31,7 @@ export function useAllHeroSettings() {
   const fetchSettings = () => {
     api.getHeroSettings()
       .then(s => {
-        setSettings(s);
+        setSettings(s as HeroSettings);
         setLoading(false);
       })
       .catch(err => {

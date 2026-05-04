@@ -26,7 +26,7 @@ function MediaPickerModal({
 
   useEffect(() => {
     api.listMedia()
-      .then(setMedia)
+      .then(res => setMedia(res.items))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);

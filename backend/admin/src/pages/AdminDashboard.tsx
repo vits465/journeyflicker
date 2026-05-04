@@ -90,13 +90,10 @@ export default function AdminDashboard() {
   const loadAll = (silent = false) => {
     if (!silent) setLoading(true);
     Promise.all([
-      api.listDestinations(),
-      api.listTours(),
-      api.listVisas()
-    ]).then(([d, t, v]) => {
-      setDestinations(d || []);
-      setTours(t || []);
-      setVisas(v || []);
+      api.listDestinations().then(d => setDestinations(d || [])),
+      api.listTours().then(t => setTours(Array.isArray(t) ? t : t.items)),
+      api.listVisas().then(v => setVisas(v || []))
+    ]).then(() => {
       setLoading(false);
     }).catch(err => {
       console.error(err);

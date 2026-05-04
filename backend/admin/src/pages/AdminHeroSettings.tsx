@@ -30,7 +30,10 @@ export default function AdminHeroSettings() {
   }, [settings]);
 
   useEffect(() => {
-    Promise.all([api.listDestinations(), api.listTours()])
+    Promise.all([
+      api.listDestinations(),
+      api.listTours().then(d => Array.isArray(d) ? d : (d as any).items)
+    ])
       .then(([d, t]) => { setDestinations(d || []); setTours(t || []); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);

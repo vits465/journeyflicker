@@ -25,6 +25,8 @@ const AdminReviews = lazy(() => import("./pages/AdminReviews"));
 const AdminSEO = lazy(() => import("./pages/AdminSEO"));
 const AdminBackups = lazy(() => import("./pages/AdminBackups"));
 const AdminFrontendBackups = lazy(() => import("./pages/AdminFrontendBackups"));
+const AdminBackupManager = lazy(() => import("./pages/AdminBackupManager"));
+const AdminImportExport  = lazy(() => import("./pages/AdminImportExport"));
 
 export default function App() {
   const [init, setInit] = useState(true);
@@ -35,11 +37,12 @@ export default function App() {
       const token = sessionStorage.getItem("jf_token");
       if (!token) return { destinations: [], tours: [], visas: [] };
       try {
-        const [destinations, tours, visas] = await Promise.all([
+        const [destinations, toursRaw, visas] = await Promise.all([
           api.listDestinations(),
           api.listTours(),
           api.listVisas(),
         ]);
+        const tours = Array.isArray(toursRaw) ? toursRaw : toursRaw.items;
         return { destinations, tours, visas };
       } catch (e) {
         return { destinations: [], tours: [], visas: [] };
@@ -75,6 +78,8 @@ export default function App() {
                 <Route path="/seo" element={<AdminSEO />} />
                 <Route path="/backups" element={<AdminBackups />} />
                 <Route path="/fe-backups" element={<AdminFrontendBackups />} />
+                <Route path="/backup-manager" element={<AdminBackupManager />} />
+                <Route path="/import-export"  element={<AdminImportExport />} />
               </Route>
 
               {/* Catch-all redirect to dashboard */}
