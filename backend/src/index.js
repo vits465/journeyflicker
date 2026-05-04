@@ -6,7 +6,11 @@ import { z } from "zod";
 import crypto from "node:crypto";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import { kv } from "@vercel/kv";
+import { Redis } from "@upstash/redis";
+const kv = new Redis({
+  url:   process.env.KV_REST_API_URL,
+  token: process.env.KV_REST_API_TOKEN,
+});
 import { v2 as cloudinary } from "cloudinary";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
