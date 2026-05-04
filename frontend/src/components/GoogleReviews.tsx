@@ -1,15 +1,14 @@
 import { useMemo } from 'react';
 
-// Hardcoded default reviews (the user can update these with their actual Google reviews later)
 const GLOBAL_GOOGLE_REVIEWS = [
-  { id: 1, author: 'Eleanor Vance', date: '3 weeks ago', rating: 5, content: 'JourneyFlicker provided the absolute best travel experience of my life. Every detail was meticulously planned.' },
-  { id: 2, author: 'Marcus Sterling', date: '1 month ago', rating: 5, content: 'Extremely professional and highly knowledgeable curators. They got us access to places we could never have found on our own.' },
-  { id: 3, author: 'Sarah Jenkins', date: '2 months ago', rating: 5, content: 'Worth every penny. The private villa and transfers were seamless. Will definitely be booking our next trip with them!' },
-  { id: 4, author: 'David Chen', date: '2 months ago', rating: 5, content: 'Unbelievable service. From the moment we landed until we departed, the JourneyFlicker team treated us like VIPs.' },
-  { id: 5, author: 'Isabella Rossi', date: '3 months ago', rating: 5, content: 'I was hesitant at first, but their bespoke itinerary completely blew me away. Absolutely flawless execution.' },
-  { id: 6, author: 'James Arlington', date: '4 months ago', rating: 5, content: 'Highly recommend JourneyFlicker. Their attention to detail and on-the-ground support is unmatched in the industry.' },
-  { id: 7, author: 'Amina Al-Fayed', date: '4 months ago', rating: 5, content: 'Our honeymoon was pure magic thanks to their team. Everything was taken care of, allowing us to just relax and enjoy.' },
-  { id: 8, author: 'Robert Kim', date: '5 months ago', rating: 5, content: 'Top-tier luxury travel agency. They understood exactly what we were looking for and delivered beyond expectations.' },
+  { id: 1, author: 'Prapti Patel', date: 'a day ago', rating: 5, content: 'We recently booked a tour with JourneyFlicker and was thoroughly impressed by their professionalism. PARSHWA and TUSHAR BHAI helped curate an amazing 10 day itinerary that was both flexible and cost-effective.' },
+  { id: 2, author: 'Priyanka Thakor', date: '3 months ago', rating: 5, content: 'Excellent service from Journey Flicker. They managed our Andaman itinerary perfectly. What stood out most was their proactive support and rapid communication.' },
+  { id: 3, author: 'Gaurang kher', date: '3 months ago', rating: 5, content: 'Had an amazing trip to the Andaman Islands organized by Journey Flicker. The team was incredibly supportive and provided a very quick response to all our queries. Highly recommended!' },
+  { id: 4, author: 'janvi patel', date: 'a month ago', rating: 5, content: 'We had a wonderful Vietnam trip. All the arrangements like hotel, travel and activities were very well managed by Journey Flickers. Thank you for making our trip so comfortable and memorable.' },
+  { id: 5, author: 'Akshar Patel', date: '3 months ago', rating: 5, content: 'Amazing Bali experience with JourneyFlikers! Great planning, lovely hotels, hassle-free transfers, and a super friendly guide. Excellent communication throughout. Totally worth it!' },
+  { id: 6, author: 'ashish patel', date: '6 months ago', rating: 5, content: 'We booked a trip to Hong Kong and Macau through JourneyFlicker. The tour was very well organized and we had a truly amazing experience throughout the trip. Every moment was memorable.' },
+  { id: 7, author: 'Sagar Goplani', date: '6 months ago', rating: 5, content: 'Best experience ever....hotel location, management service, tour guide. food quality was best.... We are very happy and satisfied with your service from start to end. Thank you!' },
+  { id: 8, author: 'Hiren Mehta', date: '7 months ago', rating: 5, content: 'I booked a trip to Ayodhya-Prayagraj-Varanasi along with my parents who are senior citizens. JourneyFlicker is the best travel partner. The meticulous planning is commendable.' },
 ];
 
 export function GoogleReviews({ max = 4 }: { max?: number }) {
