@@ -159,6 +159,103 @@ export default function DestinationDetailsPage() {
   const gallery   = destination.galleryImages || [destination.heroImageUrl || DEFAULT_IMG];
   const seasons   = destination.seasonsHighlights || [];
 
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+    
+    const absUrl = (u?: string) => {
+      if (!u) return '';
+      if (u.startsWith('http') || u.startsWith('data:')) return u;
+      return `${window.location.origin}${u.startsWith('/') ? '' : '/'}${u}`;
+    };
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${destination?.name} Brochure - JourneyFlicker</title>
+          <style>
+            @media print { @page { margin: 15mm; } }
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #000; padding: 0; margin: 0; line-height: 1.6; max-width: 800px; margin: 0 auto; }
+            .header { text-align: center; border-bottom: 3px solid #000; padding-bottom: 25px; margin-bottom: 30px; margin-top: 20px; }
+            .logo { display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 36px; font-weight: 300; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 25px; }
+            .logo b { font-weight: 900; }
+            .favicon { width: 36px; height: 36px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .hero-img { width: 100%; height: 300px; object-fit: cover; border-radius: 16px; margin-bottom: 25px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            h1 { font-size: 46px; font-weight: 300; text-transform: uppercase; margin: 0 0 5px 0; letter-spacing: -2px; line-height: 1.1; font-style: italic; }
+            .subtitle { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; opacity: 0.6; margin: 0; }
+            
+            .section { margin-bottom: 35px; page-break-inside: avoid; }
+            .section-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-bottom: 15px; color: #000; }
+            
+            p { font-size: 14px; color: #333; margin-top: 0; line-height: 1.7; }
+            
+            .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; page-break-inside: avoid; }
+            .gallery-img { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+            .landmark-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+            .landmark-item:last-child { border-bottom: none; }
+            .landmark-img { width: 120px; height: 80px; object-fit: cover; border-radius: 8px; flex-shrink: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .landmark-title { font-size: 18px; font-weight: 700; margin: 0 0 5px 0; font-style: italic; }
+            .landmark-category { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #666; margin-bottom: 4px; }
+            .landmark-desc { font-size: 13px; color: #444; margin: 0; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="logo">
+              <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="JF Logo" />
+              <span>Journey<b>Flicker</b></span>
+            </div>
+            ${destination?.heroImageUrl ? `<img src="${absUrl(destination.heroImageUrl)}" class="hero-img" />` : ''}
+            <h1>${destination?.name}</h1>
+            <p class="subtitle">${destination?.region}</p>
+          </div>
+
+          ${destination?.description ? `
+          <div class="section">
+            <div class="section-title">The Philosophy</div>
+            <p style="font-size: 18px; font-style: italic; opacity: 0.9;">&ldquo;${destination.description}&rdquo;</p>
+            ${destination.essenceText ? `<p>${destination.essenceText}</p>` : ''}
+          </div>` : ''}
+
+          ${landmarks.length > 0 ? `
+          <div class="section">
+            <div class="section-title">Iconic Landmarks</div>
+            ${landmarks.map((lm) => `
+              <div class="landmark-item">
+                ${lm.imageUrl ? `<img src="${absUrl(lm.imageUrl)}" class="landmark-img" />` : ''}
+                <div>
+                  <div class="landmark-category">${lm.category || 'Landmark'}</div>
+                  <h4 class="landmark-title">${lm.title}</h4>
+                  <p class="landmark-desc">${lm.description}</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>` : ''}
+
+          ${gallery.length > 0 ? `
+          <div class="section" style="page-break-before: always;">
+            <div class="section-title">Visual Archive</div>
+            <div class="gallery-grid">
+              ${gallery.slice(0, 9).map(img => `
+                <img src="${absUrl(img)}" class="gallery-img" />
+              `).join('')}
+            </div>
+          </div>` : ''}
+
+          <script>
+            window.onload = () => { 
+              setTimeout(() => { window.print(); window.close(); }, 500);
+            };
+          </script>
+        </body>
+      </html>
+    `;
+    printWindow.document.write(html);
+    printWindow.document.close();
+  };
+
   return (
     <div className="overflow-x-hidden w-full">
       <SEO title={`${destination.name} | JourneyFlicker`} description={destination.description || destination.essenceText} image={destination.heroImageUrl} />
@@ -173,7 +270,7 @@ export default function DestinationDetailsPage() {
             <span className="mx-3 text-outline-variant/30">/</span>
             <span className="text-on-surface font-black opacity-40 truncate">{destination.name}</span>
           </nav>
-          <button onClick={() => window.print()} className="no-print flex items-center gap-1.5 text-[9px] font-black tracking-[0.3em] uppercase bg-black/5 hover:bg-black hover:text-white transition-all px-4 py-2 rounded-full">
+          <button onClick={handlePrint} className="no-print flex items-center gap-1.5 text-[9px] font-black tracking-[0.3em] uppercase bg-black/5 hover:bg-black hover:text-white transition-all px-4 py-2 rounded-full">
             <span className="material-symbols-outlined text-sm">print</span> Brochure
           </button>
         </div>

@@ -291,6 +291,12 @@ export default function TourDetailsPage() {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
     
+    const absUrl = (u?: string) => {
+      if (!u) return '';
+      if (u.startsWith('http') || u.startsWith('data:')) return u;
+      return `${window.location.origin}${u.startsWith('/') ? '' : '/'}${u}`;
+    };
+
     const html = `
       <!DOCTYPE html>
       <html>
@@ -319,9 +325,15 @@ export default function TourDetailsPage() {
             .info-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #666; margin-bottom: 4px; }
             .info-value { font-size: 16px; font-weight: 700; color: #000; }
             
-            .itinerary-day { margin-bottom: 20px; padding-left: 15px; border-left: 2px solid #ddd; }
-            .day-title { font-size: 16px; font-weight: 700; margin: 0 0 5px 0; font-style: italic; }
+            .itinerary-day { margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #eee; page-break-inside: avoid; }
+            .itinerary-day:last-child { border-bottom: none; }
+            .day-header { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px; }
+            .day-img { width: 120px; height: 80px; object-fit: cover; border-radius: 8px; flex-shrink: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .day-title { font-size: 18px; font-weight: 700; margin: 0 0 5px 0; font-style: italic; }
             .day-desc { font-size: 13px; color: #444; margin: 0; }
+            
+            .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; page-break-inside: avoid; }
+            .gallery-img { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           </style>
         </head>
         <body>
@@ -330,7 +342,7 @@ export default function TourDetailsPage() {
               <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="JF Logo" />
               <span>Journey<b>Flicker</b></span>
             </div>
-            ${tour?.heroImageUrl ? `<img src="${tour.heroImageUrl}" class="hero-img" />` : ''}
+            ${tour?.heroImageUrl ? `<img src="${absUrl(tour.heroImageUrl)}" class="hero-img" />` : ''}
             <h1>${tour?.name}</h1>
             <p class="subtitle">${tour?.region} • ${tour?.category}</p>
           </div>
@@ -366,15 +378,43 @@ export default function TourDetailsPage() {
             <div class="section-title">Day-by-Day Sequence</div>
             ${itinerary.map((day, i) => `
               <div class="itinerary-day">
-                <h4 class="day-title">Phase ${String(i + 1).padStart(2, '0')}: ${day.title}</h4>
-                <p class="day-desc">${day.description}</p>
+                <div class="day-header">
+                  ${day.imageUrl ? `<img src="${absUrl(day.imageUrl)}" class="day-img" />` : ''}
+                  <div>
+                    <h4 class="day-title">Phase ${String(i + 1).padStart(2, '0')}: ${day.title}</h4>
+                    <p class="day-desc">${day.description}</p>
+                  </div>
+                </div>
               </div>
             `).join('')}
           </div>` : ''}
 
+          ${sightseeing.length > 0 ? `
+          <div class="section">
+            <div class="section-title">Territory Landmarks</div>
+            <div class="gallery-grid">
+              ${sightseeing.filter(s => s.imageUrl).slice(0, 6).map(s => `
+                <div>
+                  <img src="${absUrl(s.imageUrl)}" class="gallery-img" />
+                  <p style="font-size: 11px; font-weight: bold; margin-top: 5px;">${s.title}</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>` : ''}
+
+          ${visualArchive.length > 0 ? `
+          <div class="section" style="page-break-before: always;">
+            <div class="section-title">Visual Archive</div>
+            <div class="gallery-grid">
+              ${visualArchive.slice(0, 9).map(img => `
+                <img src="${absUrl(img)}" class="gallery-img" />
+              `).join('')}
+            </div>
+          </div>` : ''}
+
           <script>
             window.onload = () => { 
-              setTimeout(() => { window.print(); window.close(); }, 250);
+              setTimeout(() => { window.print(); window.close(); }, 500);
             };
           </script>
         </body>
