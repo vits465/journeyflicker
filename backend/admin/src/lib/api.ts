@@ -210,6 +210,25 @@ export type Activity = {
   user?: string;
 };
 
+export type SystemLog = {
+  id: string;
+  level: 'error' | 'warn' | 'info';
+  source: 'frontend' | 'backend';
+  message: string;
+  stack?: string;
+  url?: string;
+  userAgent?: string;
+  resolved: boolean;
+  createdAt: number;
+};
+
+export type SystemLogListResponse = {
+  items: SystemLog[];
+  total: number;
+  page: number;
+  pages: number;
+};
+
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
   const token = sessionStorage.getItem("jf_token");
   const headers: HeadersInit = {
@@ -353,6 +372,11 @@ export interface ApiInterface {
   // MongoDB migration
   getMigrationStatus: () => Promise<MigrationStatus>;
   runMigration: () => Promise<{ success: boolean; results: Record<string, number>; log: string[] }>;
+  // System Logs
+  listSystemLogs: (opts?: { level?: string; source?: string; resolved?: boolean; page?: number; limit?: number }) => Promise<SystemLogListResponse>;
+  resolveSystemLog: (id: string, resolved: boolean) => Promise<SystemLog>;
+  deleteSystemLog: (id: string) => Promise<void>;
+  clearSystemLogs: (deleteAll?: boolean) => Promise<{ deleted: number }>;
 }
 
 export const api: ApiInterface = {
@@ -456,4 +480,17 @@ export const api: ApiInterface = {
 
   getMigrationStatus: () => http<MigrationStatus>("/admin/migrate/status"),
   runMigration:       () => http<{ success: boolean; results: Record<string, number>; log: string[] }>("/admin/migrate", { method: "POST" }),
+
+  listSystemLogs: (opts = {}) => {
+    const params = new URLSearchParams();
+    if (opts.level) params.set('level', opts.level);
+    if (opts.source) params.set('source', opts.source);
+    if (opts.resolved !== undefined) params.set('resolved', String(opts.resolved));
+    if (opts.page) params.set('page', String(opts.page));
+    if (opts.limit) params.set('limit', String(opts.limit));
+    return http<SystemLogListResponse>(`/admin/logs?${params}`);
+  },
+  resolveSystemLog: (id, resolved) => http<SystemLog>(`/admin/logs/${id}`, { method: 'PATCH', body: JSON.stringify({ resolved }) }),
+  deleteSystemLog:  (id) => http<void>(`/admin/logs/${id}`, { method: 'DELETE' }),
+  clearSystemLogs:  (deleteAll = false) => http<{ deleted: number }>(`/admin/logs${deleteAll ? '?deleteAll=true' : ''}`, { method: 'DELETE' }),
 };

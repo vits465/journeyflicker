@@ -51,9 +51,9 @@ export default function ContactPage() {
               <div className="space-y-5">
                 <div className="group border-l-2 border-primary/10 pl-5 hover:border-primary transition-all duration-500">
                   <span className="text-[9px] font-bold tracking-[0.3em] uppercase text-on-surface-variant mb-1.5 block">General Correspondence</span>
-                  <a href="mailto:curator@journeyflicker.com"
+                  <a href="mailto:tushar@journeyflicker.com"
                     className="text-lg font-light tracking-tight text-on-surface hover:text-primary transition-colors break-all">
-                    curator@journeyflicker.com
+                    tushar@journeyflicker.com
                   </a>
                 </div>
                 <div className="group border-l-2 border-primary/10 pl-5 hover:border-primary transition-all duration-500">

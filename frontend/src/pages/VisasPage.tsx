@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import type { Visa } from '../lib/api';
 import { api } from '../lib/api';
 import { useAllHeroSettings } from '../lib/heroSettings';
@@ -22,8 +22,13 @@ const DEFAULT_VISA_BG = 'https://images.unsplash.com/photo-1544016768-982d1554f0
 
 
 // Hardened Visa Card — crash-proof with safe array/object guards
-function VisaCard({ visa, index }: { visa: Visa; index: number }) {
-  const [isExpanded, setIsExpanded] = useState(false);
+function VisaCard({ visa, index, defaultExpanded = false }: { visa: Visa; index: number; defaultExpanded?: boolean }) {
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+
+  useEffect(() => {
+    if (defaultExpanded) setIsExpanded(true);
+  }, [defaultExpanded]);
+
   const requirements = Array.isArray(visa?.requirements) ? visa.requirements : [];
   const documents = Array.isArray(visa?.documents) ? visa.documents : [];
   const additionalDetails = Array.isArray(visa?.additionalDetails) ? visa.additionalDetails : [];
@@ -115,6 +120,16 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
             </ul>
           </div>` : ''}
 
+          <div class="section" style="page-break-inside: avoid; border-top: 2px solid #000; padding-top: 30px; margin-top: 50px;">
+            <div class="logo" style="justify-content: flex-start; margin-bottom: 15px;">
+              <span>Journey<b>Flicker</b></span>
+            </div>
+            <p style="font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">The Curator Board</p>
+            <p style="margin-bottom: 4px; font-size: 14px;"><strong>Email:</strong> tushar@journeyflicker.com</p>
+            <p style="margin-bottom: 4px; font-size: 14px;"><strong>Phone:</strong> +91 98792 68811 &nbsp;|&nbsp; +91 97266 98987 &nbsp;|&nbsp; 0261 3564717</p>
+            <p style="margin-bottom: 4px; font-size: 14px;"><strong>Address:</strong> 103, Raj Victoria, Near Samarth Circle, Adajan, Surat - 395009 (Gujarat, India)</p>
+          </div>
+
           <script>
             window.onload = () => { 
               setTimeout(() => { window.print(); window.close(); }, 250);
@@ -129,6 +144,7 @@ function VisaCard({ visa, index }: { visa: Visa; index: number }) {
 
   return (
     <div
+      id={`visa-${visa.id}`}
       className="group relative rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-outline-variant/10 dark:border-white/5 bg-surface dark:bg-white/[0.03] flex flex-col h-full print:shadow-none print:border-none print:rounded-none"
       style={{ animationDelay: `${(index % 3) * 0.08}s` }}
     >
@@ -275,6 +291,7 @@ const FILTERS = ['All', 'Easy', 'Medium', 'High'];
 
 export default function VisasPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [visas, setVisas] = useState<Visa[]>([]);
   const [loading, setLoading] = useState(true);
@@ -293,6 +310,17 @@ export default function VisasPage() {
 
     fetchVisas(); // Initial fetch
   }, []);
+
+  useEffect(() => {
+    if (!loading && location.hash) {
+      setTimeout(() => {
+        const element = document.getElementById(location.hash.substring(1));
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    }
+  }, [loading, location.hash]);
 
   const filtered = visas.filter(v =>
     (filter === 'All' || v.difficulty === filter) &&
@@ -476,7 +504,7 @@ export default function VisasPage() {
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {filtered.map((visa, i) => (
-                <VisaCard key={visa.id} visa={visa} index={i} />
+                <VisaCard key={visa.id} visa={visa} index={i} defaultExpanded={location.hash === `#visa-${visa.id}`} />
               ))}
             </div>
           )}

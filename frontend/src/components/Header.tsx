@@ -146,7 +146,7 @@ export function Header() {
               Inquire Strategy
             </NavLink>
             <div className="flex items-center justify-center gap-6 text-[9px] font-bold tracking-widest uppercase text-on-surface-variant/40 dark:text-white/20">
-              <a href="mailto:curator@journeyflicker.com" className="hover:text-black dark:hover:text-white transition-colors">Email Us</a>
+              <a href="mailto:tushar@journeyflicker.com" className="hover:text-black dark:hover:text-white transition-colors">Email Us</a>
               <span>·</span>
               <a href="tel:+15557829901" className="hover:text-black dark:hover:text-white transition-colors">Call Us</a>
             </div>

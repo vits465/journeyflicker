@@ -7,6 +7,10 @@ import { SplashPreloader } from "./components/Preloader";
 import { SearchProvider } from "./lib/searchContext";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { ThemeProvider } from "./context/ThemeContext";
+import { installErrorReporter } from "./lib/errorReporter";
+
+// Install global error reporter immediately (before any rendering)
+installErrorReporter();
 
 // Lazy Load Pages
 const HomePage = lazy(() => import("./pages/HomePage"));

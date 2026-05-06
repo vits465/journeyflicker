@@ -18,11 +18,13 @@ import fs from "node:fs";
 
 // ── MongoDB ────────────────────────────────────────────────────────────────────
 import { connectMongo, isMongoConnected } from "./db/mongoose.js";
-import { Destination as DestModel, Tour as TourModel, Visa as VisaModel, Contact as ContactModel, Settings as SettingsModel, CoEditor as CoEditorModel, Media as MediaModel, Admin as AdminModel } from "./db/models/index.js";
+import { Destination as DestModel, Tour as TourModel, Visa as VisaModel, Contact as ContactModel, Settings as SettingsModel, CoEditor as CoEditorModel, Media as MediaModel, Admin as AdminModel, SystemLog as SystemLogModel } from "./db/models/index.js";
 import { router as backupRouter, startScheduledBackup } from "./routes/backup.js";
 import { router as importExportRouter } from "./routes/import-export.js";
 import { router as enhancedMediaRouter } from "./routes/media.js";
 import { router as migrateRouter } from "./routes/migrate.js";
+import { router as pdfRouter } from "./routes/pdf.js";
+import { sendInquiryNotification } from "./lib/email.js";
 
 // Start MongoDB connection — awaited before server listens (see bottom of file)
 const mongoReady = connectMongo();
@@ -39,6 +41,20 @@ cloudinary.config({
 
 const app = express();
 app.use(compression()); // Compress all responses
+
+// ── MongoDB Auto-Reconnect Middleware ─────────────────────────────────────────
+// This ensures that if the database disconnects (e.g. socket timeout when laptop sleeps
+// or browser is minimized for a long time), the next API request will reconnect.
+app.use("/api", async (req, res, next) => {
+  if (!isMongoConnected()) {
+    try {
+      await connectMongo();
+    } catch (err) {
+      console.error("[MongoDB] Auto-reconnect failed in middleware:", err.message);
+    }
+  }
+  next();
+});
 
 // ── Security ──────────────────────────────────────────────────────────────────
 app.use(helmet({
@@ -66,7 +82,7 @@ app.use(helmet({
 }));
 app.use(cors({
   origin: function (origin, callback) {
-    const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173,http://localhost:5174").split(",");
+    const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176,http://localhost:5177").split(",");
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
       return callback(null, true);
@@ -454,6 +470,7 @@ app.use("/api/admin/export",  requireAdmin,   importExportRouter);
 app.use("/api/admin/import",  adminOpLimiter, requireAdmin, importExportRouter);
 app.use("/api/admin/media",   requireCRUD,    enhancedMediaRouter);
 app.use("/api/admin/migrate", requireAdmin,   migrateRouter);
+app.use("/api/pdf", pdfRouter);
 
 
 
@@ -663,6 +680,10 @@ app.post("/api/contacts", async (req, res) => {
   if (!parsed.success) return res.status(400).json(parsed.error);
   const item = { id: newId("msg"), ...parsed.data, read: false, createdAt: Date.now() };
   await ContactModel.create(item);
+  
+  // Send email notifications (non-blocking)
+  sendInquiryNotification(item).catch(console.error);
+  
   res.status(201).json(item);
 });
 app.patch("/api/contacts/:id/read", requireAdmin, async (req, res) => {
@@ -729,6 +750,73 @@ const DEFAULT_REVIEWS = [
   { id: '7', author: 'Sagar Goplani', date: '6 months ago', rating: 5, content: 'Best experience ever....hotel location, management service, tour guide. food quality was best.... We are very happy and satisfied with your service from start to end. Thank you!' },
   { id: '8', author: 'Hiren Mehta', date: '7 months ago', rating: 5, content: 'I booked a trip to Ayodhya-Prayagraj-Varanasi along with my parents who are senior citizens. JourneyFlicker is the best travel partner. The meticulous planning is commendable.' },
 ];
+
+// ── System Logs (Frontend Analytics) ──────────────────────────────────────────
+// Public endpoint — frontend sends errors here (no auth required)
+app.post("/api/logs", async (req, res) => {
+  try {
+    const { level = "error", source = "frontend", message, stack, url, userAgent } = req.body;
+    if (!message) return res.status(400).json({ error: "message is required" });
+    const id = newId("log");
+    await SystemLogModel.create({ id, level, source, message: String(message).slice(0, 2000), stack: String(stack || "").slice(0, 5000), url: String(url || "").slice(0, 500), userAgent: String(userAgent || "").slice(0, 300) });
+    res.status(201).json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Admin: list logs
+app.get("/api/admin/logs", requireAdmin, async (req, res) => {
+  try {
+    const { level, source, resolved, page = 1, limit = 50 } = req.query;
+    const filter = {};
+    if (level && level !== "all") filter.level = level;
+    if (source && source !== "all") filter.source = source;
+    if (resolved !== undefined) filter.resolved = resolved === "true";
+    const skip = (Number(page) - 1) * Number(limit);
+    const [items, total] = await Promise.all([
+      SystemLogModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(Number(limit)).lean(),
+      SystemLogModel.countDocuments(filter),
+    ]);
+    res.json({ items, total, page: Number(page), pages: Math.ceil(total / Number(limit)) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Admin: mark resolved / unresolved
+app.patch("/api/admin/logs/:id", requireAdmin, async (req, res) => {
+  try {
+    const { resolved } = req.body;
+    const log = await SystemLogModel.findOneAndUpdate({ id: req.params.id }, { $set: { resolved } }, { new: true }).lean();
+    if (!log) return res.status(404).json({ error: "Not found" });
+    res.json(log);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Admin: delete single log
+app.delete("/api/admin/logs/:id", requireAdmin, async (req, res) => {
+  try {
+    await SystemLogModel.deleteOne({ id: req.params.id });
+    res.status(204).end();
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Admin: clear all resolved logs
+app.delete("/api/admin/logs", requireAdmin, async (req, res) => {
+  try {
+    const { deleteAll } = req.query;
+    const filter = deleteAll === "true" ? {} : { resolved: true };
+    const { deletedCount } = await SystemLogModel.deleteMany(filter);
+    res.json({ deleted: deletedCount });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // ── Google Reviews ─────────────────────────────────────────────────────────────
 app.get("/api/reviews", cacheEdge, async (req, res) => {

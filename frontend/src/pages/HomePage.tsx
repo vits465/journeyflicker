@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { Destination, Tour } from '../lib/api';
+import type { Destination, Tour, Visa } from '../lib/api';
 import { api } from '../lib/api';
 import { HeroSlider, type HeroSlide } from '../components/HeroSlider';
 import { AutoCarousel } from '../components/AutoCarousel';
@@ -36,12 +36,14 @@ const PRESS = ['Travel + Leisure', 'Condé Nast Traveller', 'Forbes Life', 'The 
 
 import { useSearch } from '../lib/searchContext';
 import { SEO } from '../components/SEO';
+import { LazyImage } from '../components/LazyImage';
 
 export default function HomePage() {
   const navigate = useNavigate();
   const { openSearch } = useSearch();
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [tours, setTours] = useState<Tour[]>([]);
+  const [visas, setVisas] = useState<Visa[]>([]);
   const [loading, setLoading] = useState(true);
   const heroIds = useHeroSettings('home');
   const [shuffledDestinations, setShuffledDestinations] = useState<Destination[]>([]);
@@ -49,10 +51,11 @@ export default function HomePage() {
 
   useEffect(() => {
     const fetchData = () => {
-      Promise.all([api.listDestinations(), api.listTours()])
-        .then(([dests, trs]) => {
+      Promise.all([api.listDestinations(), api.listTours(), api.listVisas()])
+        .then(([dests, trs, vss]) => {
           setDestinations(dests || []);
           setTours(trs || []);
+          setVisas(vss || []);
           setShuffledDestinations([...(dests || [])].sort(() => Math.random() - 0.5));
           setShuffledTours([...(trs || [])].sort(() => Math.random() - 0.5));
           setLoading(false);
@@ -153,7 +156,9 @@ export default function HomePage() {
                 <div key={dest.id}
                   className="group relative overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer w-[280px] sm:w-[320px] aspect-[4/5]"
                   onClick={() => navigate(`/destinations/${dest.id}`)}>
-                  <img className="absolute inset-0 w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105 grayscale group-hover:grayscale-0"
+                  <LazyImage 
+                    containerClassName="absolute inset-0 w-full h-full"
+                    className="w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105 grayscale group-hover:grayscale-0"
                     alt={dest.name} src={optimizeImage(dest.heroImageUrl || FALLBACK, 800)} />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent flex flex-col justify-end p-5">
                     <span className="text-white text-[9px] font-black tracking-[0.5em] uppercase bg-black/40 backdrop-blur-sm self-start px-3 py-1 rounded-full border border-white/20 mb-2">{dest.region}</span>
@@ -238,7 +243,9 @@ export default function HomePage() {
                 style={{ animationDelay: `${(i % 3) * 0.07}s` }}
                 onClick={() => navigate('/tours')}>
                 {/* Background image */}
-                <img className="absolute inset-0 w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105 grayscale group-hover:grayscale-0"
+                <LazyImage 
+                  containerClassName="absolute inset-0 w-full h-full"
+                  className="w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105 grayscale group-hover:grayscale-0"
                   src={exp.img} alt={exp.label} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
 
@@ -296,13 +303,15 @@ export default function HomePage() {
               ))}
             </div>
           ) : (
-            <AutoCarousel autoPlayMs={6000}>
+            <AutoCarousel autoPlayMs={6000} disableScaling={true}>
               {shuffledTours.map((tour, idx) => (
                 <div key={tour.id}
                   className="w-[80vw] max-w-4xl flex flex-col lg:flex-row items-center gap-7 lg:gap-10 group cursor-pointer"
                   onClick={() => navigate(`/tours/${tour.id}`)}>
                   <div className="w-full lg:w-1/2 overflow-hidden rounded-2xl shadow-sm group-hover:shadow-2xl transition-all duration-700 relative aspect-[4/3] bg-black shrink-0">
-                    <img className="absolute inset-0 w-full h-full object-cover transition-transform duration-[5s] ease-out group-hover:scale-105 opacity-80 group-hover:opacity-100"
+                    <LazyImage 
+                      containerClassName="absolute inset-0 w-full h-full"
+                      className="w-full h-full object-cover transition-transform duration-[5s] ease-out group-hover:scale-105 opacity-80 group-hover:opacity-100"
                       alt={tour.name} src={optimizeImage(tour.heroImageUrl || FALLBACK, 1200)} />
                     <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-4 py-1.5 rounded-full shadow-lg">
                       <span className="text-[9px] font-black tracking-[0.4em] text-black uppercase">{tour.days} DAYS</span>
@@ -333,6 +342,63 @@ export default function HomePage() {
               </button>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* ────────────────────────── 7.5 VISA PREVIEW ────────────────────────── */}
+      <section className="py-14 sm:py-20 px-4 sm:px-8 md:px-16 bg-surface-container-lowest border-t border-outline-variant/10 dark:border-white/5">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10 md:mb-14 animate-reveal-up">
+            <div>
+              <span className="text-primary text-[10px] font-black tracking-[0.6em] uppercase mb-3 block">Border Control</span>
+              <h2 className="text-4xl sm:text-5xl font-light tracking-tighter leading-tight dark:text-white">
+                Visa<br/><span className="italic font-serif">Intelligence.</span>
+              </h2>
+            </div>
+            <p className="text-sm font-light text-on-surface-variant opacity-60 max-w-sm leading-relaxed md:text-right">
+              Navigating global entry protocols with precision. Live status on essential travel dossiers.
+            </p>
+          </div>
+          
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+              {[1, 2, 3, 4].map((i) => <div key={i} className="animate-pulse bg-surface-container-low aspect-[4/5] rounded-2xl" />)}
+            </div>
+          ) : visas.length > 0 ? (
+            <div className="mb-10">
+              <AutoCarousel autoPlayMs={4500}>
+                {visas.map((visa) => (
+                  <div key={visa.id} onClick={() => navigate(`/visas#visa-${visa.id}`)} className="relative cursor-pointer group rounded-2xl overflow-hidden border border-outline-variant/10 shadow-sm hover:shadow-xl transition-all duration-500 aspect-[4/5] bg-black w-[280px] sm:w-[320px] shrink-0">
+                    <LazyImage 
+                      containerClassName="absolute inset-0 w-full h-full"
+                      className="w-full h-full object-cover transition-transform duration-[5s] ease-out group-hover:scale-105 opacity-60 group-hover:opacity-80 grayscale group-hover:grayscale-0"
+                      src={optimizeImage(visa.heroImageUrl || FALLBACK, 600)} alt={visa.country} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-between p-5">
+                      <div className="flex justify-between items-start">
+                        <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center shrink-0">
+                          <span className="material-symbols-outlined text-white font-light text-sm">public</span>
+                        </div>
+                        <span className="text-[8px] font-black tracking-[0.3em] uppercase bg-white/10 backdrop-blur border border-white/20 px-2 py-1 rounded text-white shadow-sm">
+                          {visa.difficulty || '—'}
+                        </span>
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-light tracking-tighter text-white mb-1 group-hover:text-primary transition-colors italic">{visa.country}</h3>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-white/60 truncate">{visa.processing}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </AutoCarousel>
+            </div>
+          ) : null}
+          
+          <div className="text-center animate-reveal-up">
+            <button onClick={() => navigate('/visas')}
+              className="inline-flex items-center gap-2 border-b-2 border-black dark:border-white text-[10px] font-black tracking-[0.4em] uppercase pb-1.5 hover:text-primary hover:border-primary transition-all dark:text-white">
+              Access Visa Hub <span className="material-symbols-outlined font-light text-sm">east</span>
+            </button>
+          </div>
         </div>
       </section>
 

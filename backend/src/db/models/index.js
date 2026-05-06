@@ -131,6 +131,19 @@ const SettingsSchema = new mongoose.Schema({
   updatedAt: { type: Number, default: () => Date.now() },
 }, { timestamps: false, versionKey: false });
 
+// ── SystemLog ─────────────────────────────────────────────────────────────────
+const SystemLogSchema = new mongoose.Schema({
+  id: { type: String, required: true, unique: true, index: true },
+  level: { type: String, default: "error", index: true }, // 'error', 'warn', 'info'
+  source: { type: String, default: "frontend", index: true }, // 'frontend', 'backend'
+  message: { type: String, required: true },
+  stack: { type: String, default: "" },
+  url: { type: String, default: "" },
+  userAgent: { type: String, default: "" },
+  resolved: { type: Boolean, default: false, index: true },
+  createdAt: { type: Number, default: () => Date.now(), index: -1 },
+}, { timestamps: false, versionKey: false });
+
 export const Destination  = mongoose.models.Destination  || mongoose.model("Destination",  DestinationSchema);
 export const Tour         = mongoose.models.Tour         || mongoose.model("Tour",          TourSchema);
 export const Visa         = mongoose.models.Visa         || mongoose.model("Visa",          VisaSchema);
@@ -140,3 +153,4 @@ export const Backup       = mongoose.models.Backup       || mongoose.model("Back
 export const CoEditor     = mongoose.models.CoEditor     || mongoose.model("CoEditor",      CoEditorSchema);
 export const Admin        = mongoose.models.Admin        || mongoose.model("Admin",         AdminSchema);
 export const Settings     = mongoose.models.Settings     || mongoose.model("Settings",      SettingsSchema);
+export const SystemLog    = mongoose.models.SystemLog    || mongoose.model("SystemLog",     SystemLogSchema);

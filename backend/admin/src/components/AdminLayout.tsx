@@ -50,6 +50,7 @@ export function AdminLayout() {
     { path: '/import-export',  label: 'Import / Export',  icon: 'import_export' },
     { path: '/access',         label: 'Access Control',   icon: 'key' },
     { path: '/api-settings',   label: 'API Settings',     icon: 'api' },
+    { path: '/system-logs',    label: 'System Health',    icon: 'monitor_heart' },
     { path: '/contacts',       label: 'Contacts',         icon: 'mail', badge: unreadCount },
   ];
 

@@ -244,6 +244,16 @@ export default function DestinationDetailsPage() {
             </div>
           </div>` : ''}
 
+          <div class="section" style="page-break-inside: avoid; border-top: 2px solid #000; padding-top: 30px; margin-top: 50px;">
+            <div class="logo" style="justify-content: flex-start; margin-bottom: 15px;">
+              <span>Journey<b>Flicker</b></span>
+            </div>
+            <p style="font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">The Curator Board</p>
+            <p style="margin-bottom: 4px; font-size: 14px;"><strong>Email:</strong> tushar@journeyflicker.com</p>
+            <p style="margin-bottom: 4px; font-size: 14px;"><strong>Phone:</strong> +91 98792 68811 &nbsp;|&nbsp; +91 97266 98987 &nbsp;|&nbsp; 0261 3564717</p>
+            <p style="margin-bottom: 4px; font-size: 14px;"><strong>Address:</strong> 103, Raj Victoria, Near Samarth Circle, Adajan, Surat - 395009 (Gujarat, India)</p>
+          </div>
+
           <script>
             window.onload = () => { 
               setTimeout(() => { window.print(); window.close(); }, 500);

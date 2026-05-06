@@ -4,9 +4,10 @@ interface AutoCarouselProps {
   children: React.ReactNode[];
   autoPlayMs?: number;
   pauseOnHover?: boolean;
+  disableScaling?: boolean;
 }
 
-export function AutoCarousel({ children, autoPlayMs = 4000, pauseOnHover = true }: AutoCarouselProps) {
+export function AutoCarousel({ children, autoPlayMs = 4000, pauseOnHover = true, disableScaling = false }: AutoCarouselProps) {
   const [isPaused, setIsPaused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
@@ -51,7 +52,7 @@ export function AutoCarousel({ children, autoPlayMs = 4000, pauseOnHover = true 
         className="flex gap-6 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory px-[25vw]"
       >
         {children.map((child, i) => (
-          <div key={i} className={`shrink-0 snap-center transition-all duration-700 ${i === index ? 'scale-100 opacity-100' : 'scale-90 opacity-40'}`}>
+          <div key={i} className={`shrink-0 snap-center transition-all duration-700 ${disableScaling ? 'scale-100 opacity-100' : (i === index ? 'scale-100 opacity-100' : 'scale-90 opacity-40')}`}>
             {child}
           </div>
         ))}
