@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { optimizeImage } from '../lib/optimize';
+import { LazyImage } from './LazyImage';
 
 export interface HeroSlide {
   id: string;
@@ -118,9 +119,12 @@ export function HeroSlider({
             : i === prev  ? 'opacity-0 z-10'
             : 'opacity-0 z-0'
           }`}>
-          <img
-            src={optimizeImage(s.imageUrl, 1920)}
+          <LazyImage
+            src={s.imageUrl}
             alt={s.title}
+            priority={i === 0}
+            sizes="100vw"
+            containerClassName="absolute inset-0"
             className={`w-full h-full object-cover transition-transform duration-[7s] ease-out ${i === current ? 'scale-105' : 'scale-100'}`}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-black/55" />
