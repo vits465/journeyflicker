@@ -10,6 +10,7 @@ import { optimizeImage } from '../lib/optimize';
 import {
   buildFilterOptions, applyFilter, getCountry, getState, getTerritory,
   EMPTY_FILTER, type FilterState,
+} from '../lib/filterUtils';
 import { Preloader } from '../components/Preloader';
 import { LazyImage } from '../components/LazyImage';
 
@@ -48,18 +49,25 @@ export default function DestinationsPage() {
   const navigate = useNavigate();
   const { data: destinations = [], isLoading: loadingDestinations } = useQuery({
     queryKey: ['destinations'],
-    queryFn: () => api.listDestinations().then(data => data || [])
+    queryFn: async (): Promise<Destination[]> => {
+      const data = await api.listDestinations();
+      return (Array.isArray(data) ? data : data?.items) || [];
+    }
   });
 
   const { data: tours = [], isLoading: loadingTours } = useQuery({
     queryKey: ['tours'],
-    queryFn: () => api.listTours().then(data => data || [])
+    queryFn: async (): Promise<Tour[]> => {
+      const data = await api.listTours();
+      return (Array.isArray(data) ? data : data?.items) || [];
+    }
   });
 
   const loading = loadingDestinations || loadingTours;
 
   const [filter, setFilter] = useState<FilterState>(EMPTY_FILTER);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [visibleCount, setVisibleCount] = useState(9);
   const heroIds = useHeroSettings('destinations');
 
   // Build hero slides
@@ -88,6 +96,16 @@ export default function DestinationsPage() {
       return next;
     });
   }
+
+  function clearAll() {
+    setFilter(EMPTY_FILTER);
+    setVisibleCount(9);
+  }
+
+  // Reset visibleCount when filter changes
+  useMemo(() => {
+    setVisibleCount(9);
+  }, [filter]);
 
   const hasFilter = Object.values(filter).some(Boolean);
   const activeCount = Object.values(filter).filter(Boolean).length;
@@ -121,7 +139,7 @@ export default function DestinationsPage() {
           {/* ── TERRITORY TABS (visual quick-select) ── */}
           <div className="flex gap-2 overflow-x-auto pb-1 mb-5 no-scrollbar">
             <button
-              onClick={() => setFilter(EMPTY_FILTER)}
+              onClick={clearAll}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-[10px] font-black tracking-[0.3em] uppercase whitespace-nowrap transition-all border ${
                 !filter.territory ? 'bg-black text-white border-black shadow-md' : 'border-outline-variant/30 text-on-surface-variant hover:border-black/30'
               }`}>
@@ -179,7 +197,7 @@ export default function DestinationsPage() {
               )}
 
               {hasFilter && (
-                <button onClick={() => setFilter(EMPTY_FILTER)}
+                <button onClick={clearAll}
                   className="flex items-center gap-1 text-[9px] font-black tracking-[0.3em] uppercase text-red-500 hover:text-red-700 transition-colors ml-2 whitespace-nowrap">
                   <span className="material-symbols-outlined text-sm">close</span>
                   Clear {activeCount > 1 ? `(${activeCount})` : ''}
@@ -210,14 +228,14 @@ export default function DestinationsPage() {
               <span className="material-symbols-outlined text-4xl text-on-surface-variant/20 mb-4 block font-light">search_off</span>
               <h3 className="text-2xl font-light tracking-tighter mb-2 italic">No territories found</h3>
               <p className="text-sm text-on-surface-variant opacity-60 mb-5">No destinations match the selected filter combination.</p>
-              <button onClick={() => setFilter(EMPTY_FILTER)}
+              <button onClick={clearAll}
                 className="text-[10px] font-black tracking-[0.4em] uppercase border-b border-black pb-1.5 hover:text-primary transition-all">
                 Clear all filters
               </button>
             </div>
           ) : viewMode === 'grid' ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filtered.map((dest, i) => {
+              {filtered.slice(0, visibleCount).map((dest, i) => {
                 const country = getCountry(dest.name, dest.region);
                 const state   = getState(dest.name, dest.region);
                 const terr    = getTerritory(dest.region);
@@ -264,7 +282,7 @@ export default function DestinationsPage() {
           ) : (
             // ── LIST VIEW ──
             <div className="flex flex-col divide-y divide-outline-variant/15">
-              {filtered.map((dest, i) => {
+              {filtered.slice(0, visibleCount).map((dest, i) => {
                 const country = getCountry(dest.name, dest.region);
                 const state   = getState(dest.name, dest.region);
                 const terr    = getTerritory(dest.region);
@@ -367,10 +385,19 @@ export default function DestinationsPage() {
 
           {/* Result count footer */}
           {!loading && filtered.length > 0 && (
-            <p className="text-center mt-12 text-[9px] font-black tracking-[0.5em] uppercase text-on-surface-variant/30">
-              Showing {filtered.length} of {destinations.length} territories
-              {hasFilter && ` · ${activeCount} filter${activeCount > 1 ? 's' : ''} active`}
-            </p>
+            <div className="flex flex-col items-center mt-12 gap-5">
+              {visibleCount < filtered.length && (
+                <button 
+                  onClick={() => setVisibleCount(v => v + 9)}
+                  className="bg-surface-container-low hover:bg-outline-variant/10 text-on-surface px-8 py-3 rounded-full text-[10px] font-black tracking-[0.4em] uppercase transition-all border border-outline-variant/20 shadow-sm dark:bg-white/10 dark:text-white dark:border-white/20 dark:hover:bg-white/20">
+                  Load More
+                </button>
+              )}
+              <p className="text-center text-[9px] font-black tracking-[0.5em] uppercase text-on-surface-variant/30">
+                Showing {Math.min(visibleCount, filtered.length)} of {destinations.length} territories
+                {hasFilter && ` · ${activeCount} filter${activeCount > 1 ? 's' : ''} active`}
+              </p>
+            </div>
           )}
         </div>
       </section>

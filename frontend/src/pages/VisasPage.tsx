@@ -297,6 +297,7 @@ export default function VisasPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('All');
   const [search, setSearch] = useState('');
+  const [visibleCount, setVisibleCount] = useState(6);
   const { settings } = useAllHeroSettings();
 
   const bannerImage = settings?.visaBanner || DEFAULT_VISA_BG;
@@ -321,6 +322,11 @@ export default function VisasPage() {
       }, 100);
     }
   }, [loading, location.hash]);
+
+  // Reset visibleCount when filters change
+  useMemo(() => {
+    setVisibleCount(6);
+  }, [filter, search]);
 
   const filtered = visas.filter(v =>
     (filter === 'All' || v.difficulty === filter) &&
@@ -502,11 +508,28 @@ export default function VisasPage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {filtered.map((visa, i) => (
-                <VisaCard key={visa.id} visa={visa} index={i} defaultExpanded={location.hash === `#visa-${visa.id}`} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {filtered.slice(0, visibleCount).map((visa, i) => (
+                  <VisaCard key={visa.id} visa={visa} index={i} defaultExpanded={location.hash === `#visa-${visa.id}`} />
+                ))}
+              </div>
+              
+              {!loading && filtered.length > 0 && (
+                <div className="flex flex-col items-center mt-12 gap-5">
+                  {visibleCount < filtered.length && (
+                    <button 
+                      onClick={() => setVisibleCount(v => v + 6)}
+                      className="bg-surface-container-low hover:bg-outline-variant/10 text-on-surface px-8 py-3 rounded-full text-[10px] font-black tracking-[0.4em] uppercase transition-all border border-outline-variant/20 shadow-sm dark:bg-white/10 dark:text-white dark:border-white/20 dark:hover:bg-white/20">
+                      Load More
+                    </button>
+                  )}
+                  <p className="text-center text-[9px] font-black tracking-[0.5em] uppercase text-on-surface-variant/30">
+                    Showing {Math.min(visibleCount, filtered.length)} of {visas.length} dossiers
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>

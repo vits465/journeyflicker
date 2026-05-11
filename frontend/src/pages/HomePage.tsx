@@ -45,12 +45,18 @@ export default function HomePage() {
   const { openSearch } = useSearch();
   const { data: destinations = [], isLoading: loadingDestinations } = useQuery({
     queryKey: ['destinations'],
-    queryFn: () => api.listDestinations().then(data => data || [])
+    queryFn: async (): Promise<Destination[]> => {
+      const data = await api.listDestinations();
+      return (Array.isArray(data) ? data : data?.items) || [];
+    }
   });
 
   const { data: tours = [], isLoading: loadingTours } = useQuery({
     queryKey: ['tours'],
-    queryFn: () => api.listTours().then(data => data || [])
+    queryFn: async (): Promise<Tour[]> => {
+      const data = await api.listTours();
+      return (Array.isArray(data) ? data : data?.items) || [];
+    }
   });
 
   const { data: visas = [], isLoading: loadingVisas } = useQuery({

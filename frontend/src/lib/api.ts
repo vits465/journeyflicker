@@ -133,13 +133,19 @@ export type SeoPage = {
 };
 
 export const api = {
-  listDestinations: () => http<Destination[]>("/destinations"),
+  listDestinations: (page?: number, limit?: number) => {
+    const qs = page && limit ? `?page=${page}&limit=${limit}` : "";
+    return http<Destination[] | { items: Destination[], total: number, page: number, pages: number }>(`/destinations${qs}`);
+  },
   getDestination: (id: string) => http<Destination>(`/destinations/${id}`),
   createDestination: (data: Partial<Destination>) => http<Destination>("/destinations", { method: "POST", body: JSON.stringify(data) }),
   updateDestination: (id: string, data: Partial<Destination>) => http<Destination>(`/destinations/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   deleteDestination: (id: string) => http<void>(`/destinations/${id}`, { method: "DELETE" }),
 
-  listTours: () => http<Tour[]>("/tours"),
+  listTours: (page?: number, limit?: number) => {
+    const qs = page && limit ? `?page=${page}&limit=${limit}` : "";
+    return http<Tour[] | { items: Tour[], total: number, page: number, pages: number }>(`/tours${qs}`);
+  },
   getTour: (id: string) => http<Tour>(`/tours/${id}`),
   createTour: (data: Partial<Tour>) => http<Tour>("/tours", { method: "POST", body: JSON.stringify(data) }),
   updateTour: (id: string, data: Partial<Tour>) => http<Tour>(`/tours/${id}`, { method: "PUT", body: JSON.stringify(data) }),

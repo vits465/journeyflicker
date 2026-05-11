@@ -46,13 +46,17 @@ export default function ToursPage() {
   const navigate = useNavigate();
   const { data: tours = [], isLoading: loading } = useQuery({
     queryKey: ['tours'],
-    queryFn: () => api.listTours().then(data => data || [])
+    queryFn: async (): Promise<Tour[]> => {
+      const data = await api.listTours();
+      return (Array.isArray(data) ? data : data?.items) || [];
+    }
   });
 
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [filter, setFilter] = useState<FilterState>(EMPTY_FILTER);
   const [categoryFilter, setCategoryFilter] = useState('');
   const [maxDays, setMaxDays] = useState('');
+  const [visibleCount, setVisibleCount] = useState(9);
   const heroIds = useHeroSettings('tours');
 
   // Hero slides
@@ -92,7 +96,13 @@ export default function ToursPage() {
     setFilter(EMPTY_FILTER);
     setCategoryFilter('');
     setMaxDays('');
+    setVisibleCount(9);
   }
+
+  // Reset visibleCount when filters change
+  useMemo(() => {
+    setVisibleCount(9);
+  }, [filter, categoryFilter, maxDays]);
 
   const hasFilter = Object.values(filter).some(Boolean) || categoryFilter || maxDays;
   const activeCount = Object.values(filter).filter(Boolean).length + (categoryFilter ? 1 : 0) + (maxDays ? 1 : 0);
@@ -252,7 +262,7 @@ export default function ToursPage() {
           </div>
         ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-9">
-            {filtered.map((tour, idx) => {
+            {filtered.slice(0, visibleCount).map((tour, idx) => {
               const terr = getTerritory(tour.region);
               const country = getCountry(tour.name, tour.region);
               return (
@@ -304,7 +314,7 @@ export default function ToursPage() {
         ) : (
           // ── LIST VIEW ──
           <div className="flex flex-col divide-y divide-outline-variant/15">
-            {filtered.map((tour, idx) => {
+            {filtered.slice(0, visibleCount).map((tour, idx) => {
               const terr = getTerritory(tour.region);
               const country = getCountry(tour.name, tour.region);
               return (
@@ -353,12 +363,21 @@ export default function ToursPage() {
           </div>
         )}
 
-        {/* Result count footer */}
+        {/* Result count footer & Load More */}
         {!loading && filtered.length > 0 && (
-          <p className="text-center mt-6 text-[9px] font-black tracking-[0.5em] uppercase text-on-surface-variant/30">
-            Showing {filtered.length} of {tours.length} expeditions
-            {hasFilter && ` · ${activeCount} filter${activeCount > 1 ? 's' : ''} active`}
-          </p>
+          <div className="flex flex-col items-center mt-10 gap-5">
+            {visibleCount < filtered.length && (
+              <button 
+                onClick={() => setVisibleCount(v => v + 9)}
+                className="bg-surface-container-low hover:bg-outline-variant/10 text-on-surface px-8 py-3 rounded-full text-[10px] font-black tracking-[0.4em] uppercase transition-all border border-outline-variant/20 shadow-sm">
+                Load More
+              </button>
+            )}
+            <p className="text-center text-[9px] font-black tracking-[0.5em] uppercase text-on-surface-variant/30">
+              Showing {Math.min(visibleCount, filtered.length)} of {filtered.length} expeditions
+              {hasFilter && ` · ${activeCount} filter${activeCount > 1 ? 's' : ''} active`}
+            </p>
+          </div>
         )}
 
         {/* ── BESPOKE STRIP ── */}

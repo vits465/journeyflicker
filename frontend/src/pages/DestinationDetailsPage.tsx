@@ -133,7 +133,8 @@ export default function DestinationDetailsPage() {
     
     const fetchData = () => {
       Promise.all([api.getDestination(id), api.listTours()])
-        .then(([dest, allTours]) => {
+        .then(([dest, allToursResponse]) => {
+          const allTours = Array.isArray(allToursResponse) ? allToursResponse : allToursResponse?.items || [];
           setDestination(dest);
           setTours(allTours.filter(t => t.region === dest.region || t.region.includes(dest.name) || dest.name.includes(t.region)));
           setLoading(false);
@@ -162,7 +163,7 @@ export default function DestinationDetailsPage() {
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
-    
+
     const absUrl = (u?: string) => {
       if (!u) return '';
       if (u.startsWith('http') || u.startsWith('data:')) return u;

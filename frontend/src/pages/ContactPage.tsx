@@ -1,23 +1,45 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { api } from '../lib/api';
+import toast from 'react-hot-toast';
+
+const contactSchema = z.object({
+  name: z.string().min(2, 'Name is too short.').max(100),
+  email: z.string().email('Please enter a valid email address.'),
+  type: z.string().min(1, 'Please select an objective type.'),
+  message: z.string().min(10, 'Message must be at least 10 characters long.').max(3000),
+});
+type ContactFormValues = z.infer<typeof contactSchema>;
 
 export default function ContactPage() {
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', type: 'Private Curation Strategy', message: '' });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset
+  } = useForm<ContactFormValues>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: {
+      type: 'Private Curation Strategy',
+    }
+  });
+
+  const onSubmit = async (data: ContactFormValues) => {
     setSending(true);
     try {
-      await api.createContact(form);
+      await api.createContact(data);
       setSubmitted(true);
+      reset();
     } catch (err) {
       console.error(err);
-      // Still show success to user even if API fails
-      setSubmitted(true);
+      toast.error("Transmission failed. Please try again or use direct email.");
     } finally {
       setSending(false);
     }
@@ -129,38 +151,42 @@ export default function ContactPage() {
                   </button>
                 </div>
               ) : (
-                <form className="space-y-5" onSubmit={handleSubmit}>
+                <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div className="space-y-2">
                       <label className="text-[9px] font-bold tracking-[0.4em] uppercase text-on-surface-variant block">Full Name</label>
-                      <input type="text" placeholder="Full Name" required value={form.name}
-                        onChange={e => setForm({ ...form, name: e.target.value })}
-                        className="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm font-light focus:ring-2 focus:ring-primary/20 outline-none placeholder:opacity-30" />
+                      <input type="text" placeholder="Full Name"
+                        {...register('name')}
+                        className={`w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm font-light focus:ring-2 focus:ring-primary/20 outline-none placeholder:opacity-30 ${errors.name ? 'ring-2 ring-red-500/50 focus:ring-red-500/50' : ''}`} />
+                      {errors.name && <p className="text-red-500 text-[10px] tracking-wide mt-1">{errors.name.message}</p>}
                     </div>
                     <div className="space-y-2">
                       <label className="text-[9px] font-bold tracking-[0.4em] uppercase text-on-surface-variant dark:text-white/40 block">Email</label>
-                      <input type="email" placeholder="email@example.com" required value={form.email}
-                        onChange={e => setForm({ ...form, email: e.target.value })}
-                        className="w-full bg-surface-container-low dark:bg-white/10 border-none rounded-xl px-4 py-3 text-sm font-light focus:ring-2 focus:ring-primary/20 dark:focus:ring-white/20 outline-none dark:text-white placeholder:opacity-30" />
+                      <input type="email" placeholder="email@example.com"
+                        {...register('email')}
+                        className={`w-full bg-surface-container-low dark:bg-white/10 border-none rounded-xl px-4 py-3 text-sm font-light focus:ring-2 focus:ring-primary/20 dark:focus:ring-white/20 outline-none dark:text-white placeholder:opacity-30 ${errors.email ? 'ring-2 ring-red-500/50 focus:ring-red-500/50' : ''}`} />
+                      {errors.email && <p className="text-red-500 text-[10px] tracking-wide mt-1">{errors.email.message}</p>}
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <label className="text-[9px] font-bold tracking-[0.4em] uppercase text-on-surface-variant block">Objective Type</label>
-                    <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}
-                      className="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm font-light focus:ring-2 focus:ring-primary/20 outline-none appearance-none cursor-pointer">
+                    <select {...register('type')}
+                      className={`w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm font-light focus:ring-2 focus:ring-primary/20 outline-none appearance-none cursor-pointer ${errors.type ? 'ring-2 ring-red-500/50 focus:ring-red-500/50' : ''}`}>
                       <option>Private Curation Strategy</option>
                       <option>Expedition Modification</option>
                       <option>Administrative Inquiry</option>
                       <option>Corporate Partnership</option>
                     </select>
+                    {errors.type && <p className="text-red-500 text-[10px] tracking-wide mt-1">{errors.type.message}</p>}
                   </div>
 
                   <div className="space-y-2">
                     <label className="text-[9px] font-bold tracking-[0.4em] uppercase text-on-surface-variant block">Narrative Details</label>
-                    <textarea rows={5} placeholder="Detailed expedition requirements..." value={form.message}
-                      onChange={e => setForm({ ...form, message: e.target.value })}
-                      className="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm font-light focus:ring-2 focus:ring-primary/20 outline-none resize-none placeholder:opacity-30" />
+                    <textarea rows={5} placeholder="Detailed expedition requirements..."
+                      {...register('message')}
+                      className={`w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm font-light focus:ring-2 focus:ring-primary/20 outline-none resize-none placeholder:opacity-30 ${errors.message ? 'ring-2 ring-red-500/50 focus:ring-red-500/50' : ''}`} />
+                    {errors.message && <p className="text-red-500 text-[10px] tracking-wide mt-1">{errors.message.message}</p>}
                   </div>
 
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2">
