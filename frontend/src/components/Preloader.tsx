@@ -140,21 +140,19 @@ export function SplashPreloader({ onDone }: { onDone: () => void }) {
       pointerEvents: phase === 'out' ? 'none' : 'all',
     }}>
 
-      {/* ── Video background (Desktop Only) ── */}
-      {window.innerWidth > 768 && (
-        <video
-          ref={videoRef}
-          autoPlay muted loop playsInline
-          style={{
-            position:'absolute', inset:0,
-            width:'100%', height:'100%',
-            objectFit:'cover',
-            animation:'jf-video-in 1.4s ease forwards',
-          }}
-        >
-          <source src="https://videos.pexels.com/video-files/1851190/1851190-hd_1920_1080_25fps.mp4" type="video/mp4" />
-        </video>
-      )}
+      {/* ── Video background ── */}
+      <video
+        ref={videoRef}
+        autoPlay muted loop playsInline
+        style={{
+          position:'absolute', inset:0,
+          width:'100%', height:'100%',
+          objectFit:'cover',
+          animation:'jf-video-in 1.4s ease forwards',
+        }}
+      >
+        <source src="https://videos.pexels.com/video-files/1851190/1851190-hd_1920_1080_25fps.mp4" type="video/mp4" />
+      </video>
 
       {/* ── Dark overlay gradient ── */}
       <div style={{
