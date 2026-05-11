@@ -602,9 +602,30 @@ const invalidateCache = async (prefix) => {
 };
 
 // ── Destinations ──────────────────────────────────────────────────────────────
-app.get("/api/destinations", cacheEdge, cacheRedis, async (_req, res) => {
-  // Exclude heavy arrays from the list view to improve performance
-  res.json(await DestModel.find({}, { galleryImages: 0, seasonsHighlights: 0 }).sort({ createdAt: -1 }).lean());
+app.get("/api/destinations", cacheEdge, cacheRedis, async (req, res) => {
+  const page = parseInt(req.query.page, 10);
+  const limit = parseInt(req.query.limit, 10);
+  const search = req.query.search ? String(req.query.search) : "";
+
+  const query = {};
+  if (search) {
+    const regex = new RegExp(search, "i");
+    query.$or = [{ name: regex }, { region: regex }, { description: regex }];
+  }
+
+  if (page && limit) {
+    const skip = (page - 1) * limit;
+    const total = await DestModel.countDocuments(query);
+    const dests = await DestModel.find(query, { galleryImages: 0, seasonsHighlights: 0 })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+    return res.json({ items: dests, total, page, pages: Math.ceil(total / limit) });
+  }
+
+  // Legacy support for non-paginated requests
+  res.json(await DestModel.find(query, { galleryImages: 0, seasonsHighlights: 0 }).sort({ createdAt: -1 }).lean());
 });
 app.get("/api/destinations/:id", cacheEdge, cacheRedis, async (req, res) => {
   const found = await DestModel.findOne({ id: req.params.id }).lean();

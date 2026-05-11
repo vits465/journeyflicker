@@ -30,7 +30,7 @@ export default function AdminApiSettings() {
     fetchSettings();
     const interval = setInterval(() => {
       if (document.visibilityState === 'visible') fetchSettings();
-    }, 5000);
+    }, 30000);
 
     const onFocus = () => { if (document.visibilityState === 'visible') fetchSettings(); };
     window.addEventListener('visibilitychange', onFocus);

@@ -26,7 +26,7 @@ export function AdminLayout() {
         .catch(() => {});
     };
     fetchUnread();
-    const interval = setInterval(fetchUnread, 10000);
+    const interval = setInterval(fetchUnread, 60000);
     return () => clearInterval(interval);
   }, [canEdit]);
 

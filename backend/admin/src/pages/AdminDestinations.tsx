@@ -117,8 +117,6 @@ export default function AdminDestinations() {
 
   useEffect(() => {
     loadDestinations();
-    const iv = setInterval(() => loadDestinations(true), 5000);
-    return () => clearInterval(iv);
   }, []);
 
   // Handle deep-link editing via URL

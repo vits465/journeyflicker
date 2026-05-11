@@ -98,8 +98,6 @@ export default function AdminVisas() {
 
   useEffect(() => {
     loadVisas();
-    const interval = setInterval(() => loadVisas(true), 3000);
-    return () => clearInterval(interval);
   }, []);
 
   // Handle deep-link editing via URL
