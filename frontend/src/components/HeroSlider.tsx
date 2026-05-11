@@ -198,7 +198,7 @@ export function HeroSlider({
 
           {/* Progress bar */}
           <div className="absolute bottom-0 left-0 right-0 z-30 h-[2px] bg-white/10">
-            <div className="h-full bg-primary" style={{ width: `${progress}%`, transition: 'width 50ms linear' }} />
+            <div className="h-full bg-primary origin-left" style={{ transform: `scaleX(${progress / 100})`, transition: 'transform 50ms linear' }} />
           </div>
 
           {/* Counter */}

@@ -76,7 +76,7 @@ function SightseeingSlider({ items }: { items: NonNullable<Tour['sightseeing']> 
         {/* Progress bar */}
         {items.length > 1 && (
           <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/10">
-            <div className="h-full bg-primary" style={{ width: `${prog}%`, transition: 'width 50ms linear' }} />
+            <div className="h-full bg-primary origin-left" style={{ transform: `scaleX(${prog / 100})`, transition: 'transform 50ms linear' }} />
           </div>
         )}
         {/* Arrows */}
