@@ -548,12 +548,65 @@ const cacheEdge = (req, res, next) => {
   next();
 };
 
+// ── Redis Cache Middleware ────────────────────────────────────────────────────
+const cacheRedis = async (req, res, next) => {
+  if (req.method !== "GET" || req.headers.authorization) return next();
+  
+  const key = `jf:cache:${req.originalUrl}`;
+  try {
+    const cached = await kv.get(key);
+    if (cached) {
+      res.setHeader("X-Cache", "HIT");
+      return res.json(typeof cached === "string" ? JSON.parse(cached) : cached);
+    }
+
+    res.setHeader("X-Cache", "MISS");
+    const originalJson = res.json;
+    res.json = function(data) {
+      kv.set(key, JSON.stringify(data), { ex: 60 * 5 }).catch(console.error); // 5 min
+      originalJson.call(this, data);
+    };
+    next();
+  } catch (err) {
+    console.error("Redis Cache Error:", err);
+    next();
+  }
+};
+
+// ── Redis Rate Limiter for Public Forms ───────────────────────────────────────
+const contactLimiter = async (req, res, next) => {
+  const ip = getIp(req);
+  const key = `jf:rl:contacts:${ip}`;
+  try {
+    const current = await kv.incr(key);
+    if (current === 1) await kv.expire(key, 60 * 15); // 15 mins block
+    if (current > 5) return res.status(429).json({ error: "Too many requests. Please try again later." });
+    next();
+  } catch (err) {
+    next();
+  }
+};
+
+// ── Helper to Invalidate Cache ────────────────────────────────────────────────
+const invalidateCache = async (prefix) => {
+  try {
+    // We can't do KEYS or SCAN easily with @upstash/redis without looping,
+    // so we just flush the whole cache on mutations.
+    // A better approach would use Redis Sets, but for small sites this is fine.
+    // In Upstash, we can do keys
+    const keys = await kv.keys(`jf:cache:*${prefix}*`);
+    if (keys && keys.length > 0) {
+      await kv.del(...keys);
+    }
+  } catch (e) { console.error("Invalidate err", e); }
+};
+
 // ── Destinations ──────────────────────────────────────────────────────────────
-app.get("/api/destinations", cacheEdge, async (_req, res) => {
+app.get("/api/destinations", cacheEdge, cacheRedis, async (_req, res) => {
   // Exclude heavy arrays from the list view to improve performance
   res.json(await DestModel.find({}, { galleryImages: 0, seasonsHighlights: 0 }).sort({ createdAt: -1 }).lean());
 });
-app.get("/api/destinations/:id", cacheEdge, async (req, res) => {
+app.get("/api/destinations/:id", cacheEdge, cacheRedis, async (req, res) => {
   const found = await DestModel.findOne({ id: req.params.id }).lean();
   if (!found) return res.status(404).json({ message: "Not found" });
   res.json(found);
@@ -563,6 +616,7 @@ app.post("/api/destinations", requireCRUD, async (req, res) => {
   if (!parsed.success) return res.status(400).json(parsed.error);
   const item = { id: newId("dest"), ...parsed.data, createdAt: Date.now() };
   await DestModel.create(item);
+  await invalidateCache("destinations");
   await logActivity(req, `Created destination: ${item.name}`);
   res.status(201).json(item);
 });
@@ -571,12 +625,16 @@ app.put("/api/destinations/:id", requireCRUD, async (req, res) => {
   if (!parsed.success) return res.status(400).json(parsed.error);
   const updated = await DestModel.findOneAndUpdate({ id: req.params.id }, { $set: parsed.data }, { new: true }).lean();
   if (!updated) return res.status(404).json({ message: "Not found" });
+  await invalidateCache("destinations");
   await logActivity(req, `Updated destination: ${updated.name}`);
   res.json(updated);
 });
 app.delete("/api/destinations/:id", requireCRUD, async (req, res) => {
   const deleted = await DestModel.findOneAndDelete({ id: req.params.id }).lean();
-  if (deleted) await logActivity(req, `Deleted destination: ${deleted.name}`);
+  if (deleted) {
+    await invalidateCache("destinations");
+    await logActivity(req, `Deleted destination: ${deleted.name}`);
+  }
   res.status(204).end();
 });
 
@@ -593,7 +651,7 @@ app.get("/api/search", async (req, res) => {
 });
 
 // ── Tours ─────────────────────────────────────────────────────────────────────
-app.get("/api/tours", cacheEdge, async (req, res) => {
+app.get("/api/tours", cacheEdge, cacheRedis, async (req, res) => {
   const page = parseInt(req.query.page, 10);
   const limit = parseInt(req.query.limit, 10);
   const search = req.query.search ? String(req.query.search) : "";
@@ -618,7 +676,7 @@ app.get("/api/tours", cacheEdge, async (req, res) => {
   // Legacy support for non-paginated requests
   res.json(await TourModel.find(query, { itinerary: 0, sightseeing: 0, testimonials: 0, visualArchive: 0 }).sort({ createdAt: -1 }).lean());
 });
-app.get("/api/tours/:id", cacheEdge, async (req, res) => {
+app.get("/api/tours/:id", cacheEdge, cacheRedis, async (req, res) => {
   const found = await TourModel.findOne({ id: req.params.id }).lean();
   if (!found) return res.status(404).json({ message: "Not found" });
   res.json(found);
@@ -628,6 +686,7 @@ app.post("/api/tours", requireCRUD, async (req, res) => {
   if (!parsed.success) return res.status(400).json(parsed.error);
   const item = { id: newId("tour"), ...parsed.data, createdAt: Date.now() };
   await TourModel.create(item);
+  await invalidateCache("tours");
   await logActivity(req, `Created tour: ${item.name}`);
   res.status(201).json(item);
 });
@@ -636,17 +695,21 @@ app.put("/api/tours/:id", requireCRUD, async (req, res) => {
   if (!parsed.success) return res.status(400).json(parsed.error);
   const updated = await TourModel.findOneAndUpdate({ id: req.params.id }, { $set: parsed.data }, { new: true }).lean();
   if (!updated) return res.status(404).json({ message: "Not found" });
+  await invalidateCache("tours");
   await logActivity(req, `Updated tour: ${updated.name}`);
   res.json(updated);
 });
 app.delete("/api/tours/:id", requireCRUD, async (req, res) => {
   const deleted = await TourModel.findOneAndDelete({ id: req.params.id }).lean();
-  if (deleted) await logActivity(req, `Deleted tour: ${deleted.name}`);
+  if (deleted) {
+    await invalidateCache("tours");
+    await logActivity(req, `Deleted tour: ${deleted.name}`);
+  }
   res.status(204).end();
 });
 
 // ── Visas ─────────────────────────────────────────────────────────────────────
-app.get("/api/visas", cacheEdge, async (_req, res) => {
+app.get("/api/visas", cacheEdge, cacheRedis, async (_req, res) => {
   res.json(await VisaModel.find({}).sort({ createdAt: -1 }).lean());
 });
 app.post("/api/visas", requireCRUD, async (req, res) => {
@@ -654,6 +717,7 @@ app.post("/api/visas", requireCRUD, async (req, res) => {
   if (!parsed.success) return res.status(400).json(parsed.error);
   const item = { id: newId("visa"), ...parsed.data, createdAt: Date.now() };
   await VisaModel.create(item);
+  await invalidateCache("visas");
   await logActivity(req, `Created visa: ${item.country}`);
   res.status(201).json(item);
 });
@@ -662,12 +726,16 @@ app.put("/api/visas/:id", requireCRUD, async (req, res) => {
   if (!parsed.success) return res.status(400).json(parsed.error);
   const updated = await VisaModel.findOneAndUpdate({ id: req.params.id }, { $set: parsed.data }, { new: true }).lean();
   if (!updated) return res.status(404).json({ message: "Not found" });
+  await invalidateCache("visas");
   await logActivity(req, `Updated visa: ${updated.country}`);
   res.json(updated);
 });
 app.delete("/api/visas/:id", requireCRUD, async (req, res) => {
   const deleted = await VisaModel.findOneAndDelete({ id: req.params.id }).lean();
-  if (deleted) await logActivity(req, `Deleted visa: ${deleted.country}`);
+  if (deleted) {
+    await invalidateCache("visas");
+    await logActivity(req, `Deleted visa: ${deleted.country}`);
+  }
   res.status(204).end();
 });
 
@@ -675,7 +743,7 @@ app.delete("/api/visas/:id", requireCRUD, async (req, res) => {
 app.get("/api/contacts", requireAdmin, async (_req, res) => {
   res.json(await ContactModel.find({}).sort({ createdAt: -1 }).lean());
 });
-app.post("/api/contacts", async (req, res) => {
+app.post("/api/contacts", contactLimiter, async (req, res) => {
   const parsed = ContactSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
   const item = { id: newId("msg"), ...parsed.data, read: false, createdAt: Date.now() };
