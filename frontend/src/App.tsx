@@ -7,6 +7,8 @@ import { SplashPreloader } from "./components/Preloader";
 import { SearchProvider } from "./lib/searchContext";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { ThemeProvider } from "./context/ThemeContext";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { Toaster } from "react-hot-toast";
 import { installErrorReporter } from "./lib/errorReporter";
 
 // Install global error reporter immediately (before any rendering)
@@ -35,22 +37,39 @@ export default function App() {
       <ThemeProvider>
         <SearchProvider>
           <ScrollToTop />
-          <Suspense fallback={<SplashPreloader onDone={() => {}} />}>
-            <Routes>
-              {/* Public site */}
-              <Route element={<SiteLayout />}>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/tours" element={<ToursPage />} />
-                <Route path="/tours/:id" element={<TourDetailsPage />} />
-                <Route path="/destinations" element={<DestinationsPage />} />
-                <Route path="/destinations/:id" element={<DestinationDetailsPage />} />
-                <Route path="/visas" element={<VisasPage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/faq" element={<FaqPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-              </Route>
-            </Routes>
-          </Suspense>
+          <ErrorBoundary>
+            <Toaster 
+              position="bottom-center"
+              toastOptions={{
+                duration: 4000,
+                style: {
+                  background: '#111',
+                  color: '#fff',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '999px',
+                  fontSize: '12px',
+                  letterSpacing: '0.05em',
+                  padding: '12px 24px',
+                },
+              }}
+            />
+            <Suspense fallback={<SplashPreloader onDone={() => {}} />}>
+              <Routes>
+                {/* Public site */}
+                <Route element={<SiteLayout />}>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/tours" element={<ToursPage />} />
+                  <Route path="/tours/:id" element={<TourDetailsPage />} />
+                  <Route path="/destinations" element={<DestinationsPage />} />
+                  <Route path="/destinations/:id" element={<DestinationDetailsPage />} />
+                  <Route path="/visas" element={<VisasPage />} />
+                  <Route path="/about" element={<AboutPage />} />
+                  <Route path="/faq" element={<FaqPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                </Route>
+              </Routes>
+            </Suspense>
+          </ErrorBoundary>
         </SearchProvider>
       </ThemeProvider>
     </HelmetProvider>

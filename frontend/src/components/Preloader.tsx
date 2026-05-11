@@ -1,28 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-/* ── Keyframe injection ── */
-const KF_ID = 'jf-pl-kf';
-const KF = `
-@keyframes jf-spin-slow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-@keyframes jf-spin-rev  { from{transform:rotate(0deg)} to{transform:rotate(-360deg)} }
-@keyframes jf-pulse-ring{ 0%,100%{opacity:.15;transform:scale(1)} 50%{opacity:.55;transform:scale(1.08)} }
-@keyframes jf-dot-wave  { 0%,80%,100%{transform:scaleY(.35);opacity:.2} 40%{transform:scaleY(1);opacity:1} }
-@keyframes jf-fade-up   { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
-@keyframes jf-shimmer-txt{ from{transform:translateX(-100%)} to{transform:translateX(350%)} }
-@keyframes jf-bar       { from{width:0%} to{width:100%} }
-@keyframes jf-float     { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-@keyframes jf-star-twinkle{0%,100%{opacity:.1;transform:scale(1)}50%{opacity:.9;transform:scale(1.7)}}
-@keyframes jf-mtn-rise  { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
-@keyframes jf-letter-in { from{opacity:0;transform:translateY(24px) skewY(4deg)} to{opacity:1;transform:translateY(0) skewY(0)} }
-@keyframes jf-glow-orb  { 0%,100%{opacity:.3;transform:scale(1)} 50%{opacity:.65;transform:scale(1.15)} }
-@keyframes jf-video-in  { from{opacity:0;transform:scale(1.06)} to{opacity:1;transform:scale(1)} }
-`;
-function injectKF() {
-  if (document.getElementById(KF_ID)) return;
-  const s = document.createElement('style');
-  s.id = KF_ID; s.textContent = KF;
-  document.head.appendChild(s);
-}
+
 
 /* ── Brand colours ── */
 const GOLD = '#C8A84B';
@@ -43,7 +21,6 @@ const STARS = [
    INLINE PRELOADER  — travel compass spinner
 ══════════════════════════════════════════════════════════ */
 export function Preloader({ fullScreen = false }: { fullScreen?: boolean }) {
-  useEffect(() => { injectKF(); }, []);
 
   const spinner = (
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:16 }}>
@@ -141,8 +118,6 @@ export function Preloader({ fullScreen = false }: { fullScreen?: boolean }) {
 export function SplashPreloader({ onDone }: { onDone: () => void }) {
   const [phase, setPhase] = useState<'in'|'show'|'out'>('in');
   const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => { injectKF(); }, []);
 
   useEffect(() => {
     const t1 = setTimeout(() => setPhase('show'), 120);

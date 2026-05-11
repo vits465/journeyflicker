@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { SEO } from '../components/SEO';
 import type { Destination, Tour } from '../lib/api';
 import { api } from '../lib/api';
@@ -9,8 +10,8 @@ import { optimizeImage } from '../lib/optimize';
 import {
   buildFilterOptions, applyFilter, getCountry, getState, getTerritory,
   EMPTY_FILTER, type FilterState,
-} from '../lib/filterUtils';
 import { Preloader } from '../components/Preloader';
+import { LazyImage } from '../components/LazyImage';
 
 type ViewMode = 'grid' | 'list';
 
@@ -45,26 +46,21 @@ function FilterSelect({ label, value, options, onChange, disabled }: {
 
 export default function DestinationsPage() {
   const navigate = useNavigate();
-  const [destinations, setDestinations] = useState<Destination[]>([]);
-  const [tours, setTours] = useState<Tour[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: destinations = [], isLoading: loadingDestinations } = useQuery({
+    queryKey: ['destinations'],
+    queryFn: () => api.listDestinations().then(data => data || [])
+  });
+
+  const { data: tours = [], isLoading: loadingTours } = useQuery({
+    queryKey: ['tours'],
+    queryFn: () => api.listTours().then(data => data || [])
+  });
+
+  const loading = loadingDestinations || loadingTours;
+
   const [filter, setFilter] = useState<FilterState>(EMPTY_FILTER);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const heroIds = useHeroSettings('destinations');
-
-  useEffect(() => {
-    const fetchData = () => {
-      Promise.all([api.listDestinations(), api.listTours()])
-        .then(([d, t]) => { 
-          setDestinations(d || []); 
-          setTours(t || []);
-          setLoading(false); 
-        })
-        .catch(() => setLoading(false));
-    };
-
-    fetchData(); // Initial fetch
-  }, []);
 
   // Build hero slides
   const heroSlides: HeroSlide[] = useMemo(() => {
@@ -230,9 +226,11 @@ export default function DestinationsPage() {
                     className="group cursor-pointer animate-reveal-up relative overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 h-[360px] sm:h-[400px]"
                     style={{ animationDelay: `${(i%3)*0.06}s` }}
                     onClick={() => navigate(`/destinations/${dest.id}`)}>
-                    <img className="absolute inset-0 w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105 grayscale group-hover:grayscale-0"
-                      alt={dest.name} src={optimizeImage(dest.heroImageUrl || FALLBACK, 800)} loading="lazy" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                    <LazyImage 
+                      containerClassName="absolute inset-0 w-full h-full"
+                      className="w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105 grayscale group-hover:grayscale-0"
+                      alt={dest.name} src={optimizeImage(dest.heroImageUrl || FALLBACK, 800)} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none" />
                     {/* Territory badge */}
                     <div className="absolute top-3 left-3 bg-black/50 backdrop-blur border border-white/20 px-3 py-1 rounded-full">
                       <span className="text-[8px] font-black tracking-[0.4em] text-white/70 uppercase">{terr}</span>
@@ -277,9 +275,11 @@ export default function DestinationsPage() {
                     onClick={() => navigate(`/destinations/${dest.id}`)}>
                     {/* Thumbnail */}
                     <div className="shrink-0 w-full sm:w-24 aspect-[4/3] sm:aspect-square overflow-hidden rounded-xl bg-surface-container-low relative shadow-sm">
-                      <img className="w-full h-full object-cover transition-transform duration-[3s] ease-out group-hover:scale-105 grayscale group-hover:grayscale-0"
-                        alt={dest.name} src={optimizeImage(dest.heroImageUrl || FALLBACK, 400)} loading="lazy" />
-                      <div className="absolute inset-0 flex items-end p-1.5">
+                      <LazyImage 
+                        containerClassName="absolute inset-0 w-full h-full"
+                        className="w-full h-full object-cover transition-transform duration-[3s] ease-out group-hover:scale-105 grayscale group-hover:grayscale-0"
+                        alt={dest.name} src={optimizeImage(dest.heroImageUrl || FALLBACK, 400)} />
+                      <div className="absolute inset-0 flex items-end p-1.5 pointer-events-none z-10">
                         <span className="text-[8px] font-black bg-black/60 text-white/80 px-2 py-0.5 rounded-full tracking-widest">{terr}</span>
                       </div>
                     </div>

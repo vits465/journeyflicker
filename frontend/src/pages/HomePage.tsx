@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import type { Destination, Tour, Visa } from '../lib/api';
 import { api } from '../lib/api';
 import { HeroSlider, type HeroSlide } from '../components/HeroSlider';
@@ -41,30 +43,47 @@ import { LazyImage } from '../components/LazyImage';
 export default function HomePage() {
   const navigate = useNavigate();
   const { openSearch } = useSearch();
-  const [destinations, setDestinations] = useState<Destination[]>([]);
-  const [tours, setTours] = useState<Tour[]>([]);
-  const [visas, setVisas] = useState<Visa[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: destinations = [], isLoading: loadingDestinations } = useQuery({
+    queryKey: ['destinations'],
+    queryFn: () => api.listDestinations().then(data => data || [])
+  });
+
+  const { data: tours = [], isLoading: loadingTours } = useQuery({
+    queryKey: ['tours'],
+    queryFn: () => api.listTours().then(data => data || [])
+  });
+
+  const { data: visas = [], isLoading: loadingVisas } = useQuery({
+    queryKey: ['visas'],
+    queryFn: () => api.listVisas().then(data => data || [])
+  });
+
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    
+    setIsSubmitting(true);
+    // Simulate API call
+    setTimeout(() => {
+      toast.success('Access confirmed. Check your inbox.');
+      setEmail('');
+      setIsSubmitting(false);
+    }, 800);
+  };
+
+  const loading = loadingDestinations || loadingTours || loadingVisas;
   const heroIds = useHeroSettings('home');
-  const [shuffledDestinations, setShuffledDestinations] = useState<Destination[]>([]);
-  const [shuffledTours, setShuffledTours] = useState<Tour[]>([]);
 
-  useEffect(() => {
-    const fetchData = () => {
-      Promise.all([api.listDestinations(), api.listTours(), api.listVisas()])
-        .then(([dests, trs, vss]) => {
-          setDestinations(dests || []);
-          setTours(trs || []);
-          setVisas(vss || []);
-          setShuffledDestinations([...(dests || [])].sort(() => Math.random() - 0.5));
-          setShuffledTours([...(trs || [])].sort(() => Math.random() - 0.5));
-          setLoading(false);
-        })
-        .catch(() => setLoading(false));
-    };
+  const shuffledDestinations = useMemo(() => {
+    return [...destinations].sort(() => Math.random() - 0.5);
+  }, [destinations]);
 
-    fetchData(); // Initial fetch
-  }, []);
+  const shuffledTours = useMemo(() => {
+    return [...tours].sort(() => Math.random() - 0.5);
+  }, [tours]);
 
   const heroSlides: HeroSlide[] = (() => {
     if (loading) return [];
@@ -476,13 +495,15 @@ export default function HomePage() {
           <p className="text-white/50 font-light mb-6 text-sm leading-relaxed">
             A weekly dispatch of undocumented travel inspiration. Strictly confidential.
           </p>
-          <div className="flex flex-col sm:flex-row items-stretch gap-2.5">
-            <input type="email" placeholder="Your Email Address"
+          <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row items-stretch gap-2.5">
+            <input type="email" placeholder="Your Email Address" required
+              value={email} onChange={e => setEmail(e.target.value)}
               className="flex-grow px-5 py-3 rounded-xl sm:rounded-full border border-white/20 focus:border-white focus:ring-0 bg-transparent text-white text-sm font-light outline-none placeholder:text-white/30" />
-            <button className="bg-white text-black px-6 py-3 rounded-xl sm:rounded-full text-[10px] font-black tracking-[0.4em] uppercase hover:bg-primary hover:text-white transition-all shrink-0">
-              Incept
+            <button type="submit" disabled={isSubmitting}
+              className="bg-white text-black px-6 py-3 rounded-xl sm:rounded-full text-[10px] font-black tracking-[0.4em] uppercase hover:bg-primary hover:text-white transition-all shrink-0 disabled:opacity-50">
+              {isSubmitting ? 'Processing...' : 'Incept'}
             </button>
-          </div>
+          </form>
         </div>
       </section>
     </>

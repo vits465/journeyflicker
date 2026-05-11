@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { api, SeoPage } from '../lib/api';
 
 type SEOProps = {
@@ -10,16 +10,15 @@ type SEOProps = {
 };
 
 export function SEO({ pageId, title, description, image }: SEOProps) {
-  const [seoSettings, setSeoSettings] = useState<SeoPage | null>(null);
-
-  useEffect(() => {
-    if (pageId) {
-      api.getSeoSettings().then(data => {
-        const found = data.find(p => p.id === pageId);
-        if (found) setSeoSettings(found);
-      }).catch(console.error);
-    }
-  }, [pageId]);
+  const { data: seoSettings } = useQuery({
+    queryKey: ['seo', pageId],
+    queryFn: async () => {
+      if (!pageId) return null;
+      const data = await api.getSeoSettings();
+      return data.find(p => p.id === pageId) || null;
+    },
+    enabled: !!pageId,
+  });
 
   const finalTitle = title || seoSettings?.title || 'JourneyFlicker | Curated Discovery';
   const finalDescription = description || seoSettings?.desc || 'Discover the world\'s most breathtaking destinations with JourneyFlicker.';

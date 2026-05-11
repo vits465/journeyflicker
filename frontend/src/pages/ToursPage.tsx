@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { SEO } from "../components/SEO";
 import type { Tour } from "../lib/api";
 import { api } from "../lib/api";
@@ -11,6 +12,7 @@ import {
   EMPTY_FILTER, type FilterState,
 } from "../lib/filterUtils";
 import { Preloader } from '../components/Preloader';
+import { LazyImage } from '../components/LazyImage';
 
 type ViewMode = "grid" | "list";
 
@@ -42,23 +44,16 @@ function FilterSelect({ label, value, options, onChange, disabled }: {
 
 export default function ToursPage() {
   const navigate = useNavigate();
-  const [tours, setTours] = useState<Tour[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: tours = [], isLoading: loading } = useQuery({
+    queryKey: ['tours'],
+    queryFn: () => api.listTours().then(data => data || [])
+  });
+
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [filter, setFilter] = useState<FilterState>(EMPTY_FILTER);
   const [categoryFilter, setCategoryFilter] = useState('');
   const [maxDays, setMaxDays] = useState('');
   const heroIds = useHeroSettings('tours');
-
-  useEffect(() => {
-    const fetchTours = () => {
-      api.listTours()
-        .then(data => { setTours(data || []); setLoading(false); })
-        .catch(() => setLoading(false));
-    };
-
-    fetchTours(); // Initial fetch
-  }, []);
 
   // Hero slides
   const heroSlides: HeroSlide[] = useMemo(() => {
@@ -266,10 +261,12 @@ export default function ToursPage() {
                   style={{ animationDelay: `${(idx%6)*0.05}s` }}
                   onClick={() => navigate(`/tours/${tour.id}`)}>
                   <div className="overflow-hidden mb-3.5 aspect-[4/5] bg-surface-container-low rounded-2xl relative shadow-sm group-hover:shadow-xl transition-all duration-500">
-                    <img className="w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105 mix-blend-luminosity group-hover:mix-blend-normal"
-                      alt={tour.name} src={optimizeImage(tour.heroImageUrl || FALLBACK, 800)} loading="lazy" />
+                    <LazyImage 
+                      containerClassName="absolute inset-0 w-full h-full"
+                      className="w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105 mix-blend-luminosity group-hover:mix-blend-normal"
+                      alt={tour.name} src={optimizeImage(tour.heroImageUrl || FALLBACK, 800)} />
                     {/* Badges */}
-                    <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+                    <div className="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none z-10">
                       <div className="bg-white/90 backdrop-blur px-3 py-1 rounded-full shadow border border-black/5">
                         <span className="text-[9px] font-black tracking-[0.3em] text-black uppercase">{tour.days} Days</span>
                       </div>
@@ -315,9 +312,11 @@ export default function ToursPage() {
                   className="group cursor-pointer flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4 hover:bg-surface-container-low/60 transition-colors duration-200 rounded-xl px-3 -mx-3"
                   onClick={() => navigate(`/tours/${tour.id}`)}>
                   <div className="shrink-0 w-full sm:w-20 md:w-24 aspect-[4/3] sm:aspect-square overflow-hidden rounded-xl bg-surface-container-low relative shadow-sm">
-                    <img className="w-full h-full object-cover transition-transform duration-[3s] ease-out group-hover:scale-105"
+                    <LazyImage 
+                      containerClassName="absolute inset-0 w-full h-full"
+                      className="w-full h-full object-cover transition-transform duration-[3s] ease-out group-hover:scale-105"
                       alt={tour.name} src={tour.heroImageUrl || FALLBACK} />
-                    <div className="absolute inset-0 flex items-end p-1.5">
+                    <div className="absolute inset-0 flex items-end p-1.5 pointer-events-none z-10">
                       <span className="text-[8px] font-black bg-black/60 text-white/80 px-2 py-0.5 rounded-full tracking-widest">{terr}</span>
                     </div>
                   </div>

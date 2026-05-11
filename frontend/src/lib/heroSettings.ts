@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { api } from './api';
 
 export type HeroPage = 'home' | 'tours' | 'destinations';
@@ -13,37 +14,36 @@ export interface HeroSettings {
 const STORAGE_KEY = 'jf_hero_settings'; // Fallback
 
 export function useHeroSettings(page: HeroPage): string[] {
-  const [ids, setIds] = useState<string[]>([]);
-
-  useEffect(() => {
-    // Try API first
-    api.getHeroSettings()
-      .then(s => setIds(s[page] || []))
-      .catch(() => {
-        // Fallback to local storage if API fails
-        try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if (raw) setIds(JSON.parse(raw)[page] || []);
-        } catch { /* ignore */ }
-      });
-  }, [page]);
+  const { data: ids = [] } = useQuery({
+    queryKey: ['heroSettings', page],
+    queryFn: async () => {
+      try {
+        const s = await api.getHeroSettings();
+        return s[page] || [];
+      } catch {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) return JSON.parse(raw)[page] || [];
+        return [];
+      }
+    }
+  });
 
   return ids;
 }
 
 export function useAllHeroSettings() {
-  const [settings, setSettings] = useState<HeroSettings>({ home: [], tours: [], destinations: [], visaBanner: '' });
-
-  useEffect(() => {
-    api.getHeroSettings()
-      .then(setSettings)
-      .catch(() => {
-        try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if (raw) setSettings(JSON.parse(raw));
-        } catch { /* ignore */ }
-      });
-  }, []);
+  const { data: settings = { home: [], tours: [], destinations: [], visaBanner: '' } } = useQuery({
+    queryKey: ['allHeroSettings'],
+    queryFn: async () => {
+      try {
+        return await api.getHeroSettings();
+      } catch {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) return JSON.parse(raw);
+        return { home: [], tours: [], destinations: [], visaBanner: '' };
+      }
+    }
+  });
 
   return { settings };
 }

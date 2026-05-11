@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { generateSrcSet } from '../lib/optimize';
 
 export function LazyImage({ 
   src, 
@@ -44,6 +45,8 @@ export function LazyImage({
       <img
         ref={imgRef}
         src={src}
+        srcSet={generateSrcSet(src)}
+        sizes="(max-width: 600px) 400px, (max-width: 1024px) 800px, 1200px"
         alt={alt}
         loading="lazy"
         onLoad={handleLoad}

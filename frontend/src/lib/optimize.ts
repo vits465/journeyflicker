@@ -24,3 +24,18 @@ export function optimizeImage(url: string | undefined, width = 1200, quality = 8
   
   return url;
 }
+
+/**
+ * Generates a responsive srcset string for a given image URL.
+ */
+export function generateSrcSet(url: string | undefined): string | undefined {
+  if (!url) return undefined;
+
+  const widths = [400, 800, 1200, 1600];
+  
+  if (url.includes('res.cloudinary.com') || url.includes('images.unsplash.com')) {
+    return widths.map(w => `${optimizeImage(url, w)} ${w}w`).join(', ');
+  }
+
+  return undefined;
+}

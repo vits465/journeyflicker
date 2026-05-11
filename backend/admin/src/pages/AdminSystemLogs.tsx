@@ -20,17 +20,28 @@ function timeAgo(ts: number) {
   return new Date(ts).toLocaleDateString();
 }
 
-function LogDetailModal({ log, onClose, onResolve, onDelete }: {
+function LogDetailModal({ log, onClose, onResolve, onDelete, resolvingId, deletingId }: {
   log: SystemLog;
   onClose: () => void;
   onResolve: (log: SystemLog, v: boolean) => void;
   onDelete: (log: SystemLog) => void;
+  resolvingId?: string | null;
+  deletingId?: string | null;
 }) {
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handleEsc);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+      document.body.style.overflow = 'unset';
+    };
+  }, [onClose]);
   const lc = LEVEL_CONFIG[log.level] || LEVEL_CONFIG.error;
   const sc = SOURCE_CONFIG[log.source] || SOURCE_CONFIG.frontend;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose} role="dialog" aria-modal="true">
       <div className="bg-surface dark:bg-[#1a1a1a] rounded-2xl shadow-2xl border border-outline-variant/20 w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className={`flex items-center gap-3 px-6 py-4 border-b border-outline-variant/20 ${lc.bg}`}>
@@ -90,12 +101,12 @@ function LogDetailModal({ log, onClose, onResolve, onDelete }: {
 
         {/* Footer actions */}
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-outline-variant/20">
-          <button onClick={() => onDelete(log)} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-semibold hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors">
-            <span className="material-symbols-outlined text-base">delete</span>Delete
+          <button onClick={() => onDelete(log)} disabled={deletingId === log.id} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-semibold hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors disabled:opacity-50">
+            <span className={`material-symbols-outlined text-base ${deletingId === log.id ? 'animate-pulse' : ''}`}>delete</span>{deletingId === log.id ? 'Deleting...' : 'Delete'}
           </button>
-          <button onClick={() => onResolve(log, !log.resolved)} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${log.resolved ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 hover:bg-amber-100' : 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/40'}`}>
-            <span className="material-symbols-outlined text-base">{log.resolved ? 'undo' : 'check_circle'}</span>
-            {log.resolved ? 'Reopen' : 'Mark Resolved'}
+          <button onClick={() => onResolve(log, !log.resolved)} disabled={resolvingId === log.id} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-colors disabled:opacity-50 ${log.resolved ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 hover:bg-amber-100' : 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/40'}`}>
+            <span className={`material-symbols-outlined text-base ${resolvingId === log.id ? 'animate-spin' : ''}`}>{resolvingId === log.id ? 'refresh' : log.resolved ? 'undo' : 'check_circle'}</span>
+            {resolvingId === log.id ? 'Updating...' : log.resolved ? 'Reopen' : 'Mark Resolved'}
           </button>
         </div>
       </div>
@@ -113,11 +124,19 @@ export default function AdminSystemLogs() {
   const [resolvedFilter, setResolvedFilter] = useState<'all' | 'open' | 'resolved'>('all');
   const [selected, setSelected] = useState<SystemLog | null>(null);
   const [clearing, setClearing] = useState(false);
+  const [toast, setToast] = useState<{ msg: string; type: 'ok' | 'err' } | null>(null);
+  const [resolvingId, setResolvingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const LIMIT = 25;
 
-  const fetchLogs = useCallback(async () => {
-    setLoading(true);
+  const showToast = (msg: string, type: 'ok' | 'err' = 'ok') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3500);
+  };
+
+  const fetchLogs = useCallback(async (background = false) => {
+    if (!background) setLoading(true);
     try {
       const opts: Parameters<typeof api.listSystemLogs>[0] = { page, limit: LIMIT };
       if (levelFilter !== 'all')   opts.level = levelFilter;
@@ -127,31 +146,57 @@ export default function AdminSystemLogs() {
       const data = await api.listSystemLogs(opts);
       setLogs(data.items);
       setTotal(data.total);
-    } catch { setLogs([]); }
-    setLoading(false);
+    } catch { 
+      setLogs([]); 
+      if (!background) showToast('Failed to fetch logs', 'err');
+    }
+    if (!background) setLoading(false);
   }, [page, levelFilter, sourceFilter, resolvedFilter]);
 
-  useEffect(() => { fetchLogs(); }, [fetchLogs]);
+  useEffect(() => { 
+    fetchLogs(false);
+    const interval = setInterval(() => fetchLogs(true), 30_000);
+    return () => clearInterval(interval);
+  }, [fetchLogs]);
 
   // Reset page when filters change
   useEffect(() => { setPage(1); }, [levelFilter, sourceFilter, resolvedFilter]);
 
   const handleResolve = async (log: SystemLog, resolved: boolean) => {
+    setResolvingId(log.id);
+    // Optimistic UI Update
+    setLogs(prev => prev.map(l => l.id === log.id ? { ...l, resolved } : l));
+    if (selected?.id === log.id) setSelected(prev => prev ? { ...prev, resolved } : null);
+    
     try {
       const updated = await api.resolveSystemLog(log.id, resolved);
       setLogs(prev => prev.map(l => l.id === log.id ? updated : l));
       if (selected?.id === log.id) setSelected(updated);
-    } catch {}
+      showToast(`Log marked as ${resolved ? 'resolved' : 'open'}`);
+    } catch {
+      // Revert on failure
+      setLogs(prev => prev.map(l => l.id === log.id ? { ...l, resolved: !resolved } : l));
+      if (selected?.id === log.id) setSelected(prev => prev ? { ...prev, resolved: !resolved } : null);
+      showToast('Failed to update log status', 'err');
+    } finally {
+      setResolvingId(null);
+    }
   };
 
   const handleDelete = async (log: SystemLog) => {
     if (!confirm('Delete this log entry?')) return;
+    setDeletingId(log.id);
     try {
       await api.deleteSystemLog(log.id);
       setLogs(prev => prev.filter(l => l.id !== log.id));
       setTotal(t => t - 1);
       if (selected?.id === log.id) setSelected(null);
-    } catch {}
+      showToast('Log deleted successfully');
+    } catch {
+      showToast('Failed to delete log', 'err');
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const handleClear = async (deleteAll: boolean) => {
@@ -160,9 +205,11 @@ export default function AdminSystemLogs() {
     setClearing(true);
     try {
       const { deleted } = await api.clearSystemLogs(deleteAll);
-      alert(`Deleted ${deleted} log entries.`);
-      fetchLogs();
-    } catch {}
+      showToast(`Deleted ${deleted} log entries.`);
+      fetchLogs(false);
+    } catch {
+      showToast('Failed to clear logs', 'err');
+    }
     setClearing(false);
   };
 
@@ -172,7 +219,19 @@ export default function AdminSystemLogs() {
   const totalPages    = Math.ceil(total / LIMIT);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed top-6 right-6 z-[200] px-5 py-3 rounded-xl shadow-xl text-sm font-semibold flex items-center gap-2 transition-all ${
+          toast.type === 'ok' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
+        }`}>
+          <span className="material-symbols-outlined text-base">
+            {toast.type === 'ok' ? 'check_circle' : 'error'}
+          </span>
+          {toast.msg}
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -301,7 +360,10 @@ export default function AdminSystemLogs() {
                     <td className="px-4 py-3 hidden lg:table-cell">
                       {log.url ? (
                         <p className="text-xs text-on-surface-variant dark:text-white/40 font-mono truncate max-w-[160px]" title={log.url}>
-                          {log.url.replace(/^https?:\/\/[^/]+/, '')}
+                          {(() => {
+                            try { return new URL(log.url).pathname + new URL(log.url).search; }
+                            catch { return log.url; }
+                          })()}
                         </p>
                       ) : <span className="text-xs text-on-surface-variant/30">—</span>}
                     </td>
@@ -322,12 +384,14 @@ export default function AdminSystemLogs() {
                     <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center gap-1">
                         <button onClick={() => handleResolve(log, !log.resolved)}
-                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${log.resolved ? 'hover:bg-amber-50 dark:hover:bg-amber-900/20 text-on-surface-variant dark:text-white/40' : 'hover:bg-green-50 dark:hover:bg-green-900/20 text-on-surface-variant dark:text-white/40'}`}
+                          disabled={resolvingId === log.id}
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors disabled:opacity-40 ${log.resolved ? 'hover:bg-amber-50 dark:hover:bg-amber-900/20 text-on-surface-variant dark:text-white/40' : 'hover:bg-green-50 dark:hover:bg-green-900/20 text-on-surface-variant dark:text-white/40'}`}
                           title={log.resolved ? 'Reopen' : 'Mark Resolved'}>
-                          <span className="material-symbols-outlined text-base">{log.resolved ? 'undo' : 'check'}</span>
+                          <span className={`material-symbols-outlined text-base ${resolvingId === log.id ? 'animate-spin' : ''}`}>{resolvingId === log.id ? 'refresh' : log.resolved ? 'undo' : 'check'}</span>
                         </button>
                         <button onClick={() => handleDelete(log)}
-                          className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/20 text-on-surface-variant dark:text-white/40 transition-colors"
+                          disabled={deletingId === log.id}
+                          className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/20 text-on-surface-variant dark:text-white/40 transition-colors disabled:opacity-40"
                           title="Delete">
                           <span className="material-symbols-outlined text-base">delete</span>
                         </button>
@@ -370,6 +434,8 @@ export default function AdminSystemLogs() {
           onClose={() => setSelected(null)}
           onResolve={handleResolve}
           onDelete={(l) => { handleDelete(l); setSelected(null); }}
+          resolvingId={resolvingId}
+          deletingId={deletingId}
         />
       )}
     </div>
