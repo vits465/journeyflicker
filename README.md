@@ -2,6 +2,30 @@
 
 A luxury travel-agency web app built with **React + TypeScript + Vite + TailwindCSS** (frontend) and **Express + Zod** (backend).
 
+**Live Demo**: [https://journeyflicker.com/](https://journeyflicker.com/) (Replace with your actual live URL)
+
+## Features
+
+- **Modern & Responsive UI**: Beautifully designed pages using TailwindCSS, with smooth animations and lazy loading.
+- **Image Optimization & Lazy Loading**: Built-in logic for fast performance and optimal media handling.
+- **Admin Dashboard**: Comprehensive secure admin panel to manage tours, destinations, visas, and user inquiries.
+- **Secure Authentication**: Built with JWT, Scrypt hashing, and rate-limiting to prevent brute force attacks.
+- **Analytics & SEO Ready**: Includes `sitemap.xml`, `robots.txt`, open-graph tags, and structured dynamic SEO meta elements.
+- **Modular Backend Architecture**: Powered by Express, Mongoose, Zod for strict validation, and Upstash Redis for caching.
+
+## Screenshots
+
+*(Add screenshots of your application here to improve your GitHub profile and recruiter impression!)*
+
+<details>
+<summary>Click to view screenshots</summary>
+
+- ![Home Page](/path/to/home-screenshot.jpg)
+- ![Tours Listing](/path/to/tours-screenshot.jpg)
+- ![Admin Dashboard](/path/to/admin-screenshot.jpg)
+
+</details>
+
 ---
 
 ## Quick Start

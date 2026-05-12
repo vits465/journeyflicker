@@ -177,22 +177,22 @@ export default function ToursPage() {
               )}
             </div>
 
-            <div className="flex flex-wrap items-center gap-4 md:gap-5 ml-auto">
+            <div className="flex flex-wrap items-center gap-y-5 gap-x-4 md:gap-5 ml-auto">
               {/* Region */}
               <FilterSelect label="Region" value={filter.region} options={opts.regions}
                 onChange={v => setLevel('region', v)} disabled={opts.regions.length === 0} />
-              <div className="h-6 w-px bg-outline-variant/20" />
+              <div className="hidden md:block h-6 w-px bg-outline-variant/20" />
               {/* Country */}
               <FilterSelect label="Country" value={filter.country} options={opts.countries}
                 onChange={v => setLevel('country', v)} disabled={opts.countries.length <= 1} />
               {opts.states.length > 1 && (
                 <>
-                  <div className="h-6 w-px bg-outline-variant/20" />
+                  <div className="hidden md:block h-6 w-px bg-outline-variant/20" />
                   <FilterSelect label="State/Area" value={filter.state} options={opts.states}
                     onChange={v => setLevel('state', v)} />
                 </>
               )}
-              <div className="h-6 w-px bg-outline-variant/20" />
+              <div className="hidden md:block h-6 w-px bg-outline-variant/20" />
               {/* Category */}
               <div className="flex flex-col gap-0.5">
                 <label className="text-[9px] font-black tracking-[0.4em] uppercase text-on-surface-variant/50">Category</label>
@@ -205,7 +205,7 @@ export default function ToursPage() {
                   <span className="material-symbols-outlined absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/40 text-base">expand_more</span>
                 </div>
               </div>
-              <div className="h-6 w-px bg-outline-variant/20" />
+              <div className="hidden md:block h-6 w-px bg-outline-variant/20" />
               {/* Max Duration */}
               <div className="flex flex-col gap-0.5">
                 <label className="text-[9px] font-black tracking-[0.4em] uppercase text-on-surface-variant/50">Max Days</label>
