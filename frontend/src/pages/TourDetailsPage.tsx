@@ -587,7 +587,7 @@ export default function TourDetailsPage() {
               </div>
               <div className="pl-0 sm:pl-10 grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {visualArchive.map((img, i) => (
-                  <div key={i} className={`overflow-hidden rounded-xl group relative bg-black shadow-sm ${i === 0 ? 'col-span-2 row-span-2 aspect-square sm:aspect-auto sm:h-60' : 'aspect-square'}`}>
+                  <div key={i} className={`overflow-hidden rounded-xl group relative bg-black shadow-sm ${i === 0 ? 'col-span-2 row-span-2 aspect-square' : 'aspect-square'}`}>
                     <img className="absolute inset-0 w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105 grayscale group-hover:grayscale-0"
                       alt={`Archive ${i + 1}`} src={img} />
                   </div>
