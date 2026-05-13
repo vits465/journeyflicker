@@ -157,9 +157,16 @@ export default function AdminDestinations() {
     } catch (err) { console.error(err); } finally { setSaving(false); }
   };
 
-  const handleEdit = (d: Destination) => {
-    setFormData(d); setEditingId(d.id);
-    setTimeout(() => document.getElementById('dtop')?.scrollIntoView({ behavior: 'smooth' }), 50);
+  const handleEdit = async (d: Destination) => {
+    try {
+      const fullDest = await api.getDestination(d.id);
+      setFormData(fullDest); 
+      setEditingId(fullDest.id);
+      setTimeout(() => document.getElementById('dtop')?.scrollIntoView({ behavior: 'smooth' }), 50);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to load full destination details.');
+    }
   };
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this destination?')) return;

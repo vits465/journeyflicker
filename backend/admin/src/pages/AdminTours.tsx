@@ -171,10 +171,16 @@ export default function AdminTours() {
     setDrawerOpen(true);
   };
 
-  const handleEdit = (t: Tour) => {
-    setFormData(t);
-    setEditingId(t.id);
-    setDrawerOpen(true);
+  const handleEdit = async (t: Tour) => {
+    try {
+      const fullTour = await api.getTour(t.id);
+      setFormData(fullTour);
+      setEditingId(fullTour.id);
+      setDrawerOpen(true);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to load tour details.');
+    }
   };
 
   const handleDelete = (id: string) => {
