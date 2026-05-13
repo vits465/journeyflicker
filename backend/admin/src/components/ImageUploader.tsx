@@ -143,7 +143,7 @@ function MediaPickerModal({
 }
 
 // ── Single Image Thumbnail (handles broken URLs gracefully) ───────────────────
-function ImageThumb({ url, onRemove, onMoveLeft, onMoveRight, canMoveLeft, canMoveRight }: { url: string; onRemove: () => void; onMoveLeft?: () => void; onMoveRight?: () => void; canMoveLeft?: boolean; canMoveRight?: boolean }) {
+function ImageThumb({ url, onRemove }: { url: string; onRemove: () => void }) {
   const [broken, setBroken] = useState(false);
 
   return (
@@ -164,27 +164,19 @@ function ImageThumb({ url, onRemove, onMoveLeft, onMoveRight, canMoveLeft, canMo
           onError={() => setBroken(true)}
         />
       )}
-      {/* Overlay actions (Delete, Move Left, Move Right) */}
-      <div className={`absolute inset-0 bg-black/60 flex items-center justify-center gap-1 transition-opacity ${broken ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-        {onMoveLeft && canMoveLeft && !broken && (
-          <button type="button" onClick={onMoveLeft} className="w-6 h-6 flex items-center justify-center text-white hover:bg-white/20 rounded-full" title="Move Left">
-            <span className="material-symbols-outlined text-sm">chevron_left</span>
-          </button>
-        )}
-        <button
-          type="button"
-          onClick={onRemove}
-          title="Remove image"
-          className="w-8 h-8 flex items-center justify-center text-white bg-red-600 hover:bg-red-700 rounded-full shadow-sm"
-        >
-          <span className="material-symbols-outlined text-sm">delete</span>
-        </button>
-        {onMoveRight && canMoveRight && !broken && (
-          <button type="button" onClick={onMoveRight} className="w-6 h-6 flex items-center justify-center text-white hover:bg-white/20 rounded-full" title="Move Right">
-            <span className="material-symbols-outlined text-sm">chevron_right</span>
-          </button>
-        )}
-      </div>
+      {/* Delete button — always visible on broken images, hover-only on valid images */}
+      <button
+        type="button"
+        onClick={onRemove}
+        title="Remove image"
+        className={`absolute flex items-center justify-center text-white bg-red-600/90 transition-opacity ${
+          broken
+            ? 'inset-x-0 bottom-0 h-7 opacity-100' // always visible strip at bottom for broken
+            : 'inset-0 opacity-0 group-hover:opacity-100' // full overlay on hover for valid
+        }`}
+      >
+        <span className="material-symbols-outlined text-lg">delete</span>
+      </button>
     </div>
   );
 }
@@ -255,15 +247,6 @@ export function ImageUploader({ multiple, value, onChange, label = 'Upload Image
     }
   };
 
-  const moveImage = (index: number, direction: 'left' | 'right') => {
-    if (!multiple || !Array.isArray(value)) return;
-    const newIndex = direction === 'left' ? index - 1 : index + 1;
-    if (newIndex < 0 || newIndex >= value.length) return;
-    const newImages = [...value];
-    [newImages[index], newImages[newIndex]] = [newImages[newIndex], newImages[index]];
-    onChange(newImages);
-  };
-
   const images = multiple
     ? (Array.isArray(value) ? value : [])
     : (value && typeof value === 'string' ? [value] : []);
@@ -283,15 +266,7 @@ export function ImageUploader({ multiple, value, onChange, label = 'Upload Image
         <div className="flex flex-wrap gap-3 items-start">
           {/* Thumbnails */}
           {images.map((url, i) => (
-            <ImageThumb 
-              key={i} 
-              url={url} 
-              onRemove={() => removeImage(url)} 
-              onMoveLeft={multiple ? () => moveImage(i, 'left') : undefined}
-              onMoveRight={multiple ? () => moveImage(i, 'right') : undefined}
-              canMoveLeft={multiple && i > 0}
-              canMoveRight={multiple && i < images.length - 1}
-            />
+            <ImageThumb key={i} url={url} onRemove={() => removeImage(url)} />
           ))}
 
           {/* Action buttons — always visible so user can replace or add */}

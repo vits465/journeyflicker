@@ -329,9 +329,34 @@ export default function AdminDestinations() {
                 <div className="af-sec-icon violet"><span className="material-symbols-outlined text-base">photo_library</span></div>
                 <span className="text-sm font-bold text-on-surface dark:text-white">Visual Media</span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-6">
                 <ImageUploader value={formData.heroImageUrl || ''} onChange={(v: string) => upd({ heroImageUrl: v })} label="Hero Cover Image" />
-                <ImageUploader multiple value={formData.galleryImages || []} onChange={(v: string[]) => upd({ galleryImages: v })} label="Gallery Images" />
+                
+                <div className="pt-4 border-t border-outline-variant/30">
+                  <label className="af-label">Gallery Images (Archive)</label>
+                  <div className="space-y-4 mt-2">
+                    {(formData.galleryImages || []).map((url, i) => (
+                      <div key={i} className="af-sub relative">
+                        <button type="button" onClick={() => upd({ galleryImages: (formData.galleryImages || []).filter((_, x) => x !== i) })} className="absolute top-2 right-3 text-red-400 hover:text-red-600 transition-colors">
+                          <span className="material-symbols-outlined text-base">delete</span>
+                        </button>
+                        <h4 className="text-sm font-bold mb-3">Gallery Image {i + 1}</h4>
+                        <ImageUploader 
+                          label="" 
+                          value={url} 
+                          onChange={(v: string) => {
+                            const arr = [...(formData.galleryImages || [])];
+                            arr[i] = v;
+                            upd({ galleryImages: arr });
+                          }} 
+                        />
+                      </div>
+                    ))}
+                    <button type="button" onClick={() => upd({ galleryImages: [...(formData.galleryImages || []), ''] })} className="af-btn-add" style={{borderColor:'#8b5cf6',color:'#5b21b6',background:'#f5f3ff'}}>
+                      <span className="material-symbols-outlined text-base">add_circle</span> Add Gallery Image
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 

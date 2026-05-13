@@ -381,7 +381,32 @@ export default function AdminTours() {
           <div className={formSectionClasses}>
             <ImageUploader label="Hero Cover Image" value={formData.heroImageUrl || ''} onChange={(v: string) => upd({ heroImageUrl: v })} />
             <ImageUploader label="Overview Section Image (optional)" value={formData.overviewImageUrl || ''} onChange={(v: string) => upd({ overviewImageUrl: v })} />
-            <ImageUploader label="Visual Archive (Gallery)" multiple value={formData.visualArchive || []} onChange={(v: string[]) => upd({ visualArchive: v })} />
+            
+            <div className="pt-4 border-t border-outline-variant/30 mt-4">
+              <label className={labelClasses}>Visual Archive (Gallery)</label>
+              <div className="space-y-4 mt-2">
+                {(formData.visualArchive || []).map((url, i) => (
+                  <div key={i} className="p-4 bg-surface-container rounded-xl border border-outline-variant/30 relative">
+                    <button type="button" onClick={() => upd({ visualArchive: (formData.visualArchive || []).filter((_, x) => x !== i) })} className="absolute top-3 right-3 text-red-500 hover:text-red-700">
+                      <span className="material-symbols-outlined text-sm">close</span>
+                    </button>
+                    <h4 className="text-sm font-bold mb-3">Archive Image {i + 1}</h4>
+                    <ImageUploader 
+                      label="" 
+                      value={url} 
+                      onChange={(v: string) => {
+                        const arr = [...(formData.visualArchive || [])];
+                        arr[i] = v;
+                        upd({ visualArchive: arr });
+                      }} 
+                    />
+                  </div>
+                ))}
+                <button type="button" onClick={() => upd({ visualArchive: [...(formData.visualArchive || []), ''] })} className="w-full py-2 bg-primary/10 text-primary rounded-lg font-bold text-sm hover:bg-primary/20">
+                  + Add Archive Image
+                </button>
+              </div>
+            </div>
           </div>
         </Tab>
         <Tab label="Itinerary">
