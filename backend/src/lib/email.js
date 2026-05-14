@@ -10,7 +10,7 @@ export async function sendInquiryNotification(contact) {
     return;
   }
 
-  const adminEmail = process.env.ADMIN_EMAIL || "tushar@journeyflicker.com";
+  const adminEmail = process.env.ADMIN_EMAIL || "tushar@journeyflicker.com,pashv@journeyflicker.com";
   const fromEmail = process.env.SYSTEM_EMAIL || "system@journeyflicker.com";
 
   try {

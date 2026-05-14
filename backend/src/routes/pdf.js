@@ -92,7 +92,7 @@ router.get("/tour/:id", async (req, res) => {
 
     doc.fillColor("#333333")
        .fontSize(12)
-       .text("Email: tushar@journeyflicker.com", { lineGap: 5 })
+       .text("Email: tushar@journeyflicker.com | pashv@journeyflicker.com", { lineGap: 5 })
        .text("Phone: +91 98792 68811 | +91 97266 98987 | 0261 3564717", { lineGap: 5 })
        .text("Address: 103, Raj Victoria, Near Samarth Circle, Adajan, Surat - 395009 (Gujarat, India)", { lineGap: 5 });
 

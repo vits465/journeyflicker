@@ -73,10 +73,16 @@ export default function ContactPage() {
               <div className="space-y-5">
                 <div className="group border-l-2 border-primary/10 pl-5 hover:border-primary transition-all duration-500">
                   <span className="text-[9px] font-bold tracking-[0.3em] uppercase text-on-surface-variant mb-1.5 block">General Correspondence</span>
-                  <a href="mailto:tushar@journeyflicker.com"
-                    className="text-lg font-light tracking-tight text-on-surface hover:text-primary transition-colors break-all">
-                    tushar@journeyflicker.com
-                  </a>
+                  <div className="flex flex-col gap-1">
+                    <a href="mailto:tushar@journeyflicker.com"
+                      className="text-lg font-light tracking-tight text-on-surface hover:text-primary transition-colors break-all">
+                      tushar@journeyflicker.com
+                    </a>
+                    <a href="mailto:pashv@journeyflicker.com"
+                      className="text-lg font-light tracking-tight text-on-surface hover:text-primary transition-colors break-all">
+                      pashv@journeyflicker.com
+                    </a>
+                  </div>
                 </div>
                 <div className="group border-l-2 border-primary/10 pl-5 hover:border-primary transition-all duration-500">
                   <span className="text-[9px] font-bold tracking-[0.3em] uppercase text-on-surface-variant mb-1.5 block">Priority Management</span>

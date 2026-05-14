@@ -104,7 +104,7 @@ export default function HomePage() {
     <>
       <SEO pageId="home" />
       {/* ────────────────────────── 1. HERO ────────────────────────── */}
-      <HeroSlider slides={heroSlides} loading={loading} autoPlayMs={5500} height="h-screen min-h-[560px] max-h-[900px]" hideSlideText={true}>
+      <HeroSlider slides={heroSlides} loading={loading} autoPlayMs={5500} height="h-[80vh] md:h-[95vh] lg:h-screen min-h-[500px] max-h-[900px]" hideSlideText={true}>
         <div className="flex flex-col items-center text-center w-full px-4 pt-16">
           <div className="border border-white/20 rounded-full px-5 py-2 mb-5 backdrop-blur-md bg-white/10 inline-block">
             <span className="text-white/70 text-[9px] tracking-[0.5em] uppercase font-black">Global Intelligence Bureau</span>
