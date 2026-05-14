@@ -55,8 +55,8 @@ export function LazyImage({
         loading={priority ? undefined : "lazy"}
         fetchPriority={priority ? "high" : "auto"}
         onLoad={handleLoad}
-        className={`transition-all duration-1000 ease-out ${
-          loaded ? 'opacity-100 blur-0 scale-100' : 'opacity-0 blur-sm scale-105'
+        className={`transition-all duration-700 ease-out ${
+          loaded ? 'opacity-100' : 'opacity-0'
         } ${className}`}
         style={style}
       />
