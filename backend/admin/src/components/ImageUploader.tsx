@@ -7,6 +7,10 @@ interface ImageUploaderProps {
   value: string | string[];
   onChange: (val: any) => void;
   label?: string;
+  /** Section key tells the server which Sharp crop spec to apply.
+   *  e.g. "hero" | "tours" | "destinations" | "gallery" | "landmarks" etc.
+   *  When omitted the image is uploaded as-is. */
+  section?: string;
 }
 
 // ── Media Library Picker Modal ────────────────────────────────────────────────
@@ -182,7 +186,7 @@ function ImageThumb({ url, onRemove }: { url: string; onRemove: () => void }) {
 }
 
 // ── Main ImageUploader Component ──────────────────────────────────────────────
-export function ImageUploader({ multiple, value, onChange, label = 'Upload Images' }: ImageUploaderProps) {
+export function ImageUploader({ multiple, value, onChange, label = 'Upload Images', section }: ImageUploaderProps) {
   const [uploading, setUploading] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
 
@@ -190,11 +194,19 @@ export function ImageUploader({ multiple, value, onChange, label = 'Upload Image
     if (!e.target.files?.length) return;
     setUploading(true);
     try {
-      const files = Array.from(e.target.files);
+      const files = Array.from(e.target.files).filter(f => !f.name.toLowerCase().endsWith('.jfif'));
+      if (files.length < e.target.files.length) {
+        alert('JFIF format is not supported. Please use JPG, PNG, or WebP.');
+      }
+      if (files.length === 0) {
+        setUploading(false);
+        e.target.value = '';
+        return;
+      }
       
       // Upload each file AND register in Media Library
       const uploadOne = async (file: File): Promise<string> => {
-        const url = await uploadImage(file);
+        const url = await uploadImage(file, section); // ← passes section → server Sharp crop
         // Auto-save to Media Library so it can be reused across forms
         try {
           await api.createMedia({
@@ -275,7 +287,7 @@ export function ImageUploader({ multiple, value, onChange, label = 'Upload Image
               <label className={`flex items-center gap-2 px-3 py-2 rounded-xl border border-dashed border-outline-variant cursor-pointer hover:border-black hover:text-black transition-colors text-on-surface-variant bg-surface-container-low text-xs font-medium ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
                 <span className="material-symbols-outlined text-base">{uploading ? 'hourglass_empty' : 'upload'}</span>
                 {uploading ? 'Uploading...' : 'Upload New'}
-                <input type="file" className="hidden" multiple={multiple} accept="image/*" onChange={handleUpload} />
+                <input type="file" className="hidden" multiple={multiple} accept=".jpg,.jpeg,.png,.webp,.avif" onChange={handleUpload} />
               </label>
               <button
                 type="button"

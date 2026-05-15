@@ -111,9 +111,13 @@ export default function AdminHeroSettings() {
   async function handleVisaUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.name.toLowerCase().endsWith('.jfif')) {
+      alert("JFIF format is not supported for Hero banners.");
+      return;
+    }
     try {
       setUploadingImage(true);
-      const url = await uploadImage(file);
+      const url = await uploadImage(file, 'hero');
       setDraft(prev => ({ ...prev, visaBanner: url }));
       setSaved(false);
     } catch (err) {
@@ -174,7 +178,7 @@ export default function AdminHeroSettings() {
 
             {currentTab.type === 'single' ? (
               <div className="p-8 text-center space-y-6">
-                <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleVisaUpload} />
+                <input type="file" ref={fileInputRef} className="hidden" accept=".jpg,.jpeg,.png,.webp,.avif" onChange={handleVisaUpload} />
                 <div 
                   className="w-full relative h-64 bg-surface-container-low border-2 border-dashed border-outline-variant/30 rounded-2xl flex flex-col items-center justify-center hover:bg-surface-container cursor-pointer transition-colors overflow-hidden group"
                   onClick={() => !uploadingImage && fileInputRef.current?.click()}

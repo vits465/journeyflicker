@@ -337,7 +337,7 @@ export default function AdminDestinations() {
                 <span className="text-sm font-bold text-on-surface dark:text-white">Visual Media</span>
               </div>
               <div className="space-y-6">
-                <ImageUploader value={formData.heroImageUrl || ''} onChange={(v: string) => upd({ heroImageUrl: v })} label="Hero Cover Image" />
+                <ImageUploader value={formData.heroImageUrl || ''} onChange={(v: string) => upd({ heroImageUrl: v })} label="Hero Cover Image" section="hero" />
                 
                 <div className="pt-4 border-t border-outline-variant/30">
                   <label className="af-label">Gallery Images (Archive)</label>
@@ -356,6 +356,7 @@ export default function AdminDestinations() {
                             arr[i] = v;
                             upd({ galleryImages: arr });
                           }} 
+                          section="gallery"
                         />
                       </div>
                     ))}
@@ -434,7 +435,8 @@ export default function AdminDestinations() {
                       onChange={e=>{ const u=[...(formData.landmarks||[])]; u[i]={...lm,description:e.target.value}; upd({landmarks:u}); }} />
                     <ImageUploader value={lm.imageUrl||''}
                       onChange={(v:string)=>{ const u=[...(formData.landmarks||[])]; u[i]={...lm,imageUrl:v}; upd({landmarks:u}); }}
-                      label="Landmark Image" />
+                      label="Landmark Image"
+                      section="landmarks" />
                   </div>
                 ))}
               </div>

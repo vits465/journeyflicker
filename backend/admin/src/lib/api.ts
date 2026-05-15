@@ -259,47 +259,37 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
   return (await res.json()) as T;
 }
 
-export async function uploadImage(file: File): Promise<string> {
+/**
+ * Upload an image file to the server.
+ *
+ * @param file     - The File object to upload
+ * @param section  - Optional section key (e.g. "hero", "tours", "gallery").
+ *                   When provided the server runs Sharp to auto-crop/resize/
+ *                   convert the image to WebP at the exact aspect ratio the
+ *                   frontend CSS expects. No client-side canvas resize is done
+ *                   — Sharp produces far higher quality output on the server.
+ *
+ * Supported section keys:
+ *   hero · sightseeing · destinations · tours · visa · overview
+ *   tour-thumbs · signature · landmarks · gallery · itinerary
+ */
+export async function uploadImage(file: File, section?: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    if (!file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = async () => {
-        try {
-          const data = reader.result as string;
-          const res = await http<{ url: string }>("/upload", {
-            method: "POST",
-            body: JSON.stringify({ name: file.name, data }),
-          });
-          resolve(res.url);
-        } catch (err) { reject(err); }
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-      return;
-    }
-
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      let width = img.width;
-      let height = img.height;
-      const MAX_WIDTH = 1920;
-      const MAX_HEIGHT = 1080;
-      if (width > height) {
-        if (width > MAX_WIDTH) { height = Math.round((height * MAX_WIDTH) / width); width = MAX_WIDTH; }
-      } else {
-        if (height > MAX_HEIGHT) { width = Math.round((width * MAX_HEIGHT) / height); height = MAX_HEIGHT; }
-      }
-      canvas.width = width; canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      if (ctx) ctx.drawImage(img, 0, 0, width, height);
-      const data = canvas.toDataURL('image/jpeg', 0.8);
-      http<{ url: string }>("/upload", { method: "POST", body: JSON.stringify({ name: file.name, data }) })
-        .then(res => resolve(res.url)).catch(reject);
-      URL.revokeObjectURL(img.src);
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const data = reader.result as string;
+        const body: Record<string, string> = { name: file.name, data };
+        if (section) body.section = section;
+        const res = await http<{ url: string }>("/upload", {
+          method: "POST",
+          body: JSON.stringify(body),
+        });
+        resolve(res.url);
+      } catch (err) { reject(err); }
     };
-    img.onerror = () => reject(new Error('Failed to load image for compression'));
-    img.src = URL.createObjectURL(file);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
   });
 }
 

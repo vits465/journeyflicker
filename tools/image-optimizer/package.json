@@ -1,0 +1,29 @@
+{
+  "name": "journeyflicker-image-optimizer",
+  "version": "1.0.0",
+  "description": "Image optimization pipeline for JourneyFlicker travel website assets",
+  "main": "optimize.js",
+  "scripts": {
+    "optimize": "node optimize.js",
+    "optimize:avif": "node optimize.js --avif",
+    "optimize:thumbs": "node optimize.js --thumbs",
+    "optimize:full": "node optimize.js --avif --thumbs --thumb-size 300",
+    "optimize:full:lg-thumbs": "node optimize.js --avif --thumbs --thumb-size 500"
+  },
+  "keywords": [
+    "sharp",
+    "image-optimization",
+    "webp",
+    "avif",
+    "travel",
+    "journeyflicker"
+  ],
+  "author": "JourneyFlicker",
+  "license": "MIT",
+  "dependencies": {
+    "sharp": "^0.33.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

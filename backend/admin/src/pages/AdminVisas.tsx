@@ -350,6 +350,7 @@ export default function AdminVisas() {
                 value={formData.heroImageUrl || ''}
                 onChange={(v: string) => upd({ heroImageUrl: v })}
                 label=""
+                section="visa"
               />
             </div>
 

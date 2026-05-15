@@ -13,6 +13,7 @@ import crypto from "node:crypto";
 import { v2 as cloudinary } from "cloudinary";
 import { isMongoConnected } from "../db/mongoose.js";
 import { Media as MediaModel, Destination, Tour } from "../db/models/index.js";
+import { processImageForSection } from "../lib/imageProcessor.js";
 
 export const router = express.Router();
 
@@ -96,6 +97,32 @@ router.post("/upload", async (req, res) => {
         }
       }
 
+      // ── Auto-optimize image for the given folder ─────────────────────────
+      // Map folder names to spec keys
+      const folderToSection = {
+        "Destinations": "destinations",
+        "Tours": "tours",
+        "Visas": "visa",
+        "Itinerary": "itinerary",
+        "Gallery": "gallery",
+        "Hero": "hero"
+      };
+      const section = folderToSection[folder];
+      
+      let uploadData = data;
+      let finalType = type;
+      if (section) {
+        try {
+          const optResult = await processImageForSection(data, section);
+          if (!optResult.skipped) {
+            uploadData = optResult.dataUri;
+            finalType = "image/webp";
+          }
+        } catch (optErr) {
+          console.error(`[Media] Optimization failed for ${name} in ${folder}:`, optErr.message);
+        }
+      }
+
       let url = "";
       let cloudinaryPublicId = "";
       let storage = "local";
@@ -107,7 +134,7 @@ router.post("/upload", async (req, res) => {
         while (attempts < maxRetries) {
           try {
             const publicId = generatePublicId();
-            const result   = await cloudinary.uploader.upload(data, {
+            const result   = await cloudinary.uploader.upload(uploadData, {
               folder:          "journeyflicker",
               resource_type:   "image",
               public_id:       publicId,
@@ -139,12 +166,12 @@ router.post("/upload", async (req, res) => {
         const uploadRes = await fetch(`http://localhost:${process.env.PORT || 5174}/api/upload`, {
           method: "POST",
           headers: { "content-type": "application/json", "Authorization": req.headers.authorization || "" },
-          body: JSON.stringify({ name, data }),
+          body: JSON.stringify({ name, data: uploadData, section }),
         });
         if (uploadRes.ok) {
-          const uploadData = await uploadRes.json();
-          url     = uploadData.url;
-          storage = uploadData.storage || "local";
+          const uploadDataRes = await uploadRes.json();
+          url     = uploadDataRes.url;
+          storage = uploadDataRes.storage || "local";
         } else {
           throw new Error(`Upload failed for ${name}`);
         }

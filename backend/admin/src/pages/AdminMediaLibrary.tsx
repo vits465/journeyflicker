@@ -84,7 +84,11 @@ export default function AdminMediaLibrary() {
   useEffect(() => { loadMedia(true); setSelected(new Set()); }, [folder, debouncedSearch, sortBy, sortDir, activeTab]);
   useEffect(() => { loadMedia(); }, [page]);
 
-  const handleUploadFiles = async (files: File[]) => {
+  const handleUploadFiles = async (rawFiles: File[]) => {
+    const files = rawFiles.filter(f => !f.name.toLowerCase().endsWith('.jfif'));
+    if (files.length < rawFiles.length) {
+      showToast('Blocked .jfif files (not supported)');
+    }
     if (!files.length) return;
     setUploading(true);
     setUploadProgress({ done: 0, total: files.length });
@@ -209,7 +213,7 @@ export default function AdminMediaLibrary() {
         {/* Upload Button in Sidebar */}
         {canEdit && (
           <div className="p-4 border-t border-outline-variant/20">
-            <input ref={fileInputRef} type="file" className="hidden" accept="image/*,.pdf,.doc,.docx" multiple onChange={e => handleUploadFiles(Array.from(e.target.files || []))} />
+            <input ref={fileInputRef} type="file" className="hidden" accept=".jpg,.jpeg,.png,.webp,.avif,.pdf,.doc,.docx" multiple onChange={e => handleUploadFiles(Array.from(e.target.files || []))} />
             <button onClick={() => fileInputRef.current?.click()} disabled={uploading}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-gradient-to-r from-primary to-indigo-600 text-white font-bold tracking-wide hover:shadow-lg hover:shadow-primary/25 transition-all disabled:opacity-50">
               <span className="material-symbols-outlined text-sm">{uploading ? 'hourglass_empty' : 'upload'}</span>

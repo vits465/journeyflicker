@@ -25,6 +25,7 @@ import { router as enhancedMediaRouter } from "./routes/media.js";
 import { router as migrateRouter } from "./routes/migrate.js";
 import { router as pdfRouter } from "./routes/pdf.js";
 import { sendInquiryNotification } from "./lib/email.js";
+import { processImageForSection } from "./lib/imageProcessor.js";
 
 // Start MongoDB connection — awaited before server listens (see bottom of file)
 const mongoReady = connectMongo();
@@ -376,10 +377,37 @@ if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 app.use("/uploads", express.static(uploadsDir));
 
 // ── Upload → Cloudinary (prod) or Local Disk (dev fallback) ───────────────────
+// Automatically optimizes images before upload:
+//   - Crops to exact aspect ratio for the target section (no stretching)
+//   - Smart focal-point crop (faces/subjects preserved)
+//   - Strips EXIF metadata (privacy + smaller files)
+//   - Converts to WebP
+// Pass `section` in the request body to activate optimization.
+// Supported sections: hero, sightseeing, destinations, tours, visa, overview,
+//                     tour-thumbs, signature, landmarks, gallery, itinerary
 app.post("/api/upload", requireCRUD, async (req, res) => {
-  const { name, data } = req.body;
+  const { name, data, section } = req.body;
   if (!name || !data) return res.status(400).json({ error: "Missing name or data base64" });
   if (!data.startsWith("data:")) return res.status(400).json({ error: "Invalid base64 format" });
+
+  // ── Auto-optimize image for the given section ─────────────────────────────
+  // Falls back to original on any error — upload is never blocked.
+  let uploadData = data;
+  let optimizationMeta = null;
+  if (section) {
+    const result = await processImageForSection(data, section);
+    uploadData = result.dataUri;
+    optimizationMeta = {
+      section,
+      skipped:        result.skipped,
+      spec:           result.spec,
+      originalKB:     +(result.originalBytes / 1024).toFixed(1),
+      optimizedKB:    +(result.optimizedBytes / 1024).toFixed(1),
+      savedPct:       result.originalBytes > 0
+        ? +((( result.originalBytes - result.optimizedBytes) / result.originalBytes) * 100).toFixed(1)
+        : 0,
+    };
+  }
 
   const hasCloudinary = process.env.CLOUDINARY_CLOUD_NAME &&
     process.env.CLOUDINARY_API_KEY &&
@@ -388,13 +416,13 @@ app.post("/api/upload", requireCRUD, async (req, res) => {
   // ── Try Cloudinary first (if credentials available) ──────────────────────
   if (hasCloudinary) {
     try {
-      const result = await cloudinary.uploader.upload(data, {
+      const result = await cloudinary.uploader.upload(uploadData, {
         folder:          "journeyflicker",
         resource_type:   "auto",
         use_filename:    false,
         unique_filename: true,
       });
-      return res.json({ url: result.secure_url, storage: "cloudinary" });
+      return res.json({ url: result.secure_url, storage: "cloudinary", optimization: optimizationMeta });
     } catch (err) {
       console.error("Cloudinary upload error (falling back to local):", err);
       // Fall through to local save
@@ -403,54 +431,51 @@ app.post("/api/upload", requireCRUD, async (req, res) => {
 
   // ── Local disk fallback (dev mode or Cloudinary failed) ───────────────────
   try {
-    // Strip data URI prefix and decode base64
-    const mimeMatch = data.match(/^data:([^;]+);base64,/);
+    const mimeMatch = uploadData.match(/^data:([^;]+);base64,/);
     if (!mimeMatch) return res.status(400).json({ error: "Invalid data URI" });
-    
-    const mimeType = mimeMatch[1];
-    const base64Data = data.replace(/^data:[^;]+;base64,/, "");
-    
-    // Security check: Whitelist extensions
+
+    const mimeType   = mimeMatch[1];
+    const base64Data = uploadData.replace(/^data:[^;]+;base64,/, "");
+
+    // Security: whitelist allowed extensions
     const extMap = {
-      'image/jpeg': 'jpg',
-      'image/png': 'png',
-      'image/webp': 'webp',
-      'image/gif': 'gif',
-      'image/svg+xml': 'svg',
-      'application/pdf': 'pdf',
-      'application/msword': 'doc',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx'
+      "image/jpeg":   "jpg",
+      "image/png":    "png",
+      "image/webp":   "webp",
+      "image/gif":    "gif",
+      "image/svg+xml": "svg",
+      "application/pdf": "pdf",
+      "application/msword": "doc",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
     };
-    const ext = extMap[mimeType] || (data.match(/^data:image\/(\w+)/)?.[1] || "jpg");
-    
-    if (!['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'pdf', 'doc', 'docx'].includes(ext.toLowerCase())) {
+    const ext = extMap[mimeType] || (uploadData.match(/^data:image\/(\w+)/)?.[1] || "jpg");
+
+    if (!["jpg", "jpeg", "png", "webp", "gif", "svg", "pdf", "doc", "docx"].includes(ext.toLowerCase())) {
       return res.status(400).json({ error: `File type ${ext} not allowed for security reasons.` });
     }
 
-    const safeName   = name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const filename   = `${Date.now()}_${safeName.replace(/\.[^.]+$/, "")}.${ext}`;
-    const filePath   = path.join(uploadsDir, filename);
-    
-    // ASYNC WRITE
+    const safeName = name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    // Always use .webp extension when optimization ran successfully
+    const finalExt  = optimizationMeta && !optimizationMeta.skipped ? "webp" : ext;
+    const filename  = `${Date.now()}_${safeName.replace(/\.[^.]+$/, "")}.${finalExt}`;
+    const filePath  = path.join(uploadsDir, filename);
+
     await fs.promises.writeFile(filePath, Buffer.from(base64Data, "base64"));
-    
-    // Build the public URL
-    const host = req.headers["x-forwarded-host"] || req.headers.host || `localhost:${process.env.PORT || 5174}`;
+
+    const host     = req.headers["x-forwarded-host"] || req.headers.host || `localhost:${process.env.PORT || 5174}`;
     const protocol = req.headers["x-forwarded-proto"] || (req.secure ? "https" : "http");
-    const url = `${protocol}://${host}/uploads/${filename}`;
-    
+    const url      = `${protocol}://${host}/uploads/${filename}`;
+
     console.log(`[Upload] Saved locally: ${filePath}`);
     await logActivity(req, `Uploaded file: ${filename}`);
-    return res.json({ url, storage: "local" });
+    return res.json({ url, storage: "local", optimization: optimizationMeta });
   } catch (err) {
     console.error("Local upload error:", err);
-    // Cleanup if partially written (though writeFile handles most of this)
     try {
       const filename = name.replace(/[^a-zA-Z0-9._-]/g, "_");
       const filePath = path.join(uploadsDir, filename);
       if (fs.existsSync(filePath)) await fs.promises.unlink(filePath);
     } catch {}
-    
     return res.status(500).json({ error: "Upload failed: could not save to Cloudinary or local disk." });
   }
 });

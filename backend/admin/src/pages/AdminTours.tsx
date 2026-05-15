@@ -385,8 +385,8 @@ export default function AdminTours() {
         </Tab>
         <Tab label="Media">
           <div className={formSectionClasses}>
-            <ImageUploader label="Hero Cover Image" value={formData.heroImageUrl || ''} onChange={(v: string) => upd({ heroImageUrl: v })} />
-            <ImageUploader label="Overview Section Image (optional)" value={formData.overviewImageUrl || ''} onChange={(v: string) => upd({ overviewImageUrl: v })} />
+            <ImageUploader label="Hero Cover Image" value={formData.heroImageUrl || ''} onChange={(v: string) => upd({ heroImageUrl: v })} section="hero" />
+            <ImageUploader label="Overview Section Image (optional)" value={formData.overviewImageUrl || ''} onChange={(v: string) => upd({ overviewImageUrl: v })} section="overview" />
             
             <div className="pt-4 border-t border-outline-variant/30 mt-4">
               <label className={labelClasses}>Visual Archive (Gallery)</label>
@@ -405,6 +405,7 @@ export default function AdminTours() {
                         arr[i] = v;
                         upd({ visualArchive: arr });
                       }} 
+                      section="gallery"
                     />
                   </div>
                 ))}
@@ -435,6 +436,7 @@ export default function AdminTours() {
                     label={`Day ${i + 1} Image`} 
                     value={day.imageUrl || ''} 
                     onChange={(v: string) => updItin(i, { imageUrl: v })} 
+                    section="itinerary"
                   />
                 </div>
               </div>
@@ -460,6 +462,7 @@ export default function AdminTours() {
                     label="Landmark Image" 
                     value={site.imageUrl || ''} 
                     onChange={(v: string) => updSight(i, { imageUrl: v })} 
+                    section="sightseeing"
                   />
                 </div>
               </div>
