@@ -14,6 +14,12 @@ import { v2 as cloudinary } from "cloudinary";
 import { isMongoConnected } from "../db/mongoose.js";
 import { Media as MediaModel, Destination, Tour } from "../db/models/index.js";
 import { processImageForSection } from "../lib/imageProcessor.js";
+import multer from "multer";
+
+const uploadMulter = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 50 * 1024 * 1024 * 10 } // Allow larger total size for multi-upload
+});
 
 export const router = express.Router();
 
@@ -66,9 +72,23 @@ router.get("/", async (req, res) => {
 });
 
 // ── POST /api/admin/media/upload — Multi-file upload with allSettled ─────────
-router.post("/upload", async (req, res) => {
-  const { files, folder = "General" } = req.body || {};
-  if (!files || !Array.isArray(files) || !files.length) {
+router.post("/upload", uploadMulter.array("files"), async (req, res) => {
+  const folder = req.body.folder || "General";
+  let filesToProcess = [];
+
+  // Support for legacy base64 json format
+  if (req.body.files && Array.isArray(req.body.files)) {
+    filesToProcess = req.body.files;
+  } else if (req.files && Array.isArray(req.files)) {
+    filesToProcess = req.files.map(f => ({
+      name: f.originalname,
+      data: `data:${f.mimetype};base64,${f.buffer.toString("base64")}`,
+      type: f.mimetype,
+      size: (f.size / 1024 / 1024).toFixed(1) + ' MB'
+    }));
+  }
+
+  if (!filesToProcess.length) {
     return res.status(400).json({ error: "No files provided" });
   }
 
@@ -77,7 +97,7 @@ router.post("/upload", async (req, res) => {
 
   // Process all files with Promise.allSettled — partial failure never blocks
   const results = await Promise.allSettled(
-    files.map(async (file, idx) => {
+    filesToProcess.map(async (file, idx) => {
       const { name, data, type = "image/jpeg", size = "0" } = file;
       if (!name || !data) throw new Error(`File ${idx}: missing name or data`);
       if (!data.startsWith("data:")) throw new Error(`File ${idx}: invalid base64 format`);
@@ -209,7 +229,7 @@ router.post("/upload", async (req, res) => {
     success:   succeeded.length > 0,
     uploaded:  succeeded,
     failed,
-    summary:   { total: files.length, succeeded: succeeded.length, failed: failed.length },
+    summary:   { total: filesToProcess.length, succeeded: succeeded.length, failed: failed.length },
   });
 });
 

@@ -229,7 +229,50 @@ export type SystemLogListResponse = {
   pages: number;
 };
 
+const _apiCache = new Map<string, { data: any, ts: number, promise?: Promise<any> }>();
+const CACHE_TTL = 60000; // 1 minute
+
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
+  const method = init?.method || "GET";
+  const cacheKey = `${method}:${path}`;
+
+  if (method === "GET") {
+    const cached = _apiCache.get(cacheKey);
+    if (cached && Date.now() - cached.ts < CACHE_TTL) {
+      // Background refresh if no existing promise is fetching it
+      if (!cached.promise) {
+        cached.promise = (async () => {
+          try {
+            const fresh = await _doHttp<T>(path, init);
+            _apiCache.set(cacheKey, { data: fresh, ts: Date.now() });
+            return fresh;
+          } finally {
+            const c = _apiCache.get(cacheKey);
+            if (c) c.promise = undefined;
+          }
+        })();
+      }
+      return cached.data as T; // Return instantly
+    }
+  }
+
+  // Clear cache on mutations
+  if (method !== "GET") {
+    _apiCache.clear();
+  }
+
+  const promise = _doHttp<T>(path, init);
+  if (method === "GET") {
+    _apiCache.set(cacheKey, { data: undefined, ts: 0, promise }); // Reserve spot
+    const data = await promise;
+    _apiCache.set(cacheKey, { data, ts: Date.now() });
+    return data;
+  }
+
+  return promise;
+}
+
+async function _doHttp<T>(path: string, init?: RequestInit): Promise<T> {
   const token = sessionStorage.getItem("jf_token");
   const headers: HeadersInit = {
     "content-type": "application/json",
@@ -274,23 +317,27 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
  *   tour-thumbs · signature · landmarks · gallery · itinerary
  */
 export async function uploadImage(file: File, section?: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = async () => {
-      try {
-        const data = reader.result as string;
-        const body: Record<string, string> = { name: file.name, data };
-        if (section) body.section = section;
-        const res = await http<{ url: string }>("/upload", {
-          method: "POST",
-          body: JSON.stringify(body),
-        });
-        resolve(res.url);
-      } catch (err) { reject(err); }
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
+  const formData = new FormData();
+  formData.append("file", file);
+  if (section) formData.append("section", section);
+
+  const token = sessionStorage.getItem("jf_token");
+  const headers: HeadersInit = {};
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const res = await fetch(`${API_BASE}/upload`, {
+    method: "POST",
+    headers,
+    body: formData,
   });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`Upload failed (${res.status}): ${text}`);
+  }
+
+  const data = await res.json();
+  return data.url;
 }
 
 function downloadFile(url: string, filename: string) {
@@ -437,16 +484,22 @@ export const api: ApiInterface = {
     return http<MediaListResponse>(`/admin/media?${params}`);
   },
   uploadMediaFiles: async (files, folder = "General") => {
-    const fileData = await Promise.all(files.map(async file => {
-      const data = await new Promise<string>((res, rej) => {
-        const reader = new FileReader();
-        reader.onload  = () => res(reader.result as string);
-        reader.onerror = rej;
-        reader.readAsDataURL(file);
-      });
-      return { name: file.name, data, type: file.type, size: (file.size / 1024 / 1024).toFixed(1) + ' MB' };
-    }));
-    return http<MediaUploadResult>("/admin/media/upload", { method: "POST", body: JSON.stringify({ files: fileData, folder }) });
+    const formData = new FormData();
+    formData.append("folder", folder);
+    files.forEach(file => formData.append("files", file));
+    
+    const token = sessionStorage.getItem("jf_token");
+    const headers: HeadersInit = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    
+    const res = await fetch(`${API_BASE}/admin/media/upload`, {
+      method: "POST",
+      headers,
+      body: formData
+    });
+    
+    if (!res.ok) throw new Error("Bulk upload failed");
+    return res.json();
   },
   deleteMedia:       (id, permanent = false) => http<void>(`/admin/media/${id}${permanent ? "?permanent=true" : ""}`, { method: "DELETE" }),
   restoreMedia:      (id) => http<Media>(`/admin/media/restore/${id}`, { method: "POST" }),

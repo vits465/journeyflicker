@@ -208,7 +208,7 @@ export default function AdminHeroSettings() {
                 No {currentTab.type === 'destination' ? 'destinations' : 'tours'} found. Add some first.
               </div>
             ) : (
-              <div className="divide-y divide-outline-variant/10 max-h-[500px] overflow-y-auto">
+              <div className="divide-y divide-outline-variant/10">
                 {items.map(item => {
                   const isSelected = selectedIds.includes(item.id);
                   const atLimit = !isSelected && selectedIds.length >= MAX_SLIDES;

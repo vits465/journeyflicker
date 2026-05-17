@@ -26,6 +26,12 @@ import { router as migrateRouter } from "./routes/migrate.js";
 import { router as pdfRouter } from "./routes/pdf.js";
 import { sendInquiryNotification } from "./lib/email.js";
 import { processImageForSection } from "./lib/imageProcessor.js";
+import multer from "multer";
+
+const uploadMulter = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 50 * 1024 * 1024 }
+});
 
 // Start MongoDB connection — awaited before server listens (see bottom of file)
 const mongoReady = connectMongo();
@@ -385,10 +391,18 @@ app.use("/uploads", express.static(uploadsDir));
 // Pass `section` in the request body to activate optimization.
 // Supported sections: hero, sightseeing, destinations, tours, visa, overview,
 //                     tour-thumbs, signature, landmarks, gallery, itinerary
-app.post("/api/upload", requireCRUD, async (req, res) => {
-  const { name, data, section } = req.body;
-  if (!name || !data) return res.status(400).json({ error: "Missing name or data base64" });
-  if (!data.startsWith("data:")) return res.status(400).json({ error: "Invalid base64 format" });
+app.post("/api/upload", requireCRUD, uploadMulter.single("file"), async (req, res) => {
+  let name = req.body.name || "upload";
+  let data = req.body.data;
+  const section = req.body.section;
+
+  if (req.file) {
+    name = req.file.originalname;
+    data = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+  }
+
+  if (!name || !data) return res.status(400).json({ error: "Missing name or file data" });
+  if (!data.startsWith("data:")) return res.status(400).json({ error: "Invalid file format" });
 
   // ── Auto-optimize image for the given section ─────────────────────────────
   // Falls back to original on any error — upload is never blocked.
