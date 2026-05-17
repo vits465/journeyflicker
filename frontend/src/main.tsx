@@ -9,8 +9,9 @@ import { registerSW } from "virtual:pwa-register";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      refetchOnWindowFocus: true,     // Instantly update when returning to the tab
+      refetchInterval: 30000,         // Silently poll for changes every 30s in the background
+      staleTime: 10000,               // Data becomes stale after 10s to ensure fresh fetches
     },
   },
 });
