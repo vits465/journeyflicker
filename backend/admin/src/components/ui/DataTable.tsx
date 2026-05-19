@@ -62,14 +62,15 @@ export function DataTable<T extends { id?: string | number; _id?: string }>({
           </thead>
           <tbody className="divide-y divide-outline-variant/20">
             {isLoading ? (
-              <tr>
-                <td colSpan={columns.length} className="px-6 py-12 text-center text-on-surface/50">
-                  <div className="flex flex-col items-center justify-center gap-2">
-                    <span className="material-symbols-outlined animate-spin text-2xl">progress_activity</span>
-                    <p>Loading data...</p>
-                  </div>
-                </td>
-              </tr>
+              Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i} className="animate-pulse">
+                  {columns.map((col) => (
+                    <td key={col.key} className="px-6 py-5">
+                      <div className="h-4 bg-black/5 dark:bg-white/5 rounded-md w-[80%]" />
+                    </td>
+                  ))}
+                </tr>
+              ))
             ) : data.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="px-6 py-12 text-center text-on-surface/50">

@@ -27,6 +27,7 @@ import { router as pdfRouter } from "./routes/pdf.js";
 import { sendInquiryNotification } from "./lib/email.js";
 import { processImageForSection } from "./lib/imageProcessor.js";
 import multer from "multer";
+import Fuse from "fuse.js";
 
 const uploadMulter = multer({ 
   storage: multer.memoryStorage(),
@@ -588,6 +589,13 @@ const cacheEdge = (req, res, next) => {
 };
 
 // ── Redis Cache Middleware ────────────────────────────────────────────────────
+const getPrefixFromUrl = (url) => {
+  if (url.includes("/destinations")) return "destinations";
+  if (url.includes("/tours")) return "tours";
+  if (url.includes("/visas")) return "visas";
+  return "general";
+};
+
 const cacheRedis = async (req, res, next) => {
   if (req.method !== "GET" || req.headers.authorization) return next();
   
@@ -602,7 +610,13 @@ const cacheRedis = async (req, res, next) => {
     res.setHeader("X-Cache", "MISS");
     const originalJson = res.json;
     res.json = function(data) {
+      const prefix = getPrefixFromUrl(req.originalUrl);
+      const setKey = `jf:set:${prefix}`;
+      
       kv.set(key, JSON.stringify(data), { ex: 60 * 5 }).catch(console.error); // 5 min
+      kv.sadd(setKey, key).catch(console.error);
+      kv.expire(setKey, 60 * 5).catch(console.error);
+
       originalJson.call(this, data);
     };
     next();
@@ -626,18 +640,41 @@ const contactLimiter = async (req, res, next) => {
   }
 };
 
+// ── Redis Rate Limiter for Public Telemetry Logs ──────────────────────────────
+const logLimiter = async (req, res, next) => {
+  const ip = getIp(req);
+  const key = `jf:rl:logs:${ip}`;
+  try {
+    const current = await kv.incr(key);
+    if (current === 1) await kv.expire(key, 60 * 15); // 15 mins block
+    if (current > 10) return res.status(429).json({ error: "Too many log reports. Please try again later." });
+    next();
+  } catch (err) {
+    next();
+  }
+};
+
 // ── Helper to Invalidate Cache ────────────────────────────────────────────────
 const invalidateCache = async (prefix) => {
+  const setKey = `jf:set:${prefix}`;
   try {
-    // We can't do KEYS or SCAN easily with @upstash/redis without looping,
-    // so we just flush the whole cache on mutations.
-    // A better approach would use Redis Sets, but for small sites this is fine.
-    // In Upstash, we can do keys
-    const keys = await kv.keys(`jf:cache:*${prefix}*`);
+    const keys = await kv.smembers(setKey);
     if (keys && keys.length > 0) {
       await kv.del(...keys);
     }
-  } catch (e) { console.error("Invalidate err", e); }
+    await kv.del(setKey);
+  } catch (e) {
+    console.error("Invalidate Set-based cache err:", e);
+    // Fallback to KEYS lookup to prevent stale cache on system anomalies
+    try {
+      const fallbackKeys = await kv.keys(`jf:cache:*${prefix}*`);
+      if (fallbackKeys && fallbackKeys.length > 0) {
+        await kv.del(...fallbackKeys);
+      }
+    } catch (fbErr) {
+      console.error("Fallback invalidate err:", fbErr);
+    }
+  }
 };
 
 // ── Destinations ──────────────────────────────────────────────────────────────
@@ -700,14 +737,37 @@ app.delete("/api/destinations/:id", requireCRUD, async (req, res) => {
 
 // ── Search ────────────────────────────────────────────────────────────────────
 app.get("/api/search", async (req, res) => {
-  const q = (req.query.q || "").toString().toLowerCase();
+  const q = (req.query.q || "").toString().trim();
   if (!q) return res.json({ destinations: [], tours: [] });
-  const regex = new RegExp(q, "i");
-  const [destinations, tours] = await Promise.all([
-    DestModel.find({ $or: [{ name: regex }, { region: regex }, { description: regex }] }).lean(),
-    TourModel.find({ $or: [{ name: regex }, { region: regex }, { overviewDescription: regex }] }).lean(),
-  ]);
-  res.json({ destinations, tours });
+
+  try {
+    const [allDestinations, allTours] = await Promise.all([
+      DestModel.find({}).lean(),
+      TourModel.find({}).lean(),
+    ]);
+
+    const destFuse = new Fuse(allDestinations, {
+      keys: ["name", "region", "description", "essenceText"],
+      threshold: 0.4,
+    });
+    const destResults = destFuse.search(q).map(r => r.item);
+
+    const tourFuse = new Fuse(allTours, {
+      keys: ["name", "region", "overviewDescription", "category"],
+      threshold: 0.4,
+    });
+    const tourResults = tourFuse.search(q).map(r => r.item);
+
+    res.json({ destinations: destResults, tours: tourResults });
+  } catch (err) {
+    console.error("Fuzzy Search Error:", err);
+    const regex = new RegExp(q.toLowerCase(), "i");
+    const [destinations, tours] = await Promise.all([
+      DestModel.find({ $or: [{ name: regex }, { region: regex }, { description: regex }] }).lean(),
+      TourModel.find({ $or: [{ name: regex }, { region: regex }, { overviewDescription: regex }] }).lean(),
+    ]);
+    res.json({ destinations, tours });
+  }
 });
 
 // ── Tours ─────────────────────────────────────────────────────────────────────
@@ -881,7 +941,7 @@ const DEFAULT_REVIEWS = [
 
 // ── System Logs (Frontend Analytics) ──────────────────────────────────────────
 // Public endpoint — frontend sends errors here (no auth required)
-app.post("/api/logs", async (req, res) => {
+app.post("/api/logs", logLimiter, async (req, res) => {
   try {
     const { level = "error", source = "frontend", message, stack, url, userAgent } = req.body;
     if (!message) return res.status(400).json({ error: "message is required" });

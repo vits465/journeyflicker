@@ -11,7 +11,7 @@ import {
   buildFilterOptions, applyFilter, getCountry, getState, getTerritory,
   EMPTY_FILTER, type FilterState,
 } from '../lib/filterUtils';
-import { Preloader } from '../components/Preloader';
+import { Skeleton } from '../components/Skeleton';
 import { LazyImage } from '../components/LazyImage';
 
 type ViewMode = 'grid' | 'list';
@@ -222,7 +222,7 @@ export default function DestinationsPage() {
 
           {/* ── RESULTS ── */}
           {loading ? (
-            <Preloader />
+            <Skeleton type="destination-card" count={8} />
           ) : filtered.length === 0 ? (
             <div className="py-20 text-center bg-surface-container-low/50 rounded-2xl border border-outline-variant/10">
               <span className="material-symbols-outlined text-4xl text-on-surface-variant/20 mb-4 block font-light">search_off</span>

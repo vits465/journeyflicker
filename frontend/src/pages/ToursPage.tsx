@@ -11,7 +11,7 @@ import {
   buildFilterOptions, applyFilter, getCountry, getState, getTerritory,
   EMPTY_FILTER, type FilterState,
 } from "../lib/filterUtils";
-import { Preloader } from '../components/Preloader';
+import { Skeleton } from '../components/Skeleton';
 import { LazyImage } from '../components/LazyImage';
 
 type ViewMode = "grid" | "list";
@@ -250,7 +250,7 @@ export default function ToursPage() {
 
         {/* ── TOUR CONTENT ── */}
         {loading ? (
-          <Preloader />
+          <Skeleton type="tour-card" count={6} />
         ) : filtered.length === 0 ? (
           <div className="text-center py-20 bg-surface-container-low rounded-2xl border border-outline-variant/10">
             <span className="material-symbols-outlined text-4xl text-on-surface-variant/20 mb-4 block font-light">search_off</span>

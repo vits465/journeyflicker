@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import type { Visa } from '../lib/api';
 import { api } from '../lib/api';
 import { useAllHeroSettings } from '../lib/heroSettings';
-import { Preloader } from '../components/Preloader';
+import { Skeleton } from '../components/Skeleton';
 import { HeroSlider } from '../components/HeroSlider';
 import { SEO } from '../components/SEO';
 
@@ -500,7 +500,7 @@ export default function VisasPage() {
           </div>
 
           {loading ? (
-            <Preloader />
+            <Skeleton type="visa-row" count={4} />
           ) : filtered.length === 0 ? (
             <div className="py-20 text-center bg-white dark:bg-[#111] rounded-3xl border border-outline-variant/10 dark:border-white/5">
               <span className="material-symbols-outlined text-5xl text-on-surface-variant/20 dark:text-white/10 mb-4 block font-light">inventory_2</span>
