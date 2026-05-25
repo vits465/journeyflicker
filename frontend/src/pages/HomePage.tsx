@@ -240,7 +240,7 @@ export default function HomePage() {
 
           {/* CTA */}
           <div className="mt-10 text-center animate-reveal-up">
-            <button onClick={() => navigate('/contact')}
+            <button onClick={() => navigate('/bespoke')}
               className="inline-flex items-center gap-3 bg-black text-white px-8 py-3 rounded-full text-[10px] font-black tracking-[0.4em] uppercase hover:bg-primary transition-all duration-300 shadow-lg">
               Start Your Inquiry <span className="material-symbols-outlined text-sm font-light">arrow_outward</span>
             </button>

@@ -17,6 +17,7 @@ function timeAgo(ts: number) {
 
 const TYPE_COLORS: Record<string, string> = {
   'Private Curation Strategy': 'bg-primary/10 text-primary border-primary/20',
+  'Bespoke Curation Strategy': 'bg-indigo-50 dark:bg-indigo-950/20 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-900/50',
   'Expedition Modification':   'bg-secondary/10 text-secondary border-secondary/20',
   'Administrative Inquiry':    'bg-tertiary/10 text-tertiary border-tertiary/20',
   'Corporate Partnership':     'bg-success/10 text-success border-success/20',

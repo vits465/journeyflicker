@@ -82,7 +82,7 @@ export function Header() {
               <span className="material-symbols-outlined font-light text-xl">{isDark ? 'light_mode' : 'dark_mode'}</span>
             </button>
 
-            <NavLink to="/contact"
+            <NavLink to="/bespoke"
               className={`ml-2 px-5 py-2 rounded-full text-[10px] font-black tracking-[0.3em] uppercase transition-all duration-300 ${
                 isGlass
                   ? 'bg-black dark:bg-white text-white dark:text-black hover:bg-primary dark:hover:bg-gray-200 shadow-lg dark:shadow-white/5'
@@ -141,7 +141,7 @@ export function Header() {
 
           {/* CTA + contact info */}
           <div className={`pt-6 space-y-5 transition-all duration-500 delay-300 transform ${mobileOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
-            <NavLink to="/contact"
+            <NavLink to="/bespoke"
               className="block bg-black dark:bg-white text-white dark:text-black px-8 py-4 rounded-xl text-[10px] font-black tracking-[0.5em] uppercase text-center hover:bg-primary dark:hover:bg-gray-200 transition-all shadow-lg dark:shadow-white/5">
               Inquire Strategy
             </NavLink>
