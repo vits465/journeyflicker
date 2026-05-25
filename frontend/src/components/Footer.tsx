@@ -112,6 +112,13 @@ export function Footer() {
             <p className="text-[9px] font-bold tracking-[0.3em] uppercase text-white/30">
               © {year} JourneyFlicker Curator System · All Rights Reserved
             </p>
+            <div className="flex flex-wrap justify-center lg:justify-start gap-x-4 gap-y-1 pt-1.5 text-[8px] font-bold tracking-widest text-white/40 uppercase">
+              <NavLink to="/privacy-policy" className="hover:text-white transition-colors">Privacy Charter</NavLink>
+              <span className="text-white/10">•</span>
+              <NavLink to="/terms-and-conditions" className="hover:text-white transition-colors">Curator Agreement</NavLink>
+              <span className="text-white/10">•</span>
+              <NavLink to="/data-deletion" className="hover:text-white transition-colors">Deletion Protocol</NavLink>
+            </div>
           </div>
 
           <div className="flex flex-wrap justify-center lg:justify-end items-center gap-3 sm:gap-5 order-1 lg:order-2">

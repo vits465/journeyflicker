@@ -1,6 +1,9 @@
 import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 export function useScrollFx() {
+  const { pathname } = useLocation();
+
   useEffect(() => {
     const observerOptions: IntersectionObserverInit = {
       threshold: 0.01,
@@ -43,12 +46,17 @@ export function useScrollFx() {
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
+    
+    // Give elements a tiny frame to mount before initial calculation
+    const timer = setTimeout(() => {
+      onScroll();
+    }, 50);
 
     return () => {
       observer.disconnect();
       window.removeEventListener("scroll", onScroll);
+      clearTimeout(timer);
     };
-  }, []);
+  }, [pathname]);
 }
 

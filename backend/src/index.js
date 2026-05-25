@@ -583,8 +583,14 @@ app.get("/api/db-status", (_req, res) => {
 
 // ── Cache Middleware for Public APIs (Vercel Edge Caching) ────────────────────
 const cacheEdge = (req, res, next) => {
-  // Cache at Vercel's Edge for 60 seconds, serve stale data for up to 5 minutes while revalidating
-  res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
+  // Bypass cache completely for admin requests (with Authorization header) or local environment requests
+  const isLocal = req.headers.host && (req.headers.host.includes("localhost") || req.headers.host.includes("127.0.0.1"));
+  if (req.headers.authorization || isLocal) {
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    return next();
+  }
+  // Shorten Edge & Browser cache for public requests to prevent stale data
+  res.setHeader("Cache-Control", "public, max-age=2, s-maxage=5, stale-while-revalidate=10");
   next();
 };
 

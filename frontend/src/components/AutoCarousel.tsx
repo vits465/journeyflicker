@@ -49,7 +49,7 @@ export function AutoCarousel({ children, autoPlayMs = 4000, pauseOnHover = true,
     >
       <div 
         ref={containerRef}
-        className="flex gap-6 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory px-[25vw]"
+        className="flex gap-6 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory px-4 sm:px-[15vw] md:px-[20vw] lg:px-[25vw]"
       >
         {children.map((child, i) => (
           <div key={i} className={`shrink-0 snap-center transition-all duration-700 ${disableScaling ? 'scale-100 opacity-100' : (i === index ? 'scale-100 opacity-100' : 'scale-90 opacity-40')}`}>

@@ -24,6 +24,9 @@ const VisasPage = lazy(() => import("./pages/VisasPage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
 const FaqPage = lazy(() => import("./pages/FaqPage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
+const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
+const TermsAndConditionsPage = lazy(() => import("./pages/TermsAndConditionsPage"));
+const DataDeletionPage = lazy(() => import("./pages/DataDeletionPage"));
 
 export default function App() {
   const [init, setInit] = useState(true);
@@ -66,6 +69,9 @@ export default function App() {
                   <Route path="/about" element={<AboutPage />} />
                   <Route path="/faq" element={<FaqPage />} />
                   <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                  <Route path="/terms-and-conditions" element={<TermsAndConditionsPage />} />
+                  <Route path="/data-deletion" element={<DataDeletionPage />} />
                 </Route>
               </Routes>
             </Suspense>
