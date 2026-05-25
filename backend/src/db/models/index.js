@@ -43,6 +43,7 @@ const TourSchema = new mongoose.Schema({
   testimonials: [{ quote: String, author: String, _id: false }],
   departureWindows: [{ range: String, label: String, _id: false }],
   maxGuests: { type: Number, default: 8 },
+  published: { type: Boolean, default: true },
   createdAt: { type: Number, default: () => Date.now(), index: -1 },
 }, { timestamps: false, versionKey: false });
 
