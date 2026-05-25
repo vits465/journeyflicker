@@ -92,6 +92,7 @@ export type Tour = {
   testimonials?: { quote: string; author: string }[];
   departureWindows?: { range: string; label: string }[];
   maxGuests?: number;
+  published?: boolean;
 };
 
 export type Visa = {

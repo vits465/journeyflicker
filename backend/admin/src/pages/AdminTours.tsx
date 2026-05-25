@@ -144,6 +144,11 @@ export default function AdminTours() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tours'] })
   });
 
+  const togglePublishMutation = useMutation({
+    mutationFn: (t: Tour) => api.updateTour(t.id, { published: t.published === false }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tours'] })
+  });
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const editId = params.get('edit');
@@ -255,6 +260,29 @@ export default function AdminTours() {
       )
     },
     {
+      key: 'published',
+      header: 'Visibility',
+      render: (t) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            if (canCRUD) togglePublishMutation.mutate(t);
+          }}
+          disabled={!canCRUD || togglePublishMutation.isPending}
+          className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-1.5 border ${
+            t.published !== false
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-950/40 dark:border-emerald-900/50 dark:text-emerald-400 hover:bg-emerald-100/80 cursor-pointer'
+              : 'bg-slate-100 border-slate-200 text-slate-600 dark:bg-slate-900/40 dark:border-slate-800/50 dark:text-slate-400 hover:bg-slate-200/80 cursor-pointer'
+          }`}
+        >
+          <span className="material-symbols-outlined text-[13px] font-light">
+            {t.published !== false ? 'visibility' : 'visibility_off'}
+          </span>
+          {t.published !== false ? 'Public' : 'Hidden'}
+        </button>
+      )
+    },
+    {
       key: 'actions',
       header: '',
       render: (t) => (
@@ -320,6 +348,22 @@ export default function AdminTours() {
             <div>
               <label className={labelClasses}>Tour Name *</label>
               <input required className={inputClasses} value={formData.name || ''} onChange={e => upd({ name: e.target.value })} />
+            </div>
+            
+            <div className="flex items-center justify-between gap-4 py-3 bg-surface-container/30 px-4 rounded-xl border border-outline-variant/20 mt-2 mb-2">
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider text-on-surface-variant block">Public Visibility</label>
+                <span className="text-[10px] text-on-surface-variant/50">Show this tour on the public website, or keep it as a hidden draft.</span>
+              </div>
+              <button 
+                type="button"
+                onClick={() => upd({ published: formData.published !== false })}
+                className={`w-11 h-6 rounded-full p-1 transition-all duration-300 flex items-center cursor-pointer ${
+                  formData.published !== false ? 'bg-primary justify-end' : 'bg-outline-variant/30 justify-start'
+                }`}
+              >
+                <div className="w-4 h-4 rounded-full bg-white shadow-md transition-transform" />
+              </button>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>

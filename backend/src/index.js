@@ -547,6 +547,7 @@ const TourSchema = z.object({
   testimonials: z.array(z.object({ quote: z.string(), author: z.string() })).optional().default([]),
   departureWindows: z.array(z.object({ range: z.string(), label: z.string() })).optional().default([]),
   maxGuests: z.number().optional().default(8),
+  published: z.boolean().optional().default(true),
 });
 const VisaSchema = z.object({
   country: z.string().min(1),
@@ -746,10 +747,11 @@ app.get("/api/search", async (req, res) => {
   const q = (req.query.q || "").toString().trim();
   if (!q) return res.json({ destinations: [], tours: [] });
 
+  const isAdmin = !!req.headers.authorization;
   try {
     const [allDestinations, allTours] = await Promise.all([
       DestModel.find({}).lean(),
-      TourModel.find({}).lean(),
+      TourModel.find(isAdmin ? {} : { published: { $ne: false } }).lean(),
     ]);
 
     const destFuse = new Fuse(allDestinations, {
@@ -768,9 +770,15 @@ app.get("/api/search", async (req, res) => {
   } catch (err) {
     console.error("Fuzzy Search Error:", err);
     const regex = new RegExp(q.toLowerCase(), "i");
+    const tourQuery = {
+      $and: [
+        isAdmin ? {} : { published: { $ne: false } },
+        { $or: [{ name: regex }, { region: regex }, { overviewDescription: regex }] }
+      ]
+    };
     const [destinations, tours] = await Promise.all([
       DestModel.find({ $or: [{ name: regex }, { region: regex }, { description: regex }] }).lean(),
-      TourModel.find({ $or: [{ name: regex }, { region: regex }, { overviewDescription: regex }] }).lean(),
+      TourModel.find(tourQuery).lean(),
     ]);
     res.json({ destinations, tours });
   }
@@ -786,6 +794,12 @@ app.get("/api/tours", cacheEdge, cacheRedis, async (req, res) => {
   if (search) {
     const regex = new RegExp(search, "i");
     query.$or = [{ name: regex }, { region: regex }];
+  }
+
+  // Filter hidden tours for public users
+  const isAdmin = !!req.headers.authorization;
+  if (!isAdmin) {
+    query.published = { $ne: false };
   }
   
   if (page && limit) {
@@ -805,6 +819,13 @@ app.get("/api/tours", cacheEdge, cacheRedis, async (req, res) => {
 app.get("/api/tours/:id", cacheEdge, cacheRedis, async (req, res) => {
   const found = await TourModel.findOne({ id: req.params.id }).lean();
   if (!found) return res.status(404).json({ message: "Not found" });
+  
+  // Exclude hidden tours for public users
+  const isAdmin = !!req.headers.authorization;
+  if (!isAdmin && found.published === false) {
+    return res.status(404).json({ message: "Not found" });
+  }
+  
   res.json(found);
 });
 app.post("/api/tours", requireCRUD, async (req, res) => {
