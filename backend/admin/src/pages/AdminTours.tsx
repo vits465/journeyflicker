@@ -357,7 +357,7 @@ export default function AdminTours() {
               </div>
               <button 
                 type="button"
-                onClick={() => upd({ published: formData.published !== false })}
+                onClick={() => upd({ published: formData.published === false })}
                 className={`w-11 h-6 rounded-full p-1 transition-all duration-300 flex items-center cursor-pointer ${
                   formData.published !== false ? 'bg-primary justify-end' : 'bg-outline-variant/30 justify-start'
                 }`}
