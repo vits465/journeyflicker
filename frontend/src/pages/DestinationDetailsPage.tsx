@@ -142,8 +142,53 @@ export default function DestinationDetailsPage() {
         .catch(err => { console.error(err); setError('Failed to load.'); setLoading(false); });
     };
 
-    fetchData(); // Initial fetch
+    fetchData();
   }, [id]);
+
+  const destSchema = useMemo(() => {
+    if (!destination) return null;
+    return {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "@id": `https://journeyflicker.com/destinations/${destination.id}/#breadcrumb`,
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://journeyflicker.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Territories",
+              "item": "https://journeyflicker.com/destinations"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": destination.name,
+              "item": `https://journeyflicker.com/destinations/${destination.id}`
+            }
+          ]
+        },
+        {
+          "@type": "TouristAttraction",
+          "@id": `https://journeyflicker.com/destinations/${destination.id}/#place`,
+          "name": destination.name,
+          "description": destination.description || destination.essenceText,
+          "image": destination.heroImageUrl || DEFAULT_IMG,
+          "touristType": "Luxury & Heritage travelers",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": destination.region
+          }
+        }
+      ]
+    };
+  }, [destination]);
 
   if (loading) return <Preloader fullScreen />;
 
@@ -268,50 +313,7 @@ export default function DestinationDetailsPage() {
     printWindow.document.close();
   };
 
-  const destSchema = useMemo(() => {
-    if (!destination) return null;
-    return {
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "BreadcrumbList",
-          "@id": `https://journeyflicker.com/destinations/${destination.id}/#breadcrumb`,
-          "itemListElement": [
-            {
-              "@type": "ListItem",
-              "position": 1,
-              "name": "Home",
-              "item": "https://journeyflicker.com"
-            },
-            {
-              "@type": "ListItem",
-              "position": 2,
-              "name": "Territories",
-              "item": "https://journeyflicker.com/destinations"
-            },
-            {
-              "@type": "ListItem",
-              "position": 3,
-              "name": destination.name,
-              "item": `https://journeyflicker.com/destinations/${destination.id}`
-            }
-          ]
-        },
-        {
-          "@type": "TouristAttraction",
-          "@id": `https://journeyflicker.com/destinations/${destination.id}/#place`,
-          "name": destination.name,
-          "description": destination.description || destination.essenceText,
-          "image": destination.heroImageUrl || DEFAULT_IMG,
-          "touristType": "Luxury & Heritage travelers",
-          "address": {
-            "@type": "PostalAddress",
-            "addressLocality": destination.region
-          }
-        }
-      ]
-    };
-  }, [destination]);
+
 
   return (
     <div className="overflow-x-hidden w-full">

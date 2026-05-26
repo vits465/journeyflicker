@@ -267,8 +267,86 @@ export default function TourDetailsPage() {
         .catch(err => { console.error(err); setError('Failed to load.'); setLoading(false); });
     };
 
-    fetchTour(); // Initial fetch
+    fetchTour();
   }, [id]);
+
+  const tourSchema = useMemo(() => {
+    if (!tour) return null;
+    
+    // Clean price for numeric schema offers
+    const numericPrice = tour.price ? parseFloat(tour.price.replace(/[^0-9.]/g, '')) : undefined;
+    
+    const tripSchema: Record<string, any> = {
+      "@type": "Trip",
+      "@id": `https://journeyflicker.com/tours/${tour.id}/#trip`,
+      "name": tour.name,
+      "description": tour.overviewDescription,
+      "image": tour.heroImageUrl || defaultHero,
+      "provider": {
+        "@type": "Organization",
+        "name": "JourneyFlicker",
+        "url": "https://journeyflicker.com"
+      }
+    };
+
+    if (numericPrice) {
+      tripSchema.offers = {
+        "@type": "Offer",
+        "price": numericPrice,
+        "priceCurrency": "USD",
+        "url": window.location.href,
+        "availability": "https://schema.org/InStock"
+      };
+    }
+
+    const tourItinerary = tour.itinerary || [];
+    if (tourItinerary.length > 0) {
+      tripSchema.itinerary = {
+        "@type": "ItemList",
+        "numberOfItems": tourItinerary.length,
+        "itemListElement": tourItinerary.map((item, index) => ({
+          "@type": "ListItem",
+          "position": index + 1,
+          "item": {
+            "@type": "CreativeWork",
+            "name": item.title,
+            "description": item.description
+          }
+        }))
+      };
+    }
+
+    return {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "@id": `https://journeyflicker.com/tours/${tour.id}/#breadcrumb`,
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://journeyflicker.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Expeditions",
+              "item": "https://journeyflicker.com/tours"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": tour.name,
+              "item": `https://journeyflicker.com/tours/${tour.id}`
+            }
+          ]
+        },
+        tripSchema
+      ]
+    };
+  }, [tour]);
 
   if (loading) return <Preloader fullScreen />;
 
@@ -435,82 +513,7 @@ export default function TourDetailsPage() {
     printWindow.document.close();
   };
 
-  const tourSchema = useMemo(() => {
-    if (!tour) return null;
-    
-    // Clean price for numeric schema offers
-    const numericPrice = tour.price ? parseFloat(tour.price.replace(/[^0-9.]/g, '')) : undefined;
-    
-    const tripSchema: Record<string, any> = {
-      "@type": "Trip",
-      "@id": `https://journeyflicker.com/tours/${tour.id}/#trip`,
-      "name": tour.name,
-      "description": tour.overviewDescription,
-      "image": tour.heroImageUrl || defaultHero,
-      "provider": {
-        "@type": "Organization",
-        "name": "JourneyFlicker",
-        "url": "https://journeyflicker.com"
-      }
-    };
 
-    if (numericPrice) {
-      tripSchema.offers = {
-        "@type": "Offer",
-        "price": numericPrice,
-        "priceCurrency": "USD",
-        "url": window.location.href,
-        "availability": "https://schema.org/InStock"
-      };
-    }
-
-    if (itinerary.length > 0) {
-      tripSchema.itinerary = {
-        "@type": "ItemList",
-        "numberOfItems": itinerary.length,
-        "itemListElement": itinerary.map((item, index) => ({
-          "@type": "ListItem",
-          "position": index + 1,
-          "item": {
-            "@type": "CreativeWork",
-            "name": item.title,
-            "description": item.description
-          }
-        }))
-      };
-    }
-
-    return {
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "BreadcrumbList",
-          "@id": `https://journeyflicker.com/tours/${tour.id}/#breadcrumb`,
-          "itemListElement": [
-            {
-              "@type": "ListItem",
-              "position": 1,
-              "name": "Home",
-              "item": "https://journeyflicker.com"
-            },
-            {
-              "@type": "ListItem",
-              "position": 2,
-              "name": "Expeditions",
-              "item": "https://journeyflicker.com/tours"
-            },
-            {
-              "@type": "ListItem",
-              "position": 3,
-              "name": tour.name,
-              "item": `https://journeyflicker.com/tours/${tour.id}`
-            }
-          ]
-        },
-        tripSchema
-      ]
-    };
-  }, [tour, itinerary]);
 
   return (
     <div className="overflow-x-hidden w-full">
