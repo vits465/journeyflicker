@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, Suspense } from "react";
+import { useEffect, useState, lazy, Suspense, useCallback } from "react";
 import { Route, Routes } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import "./App.css";
@@ -32,8 +32,12 @@ const BespokePage = lazy(() => import("./pages/BespokePage"));
 export default function App() {
   const [init, setInit] = useState(true);
 
+  const handleDone = useCallback(() => {
+    setInit(false);
+  }, []);
+
   if (init) {
-    return <SplashPreloader onDone={() => setInit(false)} />;
+    return <SplashPreloader onDone={handleDone} />;
   }
 
   return (

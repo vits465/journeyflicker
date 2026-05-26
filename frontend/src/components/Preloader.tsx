@@ -119,12 +119,19 @@ export function SplashPreloader({ onDone }: { onDone: () => void }) {
   const [phase, setPhase] = useState<'in'|'show'|'out'>('in');
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  const onDoneRef = useRef(onDone);
+  useEffect(() => {
+    onDoneRef.current = onDone;
+  }, [onDone]);
+
   useEffect(() => {
     const t1 = setTimeout(() => setPhase('show'), 120);
     const t2 = setTimeout(() => setPhase('out'), 3200);
-    const t3 = setTimeout(onDone, 3900);
+    const t3 = setTimeout(() => {
+      onDoneRef.current();
+    }, 3900);
     return () => [t1, t2, t3].forEach(clearTimeout);
-  }, [onDone]);
+  }, []);
 
   const show = phase === 'show';
 
