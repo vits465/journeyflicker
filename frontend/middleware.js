@@ -38,7 +38,7 @@ export default async function middleware(request) {
     let title = "JourneyFlicker | Curated Discovery";
     let desc = "JourneyFlicker is a luxury travel-agency web app offering curated expeditions, destinations, and visa intelligence.";
     let image = "https://journeyflicker.vercel.app/apple-touch-icon.png";
-    const backendHost = "https://journeyflicker-backend.vercel.app";
+    const backendHost = "https://journeyflicker-backend.onrender.com";
 
     try {
       // 1. Dynamic Tour Pages
