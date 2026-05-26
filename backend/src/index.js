@@ -92,7 +92,7 @@ app.use(cors({
   origin: function (origin, callback) {
     const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176,http://localhost:5177").split(",");
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+    if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app') || origin.endsWith('journeyflicker.com')) {
       return callback(null, true);
     }
     return callback(new Error('CORS blocked origin: ' + origin), false);
