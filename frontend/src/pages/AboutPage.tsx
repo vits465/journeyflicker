@@ -49,12 +49,12 @@ export default function AboutPage() {
         height="h-[65vh] min-h-[440px] max-h-[680px]"
         hideSlideText={true}
       >
-        <div className="relative z-10 max-w-3xl animate-reveal-up text-left md:ml-16 sm:ml-8 ml-4 pt-16">
+        <div className="relative z-10 max-w-3xl animate-reveal-up text-center md:text-left md:ml-16 sm:ml-8 ml-4 pt-16 px-4">
           <span className="text-white/60 text-[10px] tracking-[0.5em] uppercase mb-4 block font-bold">The Narrative</span>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tighter leading-tight text-white mb-5 drop-shadow-lg">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tighter leading-tight text-white mb-5 drop-shadow-lg">
             Crafting Art in<br/><span className="italic font-serif text-white/90">Discovery</span>
           </h1>
-          <p className="text-base sm:text-lg font-light text-white/50 max-w-xl leading-relaxed drop-shadow-md">
+          <p className="text-base sm:text-lg font-light text-white/50 max-w-xl leading-relaxed drop-shadow-md mx-auto md:mx-0">
             JourneyFlicker is a digital curator for the discerning voyager seeking silence, space, and the sublime.
           </p>
         </div>

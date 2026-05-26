@@ -162,7 +162,7 @@ export default function HomePage() {
           <div className="border border-white/20 rounded-full px-5 py-2 mb-5 backdrop-blur-md bg-white/10 inline-block">
             <span className="text-white/70 text-[9px] tracking-[0.5em] uppercase font-black">Global Intelligence Bureau</span>
           </div>
-          <h1 className="text-5xl sm:text-6xl md:text-7xl text-white tracking-tighter leading-[0.88] font-light drop-shadow-2xl mb-2">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl text-white tracking-tighter leading-[0.98] sm:leading-[0.88] font-light drop-shadow-2xl mb-2">
             Journey<br/><span className="italic font-serif text-white/90">Beyond.</span>
           </h1>
           {heroSlides.length > 0 && heroSlides[0].id !== 'fallback' && (
@@ -174,16 +174,12 @@ export default function HomePage() {
             className="bg-white/10 backdrop-blur-3xl border border-white/20 rounded-2xl sm:rounded-full w-full max-w-2xl flex flex-col sm:flex-row items-stretch p-2 gap-2 shadow-2xl hover:bg-white/15 transition-all duration-500 mt-4 cursor-pointer"
             onClick={openSearch}
           >
-            <div className="flex-1 px-4 py-2.5 text-left sm:border-r border-white/20">
+            <div className="flex-1 px-4 py-2.5 text-left border-b sm:border-b-0 sm:border-r border-white/10 sm:border-white/20 pb-2 sm:pb-0">
               <label className="text-white/50 text-[9px] tracking-[0.4em] font-black uppercase block mb-0.5">Search Territory</label>
               <div className="text-white/30 text-sm font-light">Where to next?</div>
             </div>
-            <div className="flex-1 px-4 py-2.5 text-left hidden sm:block">
-              <label className="text-white/50 text-[9px] tracking-[0.4em] font-black uppercase block mb-0.5">Protocol</label>
-              <div className="text-white/30 text-sm font-light">Private Expedition</div>
-            </div>
             <button
-              className="bg-white text-black px-6 py-2.5 rounded-xl sm:rounded-full text-[10px] uppercase tracking-[0.4em] font-black hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center gap-2 shrink-0 mx-1">
+              className="bg-white text-black px-6 py-2.5 rounded-xl sm:rounded-full text-[10px] uppercase tracking-[0.4em] font-black hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center gap-2 shrink-0">
               Access <span className="material-symbols-outlined text-sm font-light">arrow_outward</span>
             </button>
           </div>
@@ -192,17 +188,19 @@ export default function HomePage() {
 
       {/* ────────────────────────── 2. LIVE STATS ────────────────────────── */}
       <section className="bg-black text-white border-b border-white/5">
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 grid grid-cols-2 md:grid-cols-4 divide-x divide-white/5">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 grid grid-cols-2 md:grid-cols-4 border-l border-white/5 md:border-l-0">
           {[
             { value: loading ? '—' : `${destinations.length}+`, label: 'Verified Territories', icon: 'public' },
             { value: loading ? '—' : `${tours.length}+`,        label: 'Active Expeditions',  icon: 'luggage' },
             { value: '4.9',                                      label: 'Avg Client Rating',   icon: 'star' },
             { value: '24h',                                      label: 'Curator Response',     icon: 'schedule' },
           ].map((stat, i) => (
-            <div key={i} className="flex flex-col items-center text-center py-7 px-4 group hover:bg-white/5 transition-colors duration-300">
-              <span className="material-symbols-outlined text-primary/60 text-2xl mb-2 group-hover:text-primary transition-colors font-light">{stat.icon}</span>
-              <span className="text-3xl sm:text-4xl font-light tracking-tighter text-white leading-none">{stat.value}</span>
-              <span className="text-[9px] font-black tracking-[0.4em] uppercase text-white/30 mt-2">{stat.label}</span>
+            <div key={i} className="py-6 sm:py-8 px-4 flex items-center gap-4 group hover:bg-white/[0.02] transition-colors duration-300 border-r border-b md:border-b-0 border-white/5">
+              <span className="material-symbols-outlined text-primary dark:text-white/30 text-2xl font-light group-hover:scale-110 transition-transform duration-300">{stat.icon}</span>
+              <div>
+                <p className="text-2xl font-light tracking-tight">{stat.value}</p>
+                <p className="text-[9px] text-white/40 uppercase tracking-widest font-bold">{stat.label}</p>
+              </div>
             </div>
           ))}
         </div>

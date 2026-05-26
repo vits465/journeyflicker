@@ -39,6 +39,8 @@ export function HeroSlider({
   const navigate = useNavigate();
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
 
   // Reset to slide 0 whenever the slides array changes identity
   useEffect(() => { setCurrent(0); setPrev(null); }, [slides]);
@@ -78,6 +80,31 @@ export function HeroSlider({
     return () => { if (progressRef.current) clearInterval(progressRef.current); };
   }, [current, autoPlayMs, slides.length]);
 
+  // Touch Swipe Handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX.current === null || touchEndX.current === null) return;
+    const diff = touchStartX.current - touchEndX.current;
+    const minSwipeDistance = 50; // threshold in px
+
+    if (diff > minSwipeDistance) {
+      next(); // Swiped left -> next slide
+    } else if (diff < -minSwipeDistance) {
+      goBack(); // Swiped right -> prev slide
+    }
+
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
+
   // ── LOADING SKELETON ──
   if (loading) {
     return (
@@ -109,7 +136,12 @@ export function HeroSlider({
   const slide = slides[current];
 
   return (
-    <section className={`relative w-full ${height} overflow-hidden bg-black`}>
+    <section 
+      className={`relative w-full ${height} overflow-hidden bg-black`}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
 
       {/* ── IMAGES (crossfade) ── */}
       {slides.map((s, i) => (
@@ -133,7 +165,7 @@ export function HeroSlider({
 
       {/* ── SLIDE TEXT (only when hideSlideText is false and no children are provided) ── */}
       {!hideSlideText && !children && (
-        <div className="absolute inset-x-0 bottom-0 z-20 pb-14 sm:pb-18 md:pb-22 px-4 sm:px-8 md:px-16 pointer-events-none">
+        <div className="absolute inset-x-0 bottom-0 z-20 pb-10 sm:pb-18 md:pb-22 px-4 sm:px-8 md:px-16 pointer-events-none">
           <div className="max-w-6xl mx-auto">
             {slide.tag && (
               <div className="mb-3 animate-reveal-up">
@@ -143,7 +175,7 @@ export function HeroSlider({
                 </span>
               </div>
             )}
-            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tighter leading-tight text-white mb-2 drop-shadow-2xl max-w-3xl animate-reveal-up">
+            <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tighter leading-tight text-white mb-2 drop-shadow-2xl max-w-3xl animate-reveal-up">
               {slide.title}
             </h2>
             {slide.subtitle && (
@@ -175,12 +207,12 @@ export function HeroSlider({
         <>
           {/* Prev arrow */}
           <button onClick={goBack}
-            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white/10 backdrop-blur border border-white/20 text-white flex items-center justify-center hover:bg-white hover:text-black transition-all duration-200 shadow-lg">
+            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white/10 backdrop-blur border border-white/20 text-white hidden md:flex items-center justify-center hover:bg-white hover:text-black transition-all duration-200 shadow-lg">
             <span className="material-symbols-outlined font-light text-xl leading-none">chevron_left</span>
           </button>
           {/* Next arrow */}
           <button onClick={next}
-            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white/10 backdrop-blur border border-white/20 text-white flex items-center justify-center hover:bg-white hover:text-black transition-all duration-200 shadow-lg">
+            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white/10 backdrop-blur border border-white/20 text-white hidden md:flex items-center justify-center hover:bg-white hover:text-black transition-all duration-200 shadow-lg">
             <span className="material-symbols-outlined font-light text-xl leading-none">chevron_right</span>
           </button>
 

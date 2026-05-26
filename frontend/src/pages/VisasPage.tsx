@@ -422,7 +422,7 @@ export default function VisasPage() {
       >
         <div className="relative z-10 max-w-3xl animate-reveal-up flex flex-col items-center gap-5 text-center px-4 pt-16">
           <span className="text-white/50 text-[10px] tracking-[0.6em] uppercase font-bold">Bureau of Movement</span>
-          <h1 className="text-5xl sm:text-6xl md:text-7xl font-light leading-tight tracking-tighter text-white drop-shadow-xl">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-light leading-tight tracking-tighter text-white drop-shadow-xl">
             Visa<br /><span className="italic font-serif text-white/80">Intelligence</span>
           </h1>
           <p className="text-base font-light text-white/40 max-w-md leading-relaxed drop-shadow-md">

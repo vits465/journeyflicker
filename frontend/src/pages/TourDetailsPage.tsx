@@ -95,7 +95,7 @@ function SightseeingSlider({ items }: { items: NonNullable<Tour['sightseeing']> 
       </div>
 
       {/* ── Thumbnail track + details list ── */}
-      <div className="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-y-auto lg:max-h-[420px] lg:w-56 shrink-0 pr-1">
+      <div className="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-y-auto lg:max-h-[420px] lg:w-56 shrink-0 pr-1 no-scrollbar">
         {items.map((site, i) => (
           <button key={i} onClick={() => go(i)}
             className={`shrink-0 flex lg:flex items-center gap-3 rounded-xl border p-2 transition-all text-left ${i === idx ? 'border-on-surface dark:border-white bg-on-surface/5 dark:bg-white/10 shadow-sm' : 'border-outline-variant/20 dark:border-white/5 hover:border-on-surface/30 dark:hover:border-white/30'}`}>
@@ -544,14 +544,14 @@ export default function TourDetailsPage() {
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tighter leading-tight italic break-words">{tour.name}</h1>
           </div>
-          <div className="flex items-center gap-6 bg-white p-5 rounded-2xl border border-outline-variant/20 shadow-sm w-full sm:w-auto shrink-0">
-            <div className="flex flex-col border-r border-outline-variant/30 pr-6">
+          <div className="flex items-center justify-around gap-2 sm:gap-6 bg-white p-4 sm:p-5 rounded-2xl border border-outline-variant/20 shadow-sm w-full sm:w-auto shrink-0">
+            <div className="flex flex-col border-r border-outline-variant/30 pr-4 sm:pr-6">
               <span className="text-[9px] font-black tracking-[0.4em] uppercase text-on-surface-variant mb-1 opacity-50">Duration</span>
-              <span className="text-3xl font-light tracking-tighter whitespace-nowrap">{tour.days} <span className="text-base opacity-30 italic font-serif">Days</span></span>
+              <span className="text-2xl sm:text-3xl font-light tracking-tighter whitespace-nowrap">{tour.days} <span className="text-sm sm:text-base opacity-30 italic font-serif">Days</span></span>
             </div>
             <div className="flex flex-col">
               <span className="text-[9px] font-black tracking-[0.4em] uppercase text-on-surface-variant mb-1 opacity-50">From</span>
-              <span className="text-3xl font-light tracking-tighter font-serif italic">{tour.price}</span>
+              <span className="text-2xl sm:text-3xl font-light tracking-tighter font-serif italic whitespace-nowrap">{tour.price}</span>
             </div>
           </div>
         </div>
