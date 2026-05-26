@@ -1044,6 +1044,53 @@ app.put("/api/admin/reviews", requireAdmin, async (req, res) => {
   res.json({ success: true });
 });
 
+async function autoSeedDatabase() {
+  try {
+    const destCount = await DestModel.countDocuments();
+    if (destCount > 0) {
+      console.log("[Seeder] Database already populated. Skipping auto-seed.");
+      return;
+    }
+
+    console.log("[Seeder] ℹ Empty database detected. Initiating auto-seed from db.json...");
+    
+    const paths = [
+      path.join(process.cwd(), "data/db.json"),
+      path.join(process.cwd(), "backend/data/db.json"),
+      path.join(__dirname, "../data/db.json"),
+      path.join(__dirname, "data/db.json"),
+      path.join(__dirname, "../backend/data/db.json")
+    ];
+    const dbPath = paths.find(p => fs.existsSync(p));
+    
+    if (!dbPath) {
+      console.warn("[Seeder] ⚠ db.json not found in searched paths:", paths);
+      return;
+    }
+
+    console.log(`[Seeder] Found db.json at: ${dbPath}`);
+    const raw = fs.readFileSync(dbPath, "utf-8");
+    const db = JSON.parse(raw);
+
+    if (db.destinations && db.destinations.length) {
+      await DestModel.insertMany(db.destinations);
+      console.log(`[Seeder] ✓ Seeded ${db.destinations.length} destinations.`);
+    }
+    if (db.tours && db.tours.length) {
+      await TourModel.insertMany(db.tours);
+      console.log(`[Seeder] ✓ Seeded ${db.tours.length} tours.`);
+    }
+    if (db.visas && db.visas.length) {
+      await VisaModel.insertMany(db.visas);
+      console.log(`[Seeder] ✓ Seeded ${db.visas.length} visas.`);
+    }
+
+    console.log("[Seeder] ✅ Auto-seed completed successfully!");
+  } catch (err) {
+    console.error("[Seeder] ❌ Failed to auto-seed database:", err.message);
+  }
+}
+
 // ── Serve Admin Panel (Static Files) ──────────────────────────────────────────
 let adminDistPath = path.resolve(__dirname, "../admin/dist");
 if (process.env.VERCEL) {
@@ -1079,9 +1126,11 @@ app.get("*", async (req, res, next) => {
 if (!process.env.VERCEL) {
   const port = process.env.PORT ? Number(process.env.PORT) : 5174;
   // ✅ Await MongoDB before accepting any requests — eliminates the race condition
-  mongoReady.then(() => {
+  mongoReady.then(async () => {
     if (isMongoConnected()) {
       console.log("[Server] MongoDB ready — starting HTTP listener.");
+      // Trigger database auto-seeding
+      await autoSeedDatabase();
     } else {
       console.error("[Server] ❌ MongoDB mandatory — could not start HTTP listener.");
       process.exit(1);
