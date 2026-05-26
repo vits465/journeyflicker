@@ -79,6 +79,7 @@ export default function DataDeletionPage() {
       <SEO 
         title="User Data Deletion Protocol | JourneyFlicker" 
         description="JourneyFlicker User Data Deletion Instructions & Form. Fulfill Facebook/Meta App review requirements for permanent data purging."
+        noindex={true}
       />
 
       {/* ── HERO ── */}

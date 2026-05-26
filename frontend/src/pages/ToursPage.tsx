@@ -107,9 +107,51 @@ export default function ToursPage() {
   const hasFilter = Object.values(filter).some(Boolean) || categoryFilter || maxDays;
   const activeCount = Object.values(filter).filter(Boolean).length + (categoryFilter ? 1 : 0) + (maxDays ? 1 : 0);
 
+  const toursSchema = useMemo(() => {
+    if (!tours || tours.length === 0) return null;
+    return {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://journeyflicker.com/tours/#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://journeyflicker.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Expeditions",
+              "item": "https://journeyflicker.com/tours"
+            }
+          ]
+        },
+        {
+          "@type": "ItemList",
+          "@id": "https://journeyflicker.com/tours/#itemlist",
+          "name": "Luxury Expeditions Portfolio | JourneyFlicker",
+          "description": "Browse our rigorous selection of curated luxury expeditions and heritage tours.",
+          "url": "https://journeyflicker.com/tours",
+          "numberOfItems": tours.length,
+          "itemListElement": tours.map((t, idx) => ({
+            "@type": "ListItem",
+            "position": idx + 1,
+            "url": `https://journeyflicker.com/tours/${t.id}`,
+            "name": t.name,
+            "description": t.overviewDescription
+          }))
+        }
+      ]
+    };
+  }, [tours]);
+
   return (
     <main className="flex flex-col min-h-screen">
-      <SEO pageId="tours" />
+      <SEO pageId="tours" schema={toursSchema} />
 
       {/* ── HERO SLIDER ── */}
       <HeroSlider slides={heroSlides} loading={loading} autoPlayMs={5200} height="h-[60vh] min-h-[460px] max-h-[680px]" />

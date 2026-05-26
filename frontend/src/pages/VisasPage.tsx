@@ -364,6 +364,32 @@ export default function VisasPage() {
     { q: "What documents are typically required?", a: "Standard requirements include a valid passport (6+ months validity), passport-sized photographs, completed application forms, travel insurance, and proof of accommodation and financial means." },
   ];
 
+  const visasSchema = useMemo(() => {
+    return {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://journeyflicker.com/visas/#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://journeyflicker.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Visa Intelligence",
+              "item": "https://journeyflicker.com/visas"
+            }
+          ]
+        }
+      ]
+    };
+  }, []);
+
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
@@ -386,7 +412,7 @@ export default function VisasPage() {
           .h-32 { height: 180px !important; }
         }
       `}} />
-      <SEO pageId="visas" />
+      <SEO pageId="visas" schema={visasSchema} />
       {/* ── HERO ── */}
       <HeroSlider
         slides={heroSlides}

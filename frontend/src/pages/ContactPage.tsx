@@ -1,10 +1,11 @@
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { api } from '../lib/api';
 import toast from 'react-hot-toast';
+import { SEO } from '../components/SEO';
 
 const contactSchema = z.object({
   name: z.string().min(2, 'Name is too short.').max(100),
@@ -45,8 +46,67 @@ export default function ContactPage() {
     }
   };
 
+  const contactPageSchema = useMemo(() => {
+    return {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://journeyflicker.com/contact/#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://journeyflicker.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Inquire Strategy",
+              "item": "https://journeyflicker.com/contact"
+            }
+          ]
+        },
+        {
+          "@type": "ContactPage",
+          "@id": "https://journeyflicker.com/contact/#webpage",
+          "url": "https://journeyflicker.com/contact",
+          "name": "Contact JourneyFlicker",
+          "description": "Connect with JourneyFlicker's travel curators to plan bespoke luxury travel expeditions.",
+          "mainEntity": {
+            "@type": "LocalBusiness",
+            "name": "JourneyFlicker",
+            "image": "https://journeyflicker.com/favicon-96x96.png",
+            "telephone": ["+919879268811", "+919726698987", "02613564717"],
+            "email": ["tushar@journeyflicker.com", "pashv@journeyflicker.com"],
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "103, Raj Victoria, Near Samarth Circle, Adajan",
+              "addressLocality": "Surat",
+              "addressRegion": "Gujarat",
+              "postalCode": "395009",
+              "addressCountry": "IN"
+            },
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": 21.1930686,
+              "longitude": 72.6283685
+            }
+          }
+        }
+      ]
+    };
+  }, []);
+
   return (
     <>
+      <SEO 
+        pageId="contact"
+        title="Inquire Strategy & Travel Curators | JourneyFlicker"
+        description="Connect with the JourneyFlicker travel curation studio in Surat, Gujarat. Discuss bespoke travel planning, custom luxury itineraries, and visa intelligence."
+        schema={contactPageSchema}
+      />
       {/* ── HERO ── */}
       <section className="relative h-[55vh] min-h-[380px] max-h-[580px] flex flex-col justify-end px-4 sm:px-8 md:px-16 overflow-hidden bg-black pb-12 sm:pb-16">
         <div className="absolute inset-0 z-0">

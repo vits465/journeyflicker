@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { SEO } from '../components/SEO';
 
 type Category = 'Expeditions' | 'Logistics' | 'Protocol';
 
@@ -32,8 +33,61 @@ export default function FaqPage() {
   const [activeCategory, setActiveCategory] = useState<Category>('Expeditions');
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
+  const faqSchema = useMemo(() => {
+    // Generate standard FAQPage schema dynamically from all categories
+    const allQuestions: { q: string; a: string }[] = [];
+    Object.keys(questions).forEach(cat => {
+      const list = questions[cat as Category];
+      if (Array.isArray(list)) {
+        allQuestions.push(...list);
+      }
+    });
+
+    return {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://journeyflicker.com/faq/#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://journeyflicker.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "FAQ",
+              "item": "https://journeyflicker.com/faq"
+            }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://journeyflicker.com/faq/#faqpage",
+          "mainEntity": allQuestions.map(faq => ({
+            "@type": "Question",
+            "name": faq.q,
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": faq.a
+            }
+          }))
+        }
+      ]
+    };
+  }, []);
+
   return (
     <>
+      <SEO 
+        pageId="faq"
+        title="Bureau of Intelligence & FAQs | JourneyFlicker"
+        description="Find answers to frequently asked questions about luxury heritage expeditions, custom travel curation logistics, and digital identity protection protocol."
+        schema={faqSchema}
+      />
       {/* ── HERO ── */}
       <section className="relative h-[55vh] min-h-[360px] max-h-[560px] flex flex-col justify-end px-4 sm:px-8 md:px-16 overflow-hidden bg-black pb-10 sm:pb-14">
         <div className="absolute inset-0 z-0">

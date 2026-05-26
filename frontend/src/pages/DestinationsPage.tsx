@@ -110,9 +110,51 @@ export default function DestinationsPage() {
   const hasFilter = Object.values(filter).some(Boolean);
   const activeCount = Object.values(filter).filter(Boolean).length;
 
+  const destinationsSchema = useMemo(() => {
+    if (!destinations || destinations.length === 0) return null;
+    return {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://journeyflicker.com/destinations/#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://journeyflicker.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Territories",
+              "item": "https://journeyflicker.com/destinations"
+            }
+          ]
+        },
+        {
+          "@type": "ItemList",
+          "@id": "https://journeyflicker.com/destinations/#itemlist",
+          "name": "Luxury Travel Territories Directory | JourneyFlicker",
+          "description": "Browse our handpicked curated travel territories and destination dossiers.",
+          "url": "https://journeyflicker.com/destinations",
+          "numberOfItems": destinations.length,
+          "itemListElement": destinations.map((d, idx) => ({
+            "@type": "ListItem",
+            "position": idx + 1,
+            "url": `https://journeyflicker.com/destinations/${d.id}`,
+            "name": d.name,
+            "description": d.description || d.essenceText
+          }))
+        }
+      ]
+    };
+  }, [destinations]);
+
   return (
     <>
-      <SEO pageId="destinations" />
+      <SEO pageId="destinations" schema={destinationsSchema} />
       {/* ── HERO SLIDER ── */}
       <HeroSlider slides={heroSlides} loading={loading} autoPlayMs={5000} height="h-[65vh] min-h-[480px] max-h-[700px]" />
 

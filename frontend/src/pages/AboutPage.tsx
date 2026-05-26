@@ -12,9 +12,33 @@ const team = [
 export default function AboutPage() {
   const navigate = useNavigate();
 
+  const aboutSchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        "@id": "https://journeyflicker.com/about/#breadcrumb",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://journeyflicker.com"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "About",
+            "item": "https://journeyflicker.com/about"
+          }
+        ]
+      }
+    ]
+  };
+
   return (
     <>
-      <SEO pageId="about" />
+      <SEO pageId="about" schema={aboutSchema} />
       {/* ── HERO ── */}
       <HeroSlider
         slides={[

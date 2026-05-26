@@ -100,9 +100,62 @@ export default function HomePage() {
     return pool.map(d => ({ id: d.id, imageUrl: d.heroImageUrl || FALLBACK, title: d.name, subtitle: d.essenceText || d.description?.slice(0, 100), tag: d.region, href: `/destinations/${d.id}` }));
   })();
 
+  const homeSchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://journeyflicker.com/#website",
+        "url": "https://journeyflicker.com",
+        "name": "JourneyFlicker",
+        "description": "Curated Discovery luxury travel agency",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://journeyflicker.com/tours?search={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://journeyflicker.com/#organization",
+        "name": "JourneyFlicker",
+        "url": "https://journeyflicker.com",
+        "logo": "https://journeyflicker.com/favicon-96x96.png",
+        "sameAs": [
+          "https://www.facebook.com/journeyflicker",
+          "https://www.instagram.com/journeyflicker"
+        ],
+        "contactPoint": [
+          {
+            "@type": "ContactPoint",
+            "telephone": "+919879268811",
+            "contactType": "customer service",
+            "areaServed": "IN",
+            "availableLanguage": ["en", "hi", "gu"]
+          },
+          {
+            "@type": "ContactPoint",
+            "telephone": "+919726698987",
+            "contactType": "bookings",
+            "areaServed": "IN",
+            "availableLanguage": ["en", "hi", "gu"]
+          }
+        ],
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "103, Raj Victoria, Near Samarth Circle, Adajan",
+          "addressLocality": "Surat",
+          "addressRegion": "Gujarat",
+          "postalCode": "395009",
+          "addressCountry": "IN"
+        }
+      }
+    ]
+  };
+
   return (
     <>
-      <SEO pageId="home" />
+      <SEO pageId="home" schema={homeSchema} />
       {/* ────────────────────────── 1. HERO ────────────────────────── */}
       <HeroSlider slides={heroSlides} loading={loading} autoPlayMs={5500} height="h-[80vh] md:h-[95vh] lg:h-screen min-h-[500px] max-h-[900px]" hideSlideText={true}>
         <div className="flex flex-col items-center text-center w-full px-4 pt-16">
