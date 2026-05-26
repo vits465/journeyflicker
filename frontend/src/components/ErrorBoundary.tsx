@@ -1,4 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from "react";
+import { reportError } from "../lib/errorReporter";
 
 interface Props {
   children: ReactNode;
@@ -21,7 +22,20 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
-    // If you have an error reporting service, you'd send the error here
+    
+    // 1. Send the error strictly to the Admin Panel's System Health dashboard
+    reportError(error, "React ErrorBoundary");
+
+    // 2. Auto-Healing Mechanism: Automatically reload once to clear transient errors
+    const lastCrash = sessionStorage.getItem('jf_last_crash');
+    const now = Date.now();
+    
+    if (!lastCrash || (now - parseInt(lastCrash)) > 10000) {
+      // It hasn't crashed in the last 10 seconds, so this is likely a transient glitch.
+      // Auto-heal by refreshing transparently!
+      sessionStorage.setItem('jf_last_crash', now.toString());
+      window.location.reload();
+    }
   }
 
   public render() {
@@ -37,7 +51,10 @@ export class ErrorBoundary extends Component<Props, State> {
               We've encountered an unexpected issue while loading this page. Please try refreshing.
             </p>
             <button
-              onClick={() => window.location.reload()}
+              onClick={() => {
+                sessionStorage.removeItem('jf_last_crash');
+                window.location.reload();
+              }}
               className="px-6 py-3 bg-[#C8A84B] hover:bg-[#E8C870] text-black font-bold text-xs tracking-widest uppercase rounded-full transition-colors flex items-center justify-center gap-2 mx-auto"
             >
               <span className="material-symbols-outlined text-sm">refresh</span>
