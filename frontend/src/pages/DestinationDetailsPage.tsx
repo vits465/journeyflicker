@@ -320,7 +320,7 @@ I'm interested in planning a luxury travel customized trip to: *${destination.na
 📍 Region: ${destination.region}
 
 I am viewing this destination on your website and would like a customized quotation!`;
-    window.open(`https://wa.me/919879268811?text=${encodeURIComponent(formattedText)}`, "_blank", "noopener,noreferrer");
+    window.open(`https://wa.me/919878268882?text=${encodeURIComponent(formattedText)}`, "_blank", "noopener,noreferrer");
   };
 
   return (

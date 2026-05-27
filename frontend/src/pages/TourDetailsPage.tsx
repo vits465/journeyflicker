@@ -521,7 +521,7 @@ I'm interested in inquiring about the tour: *${tour.name}*
 💰 Price: ${tour.price}
 
 I am viewing this tour on your website and would like a customized quote!`;
-    window.open(`https://wa.me/919879268811?text=${encodeURIComponent(formattedText)}`, "_blank", "noopener,noreferrer");
+    window.open(`https://wa.me/919878268882?text=${encodeURIComponent(formattedText)}`, "_blank", "noopener,noreferrer");
   };
 
   return (
