@@ -65,7 +65,7 @@ ${message ? `💬 My special requests:\n"${message}"` : "I'd like to get an inst
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 font-sans flex flex-col items-end">
+    <div className="fixed bottom-6 right-6 z-[99999] font-sans flex flex-col items-end">
       {/* ── NOTIFICATION BUBBLE PROMPT ── */}
       {showNotification && !isOpen && (
         <div className="mb-3 mr-2 max-w-xs bg-white dark:bg-zinc-900 border border-neutral-200 dark:border-neutral-800 text-zinc-800 dark:text-zinc-200 p-4 rounded-2xl shadow-2xl relative animate-reveal-up text-left flex items-start gap-3 backdrop-blur-md">
