@@ -9,6 +9,35 @@
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
+    <script>
+      // Clear old PWA service workers and browser caches from the old website
+      if ('serviceWorker' in navigator) {
+        const MIGRATION_KEY = 'journeyflicker_migration_v1';
+        if (!localStorage.getItem(MIGRATION_KEY)) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            let cleared = false;
+            for (let registration of registrations) {
+              registration.unregister();
+              cleared = true;
+            }
+            if ('caches' in window) {
+              caches.keys().then(function(names) {
+                for (let name of names) {
+                  caches.delete(name);
+                  cleared = true;
+                }
+              });
+            }
+            localStorage.setItem(MIGRATION_KEY, 'true');
+            if (cleared) {
+              // Reload to ensure the clean state is loaded
+              window.location.reload();
+            }
+          });
+        }
+      }
+    </script>
+
     <!-- Meta/Facebook Domain Verification (Replace content value with your actual Facebook verification token) -->
     <meta name="facebook-domain-verification" content="5x3qncegzkp92mt7xi78dg5ca42wtp" />
     
