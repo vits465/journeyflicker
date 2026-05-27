@@ -14,22 +14,22 @@ export default {
       },
       colors: {
         // Brand / interactive
-        primary:        '#1a1a1a',
-        'on-primary':   '#ffffff',
+        primary: 'var(--primary)',
+        'on-primary': 'var(--on-primary)',
 
-        // Surfaces (Light)
-        background:                  '#fafaf9',
-        surface:                     '#ffffff',
-        'surface-container':         '#f5f5f4',
-        'surface-container-low':     '#f0efed',
-        'surface-container-lowest':  '#fafaf9',
+        // Surfaces
+        background: 'var(--background)',
+        surface: 'var(--surface)',
+        'surface-container': 'var(--surface-container)',
+        'surface-container-low': 'var(--surface-container-low)',
+        'surface-container-lowest': 'var(--surface-container-lowest)',
 
-        // Text (Light)
-        'on-surface':         '#1c1b1a',
-        'on-surface-variant': '#6b6860',
+        // Text
+        'on-surface': 'var(--on-surface)',
+        'on-surface-variant': 'var(--on-surface-variant)',
 
-        // Borders (Light)
-        'outline-variant': '#cac7c0',
+        // Borders
+        'outline-variant': 'var(--outline-variant)',
       },
     },
   },

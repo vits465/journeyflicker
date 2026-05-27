@@ -2,6 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Premium Theme Variable System ─────────────────────────────────────── */
+:root {
+  --primary: #1a1a1a;
+  --on-primary: #ffffff;
+  --background: #fafaf9;
+  --surface: #ffffff;
+  --surface-container: #f5f5f4;
+  --surface-container-low: #f0efed;
+  --surface-container-lowest: #fafaf9;
+  --on-surface: #1c1b1a;
+  --on-surface-variant: #6b6860;
+  --outline-variant: #cac7c0;
+}
+
+.dark {
+  --primary: #ffffff;
+  --on-primary: #1a1a1a;
+  --background: #030303;
+  --surface: #0a0a0a;
+  --surface-container: #141414;
+  --surface-container-low: #1c1c1c;
+  --surface-container-lowest: #050505;
+  --on-surface: #f5f5f4;
+  --on-surface-variant: #a8a69f; /* High-contrast readable gray for dark mode */
+  --outline-variant: #3a3935;     /* Sleek subtle borders for dark mode */
+}
+
+
 /* ─── JourneyFlicker · Global Stylesheet ─────────────────────────────────── */
 
 @layer utilities {
@@ -76,6 +104,7 @@
 @layer base {
   body {
     @apply bg-background text-on-surface font-body overflow-x-hidden;
+    transition: background-color 0.4s ease, color 0.4s ease;
   }
   ::selection {
     @apply bg-primary text-on-primary;
