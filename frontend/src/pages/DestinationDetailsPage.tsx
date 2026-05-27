@@ -313,7 +313,15 @@ export default function DestinationDetailsPage() {
     printWindow.document.close();
   };
 
+  const handleWhatsAppInquiry = () => {
+    if (!destination) return;
+    const formattedText = `Hi JourneyFlicker! ✈️
+I'm interested in planning a luxury travel customized trip to: *${destination.name}*
+📍 Region: ${destination.region}
 
+I am viewing this destination on your website and would like a customized quotation!`;
+    window.open(`https://wa.me/919879268811?text=${encodeURIComponent(formattedText)}`, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <div className="overflow-x-hidden w-full">
@@ -537,18 +545,30 @@ export default function DestinationDetailsPage() {
           </div>
 
           {/* ── INQUIRY CTA ── */}
-          <div className="bg-black rounded-2xl p-8 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 animate-reveal-up">
-            <div>
+          <div className="bg-black rounded-3xl p-8 md:p-10 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-6 animate-reveal-up border border-white/5 shadow-2xl relative overflow-hidden">
+            <div className="absolute right-0 top-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
+            <div className="relative z-10 text-left">
               <span className="text-[9px] font-black tracking-[0.6em] uppercase text-white/30 block mb-2">Plan Your Visit</span>
               <h3 className="text-2xl font-light tracking-tighter mb-1">
                 Ready to <span className="font-serif italic text-white/70">explore?</span>
               </h3>
-              <p className="text-xs text-white/40 font-light">Our territory curators respond within 24 hours.</p>
+              <p className="text-xs text-white/40 font-light">Our curators respond within 24 hours.</p>
             </div>
-            <button className="shrink-0 bg-white text-black px-7 py-3 rounded-full text-[10px] font-black tracking-[0.4em] uppercase hover:bg-primary hover:text-white transition-all shadow-lg"
-              onClick={() => navigate('/contact')}>
-              Begin Inquiry
-            </button>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto shrink-0 relative z-10">
+              <button 
+                onClick={handleWhatsAppInquiry}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-7 py-3.5 rounded-full text-[10px] font-black tracking-[0.3em] uppercase transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <svg className="w-3.5 h-3.5 fill-white" viewBox="0 0 24 24">
+                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.717-1.458L0 24zm6.59-4.846c1.6.95 3.197 1.45 4.817 1.451 5.536 0 10.04-4.5 10.044-10.038.002-2.684-1.04-5.207-2.93-7.099-1.89-1.89-4.411-2.932-7.098-2.933-5.54 0-10.046 4.502-10.05 10.039-.001 1.777.464 3.51 1.346 5.034L1.018 21.87l6.108-1.602c1.472.802 3.12 1.226 4.8 1.228z" />
+                </svg>
+                Inquire on WhatsApp
+              </button>
+              <button className="bg-white text-black px-7 py-3.5 rounded-full text-[10px] font-black tracking-[0.3em] uppercase hover:bg-neutral-200 transition-all shadow-lg active:scale-95 flex items-center justify-center cursor-pointer"
+                onClick={() => navigate('/contact')}>
+                Begin Web Inquiry
+              </button>
+            </div>
           </div>
 
         </div>

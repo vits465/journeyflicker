@@ -19,6 +19,7 @@ const AdminLoginPage = lazy(() => import("./pages/AdminLoginPage"));
 const AdminAccessControl = lazy(() => import("./pages/AdminAccessControl"));
 const AdminHeroSettings = lazy(() => import("./pages/AdminHeroSettings"));
 const AdminContacts = lazy(() => import("./pages/AdminContacts"));
+const AdminWhatsAppInquiries = lazy(() => import("./pages/AdminWhatsAppInquiries"));
 const AdminApiSettings = lazy(() => import("./pages/AdminApiSettings"));
 const AdminMediaLibrary = lazy(() => import("./pages/AdminMediaLibrary"));
 const AdminReviews = lazy(() => import("./pages/AdminReviews"));
@@ -73,6 +74,7 @@ export default function App() {
                 <Route path="/access" element={<AdminAccessControl />} />
                 <Route path="/hero" element={<AdminHeroSettings />} />
                 <Route path="/contacts" element={<AdminContacts />} />
+                <Route path="/whatsapp-leads" element={<AdminWhatsAppInquiries />} />
                 <Route path="/api-settings" element={<AdminApiSettings />} />
                 <Route path="/media" element={<AdminMediaLibrary />} />
                 <Route path="/reviews" element={<AdminReviews />} />

@@ -145,6 +145,19 @@ const SystemLogSchema = new mongoose.Schema({
   createdAt: { type: Number, default: () => Date.now(), index: -1 },
 }, { timestamps: false, versionKey: false });
 
+// ── Inquiry (WhatsApp Chatbot Inquiry) ─────────────────────────────────────────
+const InquirySchema = new mongoose.Schema({
+  date: { type: Date, default: Date.now },
+  name: { type: String, default: 'Unknown' },
+  phone: { type: String, default: '' },
+  type: { type: String, default: '' },
+  destination: { type: String, default: '' },
+  plan: { type: String, default: '' },
+  query: { type: String, default: '' },
+  aiResponse: { type: String, default: '' },
+  status: { type: String, enum: ['New', 'Quoted', 'Booked', 'Closed'], default: 'New' }
+}, { timestamps: false, versionKey: false });
+
 export const Destination  = mongoose.models.Destination  || mongoose.model("Destination",  DestinationSchema);
 export const Tour         = mongoose.models.Tour         || mongoose.model("Tour",          TourSchema);
 export const Visa         = mongoose.models.Visa         || mongoose.model("Visa",          VisaSchema);
@@ -155,3 +168,4 @@ export const CoEditor     = mongoose.models.CoEditor     || mongoose.model("CoEd
 export const Admin        = mongoose.models.Admin        || mongoose.model("Admin",         AdminSchema);
 export const Settings     = mongoose.models.Settings     || mongoose.model("Settings",      SettingsSchema);
 export const SystemLog    = mongoose.models.SystemLog    || mongoose.model("SystemLog",     SystemLogSchema);
+export const Inquiry      = mongoose.models.Inquiry      || mongoose.model("Inquiry",       InquirySchema);

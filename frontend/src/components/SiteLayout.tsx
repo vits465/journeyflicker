@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import { ScrollFx } from "./ScrollFx";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
+import { WhatsAppWidget } from "./WhatsAppWidget";
 
 export function SiteLayout() {
   return (
@@ -16,6 +17,7 @@ export function SiteLayout() {
       </main>
 
       <Footer />
+      <WhatsAppWidget />
     </>
   );
 }

@@ -52,6 +52,7 @@ export function AdminLayout() {
     { path: '/api-settings',   label: 'API Settings',     icon: 'api' },
     { path: '/system-logs',    label: 'System Health',    icon: 'monitor_heart' },
     { path: '/contacts',       label: 'Contacts',         icon: 'mail', badge: unreadCount },
+    { path: '/whatsapp-leads', label: 'WhatsApp Leads',   icon: 'chat' },
   ];
 
   const allLinks = canEdit ? [...adminLinks, ...editorOnlyLinks] : adminLinks;

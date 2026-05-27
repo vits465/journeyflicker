@@ -18,7 +18,7 @@ import fs from "node:fs";
 
 // ── MongoDB ────────────────────────────────────────────────────────────────────
 import { connectMongo, isMongoConnected } from "./db/mongoose.js";
-import { Destination as DestModel, Tour as TourModel, Visa as VisaModel, Contact as ContactModel, Settings as SettingsModel, CoEditor as CoEditorModel, Media as MediaModel, Admin as AdminModel, SystemLog as SystemLogModel } from "./db/models/index.js";
+import { Destination as DestModel, Tour as TourModel, Visa as VisaModel, Contact as ContactModel, Settings as SettingsModel, CoEditor as CoEditorModel, Media as MediaModel, Admin as AdminModel, SystemLog as SystemLogModel, Inquiry as InquiryModel } from "./db/models/index.js";
 import { router as backupRouter, startScheduledBackup } from "./routes/backup.js";
 import { router as importExportRouter } from "./routes/import-export.js";
 import { router as enhancedMediaRouter } from "./routes/media.js";
@@ -898,6 +898,22 @@ app.post("/api/contacts", contactLimiter, async (req, res) => {
   
   // Send email notifications (non-blocking)
   sendInquiryNotification(item).catch(console.error);
+
+  // Forward to chatbot server for automated WhatsApp notifications (non-blocking)
+  const chatbotUrl = process.env.CHATBOT_SERVER_URL || "http://localhost:3000";
+  if (chatbotUrl) {
+    fetch(`${chatbotUrl}/api/external-lead`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: item.name,
+        email: item.email,
+        type: item.type,
+        message: item.message,
+        secret: process.env.CHATBOT_SYNC_SECRET || "supersecretkey_journeyflicker_9988"
+      })
+    }).catch(err => console.warn("[Sync] Chatbot lead forwarding failed:", err.message));
+  }
   
   res.status(201).json(item);
 });
@@ -910,6 +926,26 @@ app.patch("/api/contacts/:id/read", requireAdmin, async (req, res) => {
 app.delete("/api/contacts/:id", requireAdmin, async (req, res) => {
   await ContactModel.deleteOne({ id: req.params.id });
   await logActivity(req, "Deleted contact message");
+  return res.status(204).end();
+});
+
+// ── WhatsApp Chatbot Inquiries ──
+app.get("/api/whatsapp-inquiries", requireAdmin, async (_req, res) => {
+  res.json(await InquiryModel.find({}).sort({ date: -1 }).lean());
+});
+app.patch("/api/whatsapp-inquiries/:id/status", requireAdmin, async (req, res) => {
+  const { status } = req.body;
+  if (!['New', 'Quoted', 'Booked', 'Closed'].includes(status)) {
+    return res.status(400).json({ error: "Invalid status value" });
+  }
+  const updated = await InquiryModel.findByIdAndUpdate(req.params.id, { $set: { status } }, { new: true }).lean();
+  if (!updated) return res.status(404).json({ message: "Not found" });
+  await logActivity(req, `Updated WhatsApp inquiry status: ${updated.name} -> ${status}`);
+  res.json(updated);
+});
+app.delete("/api/whatsapp-inquiries/:id", requireAdmin, async (req, res) => {
+  await InquiryModel.findByIdAndDelete(req.params.id);
+  await logActivity(req, "Deleted WhatsApp inquiry");
   return res.status(204).end();
 });
 

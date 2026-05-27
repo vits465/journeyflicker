@@ -76,6 +76,19 @@ export type Contact = {
   createdAt: number;
 };
 
+export type Inquiry = {
+  _id: string;
+  date: string;
+  name: string;
+  phone: string;
+  type: string;
+  destination: string;
+  plan: string;
+  query: string;
+  aiResponse: string;
+  status: 'New' | 'Quoted' | 'Booked' | 'Closed';
+};
+
 export type Backup = {
   id: string;
   filename: string;
@@ -374,6 +387,9 @@ export interface ApiInterface {
   createContact: (data: { name: string; email: string; type: string; message: string }) => Promise<Contact>;
   markContactRead: (id: string) => Promise<Contact>;
   deleteContact: (id: string) => Promise<void>;
+  listWhatsAppInquiries: () => Promise<Inquiry[]>;
+  updateWhatsAppInquiryStatus: (id: string, status: string) => Promise<Inquiry>;
+  deleteWhatsAppInquiry: (id: string) => Promise<void>;
   // Enhanced backups
   listBackups: () => Promise<Backup[]>;
   getBackupStats: () => Promise<BackupStats>;
@@ -446,6 +462,9 @@ export const api: ApiInterface = {
   createContact: (data) => http<Contact>("/contacts", { method: "POST", body: JSON.stringify(data) }),
   markContactRead: (id) => http<Contact>(`/contacts/${id}/read`, { method: "PATCH" }),
   deleteContact: (id) => http<void>(`/contacts/${id}`, { method: "DELETE" }),
+  listWhatsAppInquiries: () => http<Inquiry[]>("/whatsapp-inquiries"),
+  updateWhatsAppInquiryStatus: (id, status) => http<Inquiry>(`/whatsapp-inquiries/${id}/status`, { method: "PATCH", body: JSON.stringify({ status }) }),
+  deleteWhatsAppInquiry: (id) => http<void>(`/whatsapp-inquiries/${id}`, { method: "DELETE" }),
 
   // Enhanced backups
   listBackups:    () => http<Backup[]>("/admin/backup/list"),
