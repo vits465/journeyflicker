@@ -949,6 +949,25 @@ app.delete("/api/whatsapp-inquiries/:id", requireAdmin, async (req, res) => {
   return res.status(204).end();
 });
 
+app.post("/api/chat", async (req, res) => {
+  const chatbotUrl = process.env.CHATBOT_SERVER_URL || "https://journeyflicker-automation.onrender.com";
+  try {
+    const response = await fetch(`${chatbotUrl}/api/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req.body),
+    });
+    if (!response.ok) {
+      throw new Error(`Chatbot server error: ${response.status}`);
+    }
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    console.error("[Proxy Chat] Failed to fetch chatbot AI reply:", err.message);
+    res.status(500).json({ error: "Failed to fetch response" });
+  }
+});
+
 const HERO_KEY   = "jf:hero";
 
 // ── Hero Settings ─────────────────────────────────────────────────────────────

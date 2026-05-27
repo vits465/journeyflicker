@@ -1,17 +1,49 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { api } from "../lib/api";
 import toast from "react-hot-toast";
+
+interface Message {
+  sender: "user" | "bot";
+  text: string;
+}
 
 export function WhatsAppWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [showNotification, setShowNotification] = useState(true);
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [destination, setDestination] = useState("");
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  
+  // Registration specs
+  const [name, setName] = useState(() => sessionStorage.getItem("jf_chat_name") || "");
+  const [phone, setPhone] = useState(() => sessionStorage.getItem("jf_chat_phone") || "");
+  const [isRegistered, setIsRegistered] = useState(() => {
+    return !!sessionStorage.getItem("jf_chat_name") && !!sessionStorage.getItem("jf_chat_phone");
+  });
 
-  // Auto-dismiss the floating notification banner after 6 seconds
+  const [inputText, setInputText] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [loadingReg, setLoadingReg] = useState(false);
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Initialize welcome message when user is registered
+  useEffect(() => {
+    if (isRegistered) {
+      const savedName = sessionStorage.getItem("jf_chat_name") || "Traveler";
+      setMessages([
+        {
+          sender: "bot",
+          text: `Hi *${savedName}*! 🌍 Welcome to JourneyFlicker. I'm your AI Curation Assistant. What luxury destinations or customized tours are you dreaming of today?`
+        }
+      ]);
+    }
+  }, [isRegistered]);
+
+  // Auto-scroll chat window to the bottom on new messages
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isTyping]);
+
+  // Auto-dismiss the floating notification prompt after 8 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowNotification(false);
@@ -19,63 +51,101 @@ export function WhatsAppWidget() {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleStartChat = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !phone) {
-      toast.error("Please provide your name and phone number.");
+    if (!name.trim() || !phone.trim()) {
+      toast.error("Name and Phone are required to start curation.");
       return;
     }
 
-    setLoading(true);
+    setLoadingReg(true);
+    try {
+      // 1. Save locally to session
+      sessionStorage.setItem("jf_chat_name", name.trim());
+      sessionStorage.setItem("jf_chat_phone", phone.trim());
 
-    // Build the beautiful, structured pre-filled WhatsApp message
-    const formattedText = `Hi JourneyFlicker Team! ✈️
-My name is *${name}*
-📞 Phone: ${phone}
-🌍 Interested in: *${destination || "Custom Curation"}*
+      // 2. Perform background lead registration
+      const leadEmail = `${name.toLowerCase().replace(/[^a-z0-9]/g, "")}_chat@journeyflicker.com`;
+      await api.createContact({
+        name: name.trim(),
+        email: leadEmail,
+        type: "Web Chat Session Init",
+        message: `[Web Chat Session Init]
+📞 Phone: ${phone.trim()}
+💬 Customer initiated a direct web chat session with the AI Curator assistant.`,
+      });
 
-${message ? `💬 My special requests:\n"${message}"` : "I'd like to get an instant travel quote/itinerary!"}`;
+      setIsRegistered(true);
+    } catch (err) {
+      console.warn("Background registration failed (proceeding to chat anyway):", err);
+      setIsRegistered(true); // Fallback to let them chat anyway
+    } finally {
+      setLoadingReg(false);
+    }
+  };
 
-    const encodedText = encodeURIComponent(formattedText);
-    const whatsappUrl = `https://wa.me/919878268882?text=${encodedText}`;
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const textToSend = inputText.trim();
+    if (!textToSend || isTyping) return;
+
+    // 1. Append user message to stream
+    const newMessages: Message[] = [...messages, { sender: "user", text: textToSend }];
+    setMessages(newMessages);
+    setInputText("");
+    setIsTyping(true);
 
     try {
-      // Background CRM Capture: save lead details to the website's database!
-      // Using a placeholder email so it passes standard Zod verification on the backend
-      const leadEmail = `${name.toLowerCase().replace(/[^a-z0-9]/g, "")}_wa@journeyflicker.com`;
-      await api.createContact({
-        name,
-        email: leadEmail,
-        type: "WhatsApp Lead",
-        message: `[WhatsApp Floating Widget Capture]
-📞 Phone: ${phone}
-🌍 Destination: ${destination || "General/Custom Curation"}
-💬 Custom Message: ${message || "No custom message provided."}`,
-      });
+      // 2. Query the live chat endpoint on the website backend (which proxies to the Render Chatbot)
+      const res = await api.chat(textToSend, name, phone);
       
-      toast.success("Lead registered! Redirecting to WhatsApp...");
+      // 3. Append AI reply
+      setMessages([...newMessages, { sender: "bot", text: res.reply }]);
     } catch (err) {
-      console.warn("Background CRM capture failed (ignoring to prevent user blockage):", err);
+      console.error("Direct web chat failed:", err);
+      setMessages([
+        ...newMessages,
+        { 
+          sender: "bot", 
+          text: "I apologize, I am having trouble connecting to our curation server. Please check your connection or contact us directly at tushar@journeyflicker.com." 
+        }
+      ]);
     } finally {
-      setLoading(false);
-      setIsOpen(false);
-      // Open WhatsApp in a new tab
-      window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+      setIsTyping(false);
     }
+  };
+
+  const renderFormattedText = (text: string) => {
+    // Basic markdown parsing for bold words (**text** or *text*)
+    return text.split("\n").map((line, lineIdx) => {
+      // Parse bold elements
+      const parts = line.split(/(\*\*|[*])/g);
+      let isBold = false;
+      
+      const formattedLine = parts.map((part, partIdx) => {
+        if (part === "**" || part === "*") {
+          isBold = !isBold;
+          return null;
+        }
+        return isBold ? <strong key={partIdx} className="font-extrabold text-on-surface dark:text-white">{part}</strong> : part;
+      });
+
+      return <span key={lineIdx} className="block mt-1">{formattedLine}</span>;
+    });
   };
 
   return (
     <div className="fixed bottom-6 right-6 z-[99999] font-sans flex flex-col items-end">
-      {/* ── NOTIFICATION BUBBLE PROMPT ── */}
+      {/* ── FLOATING NOTIFICATION PROMPT ── */}
       {showNotification && !isOpen && (
         <div className="mb-3 mr-2 max-w-xs bg-white dark:bg-zinc-900 border border-neutral-200 dark:border-neutral-800 text-zinc-800 dark:text-zinc-200 p-4 rounded-2xl shadow-2xl relative animate-reveal-up text-left flex items-start gap-3 backdrop-blur-md">
           <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0">
             <span className="material-symbols-outlined text-sm font-semibold">chat</span>
           </div>
           <div>
-            <h4 className="text-xs font-bold tracking-tight">Need a custom quote?</h4>
+            <h4 className="text-xs font-bold tracking-tight">Curation Assistant</h4>
             <p className="text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-400 mt-0.5">
-              Chat with our curators instantly via WhatsApp!
+              Chat live with our AI travel curator directly on our site!
             </p>
           </div>
           <button 
@@ -88,24 +158,22 @@ ${message ? `💬 My special requests:\n"${message}"` : "I'd like to get an inst
         </div>
       )}
 
-      {/* ── CHAT PANEL CARD ── */}
+      {/* ── CHAT PANEL WINDOW ── */}
       {isOpen && (
-        <div className="mb-4 w-[350px] max-w-[calc(100vw-2rem)] bg-white dark:bg-zinc-950 border border-neutral-200 dark:border-neutral-900 rounded-3xl overflow-hidden shadow-2xl animate-reveal-up flex flex-col max-h-[500px]">
+        <div className="mb-4 w-[360px] max-w-[calc(100vw-2rem)] bg-white dark:bg-zinc-950 border border-neutral-200 dark:border-neutral-900 rounded-3xl overflow-hidden shadow-2xl animate-reveal-up flex flex-col h-[520px] max-h-[85vh]">
           {/* Header */}
-          <div className="bg-gradient-to-r from-emerald-600 via-teal-700 to-zinc-900 p-5 text-white relative">
+          <div className="bg-gradient-to-r from-emerald-600 via-teal-700 to-zinc-900 p-5 text-white relative flex-shrink-0">
             <div className="flex items-center gap-3">
               <div className="relative">
                 <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center border border-white/20">
-                  <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
-                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.717-1.458L0 24zm6.59-4.846c1.6.95 3.197 1.45 4.817 1.451 5.536 0 10.04-4.5 10.044-10.038.002-2.684-1.04-5.207-2.93-7.099-1.89-1.89-4.411-2.932-7.098-2.933-5.54 0-10.046 4.502-10.05 10.039-.001 1.777.464 3.51 1.346 5.034L1.018 21.87l6.108-1.602c1.472.802 3.12 1.226 4.8 1.228z" />
-                  </svg>
+                  <span className="material-symbols-outlined text-white text-2xl font-light">robot_2</span>
                 </div>
-                <div className="absolute right-0 bottom-0 w-3 h-3 rounded-full bg-green-400 border-2 border-emerald-600" />
+                <div className="absolute right-0 bottom-0 w-3 h-3 rounded-full bg-green-400 border-2 border-emerald-600 animate-pulse" />
               </div>
               <div className="text-left">
-                <h3 className="text-sm font-bold tracking-tight">JourneyFlicker Bureau</h3>
+                <h3 className="text-sm font-bold tracking-tight">AI Curator Assistant</h3>
                 <p className="text-[10px] text-emerald-200/90 font-light flex items-center gap-1">
-                  Online Travel Curators
+                  Active & Online • JourneyFlicker
                 </p>
               </div>
             </div>
@@ -117,83 +185,119 @@ ${message ? `💬 My special requests:\n"${message}"` : "I'd like to get an inst
             </button>
           </div>
 
-          {/* Chat Bubble Message */}
-          <div className="flex-1 p-4 bg-zinc-50 dark:bg-zinc-900/50 overflow-y-auto max-h-[160px] text-left space-y-3">
-            <div className="bg-white dark:bg-zinc-950 border border-neutral-200/50 dark:border-neutral-800 p-3 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed font-light">
-              <p className="font-semibold text-emerald-600 dark:text-emerald-400 mb-1">JourneyFlicker Curation Bot</p>
-              Hi there! 🌍 Welcome to JourneyFlicker. I'm your AI assistant. Tell me your travel plans so we can instantly design your dream itinerary!
-            </div>
-          </div>
+          {/* ── STATE 1: INTRODUCTION REGISTER FORM ── */}
+          {!isRegistered ? (
+            <div className="flex-1 p-6 flex flex-col justify-center bg-zinc-50 dark:bg-zinc-900/50 text-left">
+              <div className="text-center mb-6">
+                <span className="material-symbols-outlined text-4xl text-emerald-600 animate-bounce">chat_bubble</span>
+                <h4 className="text-base font-bold text-zinc-800 dark:text-zinc-100 mt-2">Bespoke Curation Chat</h4>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 font-light mt-1 px-4">
+                  Introduce yourself to begin planning your customized travel itineraries instantly.
+                </p>
+              </div>
 
-          {/* Form */}
-          <form onSubmit={handleStartChat} className="p-4 border-t border-neutral-200 dark:border-neutral-900 bg-white dark:bg-zinc-950 space-y-3">
-            <div className="grid grid-cols-2 gap-2 text-left">
-              <div className="space-y-1">
-                <label className="text-[8px] font-black uppercase tracking-widest text-zinc-500">Your Name</label>
+              <form onSubmit={handleRegister} className="space-y-4 bg-white dark:bg-zinc-950 p-5 rounded-2xl border border-neutral-200 dark:border-neutral-900 shadow-sm">
+                <div className="space-y-1">
+                  <label className="text-[8px] font-black uppercase tracking-widest text-zinc-500">Your Full Name</label>
+                  <input 
+                    type="text" 
+                    required
+                    placeholder="e.g. Gaurang Patel"
+                    value={name} 
+                    onChange={e => setName(e.target.value)}
+                    className="w-full text-xs font-light bg-zinc-50 dark:bg-zinc-900 border border-neutral-200 dark:border-neutral-800 rounded-lg px-3 py-2 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-zinc-800 dark:text-zinc-200"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[8px] font-black uppercase tracking-widest text-zinc-500">WhatsApp / Phone Number</label>
+                  <input 
+                    type="tel" 
+                    required
+                    placeholder="e.g. +91 9988..."
+                    value={phone} 
+                    onChange={e => setPhone(e.target.value)}
+                    className="w-full text-xs font-light bg-zinc-50 dark:bg-zinc-900 border border-neutral-200 dark:border-neutral-800 rounded-lg px-3 py-2 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-zinc-800 dark:text-zinc-200"
+                  />
+                </div>
+
+                <button 
+                  type="submit" 
+                  disabled={loadingReg}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-2.5 text-[9px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg shadow-emerald-500/10 cursor-pointer disabled:opacity-60"
+                >
+                  {loadingReg ? (
+                    <>
+                      <span className="material-symbols-outlined text-xs animate-spin">progress_activity</span>
+                      Registering Session...
+                    </>
+                  ) : (
+                    <>
+                      Start Live Chat <span className="material-symbols-outlined text-xs font-semibold">arrow_forward</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+          ) : (
+            // ── STATE 2: DIRECT WEB CHAT STREAM ──
+            <>
+              {/* Chat Messages Logs */}
+              <div className="flex-1 p-4 bg-zinc-50 dark:bg-zinc-900/30 overflow-y-auto space-y-4">
+                {messages.map((msg, index) => (
+                  <div 
+                    key={index}
+                    className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"} animate-reveal-up`}
+                  >
+                    <div 
+                      className={`max-w-[85%] text-xs leading-relaxed p-3.5 shadow-sm ${
+                        msg.sender === "user"
+                          ? "bg-emerald-600 text-white rounded-2xl rounded-tr-none text-left"
+                          : "bg-white dark:bg-zinc-950 border border-neutral-200/50 dark:border-neutral-800 text-zinc-700 dark:text-zinc-300 rounded-2xl rounded-tl-none text-left font-light"
+                      }`}
+                    >
+                      {msg.sender === "bot" && (
+                        <p className="font-semibold text-emerald-600 dark:text-emerald-400 mb-1 text-[10px] tracking-wide uppercase">AI Curator</p>
+                      )}
+                      {renderFormattedText(msg.text)}
+                    </div>
+                  </div>
+                ))}
+
+                {/* AI Typing Indicator */}
+                {isTyping && (
+                  <div className="flex justify-start animate-pulse">
+                    <div className="bg-white dark:bg-zinc-950 border border-neutral-200/50 dark:border-neutral-800 text-zinc-500 p-3.5 rounded-2xl rounded-tl-none text-left font-light max-w-[85%] text-xs flex items-center gap-1.5 shadow-sm">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: "0ms" }} />
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: "150ms" }} />
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: "300ms" }} />
+                      <span className="text-[10px] text-zinc-400 dark:text-zinc-500 ml-1 font-mono">Curator is designing...</span>
+                    </div>
+                  </div>
+                )}
+                
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Chat Input form panel */}
+              <form onSubmit={handleSendMessage} className="p-3 border-t border-neutral-200 dark:border-neutral-900 bg-white dark:bg-zinc-950 flex items-center gap-2 flex-shrink-0">
                 <input 
                   type="text" 
-                  required
-                  placeholder="e.g. Gaurang"
-                  value={name} 
-                  onChange={e => setName(e.target.value)}
-                  className="w-full text-xs font-light bg-zinc-50 dark:bg-zinc-900 border border-neutral-200 dark:border-neutral-800 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-zinc-800 dark:text-zinc-200"
+                  value={inputText}
+                  onChange={e => setInputText(e.target.value)}
+                  placeholder={isTyping ? "AI is thinking..." : "Ask about a tour, visa, or customize trip..."}
+                  disabled={isTyping}
+                  className="flex-1 bg-zinc-50 dark:bg-zinc-900 border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-2.5 text-xs font-light focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-zinc-800 dark:text-zinc-200 placeholder:opacity-40 disabled:opacity-60"
                 />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[8px] font-black uppercase tracking-widest text-zinc-500">Phone Number</label>
-                <input 
-                  type="tel" 
-                  required
-                  placeholder="e.g. +91 9988..."
-                  value={phone} 
-                  onChange={e => setPhone(e.target.value)}
-                  className="w-full text-xs font-light bg-zinc-50 dark:bg-zinc-900 border border-neutral-200 dark:border-neutral-800 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-zinc-800 dark:text-zinc-200"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1 text-left">
-              <label className="text-[8px] font-black uppercase tracking-widest text-zinc-500">Target Destination</label>
-              <input 
-                type="text" 
-                placeholder="e.g. Goa, Switzerland, Kashmir"
-                value={destination} 
-                onChange={e => setDestination(e.target.value)}
-                className="w-full text-xs font-light bg-zinc-50 dark:bg-zinc-900 border border-neutral-200 dark:border-neutral-800 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-zinc-800 dark:text-zinc-200"
-              />
-            </div>
-
-            <div className="space-y-1 text-left">
-              <label className="text-[8px] font-black uppercase tracking-widest text-zinc-500">Custom Request (Optional)</label>
-              <textarea 
-                rows={2}
-                placeholder="Hotel category, date of travel, budget constraint..."
-                value={message} 
-                onChange={e => setMessage(e.target.value)}
-                className="w-full text-xs font-light bg-zinc-50 dark:bg-zinc-900 border border-neutral-200 dark:border-neutral-800 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none resize-none text-zinc-800 dark:text-zinc-200"
-              />
-            </div>
-
-            <button 
-              type="submit" 
-              disabled={loading}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-2.5 text-[9px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg shadow-emerald-500/10 cursor-pointer disabled:opacity-60"
-            >
-              {loading ? (
-                <>
-                  <span className="material-symbols-outlined text-xs animate-spin">progress_activity</span>
-                  Syncing Lead...
-                </>
-              ) : (
-                <>
-                  <svg className="w-3 h-3 fill-white" viewBox="0 0 24 24">
-                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.717-1.458L0 24zm6.59-4.846c1.6.95 3.197 1.45 4.817 1.451 5.536 0 10.04-4.5 10.044-10.038.002-2.684-1.04-5.207-2.93-7.099-1.89-1.89-4.411-2.932-7.098-2.933-5.54 0-10.046 4.502-10.05 10.039-.001 1.777.464 3.51 1.346 5.034L1.018 21.87l6.108-1.602c1.472.802 3.12 1.226 4.8 1.228z" />
-                  </svg>
-                  Start WhatsApp Chat
-                </>
-              )}
-            </button>
-          </form>
+                <button 
+                  type="submit" 
+                  disabled={!inputText.trim() || isTyping}
+                  className="w-10 h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center shrink-0 shadow-md active:scale-90 transition-all disabled:opacity-30 disabled:scale-100 cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-lg font-bold">send</span>
+                </button>
+              </form>
+            </>
+          )}
         </div>
       )}
 
@@ -204,17 +308,14 @@ ${message ? `💬 My special requests:\n"${message}"` : "I'd like to get an inst
           setShowNotification(false);
         }}
         className="w-14 h-14 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-xl active:scale-90 transition-all hover:scale-105 duration-300 relative group cursor-pointer"
-        aria-label="Chat via WhatsApp"
+        aria-label="Chat via Direct Web Assistant"
       >
-        {/* Subtle glowing pulse */}
         <span className="absolute inset-0 rounded-full bg-emerald-400 opacity-20 animate-ping group-hover:opacity-40" />
 
         {isOpen ? (
           <span className="material-symbols-outlined text-2xl font-light">close</span>
         ) : (
-          <svg className="w-7 h-7 fill-white relative z-10" viewBox="0 0 24 24">
-            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.717-1.458L0 24zm6.59-4.846c1.6.95 3.197 1.45 4.817 1.451 5.536 0 10.04-4.5 10.044-10.038.002-2.684-1.04-5.207-2.93-7.099-1.89-1.89-4.411-2.932-7.098-2.933-5.54 0-10.046 4.502-10.05 10.039-.001 1.777.464 3.51 1.346 5.034L1.018 21.87l6.108-1.602c1.472.802 3.12 1.226 4.8 1.228z" />
-          </svg>
+          <span className="material-symbols-outlined text-3xl font-light">robot_2</span>
         )}
 
         {/* Small floating unread notification badge */}

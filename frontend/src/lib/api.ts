@@ -162,6 +162,11 @@ export const api = {
     http<Contact>("/contacts", { method: "POST", body: JSON.stringify(data) }),
   markContactRead: (id: string) => http<Contact>(`/contacts/${id}/read`, { method: "PATCH" }),
   deleteContact: (id: string) => http<void>(`/contacts/${id}`, { method: "DELETE" }),
+  chat: (message: string, name: string, phone: string) =>
+    http<{ reply: string }>("/chat", {
+      method: "POST",
+      body: JSON.stringify({ message, name, phone }),
+    }),
 
   listBackups: () => http<Backup[]>("/backups"),
   createBackup: () => http<{ success: boolean; filename: string }>("/backups", { method: "POST" }),
