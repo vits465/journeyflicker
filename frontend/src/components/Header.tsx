@@ -36,7 +36,13 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const isGlass = scrolled || mobileOpen;
+  const cleanPath = location.pathname.endsWith('/') && location.pathname !== '/'
+    ? location.pathname.slice(0, -1)
+    : location.pathname;
+
+  const transparentPaths = ["/", "/tours", "/destinations", "/about", "/visas"];
+  const isAlwaysVisible = !transparentPaths.includes(cleanPath);
+  const isGlass = scrolled || mobileOpen || isAlwaysVisible;
   const isDark = theme === 'dark';
 
   return (
