@@ -217,6 +217,20 @@ export default function AdminApiSettings() {
                   meta: systemStatus?.auth?.secure ? 'Secured' : 'Insecure (Default PW)',
                   icon: 'security', color: 'text-purple-500'
                 },
+                { 
+                  name: 'WhatsApp Cloud API', 
+                  desc: 'Meta Webhook & Send Engine',
+                  status: systemStatus?.whatsapp?.status || 'offline', 
+                  meta: systemStatus?.whatsapp?.meta || 'Not Configured',
+                  icon: 'chat', color: 'text-emerald-500'
+                },
+                { 
+                  name: 'Chatbot Gemini AI', 
+                  desc: 'Core Curation Intelligence',
+                  status: systemStatus?.chatbotGemini?.status || 'offline', 
+                  meta: systemStatus?.chatbotGemini?.connected ? 'Online & Active' : 'API Key missing',
+                  icon: 'robot_2', color: 'text-sky-500'
+                },
               ].map(service => (
                 <div key={service.name} className="flex items-start justify-between border-b border-outline-variant/10 pb-4 last:border-0 last:pb-0">
                   <div className="flex items-start gap-3">

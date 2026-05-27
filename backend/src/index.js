@@ -1003,11 +1003,33 @@ app.get("/api/admin/system-status", requireAdmin, async (req, res) => {
   const cloudOk = !!(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
   const passOk  = await AdminModel.countDocuments() > 0;
 
+  // Query Chatbot server status
+  let whatsappStatus = 'offline';
+  let whatsappMeta = 'Not Configured';
+  let geminiStatus = 'offline';
+
+  const chatbotUrl = process.env.CHATBOT_SERVER_URL || "https://journeyflicker-automation.onrender.com";
+  const secret = process.env.CHATBOT_SYNC_SECRET || "supersecretkey_journeyflicker_9988";
+  
+  try {
+    const chatStatusRes = await fetch(`${chatbotUrl}/api/chatbot-status?secret=${secret}`);
+    if (chatStatusRes.ok) {
+      const chatStatusData = await chatStatusRes.json();
+      whatsappStatus = chatStatusData.whatsapp || 'offline';
+      whatsappMeta = chatStatusData.whatsapp === 'operational' ? `Phone ID: ${chatStatusData.phoneId}` : 'Credentials incomplete';
+      geminiStatus = chatStatusData.gemini || 'offline';
+    }
+  } catch (err) {
+    console.error("[System Status] Failed to fetch chatbot server status:", err.message);
+  }
+
   res.json({
     mongodb: { status: mongoOk ? 'operational' : 'error', connected: mongoOk, dbName: process.env.MONGODB_DB || "journeyflicker" },
     redis: { status: redisOk ? 'operational' : 'offline', connected: redisOk },
     cloudinary: { status: cloudOk ? 'operational' : 'offline', connected: cloudOk, cloudName: process.env.CLOUDINARY_CLOUD_NAME || "Not Set" },
-    auth: { status: passOk ? 'operational' : 'warning', secure: passOk, warningMsg: passOk ? null : "Master Admin is using default environment variables. Log out and log back in to automatically migrate to the database." }
+    auth: { status: passOk ? 'operational' : 'warning', secure: passOk, warningMsg: passOk ? null : "Master Admin is using default environment variables. Log out and log back in to automatically migrate to the database." },
+    whatsapp: { status: whatsappStatus, connected: whatsappStatus === 'operational', meta: whatsappMeta },
+    chatbotGemini: { status: geminiStatus, connected: geminiStatus === 'operational' }
   });
 });
 const DEFAULT_REVIEWS = [
