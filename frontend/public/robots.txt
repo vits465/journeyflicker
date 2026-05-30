@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://journeyflicker.com/sitemap.xml
+Sitemap: https://www.journeyflicker.com/sitemap.xml
