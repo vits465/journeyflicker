@@ -149,6 +149,57 @@ export default function HomePage() {
           "postalCode": "395009",
           "addressCountry": "IN"
         }
+      },
+      {
+        "@type": "ItemList",
+        "@id": "https://journeyflicker.com/#navigation",
+        "name": "Site Navigation",
+        "description": "Main navigation menu for JourneyFlicker",
+        "numberOfItems": 7,
+        "itemListElement": [
+          {
+            "@type": "SiteNavigationElement",
+            "position": 1,
+            "name": "Home",
+            "url": "https://journeyflicker.com/"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 2,
+            "name": "Tours",
+            "url": "https://journeyflicker.com/tours"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 3,
+            "name": "Destinations",
+            "url": "https://journeyflicker.com/destinations"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 4,
+            "name": "Visas",
+            "url": "https://journeyflicker.com/visas"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 5,
+            "name": "About Us",
+            "url": "https://journeyflicker.com/about"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 6,
+            "name": "FAQ",
+            "url": "https://journeyflicker.com/faq"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 7,
+            "name": "Contact",
+            "url": "https://journeyflicker.com/contact"
+          }
+        ]
       }
     ]
   };
