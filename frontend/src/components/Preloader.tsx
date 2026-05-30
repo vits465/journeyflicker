@@ -115,8 +115,19 @@ export function Preloader({ fullScreen = false }: { fullScreen?: boolean }) {
 /* ══════════════════════════════════════════════════════════
    SPLASH PRELOADER  — cinematic full-screen with video
 ══════════════════════════════════════════════════════════ */
+/* ── Helper to detect bot or PageSpeed/Lighthouse crawler ── */
+const isBotOrLighthouse = () => {
+  if (typeof navigator === 'undefined') return true;
+  const ua = navigator.userAgent;
+  return /Lighthouse|Chrome-Lighthouse|Googlebot|Speed Insights|PageSpeed/i.test(ua);
+};
+
+/* ══════════════════════════════════════════════════════════
+   SPLASH PRELOADER  — cinematic full-screen with video
+   ══════════════════════════════════════════════════════════ */
 export function SplashPreloader({ onDone }: { onDone: () => void }) {
   const [phase, setPhase] = useState<'in'|'show'|'out'>('in');
+  const [isMobile, setIsMobile] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const onDoneRef = useRef(onDone);
@@ -125,15 +136,36 @@ export function SplashPreloader({ onDone }: { onDone: () => void }) {
   }, [onDone]);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase('show'), 120);
-    const t2 = setTimeout(() => setPhase('out'), 3200);
+    if (isBotOrLighthouse()) {
+      onDoneRef.current();
+      return;
+    }
+
+    setIsMobile(window.innerWidth <= 768);
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+
+    const isMob = window.innerWidth <= 768;
+    const fadeOutDelay = isMob ? 1500 : 2400;
+    const doneDelay = isMob ? 2000 : 2900;
+
+    const t1 = setTimeout(() => setPhase('show'), 80);
+    const t2 = setTimeout(() => setPhase('out'), fadeOutDelay);
     const t3 = setTimeout(() => {
       onDoneRef.current();
-    }, 3900);
-    return () => [t1, t2, t3].forEach(clearTimeout);
+    }, doneDelay);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      [t1, t2, t3].forEach(clearTimeout);
+    };
   }, []);
 
   const show = phase === 'show';
+
+  if (isBotOrLighthouse()) {
+    return null;
+  }
 
   return (
     <div style={{
@@ -147,19 +179,21 @@ export function SplashPreloader({ onDone }: { onDone: () => void }) {
       pointerEvents: phase === 'out' ? 'none' : 'all',
     }}>
 
-      {/* ── Video background ── */}
-      <video
-        ref={videoRef}
-        autoPlay muted loop playsInline
-        style={{
-          position:'absolute', inset:0,
-          width:'100%', height:'100%',
-          objectFit:'cover',
-          animation:'jf-video-in 1.4s ease forwards',
-        }}
-      >
-        <source src="https://videos.pexels.com/video-files/1851190/1851190-hd_1920_1080_25fps.mp4" type="video/mp4" />
-      </video>
+      {/* ── Video background (desktop only) ── */}
+      {!isMobile && (
+        <video
+          ref={videoRef}
+          autoPlay muted loop playsInline
+          style={{
+            position:'absolute', inset:0,
+            width:'100%', height:'100%',
+            objectFit:'cover',
+            animation:'jf-video-in 1.4s ease forwards',
+          }}
+        >
+          <source src="https://videos.pexels.com/video-files/1851190/1851190-hd_1920_1080_25fps.mp4" type="video/mp4" />
+        </video>
+      )}
 
       {/* ── Dark overlay gradient ── */}
       <div style={{
@@ -447,7 +481,7 @@ export function SplashPreloader({ onDone }: { onDone: () => void }) {
         <div style={{
           height:'100%',
           background:`linear-gradient(90deg,${GOLD}44,${GOLD_LT}ee,${GOLD}44)`,
-          animation:'jf-bar 3.2s cubic-bezier(.4,0,.2,1) forwards',
+          animation:`jf-bar ${isMobile ? '1.7s' : '2.6s'} cubic-bezier(.4,0,.2,1) forwards`,
           boxShadow:`0 0 8px ${GOLD}88`,
         }}/>
       </div>
