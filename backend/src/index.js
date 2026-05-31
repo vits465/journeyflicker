@@ -1129,6 +1129,8 @@ app.get("/api/admin/system-status", requireAdmin, async (req, res) => {
   const redisOk = !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
   const cloudOk = !!(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
   const passOk  = await AdminModel.countDocuments() > 0;
+  const geminiOk = !!process.env.GEMINI_API_KEY;
+  const smtpOk = !!process.env.SMTP_HOST;
 
   // Query Chatbot server status
   let whatsappStatus = 'offline';
@@ -1156,7 +1158,9 @@ app.get("/api/admin/system-status", requireAdmin, async (req, res) => {
     cloudinary: { status: cloudOk ? 'operational' : 'offline', connected: cloudOk, cloudName: process.env.CLOUDINARY_CLOUD_NAME || "Not Set" },
     auth: { status: passOk ? 'operational' : 'warning', secure: passOk, warningMsg: passOk ? null : "Master Admin is using default environment variables. Log out and log back in to automatically migrate to the database." },
     whatsapp: { status: whatsappStatus, connected: whatsappStatus === 'operational', meta: whatsappMeta },
-    chatbotGemini: { status: geminiStatus, connected: geminiStatus === 'operational' }
+    chatbotGemini: { status: geminiStatus, connected: geminiStatus === 'operational' },
+    geminiWebsite: { status: geminiOk ? 'operational' : 'offline', connected: geminiOk },
+    smtpMail: { status: smtpOk ? 'operational' : 'offline', connected: smtpOk, host: process.env.SMTP_HOST || 'Not Configured' }
   });
 });
 const DEFAULT_REVIEWS = [

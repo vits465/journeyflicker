@@ -174,6 +174,8 @@ export default function AdminApiSettings() {
               <div className="flex flex-col gap-1"><strong className="text-red-500">Upstash Redis:</strong> <span>KV_REST_API_URL, KV_REST_API_TOKEN</span></div>
               <div className="flex flex-col gap-1"><strong className="text-orange-500">Cloudinary:</strong> <span>CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET</span></div>
               <div className="flex flex-col gap-1"><strong className="text-purple-600">Admin Auth:</strong> <span>ADMIN_USERNAME, ADMIN_PASSWORD</span></div>
+              <div className="flex flex-col gap-1"><strong className="text-indigo-500">Gemini AI (Website):</strong> <span>GEMINI_API_KEY, CHATBOT_SYNC_SECRET, CHATBOT_SERVER_URL</span></div>
+              <div className="flex flex-col gap-1"><strong className="text-blue-500">SMTP Email System:</strong> <span>SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_SECURE, SYSTEM_EMAIL, ADMIN_EMAIL</span></div>
             </div>
           </div>
 
@@ -195,6 +197,20 @@ export default function AdminApiSettings() {
                   status: systemStatus?.mongodb?.status || 'offline', 
                   meta: systemStatus?.mongodb?.dbName || 'Not configured',
                   icon: 'database', color: 'text-green-500'
+                },
+                { 
+                  name: 'Website Gemini AI', 
+                  desc: 'Itinerary Condenser Engine',
+                  status: systemStatus?.geminiWebsite?.status || 'offline', 
+                  meta: systemStatus?.geminiWebsite?.connected ? 'Active & Ready' : 'GEMINI_API_KEY missing',
+                  icon: 'psychology', color: 'text-indigo-500'
+                },
+                { 
+                  name: 'SMTP Mail Server', 
+                  desc: 'Traveler & Admin Inboxes',
+                  status: systemStatus?.smtpMail?.status || 'offline', 
+                  meta: systemStatus?.smtpMail?.connected ? `Active (${systemStatus.smtpMail.host})` : 'SMTP_HOST missing',
+                  icon: 'mail', color: 'text-blue-500'
                 },
                 { 
                   name: 'Upstash Redis', 
