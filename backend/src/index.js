@@ -967,6 +967,12 @@ app.get("/api/contacts", requireAdmin, async (_req, res) => {
   res.json(await ContactModel.find({}).sort({ createdAt: -1 }).lean());
 });
 app.post("/api/contacts", contactLimiter, async (req, res) => {
+  // Honeypot spam protection (bots fill out all fields, including hidden ones)
+  if (req.body.honeypot && req.body.honeypot.trim() !== "") {
+    console.log("[Spam] Bot submission blocked via honeypot:", req.body.honeypot);
+    return res.status(200).json({ id: "msg_spam", read: true, createdAt: Date.now() });
+  }
+
   const parsed = ContactSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
   const item = { id: newId("msg"), ...parsed.data, read: false, createdAt: Date.now() };
@@ -1303,6 +1309,69 @@ if (process.env.VERCEL) {
 
 console.log(`[Server] Admin Panel dist path: ${adminDistPath}`);
 app.use(express.static(adminDistPath));
+
+// ── Dynamic Sitemap XML ───────────────────────────────────────────────────────
+app.get("/api/sitemap.xml", cacheEdge, async (req, res) => {
+  try {
+    const tours = await TourModel.find({ published: { $ne: false } }, "id").lean();
+    const destinations = await DestModel.find({}, "id").lean();
+
+    const domain = "https://www.journeyflicker.com";
+    const today = new Date().toISOString().split("T")[0];
+
+    const staticPages = [
+      { path: "", freq: "daily", prio: "1.0" },
+      { path: "/tours", freq: "weekly", prio: "0.8" },
+      { path: "/destinations", freq: "weekly", prio: "0.8" },
+      { path: "/visas", freq: "weekly", prio: "0.8" },
+      { path: "/about", freq: "monthly", prio: "0.5" },
+      { path: "/contact", freq: "monthly", prio: "0.5" },
+      { path: "/faq", freq: "monthly", prio: "0.5" },
+      { path: "/bespoke", freq: "monthly", prio: "0.8" }
+    ];
+
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+    xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+
+    // Static pages
+    for (const page of staticPages) {
+      xml += `  <url>\n`;
+      xml += `    <loc>${domain}${page.path}</loc>\n`;
+      xml += `    <lastmod>${today}</lastmod>\n`;
+      xml += `    <changefreq>${page.freq}</changefreq>\n`;
+      xml += `    <priority>${page.prio}</priority>\n`;
+      xml += `  </url>\n`;
+    }
+
+    // Dynamic Tours
+    for (const tour of tours) {
+      xml += `  <url>\n`;
+      xml += `    <loc>${domain}/tours/${tour.id}</loc>\n`;
+      xml += `    <lastmod>${today}</lastmod>\n`;
+      xml += `    <changefreq>weekly</changefreq>\n`;
+      xml += `    <priority>0.8</priority>\n`;
+      xml += `  </url>\n`;
+    }
+
+    // Dynamic Destinations
+    for (const dest of destinations) {
+      xml += `  <url>\n`;
+      xml += `    <loc>${domain}/destinations/${dest.id}</loc>\n`;
+      xml += `    <lastmod>${today}</lastmod>\n`;
+      xml += `    <changefreq>weekly</changefreq>\n`;
+      xml += `    <priority>0.8</priority>\n`;
+      xml += `  </url>\n`;
+    }
+
+    xml += `</urlset>\n`;
+
+    res.header("Content-Type", "application/xml");
+    res.status(200).send(xml);
+  } catch (error) {
+    console.error("[Sitemap] Dynamic XML generation failed:", error);
+    res.status(500).send("Error generating sitemap");
+  }
+});
 
 // ── SPA Fallback for Admin Panel ──────────────────────────────────────────────
 app.get("*", async (req, res, next) => {

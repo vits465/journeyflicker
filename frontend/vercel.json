@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/sitemap.xml",
+      "destination": "https://journeyflicker-backend.vercel.app/api/sitemap.xml"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "https://journeyflicker-backend.vercel.app/api/$1"
     },
