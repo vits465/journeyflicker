@@ -119,6 +119,9 @@ export function Footer() {
               <span className="text-white/10">•</span>
               <NavLink to="/data-deletion" className="hover:text-white transition-colors">Deletion Protocol</NavLink>
             </div>
+            <p className="text-[8px] font-light text-white/20 tracking-wider pt-2 max-w-xl mx-auto lg:mx-0 leading-normal">
+              Visual media curated via Google Search Images and Wikimedia Commons. All respective image copyrights and intellectual property rights are fully acknowledged.
+            </p>
           </div>
 
           <div className="flex flex-wrap justify-center lg:justify-end items-center gap-3 sm:gap-5 order-1 lg:order-2">
