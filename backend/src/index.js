@@ -1025,6 +1025,51 @@ app.delete("/api/whatsapp-inquiries/:id", requireAdmin, async (req, res) => {
   return res.status(204).end();
 });
 
+app.get("/api/chatbot/knowledge", async (req, res) => {
+  const secret = req.query.secret;
+  const configuredSecret = process.env.CHATBOT_SYNC_SECRET || "supersecretkey_journeyflicker_9988";
+  if (secret !== configuredSecret) {
+    return res.status(401).json({ error: "Unauthorized access to chatbot knowledge base." });
+  }
+
+  try {
+    const [destinations, tours] = await Promise.all([
+      DestModel.find({}).lean(),
+      TourModel.find({ published: { $ne: false } }).lean()
+    ]);
+
+    const condensedDestinations = destinations.map(d => ({
+      name: d.name,
+      region: d.region,
+      description: d.description || "",
+      essence: d.essenceText || "",
+      bestMonths: d.bestSeasonsMonths || "",
+      landmarks: (d.landmarks || []).map(l => `${l.title} (${l.category}: ${l.description})`).join(" | ")
+    }));
+
+    const condensedTours = tours.map(t => ({
+      name: t.name,
+      region: t.region,
+      days: t.days,
+      price: t.price,
+      category: t.category,
+      overview: t.overviewDescription || "",
+      highlights: (t.sightseeing || []).map(s => s.title).join(", "),
+      itinerary: (t.itinerary || []).map((day, idx) => `Day ${idx + 1}: ${day.title.replace(/^Day \d+\s*:\s*/i, "")} - ${day.description || ""}`).join(" | ")
+    }));
+
+    res.json({
+      success: true,
+      destinations: condensedDestinations,
+      tours: condensedTours,
+      timestamp: Date.now()
+    });
+  } catch (err) {
+    console.error("[Chatbot Knowledge API] Failed to compile context:", err);
+    res.status(500).json({ error: "Failed to compile knowledge base context." });
+  }
+});
+
 app.post("/api/chat", async (req, res) => {
   const chatbotUrl = process.env.CHATBOT_SERVER_URL || "https://journeyflicker-automation.onrender.com";
   try {
