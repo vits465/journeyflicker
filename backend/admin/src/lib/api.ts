@@ -379,6 +379,7 @@ export interface ApiInterface {
   createTour: (data: Partial<Tour>) => Promise<Tour>;
   updateTour: (id: string, data: Partial<Tour>) => Promise<Tour>;
   deleteTour: (id: string) => Promise<void>;
+  shortenTour: (tourId: string, days: number, mode: 'algo' | 'ai', previewOnly?: boolean) => Promise<{ preview?: Tour } & Tour>;
   listVisas: () => Promise<Visa[]>;
   createVisa: (data: Partial<Visa>) => Promise<Visa>;
   updateVisa: (id: string, data: Partial<Visa>) => Promise<Visa>;
@@ -452,7 +453,10 @@ export const api: ApiInterface = {
   createTour: (data) => http<Tour>("/tours", { method: "POST", body: JSON.stringify(data) }),
   updateTour: (id, data) => http<Tour>(`/tours/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   deleteTour: (id) => http<void>(`/tours/${id}`, { method: "DELETE" }),
-
+  shortenTour: (tourId, days, mode, previewOnly = false) => http<{ preview?: Tour } & Tour>("/admin/tours/shorten", {
+    method: "POST",
+    body: JSON.stringify({ tourId, days, mode, previewOnly }),
+  }),
   listVisas: () => http<Visa[]>("/visas"),
   createVisa: (data) => http<Visa>("/visas", { method: "POST", body: JSON.stringify(data) }),
   updateVisa: (id, data) => http<Visa>(`/visas/${id}`, { method: "PUT", body: JSON.stringify(data) }),

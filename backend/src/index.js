@@ -26,6 +26,7 @@ import { router as migrateRouter } from "./routes/migrate.js";
 import { router as pdfRouter } from "./routes/pdf.js";
 import { sendInquiryNotification } from "./lib/email.js";
 import { processImageForSection } from "./lib/imageProcessor.js";
+import { compressItineraryAlgorithmic, compressItineraryAI } from "./lib/itinerary-compressor.js";
 import multer from "multer";
 import Fuse from "fuse.js";
 
@@ -853,6 +854,81 @@ app.delete("/api/tours/:id", requireCRUD, async (req, res) => {
     await logActivity(req, `Deleted tour: ${deleted.name}`);
   }
   res.status(204).end();
+});
+app.post("/api/admin/tours/shorten", requireCRUD, async (req, res) => {
+  const { tourId, days, mode, previewOnly = false } = req.body;
+  if (!tourId || !days || !mode) {
+    return res.status(400).json({ error: "Missing required parameters: tourId, days, and mode are required." });
+  }
+
+  const targetDays = parseInt(days, 10);
+  if (isNaN(targetDays) || targetDays < 2 || targetDays > 10) {
+    return res.status(400).json({ error: "Invalid target duration. Must be between 2 and 10 days." });
+  }
+
+  if (!["algo", "ai"].includes(mode)) {
+    return res.status(400).json({ error: "Invalid compression mode. Must be 'algo' or 'ai'." });
+  }
+
+  try {
+    const originalTour = await TourModel.findOne({ id: tourId }).lean();
+    if (!originalTour) {
+      return res.status(404).json({ error: "Original tour not found." });
+    }
+
+    if (targetDays >= originalTour.days) {
+      return res.status(400).json({ error: `Target duration (${targetDays} days) must be shorter than the original tour (${originalTour.days} days).` });
+    }
+
+    let compressedTour = null;
+    if (mode === "ai") {
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        return res.status(400).json({ error: "Gemini AI Curation is not configured on this server (missing GEMINI_API_KEY)." });
+      }
+      compressedTour = await compressItineraryAI(originalTour, targetDays, apiKey);
+    } else {
+      compressedTour = compressItineraryAlgorithmic(originalTour, targetDays);
+    }
+
+    if (previewOnly) {
+      // Return the generated preview without saving it to database
+      return res.json({ preview: compressedTour });
+    }
+
+    // Save to MongoDB
+    await TourModel.create(compressedTour);
+
+    // Sync to local db.json
+    const paths = [
+      path.join(process.cwd(), "data/db.json"),
+      path.join(process.cwd(), "backend/data/db.json"),
+      path.join(__dirname, "../data/db.json"),
+      path.join(__dirname, "data/db.json"),
+      path.join(__dirname, "../backend/data/db.json")
+    ];
+    const dbPath = paths.find(p => fs.existsSync(p));
+    if (dbPath) {
+      try {
+        const raw = fs.readFileSync(dbPath, "utf-8");
+        const db = JSON.parse(raw);
+        if (!db.tours) db.tours = [];
+        db.tours.push(compressedTour);
+        fs.writeFileSync(dbPath, JSON.stringify(db, null, 2), "utf-8");
+      } catch (err) {
+        console.error("[Shortener API] Failed to write to local db.json:", err.message);
+      }
+    }
+
+    // Invalidate caches
+    await invalidateCache("tours");
+    await logActivity(req, `Condensed tour: ${compressedTour.name} (${targetDays} Days)`);
+
+    res.status(201).json(compressedTour);
+  } catch (err) {
+    console.error("[Shortener API] Compression failed:", err);
+    res.status(500).json({ error: `Compression failed: ${err.message}` });
+  }
 });
 
 // ── Visas ─────────────────────────────────────────────────────────────────────

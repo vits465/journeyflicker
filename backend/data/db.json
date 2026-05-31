@@ -790,6 +790,853 @@
         "September 2027"
       ],
       "createdAt": 1713360000000
+    },
+    {
+      "id": "tour_mptv6q8z_svr2o9",
+      "name": "Vietnam (Express Edition)",
+      "region": "Vietnam",
+      "days": 3,
+      "price": "OVERVIEW",
+      "category": "Signature Expedition Express",
+      "rating": 4.8,
+      "heroImageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992023/journeyflicker/gjqi0x614cmrdkik6h3p.webp",
+      "overviewDescription": "A perfectly condensed 3-day luxury escape. A curated 10-day journey through Vietnam.",
+      "overviewExtended": "Designed for discerning travelers demanding high impact in limited time, this curated itinerary delivers the absolute pinnacle of our standard tour. Enjoy private first-class comfort, exquisite dining, and premium lodging on a seamless 3-day adventure.",
+      "transport": "Private AC Vehicle",
+      "guide": "",
+      "pickup": ": Bagdogra Airport",
+      "itinerary": [
+        {
+          "title": "Day 1: – Ha Noi Arrival | Transfer to Sapa & Sapa | Cat Cat Village | Fansipan Mountain & Highlights",
+          "description": "Arrive at Noi Bai International Airport, Ha Noi, meet your representative, and transfer to Sapa. Sapa is known for its rice terraces, mountain scenery, and views of Fansipan, the highest peak in Vietnam\n\n\n\n\n\n• Airport Transfer After breakfast, visit Cat Cat Village and explore local culture, mountain landscapes, and traditional village life. Later, enjoy an excursion to Fansipan Mountain, widely known as the “Roof of Indochina.” \n\n\n\n\n\n• Cat Cat Villag\n\n• Fansipan Mountain excursion After breakfast, transfer back to Ha Noi. Check in to your hotel and enjoy the rest of the day at leisure for shopping, café hopping, or exploring the city on your own.\n\n\n\n\n\n• Transfer to Ha Noi After breakfast, travel to Ha Long Bay and board your overnight cruise. Ha Long Bay is a UNESCO World Heritage Site, known for its limestone islands and emerald waters, and an overnight cruise is one of the best ways to experience it.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992097/journeyflicker/m5txw4msf1ewiq8ibfwh.webp",
+          "schedule": "Pickup As Per Flight · As Per Itinerary · As Per Itinerary · As Per Itinerary",
+          "accommodation": "Cruise In Ha Long Bay",
+          "meals": ""
+        },
+        {
+          "title": "Day 2: Ha Long Bay to Ha Noi | Half-Day City Tour & Ha Noi to Da Nang | Cam Thanh Water Coco... & Highlights",
+          "description": "Wake up to the beauty of the bay, enjoy breakfast on the cruise, and return to Ha Noi. Later, proceed for a half-day city tour covering major highlights of the capital. \n\n\n\n\n\n• Half-day city tour Ha Noi to Da Nang | Cam Thanh Water Coconut Village | Hoi An Ancient Town\nAfter breakfast, take your flight to Da Nang. On arrival, visit Cam Thanh Water Coconut Village, located near Hoi An, and enjoy a basket-boat style village experience. Later, explore Hoi An Ancient Town, a UNESCO World Heritage Site and a beautifully preserved trading port from the 15th to 19th centuries \n\n\n\n\n\n•   Flight to Da Nang\n\n• Coconut Village\n\n• Hoi An Ancient Town After breakfast, enjoy a full-day excursion to Ba Na Hills. This is one of Da Nang’s most popular mountain attractions and is known for scenic views, cable car access, and leisure activities\n\n\n\n\n\n• Ba Na Hills",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992263/journeyflicker/y0qe6xj2w3qn2vsnfmgf.webp",
+          "schedule": "As Per Itinerary · As Per Itinerary · As Per Itinerary",
+          "accommodation": "Hotel In Da Nang",
+          "meals": ""
+        },
+        {
+          "title": "Day 3: – Da Nang to Ho Chi Minh City | Half-Day City Tour & – Cu Chi Tunnels | Mekong Delta & Highlights",
+          "description": "After breakfast, fly to Ho Chi Minh City. Upon arrival, enjoy a half-day city tour covering the city’s main landmarks and lively streets.\n\n\n\n\n\n• Flight to Ho Chi Minh City \n\n•  Half-day city tour fter breakfast, proceed for a full-day tour combining two of southern Vietnam’s most famous experiences: the Cu Chi Tunnels, a historic underground network, and the Mekong Delta, known for river life, coconut groves, and rural scenery\n\n\n\n\n\n• Cu Chi Tunnels tour\n\n•  Mekong Delta tour After breakfast, check out from the hotel and transfer to the airport for your departure flight with wonderful memories of Vietnam.\n\n•  Airport transfer",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992401/journeyflicker/svq0ajw5jrhyggf61qlf.webp",
+          "schedule": "As Per Itinerary · As Per Itinerary",
+          "accommodation": "Hotel In Ho Chi Minh City",
+          "meals": ""
+        }
+      ],
+      "sightseeing": [
+        {
+          "title": "Cat Cat Village",
+          "description": "A featured landmark in the Cat Cat Villag region.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992659/journeyflicker/k9jx7brxgkezycavpewn.webp"
+        },
+        {
+          "title": "Flight to Da Nang",
+          "description": "A featured landmark in the Flight to Da Nang region.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992584/journeyflicker/e6gs0r4v6p290eqhgnkr.webp"
+        },
+        {
+          "title": "Coconut Village",
+          "description": "A featured landmark in the Coconut Village region.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992578/journeyflicker/yg1ttepvqigcbzovejd1.webp"
+        },
+        {
+          "title": "Flight to Ho Chi Minh City",
+          "description": "A featured landmark in the Flight to Ho Chi Minh City region.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992526/journeyflicker/q4medzdzb2xiftv1nmrv.webp"
+        }
+      ],
+      "visualArchive": [
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992681/journeyflicker/ggch6hjzcbzbv3yxubuy.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992689/journeyflicker/oynang6pss214dwhxzlj.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992709/journeyflicker/j1do6lhjmtfvv6hyj8c9.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992716/journeyflicker/mtc1stpizzcmox2gj1lg.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992719/journeyflicker/g54arwm0mksckyzctlnm.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992725/journeyflicker/l5ijxfcfp2torrluwqlq.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992728/journeyflicker/dzd9tuglntgmfvthf7kg.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992734/journeyflicker/gdhjiqvlynphl1wfs3js.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992747/journeyflicker/tmsi9jpgisbftlyzejjx.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992761/journeyflicker/unfmacq4mlmku17vsbrg.webp"
+      ],
+      "testimonials": [],
+      "departureWindows": [],
+      "maxGuests": 6,
+      "published": true,
+      "createdAt": 1780237069667
+    },
+    {
+      "_id": "6a0404ccf1fdbcc090af62c4",
+      "id": "tour_mptvbztu_n2v1k5",
+      "name": "Andaman and Nicobar \"Emerald, Blue and You\" Elite Express",
+      "region": "Andaman and Nicobar \"Emerald, Blue and You\"",
+      "days": 3,
+      "price": "$2,600",
+      "category": "Signature Expedition",
+      "rating": 4.8,
+      "heroImageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648456/journeyflicker/fibwc5xfihjkctpv3je5.jpg",
+      "overviewDescription": "Experience the captivating allure of the Andaman and Nicobar Islands on this exquisitely curated 3-day express journey. Delve into historical echoes, unwind on world-renowned beaches, and immerse yourself in the vibrant marine life of this tropical paradise.",
+      "overviewExtended": "JourneyFlicker proudly presents the 'Emerald, Blue and You' Elite Express, a meticulously designed 3-day odyssey capturing the essence of the Andaman and Nicobar Islands. From the poignant history of Port Blair to the pristine white sands of Havelock, every moment is crafted for luxury, comfort, and unforgettable discovery. This bespoke itinerary ensures a seamless blend of cultural immersion and natural splendor, leaving you refreshed and inspired.",
+      "transport": "Private Transfers & Luxury Ferry",
+      "guide": "Expert Local Guide",
+      "pickup": "Airport Transfer",
+      "itinerary": [
+        {
+          "title": "Day 1: Port Blair – Gateway to Andaman's Charms",
+          "description": "Your journey begins with a seamless arrival in Port Blair, where you are whisked away to your luxurious haven. Spend the afternoon immersing yourself in the island's historical tapestry at the iconic Cellular Jail and the serene Corbyn's Cove Beach, culminating in an enthralling Light and Sound Show that vividly recounts the freedom struggle.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647832/journeyflicker/d5v2qt10yvibmudzlumq.jpg",
+          "schedule": "11:00 AM Arrival & VIP Transfer - 14:00 Check-in & Relax - 16:00 Corbyn's Cove Beach - 18:30 Cellular Jail & Light Show",
+          "accommodation": "Luxury Hotel Port Blair",
+          "meals": "Welcome Dinner"
+        },
+        {
+          "title": "Day 2: Swaraj Dweep (Havelock) – Emerald Paradise Unveiled",
+          "description": "After a sumptuous breakfast, embark on a scenic luxury cruise to Swaraj Dweep (Havelock Island), an emerald jewel in the Andaman Sea. Settle into your exquisite resort before indulging in the pristine beauty of Radhanagar Beach, consistently ranked among Asia's finest for its soft white sands and turquoise waters.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647861/journeyflicker/zqksuusybnccnjf1uqyi.jpg",
+          "schedule": "08:00 AM Luxury Ferry Transfer - 11:00 AM Resort Check-in - 14:00 Radhanagar Beach Excursion - 19:00 Sunset Dining",
+          "accommodation": "Luxury Resort Havelock",
+          "meals": "Breakfast - Gourmet Dinner"
+        },
+        {
+          "title": "Day 3: Havelock's Serenity & Farewell Reflections",
+          "description": "Awaken to the tranquil sounds of Havelock and enjoy a leisurely morning, perhaps with an optional visit to the serene KalaPathar Beach for breathtaking views. Later, a comfortable return cruise to Port Blair marks the poignant end of your express island odyssey, leaving you with cherished memories of Andaman's captivating allure.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647869/journeyflicker/vculdsldgdvfbopxaiqz.jpg",
+          "schedule": "09:00 AM Leisure / KalaPathar Beach - 12:00 PM Check-out & Ferry Transfer - 16:00 PM Arrive Port Blair - 18:00 PM Airport Departure",
+          "accommodation": "N/A (Departure Day)",
+          "meals": "Breakfast"
+        }
+      ],
+      "sightseeing": [
+        {
+          "title": "Corbyn's Cove Beach",
+          "description": "A featured landmark in the Corbyn's Cove Beach region.",
+          "icon": "beach_access",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648097/journeyflicker/cep3adjapjzio5ihnthn.jpg"
+        },
+        {
+          "title": "Light & Sound Show",
+          "description": "A featured landmark in the Light & Sound Show region.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648215/journeyflicker/fmql0q6d84tukg43mohn.jpg"
+        },
+        {
+          "title": "KalaPathar Beach",
+          "description": "A featured landmark in the KalaPathar Beach region.",
+          "icon": "beach_access",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648013/journeyflicker/nifqxguyoxzwqe6hs3q0.jpg"
+        }
+      ],
+      "visualArchive": [
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647814/journeyflicker/rtvzokekghyfhd2r7hxt.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647815/journeyflicker/gmbqtp5n1ejzmqacxaje.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647815/journeyflicker/kr1ou3q9yyy8nop1hqov.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647814/journeyflicker/qca66frsrcvxkwvv4j08.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647815/journeyflicker/ac7z6uzjcbp1xcjjiuqn.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647814/journeyflicker/xc40dvhykvwfke1qyshb.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647814/journeyflicker/c7zdxrm6cr54n67z2obb.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648127/journeyflicker/oqtlsiirrmv8pnzpe8jn.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648130/journeyflicker/apy8zioqpn8vc9bflbvx.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648129/journeyflicker/oxdzbczrwi7qgqobbflh.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648128/journeyflicker/b7i9picatp4epbtpefbc.jpg"
+      ],
+      "testimonials": [],
+      "departureWindows": [],
+      "maxGuests": 8,
+      "createdAt": 1780237315362,
+      "published": true
+    },
+    {
+      "id": "tour_mptvjnne_sjnwyw",
+      "name": "Vietnam (Express Edition)",
+      "region": "Vietnam",
+      "days": 3,
+      "price": "OVERVIEW",
+      "category": "Signature Expedition Express",
+      "rating": 4.8,
+      "heroImageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992023/journeyflicker/gjqi0x614cmrdkik6h3p.webp",
+      "overviewDescription": "A perfectly condensed 3-day luxury escape. A curated 10-day journey through Vietnam.",
+      "overviewExtended": "Designed for discerning travelers demanding high impact in limited time, this curated itinerary delivers the absolute pinnacle of our standard tour. Enjoy private first-class comfort, exquisite dining, and premium lodging on a seamless 3-day adventure.",
+      "transport": "Private AC Vehicle",
+      "guide": "",
+      "pickup": ": Bagdogra Airport",
+      "itinerary": [
+        {
+          "title": "Day 1: – Ha Noi Arrival | Transfer to Sapa & Sapa | Cat Cat Village | Fansipan Mountain & Highlights",
+          "description": "Arrive at Noi Bai International Airport, Ha Noi, meet your representative, and transfer to Sapa. Sapa is known for its rice terraces, mountain scenery, and views of Fansipan, the highest peak in Vietnam\n\n\n\n\n\n• Airport Transfer After breakfast, visit Cat Cat Village and explore local culture, mountain landscapes, and traditional village life. Later, enjoy an excursion to Fansipan Mountain, widely known as the “Roof of Indochina.” \n\n\n\n\n\n• Cat Cat Villag\n\n• Fansipan Mountain excursion After breakfast, transfer back to Ha Noi. Check in to your hotel and enjoy the rest of the day at leisure for shopping, café hopping, or exploring the city on your own.\n\n\n\n\n\n• Transfer to Ha Noi After breakfast, travel to Ha Long Bay and board your overnight cruise. Ha Long Bay is a UNESCO World Heritage Site, known for its limestone islands and emerald waters, and an overnight cruise is one of the best ways to experience it. Wake up to the beauty of the bay, enjoy breakfast on the cruise, and return to Ha Noi. Later, proceed for a half-day city tour covering major highlights of the capital. \n\n\n\n\n\n• Half-day city tour",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992097/journeyflicker/m5txw4msf1ewiq8ibfwh.webp",
+          "schedule": "Pickup As Per Flight · As Per Itinerary · As Per Itinerary · As Per Itinerary · As Per Itinerary",
+          "accommodation": "Hotel In Ha Noi",
+          "meals": ""
+        },
+        {
+          "title": "Day 2: Ha Noi to Da Nang | Cam Thanh Water Coco... & Ba Na Hills & Highlights",
+          "description": "Ha Noi to Da Nang | Cam Thanh Water Coconut Village | Hoi An Ancient Town\nAfter breakfast, take your flight to Da Nang. On arrival, visit Cam Thanh Water Coconut Village, located near Hoi An, and enjoy a basket-boat style village experience. Later, explore Hoi An Ancient Town, a UNESCO World Heritage Site and a beautifully preserved trading port from the 15th to 19th centuries \n\n\n\n\n\n•   Flight to Da Nang\n\n• Coconut Village\n\n• Hoi An Ancient Town After breakfast, enjoy a full-day excursion to Ba Na Hills. This is one of Da Nang’s most popular mountain attractions and is known for scenic views, cable car access, and leisure activities\n\n\n\n\n\n• Ba Na Hills After breakfast, fly to Ho Chi Minh City. Upon arrival, enjoy a half-day city tour covering the city’s main landmarks and lively streets.\n\n\n\n\n\n• Flight to Ho Chi Minh City \n\n•  Half-day city tour fter breakfast, proceed for a full-day tour combining two of southern Vietnam’s most famous experiences: the Cu Chi Tunnels, a historic underground network, and the Mekong Delta, known for river life, coconut groves, and rural scenery\n\n\n\n\n\n• Cu Chi Tunnels tour\n\n•  Mekong Delta tour",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992313/journeyflicker/ldjyejnqtgxofz2m5gny.webp",
+          "schedule": "As Per Itinerary · As Per Itinerary · As Per Itinerary · As Per Itinerary",
+          "accommodation": "Hotel In Ho Chi Minh City",
+          "meals": ""
+        },
+        {
+          "title": "Day 3: – Ho Chi Minh City Departure",
+          "description": "After breakfast, check out from the hotel and transfer to the airport for your departure flight with wonderful memories of Vietnam.\n\n•  Airport transfer",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992495/journeyflicker/rjsxrbr5npnfogyd7w6l.webp",
+          "schedule": "",
+          "accommodation": "N/A",
+          "meals": ""
+        }
+      ],
+      "sightseeing": [
+        {
+          "title": "Cat Cat Village",
+          "description": "A featured landmark in the Cat Cat Villag region.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992659/journeyflicker/k9jx7brxgkezycavpewn.webp"
+        },
+        {
+          "title": "Flight to Da Nang",
+          "description": "A featured landmark in the Flight to Da Nang region.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992584/journeyflicker/e6gs0r4v6p290eqhgnkr.webp"
+        },
+        {
+          "title": "Coconut Village",
+          "description": "A featured landmark in the Coconut Village region.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992578/journeyflicker/yg1ttepvqigcbzovejd1.webp"
+        },
+        {
+          "title": "Flight to Ho Chi Minh City",
+          "description": "A featured landmark in the Flight to Ho Chi Minh City region.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992526/journeyflicker/q4medzdzb2xiftv1nmrv.webp"
+        }
+      ],
+      "visualArchive": [
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992681/journeyflicker/ggch6hjzcbzbv3yxubuy.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992689/journeyflicker/oynang6pss214dwhxzlj.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992709/journeyflicker/j1do6lhjmtfvv6hyj8c9.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992716/journeyflicker/mtc1stpizzcmox2gj1lg.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992719/journeyflicker/g54arwm0mksckyzctlnm.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992725/journeyflicker/l5ijxfcfp2torrluwqlq.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992728/journeyflicker/dzd9tuglntgmfvthf7kg.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992734/journeyflicker/gdhjiqvlynphl1wfs3js.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992747/journeyflicker/tmsi9jpgisbftlyzejjx.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992761/journeyflicker/unfmacq4mlmku17vsbrg.webp"
+      ],
+      "testimonials": [],
+      "departureWindows": [],
+      "maxGuests": 6,
+      "published": true,
+      "createdAt": 1780237672826
+    },
+    {
+      "_id": "6a0404ccf1fdbcc090af62c4_express",
+      "id": "tour_mptvmm5b_5abhek",
+      "name": "Andaman and Nicobar \"Emerald, Blue and You\" Express",
+      "region": "Andaman and Nicobar \"Emerald, Blue and You\"",
+      "days": 4,
+      "price": "$2,500",
+      "category": "Signature Expedition",
+      "rating": 4.8,
+      "heroImageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648456/journeyflicker/fibwc5xfihjkctpv3je5.jpg",
+      "overviewDescription": "An impeccably curated 4-day 'Express Edition' journey unveiling the essential splendors of the Andaman and Nicobar Islands, meticulously designed for the discerning traveler.",
+      "overviewExtended": "Experience the Andaman and Nicobar Islands on an exclusive 4-day odyssey, blending pristine beaches, historical echoes, and vibrant marine life. This meticulously crafted itinerary ensures a seamless immersion into the archipelago's most iconic landscapes and cultural highlights, promising unparalleled luxury and unforgettable moments from arrival to departure. Discover hidden coves, iconic historical sites, and the breathtaking beauty of Havelock's shores, all while indulging in the finest comforts.",
+      "transport": "Private Transfers & Luxury Cruise",
+      "guide": "Expert Local Guide",
+      "pickup": "Airport Transfer",
+      "itinerary": [
+        {
+          "title": "Day 1: Port Blair – Gateway to History & Coastal Charms",
+          "description": "Upon arrival in Port Blair, you'll be privately transferred to your luxurious accommodation. Immerse yourself in the island's poignant history with a visit to the iconic Cellular Jail, followed by a captivating Light and Sound Show. Conclude your day with a serene evening stroll at Corbyn's Cove Beach, savouring the tranquil coastal ambiance.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647832/journeyflicker/d5v2qt10yvibmudzlumq.jpg",
+          "schedule": "Morning: Arrival & Private Hotel Check-in. Afternoon: Cellular Jail & Corbyn's Cove. Evening: Light & Sound Show.",
+          "accommodation": "The Peerless Sarovar Portico, Port Blair.",
+          "meals": "Welcome Dinner"
+        },
+        {
+          "title": "Day 2: Havelock's Azure Shores & Radhanagar Serenity",
+          "description": "Embark on a luxury cruise to the enchanting Havelock Island, a true emerald gem of the Andamans. Upon arrival, you'll be escorted to your opulent resort. Spend your afternoon in blissful relaxation at the world-renowned Radhanagar Beach, celebrated for its pristine white sands and breathtaking turquoise waters, offering an idyllic escape.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647861/journeyflicker/zqksuusybnccnjf1uqyi.jpg",
+          "schedule": "Morning: Luxury Cruise to Havelock. Afternoon: Radhanagar Beach Indulgence. Evening: Gourmet Island Dining.",
+          "accommodation": "Taj Exotica Resort & Spa, Havelock.",
+          "meals": "Breakfast - Gourmet Lunch - Island Dinner"
+        },
+        {
+          "title": "Day 3: Havelock's Underwater Wonders & Return to Port Blair",
+          "description": "Dedicate your morning to exploring Havelock's natural splendor. Venture to KalaPathar Beach for its unique dark sands and tranquil vistas, or opt for an excursion to Elephanta Beach, renowned for vibrant snorkeling opportunities. Later, enjoy a smooth, luxurious ferry transfer back to Port Blair, reflecting on the day's oceanic marvels.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647869/journeyflicker/vculdsldgdvfbopxaiqz.jpg",
+          "schedule": "Morning: KalaPathar Beach Serenity or Elephanta Beach Excursion. Afternoon: Luxury Cruise to Port Blair. Evening: Leisure & Personal Discoveries.",
+          "accommodation": "The Peerless Sarovar Portico, Port Blair.",
+          "meals": "Breakfast - Farewell Dinner"
+        },
+        {
+          "title": "Day 4: Port Blair – Fond Farewells & Cherished Memories",
+          "description": "Savor a final, exquisite breakfast at your hotel. Your private transfer awaits to take you to Port Blair airport, ensuring a seamless departure. Depart with a heart full of cherished memories, carrying the vibrant spirit of the Andaman Islands with you.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647934/journeyflicker/tv4uxtwwsvsob3y2odcn.jpg",
+          "schedule": "Morning: Leisurely Breakfast. Private Airport Transfer as per flight schedule.",
+          "accommodation": "Departure",
+          "meals": "Breakfast"
+        }
+      ],
+      "sightseeing": [
+        {
+          "title": "Corbyn's Cove Beach",
+          "description": "A featured landmark in the Corbyn's Cove Beach region.",
+          "icon": "beach_access",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648097/journeyflicker/cep3adjapjzio5ihnthn.jpg"
+        },
+        {
+          "title": "Light & Sound Show",
+          "description": "A featured landmark in the Light & Sound Show region.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648215/journeyflicker/fmql0q6d84tukg43mohn.jpg"
+        },
+        {
+          "title": "KalaPathar Beach",
+          "description": "A featured landmark in the KalaPathar Beach region.",
+          "icon": "beach_access",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648013/journeyflicker/nifqxguyoxzwqe6hs3q0.jpg"
+        }
+      ],
+      "visualArchive": [
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647814/journeyflicker/rtvzokekghyfhd2r7hxt.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647815/journeyflicker/gmbqtp5n1ejzmqacxaje.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647815/journeyflicker/kr1ou3q9yyy8nop1hqov.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647814/journeyflicker/qca66frsrcvxkwvv4j08.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647815/journeyflicker/ac7z6uzjcbp1xcjjiuqn.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647814/journeyflicker/xc40dvhykvwfke1qyshb.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647814/journeyflicker/c7zdxrm6cr54n67z2obb.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648127/journeyflicker/oqtlsiirrmv8pnzpe8jn.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648130/journeyflicker/apy8zioqpn8vc9bflbvx.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648129/journeyflicker/oxdzbczrwi7qgqobbflh.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648128/journeyflicker/b7i9picatp4epbtpefbc.jpg"
+      ],
+      "testimonials": [],
+      "departureWindows": [],
+      "maxGuests": 8,
+      "createdAt": 1780237810847,
+      "published": true
+    },
+    {
+      "_id": "6a1465a16ae8197a967e967c",
+      "id": "tour_mptvsgxq_5uhk8o",
+      "name": "Northern & Southern Vietnam Grandeur",
+      "region": "Vietnam",
+      "days": 4,
+      "price": "$3,450",
+      "category": "Signature Expedition",
+      "rating": 4.8,
+      "heroImageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992023/journeyflicker/gjqi0x614cmrdkik6h3p.webp",
+      "overviewDescription": "Experience the essence of Vietnam on this expedited four-day journey, seamlessly connecting the imperial charm of Hanoi, the ethereal beauty of Ha Long Bay, and the historic depths of Ho Chi Minh City.",
+      "overviewExtended": "JourneyFlicker proudly presents a curated 4-day immersion into Vietnam's most iconic landscapes and vibrant cultures. From Hanoi's ancient heart and Ha Long Bay's mystical karsts to the bustling energy and profound history of Ho Chi Minh City, this 'Northern & Southern Grandeur' expedition is meticulously designed for the discerning traveler seeking luxury and authenticity within a refined timeframe. Every detail, from private transfers to exquisite accommodations and curated experiences, is crafted for an unforgettable sojourn.",
+      "transport": "Private AC Vehicle",
+      "guide": "",
+      "pickup": ": Noi Bai International Airport, Ha Noi",
+      "itinerary": [
+        {
+          "title": "Day 1: Hanoi Arrival & Cultural Discovery",
+          "description": "Begin your exquisite Vietnamese journey with a seamless arrival in Hanoi. After settling into your luxury hotel, embark on a captivating half-day city tour, uncovering the ancient heart and vibrant pulse of Vietnam's capital.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992263/journeyflicker/y0qe6xj2w3qn2vsnfmgf.webp",
+          "schedule": "Afternoon Arrival & Check-in - Evening Private City Tour",
+          "accommodation": "Hotel In Ha Noi",
+          "meals": "Dinner"
+        },
+        {
+          "title": "Day 2: Ha Long Bay Immersion: A Serene Overnight Cruise",
+          "description": "Journey to the magnificent Ha Long Bay, a UNESCO World Heritage Site. Board a luxurious traditional junk for an unforgettable overnight cruise, navigating through mystical limestone karsts and discovering hidden wonders. Indulge in gourmet cuisine amidst spectacular scenery.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992215/journeyflicker/b9of9jibm4jsofe6w9zv.webp",
+          "schedule": "Morning Transfer & Cruise Check-in - Afternoon Bay Exploration - Evening Gourmet Dinner",
+          "accommodation": "Cruise In Ha Long Bay",
+          "meals": "Breakfast - Lunch - Dinner"
+        },
+        {
+          "title": "Day 3: Coastal Beauty to Southern Vibrancy & Historic Tunnels",
+          "description": "Savor a final Ha Long Bay sunrise before returning to Hanoi. Take a swift luxury flight south to vibrant Ho Chi Minh City. Upon arrival, delve into history with an immersive tour of the legendary Cu Chi Tunnels, a testament to Vietnam's resilience.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992462/journeyflicker/yvqiljbesdgsyg9dhlcr.webp",
+          "schedule": "Morning Bay Activities & Return - Mid-day Flight to HCMC - Afternoon Cu Chi Tunnels Tour",
+          "accommodation": "Hotel In Ho Chi Minh City",
+          "meals": "Breakfast - Lunch"
+        },
+        {
+          "title": "Day 4: Seamless Departure from Ho Chi Minh City",
+          "description": "Enjoy a final gourmet breakfast in Ho Chi Minh City. Reflect on your express journey through Vietnam's diverse landscapes and rich culture before a private transfer escorts you to Tan Son Nhat International Airport for your onward journey.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992495/journeyflicker/rjsxrbr5npnfogyd7w6l.webp",
+          "schedule": "Morning Leisure & Check-out - Airport Transfer As Per Flight",
+          "accommodation": "",
+          "meals": "Breakfast"
+        }
+      ],
+      "sightseeing": [
+        {
+          "title": "Flight to Ho Chi Minh City",
+          "description": "A featured landmark in the Flight to Ho Chi Minh City region.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992526/journeyflicker/q4medzdzb2xiftv1nmrv.webp"
+        },
+        {
+          "title": "Cu Chi Tunnels tour",
+          "description": "A featured landmark in the Cu Chi Tunnels tour region.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992521/journeyflicker/nyva2ob45qnvv2ksbpgt.webp"
+        }
+      ],
+      "visualArchive": [
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992681/journeyflicker/ggch6hjzcbzbv3yxubuy.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992689/journeyflicker/oynang6pss214dwhxzlj.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992709/journeyflicker/j1do6lhjmtfvv6hyj8c9.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992716/journeyflicker/mtc1stpizzcmox2gj1lg.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992719/journeyflicker/g54arwm0mksckyzctlnm.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992725/journeyflicker/l5ijxfcfp2torrluwqlq.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992728/journeyflicker/dzd9tuglntgmfvthf7kg.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992734/journeyflicker/gdhjiqvlynphl1wfs3js.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992747/journeyflicker/tmsi9jpgisbftlyzejjx.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992761/journeyflicker/unfmacq4mlmku17vsbrg.webp"
+      ],
+      "testimonials": [],
+      "departureWindows": [],
+      "maxGuests": 8,
+      "published": true,
+      "createdAt": 1780238084030
+    },
+    {
+      "id": "tour_mptvtc2y_gnz588",
+      "name": "Vietnam Express: Northern Grandeur",
+      "region": "Northern Vietnam",
+      "days": 4,
+      "price": "$3,750",
+      "category": "Signature Expedition",
+      "rating": 4.9,
+      "heroImageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992215/journeyflicker/b9of9jibm4jsofe6w9zv.webp",
+      "overviewDescription": "An exquisitely curated 4-day journey unveiling the timeless allure of Northern Vietnam.",
+      "overviewExtended": "Embark on a rapid yet luxurious exploration of Vietnam's captivating northern treasures. From the ancient charm of Hanoi's Old Quarter and its vibrant cultural pulse to the ethereal limestone karsts of Ha Long Bay, a UNESCO World Heritage site, this 'Express Edition' is meticulously designed for the discerning traveler seeking an opulent and unforgettable immersion. Experience bespoke cultural encounters, indulge in gourmet Vietnamese cuisine, and revel in the serene beauty of one of Asia's most enchanting destinations, all while enjoying JourneyFlicker's signature white-glove service.",
+      "transport": "Private AC Vehicle",
+      "guide": "Expert Local Guides",
+      "pickup": "Noi Bai International Airport, Ha Noi",
+      "itinerary": [
+        {
+          "title": "Day 1: Hanoi Arrival & Ancient Charms",
+          "description": "Upon arrival at Noi Bai International Airport, your dedicated JourneyFlicker representative will ensure a seamless transfer to your luxury Hanoi accommodation. Spend the afternoon immersing yourself in the historic Old Quarter, absorbing the city's vibrant energy and timeless architecture, perhaps concluding with a delectable welcome dinner.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992681/journeyflicker/ggch6hjzcbzbv3yxubuy.webp",
+          "schedule": "Arrival as per flight - 15:00 Old Quarter exploration - 19:00 Welcome Dinner",
+          "accommodation": "Luxury Hotel in Ha Noi",
+          "meals": "Welcome Dinner"
+        },
+        {
+          "title": "Day 2: Ha Long Bay: Emerald Waters & Karst Majesty",
+          "description": "Journey to the breathtaking Ha Long Bay, a UNESCO World Heritage site, and embark on an exquisite overnight cruise. Sail amidst thousands of dramatic limestone islands, discover hidden grottoes, and savor gourmet cuisine as the emerald waters unfold around you.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992215/journeyflicker/b9of9jibm4jsofe6w9zv.webp",
+          "schedule": "08:00 Transfer to Ha Long Bay - 12:00 Board Luxury Cruise - Afternoon Exploration - 19:00 Gala Dinner",
+          "accommodation": "Luxury Cruise in Ha Long Bay",
+          "meals": "Breakfast - Lunch - Dinner"
+        },
+        {
+          "title": "Day 3: Ha Long Bay Serenity & Hanoi's Heartbeat",
+          "description": "Wake to the serene beauty of Ha Long Bay, enjoying a final breakfast onboard before disembarking. Return to Hanoi for a captivating half-day city tour, delving into iconic landmarks and vibrant local life, followed by leisure time to explore at your own pace.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992263/journeyflicker/y0qe6xj2w3qn2vsnfmgf.webp",
+          "schedule": "07:00 Sunrise Tai Chi & Breakfast - 11:00 Disembark & Transfer to Ha Noi - 15:00 Half-Day Hanoi City Tour - 19:30 Farewell Dinner",
+          "accommodation": "Luxury Hotel in Ha Noi",
+          "meals": "Breakfast - Farewell Dinner"
+        },
+        {
+          "title": "Day 4: Farewell Vietnam",
+          "description": "Indulge in a final gourmet breakfast at your leisure before your private transfer to Noi Bai International Airport for your onward journey, carrying cherished memories of Northern Vietnam's unparalleled beauty and charm.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992495/journeyflicker/rjsxrbr5npnfogyd7w6l.webp",
+          "schedule": "As per flight schedule - Private Airport Transfer",
+          "accommodation": "",
+          "meals": "Breakfast"
+        }
+      ],
+      "sightseeing": [
+        {
+          "title": "Hanoi Old Quarter",
+          "description": "Discover the bustling ancient streets, rich history, and vibrant local life of Hanoi's Old Quarter.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992681/journeyflicker/ggch6hjzcbzbv3yxubuy.webp"
+        },
+        {
+          "title": "Ha Long Bay Cruise",
+          "description": "Sail through the breathtaking UNESCO World Heritage seascape of Ha Long Bay, with its iconic limestone karsts and emerald waters.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992215/journeyflicker/b9of9jibm4jsofe6w9zv.webp"
+        },
+        {
+          "title": "Hanoi City Highlights",
+          "description": "Explore Hanoi's most significant landmarks, from historic temples to modern cultural sites, guided by local experts.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992709/journeyflicker/j1do6lhjmtfvv6hyj8c9.webp"
+        }
+      ],
+      "visualArchive": [
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992681/journeyflicker/ggch6hjzcbzbv3yxubuy.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992689/journeyflicker/oynang6pss214dwhxzlj.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992709/journeyflicker/j1do6lhjmtfvv6hyj8c9.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992716/journeyflicker/mtc1stpizzcmox2gj1lg.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992719/journeyflicker/g54arwm0mksckyzctlnm.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992725/journeyflicker/l5ijxfcfp2torrluwqlq.webp"
+      ],
+      "testimonials": [],
+      "departureWindows": [],
+      "maxGuests": 8,
+      "published": true,
+      "createdAt": 1780238124394
+    },
+    {
+      "id": "tour_mptvwxwc_fsdaob",
+      "name": "Andaman and Nicobar \"Emerald, Blue and You\" Island Serenity",
+      "region": "Andaman and Nicobar \"Emerald, Blue and You\"",
+      "days": 4,
+      "price": "$3,600",
+      "category": "Signature Expedition",
+      "rating": 4.8,
+      "heroImageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648456/journeyflicker/fibwc5xfihjkctpv3je5.jpg",
+      "overviewDescription": "Indulge in a meticulously curated 4-day escape to the enchanting Andaman and Nicobar Islands, where emerald rainforests meet turquoise waters. This express journey promises unparalleled luxury and discovery, revealing the vibrant history and breathtaking natural wonders of this idyllic archipelago.",
+      "overviewExtended": "Designed for the discerning traveler, this exclusive itinerary elegantly combines cultural immersion in Port Blair with the pristine beauty of Swaraj Dweep (Havelock Island). From historic landmarks to world-renowned beaches and mesmerizing marine life, every moment is crafted for profound relaxation and unforgettable experiences.",
+      "transport": "Private Transfers & Luxury Cruise",
+      "guide": "Expert Local Guide",
+      "pickup": "Airport Transfer",
+      "itinerary": [
+        {
+          "title": "Day 1: Arrival in Port Blair & Island Heritage",
+          "description": "Upon arrival, a private transfer escorts you to your luxurious accommodation. Immerse yourself in the island's captivating history at the iconic Cellular Jail before unwinding at the picturesque Corbyn's Cove Beach. Conclude your day with the poignant Light and Sound Show, bringing the island's past to life.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647832/journeyflicker/d5v2qt10yvibmudzlumq.jpg",
+          "schedule": "Morning Arrival & Private Transfer - Afternoon Island Heritage Tour - Evening Light & Sound Show",
+          "accommodation": "Luxury Boutique Hotel, Port Blair",
+          "meals": "Welcome Dinner"
+        },
+        {
+          "title": "Day 2: Swaraj Dweep (Havelock) – Pristine Beaches & Aquatic Delights",
+          "description": "Enjoy a scenic morning cruise to the breathtaking Swaraj Dweep (Havelock Island). Check into your exquisite resort before discovering the famed Radhanagar Beach, renowned for its pristine sands and crystal-clear waters. Later, venture to Elephanta Beach for an exhilarating session of complimentary snorkeling amidst vibrant coral reefs.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647861/journeyflicker/zqksuusybnccnjf1uqyi.jpg",
+          "schedule": "Morning Cruise to Havelock - Midday Radhanagar Beach Exploration - Afternoon Elephanta Beach Snorkeling",
+          "accommodation": "Luxury Beach Resort, Havelock",
+          "meals": "Breakfast - Gourmet Beachfront Lunch - Sunset Dinner"
+        },
+        {
+          "title": "Day 3: Havelock Serenity & Return to Port Blair",
+          "description": "Begin your day with the tranquil beauty of Kalapathar Beach, offering dramatic vistas of the coastline. Enjoy a leisurely morning on Havelock before a comfortable afternoon cruise transports you back to Port Blair, where you can unwind or explore at your leisure.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647928/journeyflicker/jlyl5u03xwihiaduzw7z.jpg",
+          "schedule": "Morning Kalapathar Beach Visit - Midday Havelock Leisure - Afternoon Cruise to Port Blair",
+          "accommodation": "Luxury Boutique Hotel, Port Blair",
+          "meals": "Breakfast - Farewell Dinner"
+        },
+        {
+          "title": "Day 4: Port Blair – Cherished Memories & Departure",
+          "description": "After a final sumptuous breakfast, enjoy a seamless private transfer to Port Blair airport, departing with indelible memories of your luxurious Andaman island escape, eagerly anticipating your next JourneyFlicker adventure.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647934/journeyflicker/tv4uxtwwsvsob3y2odcn.jpg",
+          "schedule": "Morning Breakfast & Leisure - Private Airport Transfer",
+          "accommodation": "",
+          "meals": "Breakfast"
+        }
+      ],
+      "sightseeing": [
+        {
+          "title": "Corbyn's Cove Beach",
+          "description": "A picturesque crescent-shaped beach fringed with coconut palms, perfect for relaxing and water sports.",
+          "icon": "beach_access",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648097/journeyflicker/cep3adjapjzio5ihnthn.jpg"
+        },
+        {
+          "title": "Light & Sound Show",
+          "description": "An enthralling historical narrative brought to life at Cellular Jail, depicting the saga of India's freedom struggle.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648215/journeyflicker/fmql0q6d84tukg43mohn.jpg"
+        },
+        {
+          "title": "KalaPathar Beach",
+          "description": "A serene and scenic beach known for its dark rocks contrasting with the white sand and turquoise waters.",
+          "icon": "beach_access",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648013/journeyflicker/nifqxguyoxzwqe6hs3q0.jpg"
+        }
+      ],
+      "visualArchive": [
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647814/journeyflicker/rtvzokekghyfhd2r7hxt.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647815/journeyflicker/gmbqtp5n1ejzmqacxaje.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647815/journeyflicker/kr1ou3q9yyy8nop1hqov.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647814/journeyflicker/qca66frsrcvxkwvv4j08.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647815/journeyflicker/ac7z6uzjcbp1xcjjiuqn.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647814/journeyflicker/xc40dvhykvwfke1qyshb.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647814/journeyflicker/c7zdxrm6cr54n67z2obb.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648127/journeyflicker/oqtlsiirrmv8pnzpe8jn.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648130/journeyflicker/apy8zioqpn8vc9bflbvx.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648129/journeyflicker/oxdzbczrwi7qgqobbflh.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648128/journeyflicker/b7i9picatp4epbtpefbc.jpg"
+      ],
+      "testimonials": [],
+      "departureWindows": [],
+      "maxGuests": 8,
+      "createdAt": 1780238292636,
+      "published": true
+    },
+    {
+      "id": "tour_mptw5891_2erc1q",
+      "name": "Andaman and Nicobar \"Emerald, Blue and You\" Express Edition",
+      "region": "Andaman and Nicobar \"Emerald, Blue and You\"",
+      "days": 3,
+      "price": "$2,950",
+      "category": "Signature Expedition",
+      "rating": 4.8,
+      "heroImageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648456/journeyflicker/fibwc5xfihjkctpv3je5.jpg",
+      "overviewDescription": "Experience the pristine beauty of the Andaman and Nicobar Islands on a curated 3-day 'Emerald, Blue and You' express journey.",
+      "overviewExtended": "This expertly crafted 3-day itinerary captures the essence of the Andaman archipelago, blending historical discovery in Port Blair with the breathtaking natural beauty of its iconic islands and azure waters for an unforgettable luxury escape.",
+      "transport": "Private Transfers & Ferry",
+      "guide": "",
+      "pickup": "Airport Transfer",
+      "itinerary": [
+        {
+          "title": "Day 1: Port Blair Charm & Iconic Island Explorations",
+          "description": "Upon arrival in Port Blair, settle into your luxurious accommodation before embarking on a captivating city tour. Discover the historical significance of Cellular Jail and unwind at the serene Corbyn's Cove Beach. As dusk falls, immerse yourself in the dramatic Light and Sound Show. The next morning, venture to the captivating Ross Island, a historical gem, and the vibrant coral paradise of North Bay, perfect for exhilarating marine encounters.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648574/journeyflicker/znvvd7ozjozsujzxrfce.jpg",
+          "schedule": "Morning: Airport Arrival & Private Transfer. Afternoon: Port Blair City Tour & Corbyn's Cove. Evening: Cellular Jail Light & Sound Show. Next Morning: Excursion to Ross Island & North Bay.",
+          "accommodation": "Luxury Hotel, Port Blair.",
+          "meals": "Breakfast - Welcome Dinner"
+        },
+        {
+          "title": "Day 2: Havelock Island's Pristine Shores & Aquatic Wonders",
+          "description": "Transfer to the enchanting Swaraj Dweep (Havelock Island), a haven of pristine beaches. Discover the world-renowned Radhanagar Beach, often lauded as Asia's finest, where turquoise waters meet soft white sands. Spend your afternoon indulging in the tranquility of Kala Pathar Beach or seeking adventure with complimentary snorkeling at the vibrant Elephanta Beach, surrounded by spectacular marine life.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647861/journeyflicker/zqksuusybnccnjf1uqyi.jpg",
+          "schedule": "Morning: Scenic Cruise to Havelock. Afternoon: Radhanagar Beach Relaxation & Kalapathar Beach Visit. Late Afternoon: Elephanta Beach Snorkeling (Complimentary). Evening: Leisure at Havelock.",
+          "accommodation": "Luxury Resort, Havelock.",
+          "meals": "Breakfast - Gala Dinner"
+        },
+        {
+          "title": "Day 3: Farewell from the Emerald Isles",
+          "description": "Enjoy a final leisurely breakfast before your private transfer to the airport, carrying cherished memories of the Andaman Islands' unparalleled beauty and your luxurious express escape.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647934/journeyflicker/tv4uxtwwsvsob3y2odcn.jpg",
+          "schedule": "Morning: Private Airport Transfer.",
+          "accommodation": "N/A",
+          "meals": "Breakfast"
+        }
+      ],
+      "sightseeing": [
+        {
+          "title": "Corbyn's Cove Beach",
+          "description": "A featured landmark in the Corbyn's Cove Beach region.",
+          "icon": "beach_access",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648097/journeyflicker/cep3adjapjzio5ihnthn.jpg"
+        },
+        {
+          "title": "Light & Sound Show",
+          "description": "A featured landmark in the Light & Sound Show region.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648215/journeyflicker/fmql0q6d84tukg43mohn.jpg"
+        },
+        {
+          "title": "North Bay",
+          "description": "A featured landmark in the North Bay region.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648020/journeyflicker/sgyetqe9zwfaefao452e.jpg"
+        },
+        {
+          "title": "KalaPathar Beach",
+          "description": "A featured landmark in the KalaPathar Beach region.",
+          "icon": "beach_access",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648013/journeyflicker/nifqxguyoxzwqe6hs3q0.jpg"
+        },
+        {
+          "title": "Radhanagar Beach",
+          "description": "A featured landmark in the Radhanagar Beach region.",
+          "icon": "beach_access",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647861/journeyflicker/zqksuusybnccnjf1uqyi.jpg"
+        }
+      ],
+      "visualArchive": [
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647814/journeyflicker/rtvzokekghyfhd2r7hxt.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647815/journeyflicker/gmbqtp5n1ejzmqacxaje.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647815/journeyflicker/kr1ou3q9yyy8nop1hqov.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647814/journeyflicker/qca66frsrcvxkwvv4j08.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647815/journeyflicker/ac7z6uzjcbp1xcjjiuqn.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647814/journeyflicker/xc40dvhykvwfke1qyshb.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778647814/journeyflicker/c7zdxrm6cr54n67z2obb.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648127/journeyflicker/oqtlsiirrmv8pnzpe8jn.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648130/journeyflicker/apy8zioqpn8vc9bflbvx.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648129/journeyflicker/oxdzbczrwi7qgqobbflh.jpg",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1778648128/journeyflicker/b7i9picatp4epbtpefbc.jpg"
+      ],
+      "testimonials": [],
+      "departureWindows": [],
+      "maxGuests": 8,
+      "createdAt": 1780238679301,
+      "published": true
+    },
+    {
+      "id": "tour_mptwajzz_l3slns",
+      "name": "Vietnam (Express Edition)",
+      "region": "Vietnam",
+      "days": 3,
+      "price": "OVERVIEW",
+      "category": "Signature Expedition Express",
+      "rating": 4.8,
+      "heroImageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992023/journeyflicker/gjqi0x614cmrdkik6h3p.webp",
+      "overviewDescription": "A perfectly condensed 3-day luxury escape. A curated 10-day journey through Vietnam.",
+      "overviewExtended": "Designed for discerning travelers demanding high impact in limited time, this curated itinerary delivers the absolute pinnacle of our standard tour. Enjoy private first-class comfort, exquisite dining, and premium lodging on a seamless 3-day adventure.",
+      "transport": "Private AC Vehicle",
+      "guide": "",
+      "pickup": ": Bagdogra Airport",
+      "itinerary": [
+        {
+          "title": "Day 1: – Ha Noi Arrival | Transfer to Sapa & Sapa | Cat Cat Village | Fansipan Mountain & Highlights",
+          "description": "Arrive at Noi Bai International Airport, Ha Noi, meet your representative, and transfer to Sapa. Sapa is known for its rice terraces, mountain scenery, and views of Fansipan, the highest peak in Vietnam\n\n\n\n\n\n• Airport Transfer After breakfast, visit Cat Cat Village and explore local culture, mountain landscapes, and traditional village life. Later, enjoy an excursion to Fansipan Mountain, widely known as the “Roof of Indochina.” \n\n\n\n\n\n• Cat Cat Villag\n\n• Fansipan Mountain excursion After breakfast, transfer back to Ha Noi. Check in to your hotel and enjoy the rest of the day at leisure for shopping, café hopping, or exploring the city on your own.\n\n\n\n\n\n• Transfer to Ha Noi After breakfast, travel to Ha Long Bay and board your overnight cruise. Ha Long Bay is a UNESCO World Heritage Site, known for its limestone islands and emerald waters, and an overnight cruise is one of the best ways to experience it. Wake up to the beauty of the bay, enjoy breakfast on the cruise, and return to Ha Noi. Later, proceed for a half-day city tour covering major highlights of the capital. \n\n\n\n\n\n• Half-day city tour",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992097/journeyflicker/m5txw4msf1ewiq8ibfwh.webp",
+          "schedule": "Pickup As Per Flight · As Per Itinerary · As Per Itinerary · As Per Itinerary · As Per Itinerary",
+          "accommodation": "Hotel In Ha Noi",
+          "meals": ""
+        },
+        {
+          "title": "Day 2: Ha Noi to Da Nang | Cam Thanh Water Coco... & Ba Na Hills & Highlights",
+          "description": "Ha Noi to Da Nang | Cam Thanh Water Coconut Village | Hoi An Ancient Town\nAfter breakfast, take your flight to Da Nang. On arrival, visit Cam Thanh Water Coconut Village, located near Hoi An, and enjoy a basket-boat style village experience. Later, explore Hoi An Ancient Town, a UNESCO World Heritage Site and a beautifully preserved trading port from the 15th to 19th centuries \n\n\n\n\n\n•   Flight to Da Nang\n\n• Coconut Village\n\n• Hoi An Ancient Town After breakfast, enjoy a full-day excursion to Ba Na Hills. This is one of Da Nang’s most popular mountain attractions and is known for scenic views, cable car access, and leisure activities\n\n\n\n\n\n• Ba Na Hills After breakfast, fly to Ho Chi Minh City. Upon arrival, enjoy a half-day city tour covering the city’s main landmarks and lively streets.\n\n\n\n\n\n• Flight to Ho Chi Minh City \n\n•  Half-day city tour fter breakfast, proceed for a full-day tour combining two of southern Vietnam’s most famous experiences: the Cu Chi Tunnels, a historic underground network, and the Mekong Delta, known for river life, coconut groves, and rural scenery\n\n\n\n\n\n• Cu Chi Tunnels tour\n\n•  Mekong Delta tour",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992313/journeyflicker/ldjyejnqtgxofz2m5gny.webp",
+          "schedule": "As Per Itinerary · As Per Itinerary · As Per Itinerary · As Per Itinerary",
+          "accommodation": "Hotel In Ho Chi Minh City",
+          "meals": ""
+        },
+        {
+          "title": "Day 3: – Ho Chi Minh City Departure",
+          "description": "After breakfast, check out from the hotel and transfer to the airport for your departure flight with wonderful memories of Vietnam.\n\n•  Airport transfer",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992495/journeyflicker/rjsxrbr5npnfogyd7w6l.webp",
+          "schedule": "",
+          "accommodation": "N/A",
+          "meals": ""
+        }
+      ],
+      "sightseeing": [
+        {
+          "title": "Cat Cat Village",
+          "description": "A featured landmark in the Cat Cat Villag region.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992659/journeyflicker/k9jx7brxgkezycavpewn.webp"
+        },
+        {
+          "title": "Flight to Da Nang",
+          "description": "A featured landmark in the Flight to Da Nang region.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992584/journeyflicker/e6gs0r4v6p290eqhgnkr.webp"
+        },
+        {
+          "title": "Coconut Village",
+          "description": "A featured landmark in the Coconut Village region.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992578/journeyflicker/yg1ttepvqigcbzovejd1.webp"
+        },
+        {
+          "title": "Flight to Ho Chi Minh City",
+          "description": "A featured landmark in the Flight to Ho Chi Minh City region.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992526/journeyflicker/q4medzdzb2xiftv1nmrv.webp"
+        }
+      ],
+      "visualArchive": [
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992681/journeyflicker/ggch6hjzcbzbv3yxubuy.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992689/journeyflicker/oynang6pss214dwhxzlj.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992709/journeyflicker/j1do6lhjmtfvv6hyj8c9.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992716/journeyflicker/mtc1stpizzcmox2gj1lg.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992719/journeyflicker/g54arwm0mksckyzctlnm.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992725/journeyflicker/l5ijxfcfp2torrluwqlq.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992728/journeyflicker/dzd9tuglntgmfvthf7kg.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992734/journeyflicker/gdhjiqvlynphl1wfs3js.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992747/journeyflicker/tmsi9jpgisbftlyzejjx.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779992761/journeyflicker/unfmacq4mlmku17vsbrg.webp"
+      ],
+      "testimonials": [],
+      "departureWindows": [],
+      "maxGuests": 6,
+      "published": true,
+      "createdAt": 1780238927807
+    },
+    {
+      "id": "tour_mptwhcxk_f16kwu",
+      "name": "Thailand: Coastal Charm & Bangkok Heritage Express",
+      "region": "Thailand  \"Amazing Thailand\"",
+      "days": 4,
+      "price": "$2,950",
+      "category": "Signature Expedition",
+      "rating": 4.8,
+      "heroImageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779991167/journeyflicker/ra4tncnb7ocu1dgy8bwh.webp",
+      "overviewDescription": "Embark on an exquisite 4-day journey, meticulously curated to unveil the coastal splendor of Pattaya and the timeless cultural heart of Bangkok. This express edition is designed for discerning travelers seeking a concentrated taste of Thailand's most iconic landscapes and heritage.",
+      "overviewExtended": "Experience the vibrant energy of Thailand with this expertly crafted 4-day itinerary. From the idyllic beaches and azure waters of Pattaya's Coral Island to Bangkok's magnificent golden temples and bustling urban elegance, every moment is a luxurious immersion into the Kingdom's captivating allure. Enjoy seamless private transfers, gourmet dining, and stays in handpicked luxury accommodations, ensuring an unforgettable and perfectly paced odyssey.",
+      "transport": "Private AC Vehicle",
+      "guide": "",
+      "pickup": ": Bagdogra Airport",
+      "itinerary": [
+        {
+          "title": "Day 1: Arrival & Pattaya's Coastal Allure",
+          "description": "Begin your luxurious Thai escapade with a seamless arrival in Bangkok, followed by a private transfer to the vibrant coastal paradise of Pattaya. Settle into your exquisite beachfront accommodation and embrace the sophisticated evening atmosphere, ready for days of exploration.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779991178/journeyflicker/tb9cadnjghio7r4wet83.webp",
+          "schedule": "Arrival in Bangkok - Private Transfer to Pattaya - Evening Coastal Exploration",
+          "accommodation": "Opulent Beachfront Resort, Pattaya",
+          "meals": "Welcome Dinner"
+        },
+        {
+          "title": "Day 2: Enchanting Coral Island Expedition",
+          "description": "Awake to tropical splendor before embarking on a thrilling speedboat journey to the renowned Coral Island. Dive into crystal-clear waters for snorkeling, relax on pristine white sands, and savor a delightful island lunch amidst breathtaking scenery.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779991314/journeyflicker/usqkkgoqch77togk61g2.webp",
+          "schedule": "Morning Speedboat to Coral Island - Water Activities & Beach Relaxation - Afternoon Return",
+          "accommodation": "Opulent Beachfront Resort, Pattaya",
+          "meals": "Breakfast - Gourmet Island Lunch"
+        },
+        {
+          "title": "Day 3: Bangkok's Sacred Grandeur & Urban Pulse",
+          "description": "Journey to the magnificent capital, Bangkok, and immerse yourself in its rich cultural tapestry. Discover revered temples like the Golden Buddha and Marble Temple, experiencing the city's spiritual heart and bustling urban elegance.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779991346/journeyflicker/a28l5qu8uaiaxne7pyej.webp",
+          "schedule": "Morning Transfer to Bangkok - Afternoon City & Temple Exploration - Evening at Leisure",
+          "accommodation": "Five-Star Urban Sanctuary, Bangkok",
+          "meals": "Breakfast - Authentic Thai Dinner"
+        },
+        {
+          "title": "Day 4: A Fond Farewell from Thailand",
+          "description": "Enjoy a final gourmet breakfast at your Bangkok hotel, reflecting on the cherished memories of your express Thai journey. A private transfer will convey you to Bangkok International Airport for your departure, leaving you with a longing to return.",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779991573/journeyflicker/vf46addekqs7kcp2bgie.webp",
+          "schedule": "Morning Breakfast - Private Airport Transfer",
+          "accommodation": "",
+          "meals": "Breakfast"
+        }
+      ],
+      "sightseeing": [
+        {
+          "title": "Coral Island Tour",
+          "description": "A featured landmark in the Coral Island Tour region.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779991592/journeyflicker/njlptpcklavpgqsof410.webp"
+        },
+        {
+          "title": "Wat Traimit (Golden Buddha Temple)",
+          "description": "A featured landmark in the Wat Traimit (Golden Buddha Temple) region.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779991600/journeyflicker/lbozl2lqha9tynkoli3w.webp"
+        },
+        {
+          "title": "Wat Benchamabophit (Marble Temple)",
+          "description": "A featured landmark in the Wat Benchamabophit (Marble Temple) region.",
+          "icon": "star",
+          "imageUrl": "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779991638/journeyflicker/pbfeilykcstle3ktascm.webp"
+        }
+      ],
+      "visualArchive": [
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779991881/journeyflicker/xmdeiilvl32014nqkouc.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779991887/journeyflicker/e8zhittrredtb4nzdxlp.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779991893/journeyflicker/gnw78zrvx1ibalqtw6p6.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779991897/journeyflicker/sdatvzko7a3z8g4h49fo.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779991900/journeyflicker/nkg0aocdcg6brbsmbvgb.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779991903/journeyflicker/rxt35nzrqpeqgegmnoux.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779991909/journeyflicker/brxejbq0pk1cboayjmvh.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779991913/journeyflicker/n0uack3gsijcwsk4cuj1.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779991918/journeyflicker/rkkvrcju2zyqaiwwc7x1.webp",
+        "https://res.cloudinary.com/dnnkcwtze/image/upload/v1779991924/journeyflicker/gqq4ima6nvvyfje1yk9e.webp"
+      ],
+      "testimonials": [],
+      "departureWindows": [],
+      "maxGuests": 8,
+      "published": true,
+      "createdAt": 1780239245240
     }
   ],
   "visas": [

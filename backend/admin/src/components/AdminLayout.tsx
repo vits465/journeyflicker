@@ -37,6 +37,7 @@ export function AdminLayout() {
     { path: '/',              label: 'Dashboard',    icon: 'dashboard' },
     { path: '/destinations', label: 'Destinations', icon: 'location_on' },
     { path: '/tours',        label: 'Tours',        icon: 'flight' },
+    { path: '/shortener',    label: 'Itinerary Shortener', icon: 'content_cut' },
     { path: '/visas',        label: 'Visas',        icon: 'passport' },
     { path: '/media',        label: 'Media Library',icon: 'photo_library' },
     { path: '/reviews',      label: 'Reviews',      icon: 'star' },

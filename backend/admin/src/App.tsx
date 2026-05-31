@@ -14,6 +14,7 @@ import { AdminLoader } from "./components/AdminLoader";
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const AdminDestinations = lazy(() => import("./pages/AdminDestinations"));
 const AdminTours = lazy(() => import("./pages/AdminTours"));
+const AdminShortener = lazy(() => import("./pages/AdminShortener"));
 const AdminVisas = lazy(() => import("./pages/AdminVisas"));
 const AdminLoginPage = lazy(() => import("./pages/AdminLoginPage"));
 const AdminAccessControl = lazy(() => import("./pages/AdminAccessControl"));
@@ -70,6 +71,7 @@ export default function App() {
                 <Route path="/" element={<AdminDashboard />} />
                 <Route path="/destinations" element={<AdminDestinations />} />
                 <Route path="/tours" element={<AdminTours />} />
+                <Route path="/shortener" element={<AdminShortener />} />
                 <Route path="/visas" element={<AdminVisas />} />
                 <Route path="/access" element={<AdminAccessControl />} />
                 <Route path="/hero" element={<AdminHeroSettings />} />
