@@ -3,6 +3,7 @@ import { ScrollFx } from "./ScrollFx";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { WhatsAppWidget } from "./WhatsAppWidget";
+import { CookieConsent } from "./CookieConsent";
 
 export function SiteLayout() {
   return (
@@ -18,6 +19,7 @@ export function SiteLayout() {
 
       <Footer />
       <WhatsAppWidget />
+      <CookieConsent />
     </>
   );
 }

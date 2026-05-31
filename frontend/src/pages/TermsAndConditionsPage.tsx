@@ -116,6 +116,42 @@ export default function TermsAndConditionsPage() {
               </div>
             </div>
 
+            <hr className="border-outline-variant/20 dark:border-white/10" />
+
+            {/* Sec 5 */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10 items-start">
+              <div className="md:col-span-1">
+                <span className="text-[10px] font-black tracking-[0.4em] uppercase text-primary block mb-2">05 / Accreditations</span>
+                <h3 className="text-xl font-light tracking-tight font-serif italic text-black dark:text-white">Trust Frameworks</h3>
+              </div>
+              <div className="md:col-span-2 space-y-4 text-sm font-light leading-relaxed">
+                <p>
+                  JourneyFlicker operates in collaboration with certified global networks. Stated accreditations (including IATA, ASTA memberships, and ATOL protections) are governed by respective authority protocols and are maintained to guarantee international travel quality standards.
+                </p>
+                <p>
+                  Flight tickets and package travels are protected and booked strictly in compliance with civil aviation policies and the rules of the operating transport carriers.
+                </p>
+              </div>
+            </div>
+
+            <hr className="border-outline-variant/20 dark:border-white/10" />
+
+            {/* Sec 6 */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10 items-start">
+              <div className="md:col-span-1">
+                <span className="text-[10px] font-black tracking-[0.4em] uppercase text-primary block mb-2">06 / Governing Law</span>
+                <h3 className="text-xl font-light tracking-tight font-serif italic text-black dark:text-white">Jurisdiction limits</h3>
+              </div>
+              <div className="md:col-span-2 space-y-4 text-sm font-light leading-relaxed">
+                <p>
+                  This Curator Agreement, along with all booking negotiations, and curated services provided by JourneyFlicker, are governed by and interpreted under the laws of the Republic of India.
+                </p>
+                <p>
+                  Any legal claims, disputes, or actions arising from our digital platform or travel contracts will be subject to the exclusive jurisdiction of the competent courts in Surat, Gujarat, India.
+                </p>
+              </div>
+            </div>
+
           </div>
 
           {/* Interactive Info Banner */}

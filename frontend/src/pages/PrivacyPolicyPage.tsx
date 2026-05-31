@@ -108,11 +108,52 @@ export default function PrivacyPolicyPage() {
               </div>
               <div className="md:col-span-2 space-y-4 text-sm font-light leading-relaxed">
                 <p>
-                  As a citizen under legal protections (such as GDPR or CCPA), you retain the right to query, download, or permanently purge your personal record from our servers.
+                  As a citizen under global data protection frameworks (such as the GDPR in Europe, CCPA in California, and the Digital Personal Data Protection (DPDP) Act, 2023 in India), you retain absolute rights to access, rectify, restrict, or request the permanent purging of your personal records from our databases.
                 </p>
                 <p>
                   Third-party integrations, such as Facebook Login, permit domain application data to be purged at any time. Instructions to invoke this delete command are detailed inside our dedicated <a href="/data-deletion" className="text-primary hover:underline font-normal">Data Deletion Protocol</a> page.
                 </p>
+              </div>
+            </div>
+
+            <hr className="border-outline-variant/20 dark:border-white/10" />
+
+            {/* Sec 5 */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10 items-start">
+              <div className="md:col-span-1">
+                <span className="text-[10px] font-black tracking-[0.4em] uppercase text-primary block mb-2">05 / Cookie Telemetry</span>
+                <h3 className="text-xl font-light tracking-tight font-serif italic text-black dark:text-white">Cookies & Preferences</h3>
+              </div>
+              <div className="md:col-span-2 space-y-4 text-sm font-light leading-relaxed">
+                <p>
+                  We utilize small text files (cookies) to securely identify your curator session, retain booking search parameters, and analyze anonymized site telemetry to optimize our editorial interface.
+                </p>
+                <p>
+                  By accessing our platform, you consent to our secure, curated cookie usage. You can configure your browser to reject cookies or adjust your preferences, though certain booking workflows may be affected.
+                </p>
+              </div>
+            </div>
+
+            <hr className="border-outline-variant/20 dark:border-white/10" />
+
+            {/* Sec 6 */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10 items-start">
+              <div className="md:col-span-1">
+                <span className="text-[10px] font-black tracking-[0.4em] uppercase text-primary block mb-2">06 / Grievance Redressal</span>
+                <h3 className="text-xl font-light tracking-tight font-serif italic text-black dark:text-white">Statutory Officers</h3>
+              </div>
+              <div className="md:col-span-2 space-y-4 text-sm font-light leading-relaxed">
+                <p>
+                  In accordance with the Indian Information Technology Act, 2000 and the Consumer Protection (E-Commerce) Rules, 2020, we have appointed a Grievance Redressal Officer to address user data complaints and statutory inquiries.
+                </p>
+                <p>
+                  For any privacy concerns, data breaches, or legal inquiries, please contact:
+                </p>
+                <address className="not-italic text-xs border-l-2 border-primary/20 pl-4 space-y-1.5 my-3 text-on-surface-variant opacity-75">
+                  <p className="font-bold text-black dark:text-white">Grievance Redressal Officer: Mr. Tushar Patel</p>
+                  <p>Email: <a href="mailto:grievance@journeyflicker.com" className="text-primary hover:underline font-normal">grievance@journeyflicker.com</a></p>
+                  <p>Address: 103, Raj Victoria, Adajan, Surat - 395009, Gujarat, India</p>
+                </address>
               </div>
             </div>
 
