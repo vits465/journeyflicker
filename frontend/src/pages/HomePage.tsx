@@ -96,7 +96,7 @@ export default function HomePage() {
     const pool = heroIds.length > 0
       ? heroIds.map(id => destinations.find(d => d.id === id)).filter(Boolean) as Destination[]
       : destinations.slice(0, 5);
-    if (!pool.length) return [{ id: 'fallback', imageUrl: FALLBACK, title: 'Journey Beyond.', subtitle: 'A curated index of the most evocative landscapes for the selective voyager.', tag: 'Global Intelligence Bureau' }];
+    if (!pool.length) return [{ id: 'fallback', imageUrl: FALLBACK, title: 'Journey Beyond.', subtitle: 'A curated index of the most evocative landscapes for the selective voyager.', tag: 'Global Support' }];
     return pool.map(d => ({ id: d.id, imageUrl: d.heroImageUrl || FALLBACK, title: d.name, subtitle: d.essenceText || d.description?.slice(0, 100), tag: d.region, href: `/destinations/${d.id}` }));
   })();
 
@@ -211,7 +211,7 @@ export default function HomePage() {
       <HeroSlider slides={heroSlides} loading={loading} autoPlayMs={5500} height="h-[80vh] md:h-[95vh] lg:h-screen min-h-[500px] max-h-[900px]" hideSlideText={true}>
         <div className="flex flex-col items-center text-center w-full px-4 pt-16">
           <div className="border border-white/20 rounded-full px-5 py-2 mb-5 backdrop-blur-md bg-white/10 inline-block">
-            <span className="text-white/70 text-[9px] tracking-[0.5em] uppercase font-black">Global Intelligence Bureau</span>
+            <span className="text-white/70 text-[9px] tracking-[0.5em] uppercase font-black">Global Support</span>
           </div>
           <h1 className="text-4xl sm:text-6xl md:text-7xl text-white tracking-tighter leading-[0.98] sm:leading-[0.88] font-light drop-shadow-2xl mb-2">
             Journey<br/><span className="italic font-serif text-white/90">Beyond.</span>
@@ -244,7 +244,7 @@ export default function HomePage() {
             { value: loading ? '—' : `${destinations.length}+`, label: 'Verified Territories', icon: 'public' },
             { value: loading ? '—' : `${tours.length}+`,        label: 'Active Expeditions',  icon: 'luggage' },
             { value: '4.9',                                      label: 'Avg Client Rating',   icon: 'star' },
-            { value: '24h',                                      label: 'Curator Response',     icon: 'schedule' },
+            { value: '24/7',                                      label: 'Curator Response',     icon: 'schedule' },
           ].map((stat, i) => (
             <div key={i} className="py-6 sm:py-8 px-4 flex items-center gap-4 group hover:bg-white/[0.02] transition-colors duration-300 border-r border-b md:border-b-0 border-white/5">
               <span className="material-symbols-outlined text-primary dark:text-white/30 text-2xl font-light group-hover:scale-110 transition-transform duration-300">{stat.icon}</span>
@@ -306,7 +306,7 @@ export default function HomePage() {
             <div>
               <span className="text-primary text-[10px] font-black tracking-[0.6em] uppercase mb-3 block">The Process</span>
               <h2 className="text-4xl sm:text-5xl font-light tracking-tighter leading-tight dark:text-white">
-                How We <span className="italic font-serif">Curate.</span>
+                How We <span className="italic font-serif">WORK.</span>
               </h2>
             </div>
             <p className="text-sm font-light text-on-surface-variant opacity-60 max-w-sm leading-relaxed md:text-right">

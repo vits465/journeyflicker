@@ -115,9 +115,9 @@ export default function ContactPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
         </div>
         <div className="relative z-10 max-w-3xl animate-reveal-up">
-          <span className="text-white/60 text-[10px] tracking-[0.5em] uppercase mb-3 block font-bold">The Studio Bureau</span>
+          <span className="text-white/60 text-[10px] tracking-[0.5em] uppercase mb-3 block font-bold">Inquire</span>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light leading-tight tracking-tighter text-white">
-            Inquire<br/><span className="italic font-serif text-white/90">Strategy</span>
+          Let's Talk<br/><span className="italic font-serif text-white/90">Strategy</span>
           </h1>
         </div>
       </section>
@@ -202,7 +202,7 @@ export default function ContactPage() {
           {/* Right: Form */}
           <div className="lg:col-span-3 animate-reveal-up" style={{ animationDelay: '0.15s' }}>
             <div className="bg-surface dark:bg-white/[0.03] p-6 sm:p-8 md:p-10 rounded-2xl shadow-sm border border-outline-variant/20 dark:border-white/10">
-              <span className="text-primary text-[10px] font-black tracking-[0.5em] uppercase mb-6 block">Inception Protocol</span>
+              <span className="text-primary text-[10px] font-black tracking-[0.5em] uppercase mb-6 block">GET in Touch</span>
 
               {submitted ? (
                 <div className="py-12 text-center">

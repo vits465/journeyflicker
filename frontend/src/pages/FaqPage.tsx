@@ -84,7 +84,7 @@ export default function FaqPage() {
     <>
       <SEO 
         pageId="faq"
-        title="Bureau of Intelligence & FAQs | JourneyFlicker"
+        title="Assistance & Support Department & FAQs | JourneyFlicker"
         description="Find answers to frequently asked questions about luxury heritage expeditions, custom travel curation logistics, and digital identity protection protocol."
         schema={faqSchema}
       />
@@ -98,7 +98,7 @@ export default function FaqPage() {
         <div className="relative z-10 max-w-3xl animate-reveal-up">
           <span className="text-white/60 text-[10px] tracking-[0.5em] uppercase mb-3 block font-bold">Support Bureau</span>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light leading-tight tracking-tighter text-white">
-            Bureau of<br/><span className="italic font-serif text-white/90">Intelligence</span>
+            Assistance &<br/><span className="italic font-serif text-white/90">Support Department</span>
           </h1>
         </div>
       </section>
@@ -159,7 +159,7 @@ export default function FaqPage() {
         <div className="max-w-xl mx-auto animate-reveal-up relative z-10">
           <span className="text-white/40 text-[10px] tracking-[0.4em] uppercase mb-3 block font-bold">Still Undocumented?</span>
           <h2 className="text-3xl sm:text-4xl font-light tracking-tighter mb-4 leading-tight">
-            Reach your<br/><span className="italic font-serif text-white/90">Curator</span>
+            Get In Touch With<br/><span className="italic font-serif text-white/90">JourneyFlicker</span>
           </h2>
           <p className="text-sm font-light text-white/40 mb-7 leading-relaxed italic">
             For specific intelligence queries or complex itinerary requirements, our senior curators offer private digital audits.
