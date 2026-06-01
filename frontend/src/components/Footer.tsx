@@ -124,11 +124,7 @@ export function Footer() {
             </p>
           </div>
 
-          <div className="flex flex-wrap justify-center lg:justify-end items-center gap-3 sm:gap-5 order-1 lg:order-2">
-            <span className="text-[8px] font-black tracking-[0.4em] uppercase text-white/20">Accreditations:</span>
-            <span className="text-[9px] font-bold tracking-widest text-white/40 hover:text-white/80 transition-colors uppercase cursor-help" title="International Air Transport Association">IATA</span>
-            <span className="text-[9px] font-bold tracking-widest text-white/40 hover:text-white/80 transition-colors uppercase cursor-help" title="Air Travel Organisers' Licensing">ATOL Protected</span>
-            <span className="text-[9px] font-bold tracking-widest text-white/40 hover:text-white/80 transition-colors uppercase cursor-help" title="American Society of Travel Advisors">ASTA Member</span>
+          <div className="flex flex-wrap justify-center lg:justify-end items-center gap-3 sm:gap-5 order-1 lg:order-2"> 
             <span className="text-[8px] font-bold tracking-widest text-white/40 hover:text-white/80 transition-colors uppercase border border-white/20 px-2 py-0.5 rounded-sm cursor-help" title="Quality Management System">ISO 9001:2015</span>
           </div>
 

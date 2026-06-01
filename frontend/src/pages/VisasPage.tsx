@@ -38,11 +38,14 @@ function VisaCard({ visa, index, defaultExpanded = false }: { visa: Visa; index:
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
     
+    const countryName = (visa.country || 'Unknown').trim();
+    const formattedTitle = countryName.toLowerCase().endsWith('visa') ? countryName : `${countryName} Visa`;
+    
     const html = `
       <!DOCTYPE html>
       <html>
         <head>
-          <title>${visa.country} Visa Dossier - JourneyFlicker</title>
+          <title>${formattedTitle} Dossier - JourneyFlicker</title>
           <style>
             @media print { @page { margin: 15mm; } }
             body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #000; padding: 0; margin: 0; line-height: 1.6; max-width: 800px; margin: 0 auto; }
@@ -74,7 +77,7 @@ function VisaCard({ visa, index, defaultExpanded = false }: { visa: Visa; index:
               <span>Journey<b>Flicker</b></span>
             </div>
             ${visa.heroImageUrl ? `<img src="${visa.heroImageUrl}" class="hero-img" />` : ''}
-            <h1>${visa.country} Visa</h1>
+            <h1>${formattedTitle}</h1>
             <p class="subtitle">Official Entry Protocol & Requirements</p>
           </div>
 
@@ -421,7 +424,7 @@ export default function VisasPage() {
         hideSlideText={true}
       >
         <div className="relative z-10 max-w-3xl animate-reveal-up flex flex-col items-center gap-5 text-center px-4 pt-16">
-          <span className="text-white/50 text-[10px] tracking-[0.6em] uppercase font-bold">Bureau of Movement</span>
+          <span className="text-white/50 text-[10px] tracking-[0.6em] uppercase font-bold"></span>
           <h1 className="text-4xl sm:text-6xl md:text-7xl font-light leading-tight tracking-tighter text-white drop-shadow-xl">
             Visa<br /><span className="italic font-serif text-white/80">Intelligence</span>
           </h1>
@@ -457,7 +460,7 @@ export default function VisasPage() {
       <section className="py-16 sm:py-20 md:py-28 px-4 sm:px-8 md:px-16 bg-surface-container-lowest dark:bg-black">
         <div className="max-w-5xl mx-auto flex flex-col lg:flex-row gap-10 lg:gap-24 items-center">
           <div className="w-full lg:w-1/2 animate-reveal-up">
-            <span className="text-primary dark:text-white/60 text-[10px] font-bold tracking-[0.4em] uppercase mb-3 block">Strategic Mobility</span>
+            <span className="text-primary dark:text-white/60 text-[10px] font-bold tracking-[0.4em] uppercase mb-3 block">Strategic</span>
             <h2 className="text-4xl sm:text-5xl font-light tracking-tighter leading-tight dark:text-white">
               Precision in<br /><span className="italic font-serif opacity-40 dark:opacity-20">Entry.</span>
             </h2>
@@ -467,7 +470,7 @@ export default function VisasPage() {
               "Effective travel is a matter of administrative mastery."
             </p>
             <p className="text-sm font-light text-on-surface-variant dark:text-white/60 leading-relaxed opacity-70">
-              Our Intelligence bureau distils evolving geopolitical requirements into high-definition strategies, ensuring your focus remains on the destination — not the paperwork.
+              Our distils evolving geopolitical requirements into high-definition strategies, ensuring your focus remains on the destination — not the paperwork.
             </p>
             <div className="grid grid-cols-3 gap-4 pt-4">
               {[
@@ -629,7 +632,7 @@ export default function VisasPage() {
       <section className="py-16 sm:py-20 px-4 sm:px-8 md:px-16 bg-surface-container-lowest dark:bg-black text-center border-t border-outline-variant/10 dark:border-white/5">
         <div className="max-w-xl mx-auto animate-reveal-up">
           <h2 className="text-3xl sm:text-4xl font-light tracking-tighter mb-4 leading-tight dark:text-white">
-            Strategic<br /><span className="italic font-serif text-on-surface/40 dark:text-white/20">Mobility Bureau</span>
+            Strategic<br /><span className="italic font-serif text-on-surface/40 dark:text-white/20">Registry Assistance</span>
           </h2>
           <p className="text-sm font-light text-on-surface-variant dark:text-white/60 mb-7 leading-relaxed opacity-70">
             For complex multi-territory itineraries, our senior mobility strategists offer end-to-end documentation management.
