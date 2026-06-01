@@ -23,12 +23,13 @@ export function Footer() {
 
           {/* Brand column */}
           <div className="sm:col-span-2 lg:col-span-1 space-y-5">
-            <NavLink to="/" className="group inline-block">
+            <NavLink to="/" className="group flex items-center gap-2">
+              <img src="/favicon.svg" alt="JourneyFlicker Logo" className="w-6 h-6 sm:w-7 sm:h-7 object-contain rounded-lg" />
               <span className="text-xl sm:text-2xl font-light tracking-tighter uppercase group-hover:text-primary transition-colors duration-300">
                 Journey<span className="font-black">Flicker</span>
               </span>
             </NavLink>
-            <p className="text-sm font-light text-white/40 leading-relaxed italic font-serif max-w-xs">
+            <p className="text-sm font-light text-white/60 leading-relaxed italic font-serif max-w-xs">
               "Providing architectural silence and profound discovery for the discerning voyager."
             </p>
             {/* Social icons */}
@@ -50,11 +51,11 @@ export function Footer() {
 
           {/* Registry links */}
           <div className="space-y-4">
-            <h4 className="text-[9px] font-black tracking-[0.5em] uppercase text-white/20">Registry</h4>
+            <h4 className="text-[9px] font-black tracking-[0.5em] uppercase text-white/50">Registry</h4>
             <nav className="flex flex-col gap-2.5">
               {registry.map((link) => (
                 <NavLink key={link} to={`/${link.toLowerCase()}`}
-                  className="text-sm font-light text-white/50 hover:text-white transition-colors duration-200 hover:translate-x-1 inline-block">
+                  className="text-sm font-light text-white/60 hover:text-white transition-colors duration-200 hover:translate-x-1 inline-block">
                   {link}
                 </NavLink>
               ))}
@@ -63,11 +64,11 @@ export function Footer() {
 
           {/* Intelligence links */}
           <div className="space-y-4">
-            <h4 className="text-[9px] font-black tracking-[0.5em] uppercase text-white/20">Intelligence</h4>
+            <h4 className="text-[9px] font-black tracking-[0.5em] uppercase text-white/50">Intelligence</h4>
             <nav className="flex flex-col gap-2.5">
               {intelligence.map((link) => (
                 <NavLink key={link} to={link === 'Strategy' ? '/contact' : `/${link.toLowerCase()}`}
-                  className="text-sm font-light text-white/50 hover:text-white transition-colors duration-200 hover:translate-x-1 inline-block">
+                  className="text-sm font-light text-white/60 hover:text-white transition-colors duration-200 hover:translate-x-1 inline-block">
                   {link}
                 </NavLink>
               ))}
@@ -76,29 +77,29 @@ export function Footer() {
 
           {/* Bureau info */}
           <div className="space-y-4">
-            <h4 className="text-[9px] font-black tracking-[0.5em] uppercase text-white/20">Bureau</h4>
+            <h4 className="text-[9px] font-black tracking-[0.5em] uppercase text-white/50">OFFICE</h4>
             <address className="not-italic">
-              <p className="text-sm font-light text-white/30 leading-loose tracking-wide">
-                103, Raj Victoria<br />
-                Near Samarth Circle, Adajan<br />
-                Surat - 395009, Gujarat, India
+              <p className="text-sm font-light text-white/60 leading-loose tracking-wide">
+                Raj Victoriya, 103<br />
+                near Samarth Circle, Adajan Gam<br />
+                Adajan, Surat, Gujarat 395009
               </p>
             </address>
-            <div className="space-y-1 pt-1">
+            <div className="space-y-1.5 pt-1">
               <a href="mailto:tushar@journeyflicker.com"
-                className="text-[10px] text-white/30 hover:text-white transition-colors block tracking-wide">
+                className="text-[10px] text-white/60 hover:text-white transition-colors block tracking-wide">
                 tushar@journeyflicker.com
               </a>
               <a href="mailto:pashv@journeyflicker.com"
-                className="text-[10px] text-white/30 hover:text-white transition-colors block tracking-wide">
+                className="text-[10px] text-white/60 hover:text-white transition-colors block tracking-wide">
                 pashv@journeyflicker.com
               </a>
               <a href="tel:+919879268811"
-                className="text-[10px] text-white/30 hover:text-white transition-colors block tracking-wide">
+                className="text-[10px] text-white/60 hover:text-white transition-colors block tracking-wide">
                 +91 98792 68811
               </a>
               <a href="tel:02613564717"
-                className="text-[10px] text-white/30 hover:text-white transition-colors block tracking-wide">
+                className="text-[10px] text-white/60 hover:text-white transition-colors block tracking-wide">
                 0261 3564717
               </a>
             </div>
@@ -108,24 +109,24 @@ export function Footer() {
         {/* ── BOTTOM BAR ── */}
         <div className="pt-6 flex flex-col lg:flex-row justify-between items-center gap-6 text-center lg:text-left">
           <div className="space-y-1.5 order-2 lg:order-1">
-            <p className="text-[9px] font-black tracking-[0.6em] uppercase text-white/20">Experience curated travel at its finest</p>
-            <p className="text-[9px] font-bold tracking-[0.3em] uppercase text-white/30">
+            <p className="text-[9px] font-black tracking-[0.6em] uppercase text-white/50">Experience curated travel at its finest</p>
+            <p className="text-[9px] font-bold tracking-[0.3em] uppercase text-white/60">
               © {year} JourneyFlicker Curator System · All Rights Reserved
             </p>
-            <div className="flex flex-wrap justify-center lg:justify-start gap-x-4 gap-y-1 pt-1.5 text-[8px] font-bold tracking-widest text-white/40 uppercase">
+            <div className="flex flex-wrap justify-center lg:justify-start gap-x-4 gap-y-1 pt-1.5 text-[8px] font-bold tracking-widest text-white/60 uppercase">
               <NavLink to="/privacy-policy" className="hover:text-white transition-colors">Privacy Charter</NavLink>
-              <span className="text-white/10">•</span>
+              <span className="text-white/30">•</span>
               <NavLink to="/terms-and-conditions" className="hover:text-white transition-colors">Curator Agreement</NavLink>
-              <span className="text-white/10">•</span>
+              <span className="text-white/30">•</span>
               <NavLink to="/data-deletion" className="hover:text-white transition-colors">Deletion Protocol</NavLink>
             </div>
-            <p className="text-[8px] font-light text-white/20 tracking-wider pt-2 max-w-xl mx-auto lg:mx-0 leading-normal">
+            <p className="text-[8px] font-light text-white/40 tracking-wider pt-2 max-w-xl mx-auto lg:mx-0 leading-normal">
               Visual media curated via Google Search Images and Wikimedia Commons. All respective image copyrights and intellectual property rights are fully acknowledged.
             </p>
           </div>
 
           <div className="flex flex-wrap justify-center lg:justify-end items-center gap-3 sm:gap-5 order-1 lg:order-2"> 
-            <span className="text-[8px] font-bold tracking-widest text-white/40 hover:text-white/80 transition-colors uppercase border border-white/20 px-2 py-0.5 rounded-sm cursor-help" title="Quality Management System">ISO 9001:2015</span>
+            <span className="text-[8px] font-bold tracking-widest text-white/60 hover:text-white/80 transition-colors uppercase border border-white/20 px-2 py-0.5 rounded-sm cursor-help" title="Quality Management System">ISO 9001:2015</span>
           </div>
 
           <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}

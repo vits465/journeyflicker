@@ -49,7 +49,7 @@ export default function AboutPage() {
         height="h-[65vh] min-h-[440px] max-h-[680px]"
         hideSlideText={true}
       >
-        <div className="relative z-10 max-w-3xl animate-reveal-up text-center md:text-left md:ml-16 sm:ml-8 ml-4 pt-16 px-4">
+        <div className="w-full max-w-5xl mx-auto px-4 sm:px-8 md:px-16 text-center md:text-left pt-16 relative z-10 animate-reveal-up">
           <span className="text-white/60 text-[10px] tracking-[0.5em] uppercase mb-4 block font-bold">The Narrative</span>
           <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tighter leading-tight text-white mb-5 drop-shadow-lg">
             Crafting Art in<br/><span className="italic font-serif text-white/90">Discovery</span>

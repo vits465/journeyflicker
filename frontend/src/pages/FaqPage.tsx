@@ -95,7 +95,7 @@ export default function FaqPage() {
             alt="Minimalist library" src="https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?q=80&w=2070&auto=format&fit=crop" />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
         </div>
-        <div className="relative z-10 max-w-3xl animate-reveal-up">
+        <div className="relative z-10 w-full max-w-5xl mx-auto animate-reveal-up">
           <span className="text-white/60 text-[10px] tracking-[0.5em] uppercase mb-3 block font-bold">Support Bureau</span>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light leading-tight tracking-tighter text-white">
             Assistance &<br/><span className="italic font-serif text-white/90">Support Department</span>

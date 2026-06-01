@@ -1,5 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from "react";
 import { reportError } from "../lib/errorReporter";
+import { safeSessionStorage } from "../lib/storage";
 
 interface Props {
   children: ReactNode;
@@ -27,13 +28,13 @@ export class ErrorBoundary extends Component<Props, State> {
     reportError(error, "React ErrorBoundary");
 
     // 2. Auto-Healing Mechanism: Automatically reload once to clear transient errors
-    const lastCrash = sessionStorage.getItem('jf_last_crash');
+    const lastCrash = safeSessionStorage.getItem('jf_last_crash');
     const now = Date.now();
     
     if (!lastCrash || (now - parseInt(lastCrash)) > 10000) {
       // It hasn't crashed in the last 10 seconds, so this is likely a transient glitch.
       // Auto-heal by refreshing transparently!
-      sessionStorage.setItem('jf_last_crash', now.toString());
+      safeSessionStorage.setItem('jf_last_crash', now.toString());
       window.location.reload();
     }
   }
@@ -52,7 +53,7 @@ export class ErrorBoundary extends Component<Props, State> {
             </p>
             <button
               onClick={() => {
-                sessionStorage.removeItem('jf_last_crash');
+                safeSessionStorage.removeItem('jf_last_crash');
                 window.location.reload();
               }}
               className="px-6 py-3 bg-[#C8A84B] hover:bg-[#E8C870] text-black font-bold text-xs tracking-widest uppercase rounded-full transition-colors flex items-center justify-center gap-2 mx-auto"

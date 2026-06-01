@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { safeStorage } from "../lib/storage";
 
 export function CookieConsent() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     // Check if consent has already been given
-    const consent = localStorage.getItem("jf_cookie_consent");
+    const consent = safeStorage.getItem("jf_cookie_consent");
     if (!consent) {
       // Small delay to make the entrance smooth and delightful
       const timer = setTimeout(() => {
@@ -17,12 +18,12 @@ export function CookieConsent() {
   }, []);
 
   const handleAccept = () => {
-    localStorage.setItem("jf_cookie_consent", "accepted");
+    safeStorage.setItem("jf_cookie_consent", "accepted");
     setVisible(false);
   };
 
   const handleDecline = () => {
-    localStorage.setItem("jf_cookie_consent", "declined");
+    safeStorage.setItem("jf_cookie_consent", "declined");
     setVisible(false);
   };
 

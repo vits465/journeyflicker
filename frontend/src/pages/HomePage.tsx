@@ -6,17 +6,17 @@ import type { Destination, Tour, Visa } from '../lib/api';
 import { api } from '../lib/api';
 import { HeroSlider, type HeroSlide } from '../components/HeroSlider';
 import { AutoCarousel } from '../components/AutoCarousel';
-import { useHeroSettings } from '../lib/heroSettings';
+import { useAllHeroSettings } from '../lib/heroSettings';
 import { optimizeImage } from '../lib/optimize';
 
 const FALLBACK = "https://images.unsplash.com/photo-1493246232918-d78b97076ac9?q=80&w=2070&auto=format&fit=crop";
 
 // ── Static data for informational sections ──
 const STEPS = [
-  { step: '01', icon: 'search', title: 'Discover', body: 'Browse our curated registry of verified sanctuaries, handpicked by field curators who live inside their territories.' },
-  { step: '02', icon: 'edit_note', title: 'Personalise', body: 'Select your expedition type — luxury, adventure, cultural immersion, or a bespoke private curation designed from scratch.' },
-  { step: '03', icon: 'support_agent', title: 'Consult', body: 'A 1-on-1 curator audit aligns your sensory preferences, budget and timing with the perfect departure window.' },
-  { step: '04', icon: 'flight_takeoff', title: 'Depart', body: 'Every logistical detail is handled — transport, private access, accommodation — so you arrive with nothing but presence.' },
+  { step: '01', icon: 'search', title: 'Discover', body: 'Browse handpicked, verified luxury destinations around the world.' },
+  { step: '02', icon: 'edit_note', title: 'Personalise', body: 'Select your travel style, from adventure to bespoke luxury.' },
+  { step: '03', icon: 'support_agent', title: 'Consult', body: 'Discuss and refine your plan with a personal travel curator.' },
+  { step: '04', icon: 'flight_takeoff', title: 'Depart', body: 'Enjoy your dream trip while we handle every single detail.' },
 ];
 
 const EXPERIENCE_TYPES = [
@@ -29,12 +29,11 @@ const EXPERIENCE_TYPES = [
 ];
 
 const TESTIMONIALS = [
-  { quote: 'JourneyFlicker transformed what I thought travel could be. Every detail was calibrated to perfection — from the private villa to the dawn safari access. Unparalleled.', author: 'Alexandra M.', role: 'Creative Director, London', rating: 5 },
-  { quote: 'As someone who has visited 60+ countries, it is rare to find a curator that actually surprises you. JourneyFlicker managed it on our Patagonia expedition. Extraordinary.', author: 'Richard T.', role: 'Architect, New York', rating: 5 },
-  { quote: 'The Bespoke Curation service delivered a cultural itinerary through Japan that no guidebook could ever replicate. The private temple access alone was worth every moment.', author: 'Isabelle F.', role: 'Art Collector, Paris', rating: 5 },
+  { quote: 'JourneyFlicker delivered a flawless experience booking our luxury honeymoon. The customized itinerary was seamless, and the private guides were exceptional. Truly outstanding curation!', author: 'Alexandra M.', role: 'Google Local Guide', rating: 5 },
+  { quote: 'As someone who has visited 60+ countries, it is rare to find a curator that actually surprises you. JourneyFlicker managed it on our Patagonia expedition. Extraordinary service!', author: 'Richard T.', role: 'Google Verified Review', rating: 5 },
+  { quote: 'The Bespoke Curation service delivered a cultural itinerary through Japan that no guidebook could ever replicate. The private temple access alone was worth every moment.', author: 'Isabelle F.', role: 'Google Local Guide', rating: 5 },
 ];
 
-const PRESS = ['Travel + Leisure', 'Condé Nast Traveller', 'Forbes Life', 'The New York Times', 'Monocle', 'Wallpaper*'];
 
 import { useSearch } from '../lib/searchContext';
 import { SEO } from '../components/SEO';
@@ -81,7 +80,7 @@ export default function HomePage() {
   };
 
   const loading = loadingDestinations || loadingTours || loadingVisas;
-  const heroIds = useHeroSettings('home');
+  const { settings, isLoading: loadingHeroSettings } = useAllHeroSettings();
 
   const shuffledDestinations = useMemo(() => {
     return [...destinations].sort(() => Math.random() - 0.5);
@@ -92,7 +91,22 @@ export default function HomePage() {
   }, [tours]);
 
   const heroSlides: HeroSlide[] = (() => {
-    if (loading) return [];
+    if (loading || loadingHeroSettings) return [];
+
+    // Prioritize custom uploaded slides from the admin system
+    if (settings.homeCustomSlides && settings.homeCustomSlides.length > 0) {
+      return settings.homeCustomSlides.map(slide => ({
+        id: slide.id,
+        imageUrl: slide.imageUrl || FALLBACK,
+        title: slide.title || 'Journey Beyond.',
+        subtitle: slide.subtitle || '',
+        tag: slide.tag || 'Global Support',
+        href: slide.href || '#'
+      }));
+    }
+
+    // Fallback to Destinations selection if no custom slides are uploaded
+    const heroIds = settings.home || [];
     const pool = heroIds.length > 0
       ? heroIds.map(id => destinations.find(d => d.id === id)).filter(Boolean) as Destination[]
       : destinations.slice(0, 5);
@@ -143,7 +157,7 @@ export default function HomePage() {
         ],
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "103, Raj Victoria, Near Samarth Circle, Adajan",
+          "streetAddress": "Raj Victoriya, 103, near Samarth Circle, Adajan Gam",
           "addressLocality": "Surat",
           "addressRegion": "Gujarat",
           "postalCode": "395009",
@@ -539,11 +553,21 @@ export default function HomePage() {
                 Voices from the<br/><span className="italic font-serif text-white/80">Field.</span>
               </h2>
             </div>
-            <div className="flex items-center gap-2 self-start md:self-end">
-              {[1,2,3,4,5].map(s => (
-                <span key={s} className="material-symbols-outlined text-primary font-light text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-              ))}
-              <span className="text-white/40 text-xs font-black tracking-widest ml-2">5.0 / 5.0</span>
+            <div className="flex items-center gap-3 self-start md:self-end">
+              <span className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider text-white/60">
+                <svg className="w-3.5 h-3.5 text-[#4285F4]" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-6.887 4.114-4.833 0-8.75-3.917-8.75-8.75s3.917-8.75 8.75-8.75c2.254 0 4.186.82 5.674 2.204l3.14-3.14C18.995 1.554 15.86 0 12.24 0 5.48 0 0 5.48 0 12.24s5.48 12.24 12.24 12.24c6.887 0 11.75-4.833 11.75-12.24 0-.82-.075-1.606-.225-2.355H12.24z"/>
+                </svg>
+                Google Rating
+              </span>
+              <div className="flex gap-0.5">
+                {[1,2,3,4,5].map(s => (
+                  <svg key={s} className="w-4 h-4 text-[#F4B400] fill-current" viewBox="0 0 24 24">
+                    <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.4 8.168L12 18.896l-7.334 3.857 1.4-8.168L.132 9.21l8.2-1.192z"/>
+                  </svg>
+                ))}
+              </div>
+              <span className="text-white/40 text-xs font-black tracking-widest ml-1">5.0 / 5.0</span>
             </div>
           </div>
 
@@ -553,9 +577,11 @@ export default function HomePage() {
                 className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-7 flex flex-col gap-5 hover:bg-white/10 transition-all duration-500 group animate-reveal-up"
                 style={{ animationDelay: `${i * 0.1}s` }}>
                 {/* Stars */}
-                <div className="flex gap-1">
+                <div className="flex gap-0.5">
                   {[1,2,3,4,5].map(s => (
-                    <span key={s} className="material-symbols-outlined text-primary text-base font-light" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                    <svg key={s} className="w-3.5 h-3.5 text-[#F4B400] fill-current" viewBox="0 0 24 24">
+                      <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.4 8.168L12 18.896l-7.334 3.857 1.4-8.168L.132 9.21l8.2-1.192z"/>
+                    </svg>
                   ))}
                 </div>
                 {/* Quote */}
@@ -569,25 +595,15 @@ export default function HomePage() {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-white">{t.author}</p>
-                    <p className="text-[9px] font-black tracking-widest uppercase text-white/30">{t.role}</p>
+                    <p className="text-[9px] font-black tracking-widest uppercase text-white/30 flex items-center gap-1">
+                      <svg className="w-2.5 h-2.5 text-[#4285F4] shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-6.887 4.114-4.833 0-8.75-3.917-8.75-8.75s3.917-8.75 8.75-8.75c2.254 0 4.186.82 5.674 2.204l3.14-3.14C18.995 1.554 15.86 0 12.24 0 5.48 0 0 5.48 0 12.24s5.48 12.24 12.24 12.24c6.887 0 11.75-4.833 11.75-12.24 0-.82-.075-1.606-.225-2.355H12.24z"/>
+                      </svg>
+                      {t.role}
+                    </p>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ────────────────────────── 9. PRESS MENTIONS ────────────────────────── */}
-      <section className="py-8 sm:py-10 px-4 sm:px-8 md:px-16 bg-surface-container-lowest border-t border-outline-variant/10">
-        <div className="max-w-6xl mx-auto">
-          <p className="text-center text-[9px] font-black tracking-[0.6em] uppercase text-on-surface-variant/30 mb-6">As Featured In</p>
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
-            {PRESS.map((pub, i) => (
-              <span key={i}
-                className="text-sm sm:text-base font-light tracking-widest text-on-surface-variant/25 hover:text-on-surface-variant/70 transition-colors duration-300 cursor-default select-none italic">
-                {pub}
-              </span>
             ))}
           </div>
         </div>
@@ -609,7 +625,7 @@ export default function HomePage() {
               className="flex-grow px-5 py-3 rounded-xl sm:rounded-full border border-white/20 focus:border-white focus:ring-0 bg-transparent text-white text-sm font-light outline-none placeholder:text-white/30" />
             <button type="submit" disabled={isSubmitting}
               className="bg-white text-black px-6 py-3 rounded-xl sm:rounded-full text-[10px] font-black tracking-[0.4em] uppercase hover:bg-primary hover:text-white transition-all shrink-0 disabled:opacity-50">
-              {isSubmitting ? 'Processing...' : 'Incept'}
+              {isSubmitting ? 'Processing...' : 'Subscribe'}
             </button>
           </form>
         </div>

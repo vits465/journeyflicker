@@ -10,7 +10,7 @@ import { SEO } from '../components/SEO';
 const contactSchema = z.object({
   name: z.string().min(2, 'Name is too short.').max(100),
   email: z.string().email('Please enter a valid email address.'),
-  type: z.string().min(1, 'Please select an objective type.'),
+  phone: z.string().min(8, 'Mobile number is too short.'),
   message: z.string().min(10, 'Message must be at least 10 characters long.').max(3000),
 });
 type ContactFormValues = z.infer<typeof contactSchema>;
@@ -28,14 +28,20 @@ export default function ContactPage() {
   } = useForm<ContactFormValues>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
-      type: 'Private Curation Strategy',
+      phone: '',
     }
   });
 
   const onSubmit = async (data: ContactFormValues) => {
     setSending(true);
     try {
-      await api.createContact(data);
+      const payload = {
+        name: data.name,
+        email: data.email,
+        type: `Mobile: ${data.phone}`,
+        message: `[Mobile: ${data.phone}]\n\n${data.message}`,
+      };
+      await api.createContact(payload);
       setSubmitted(true);
       reset();
     } catch (err) {
@@ -82,7 +88,7 @@ export default function ContactPage() {
             "email": ["tushar@journeyflicker.com", "pashv@journeyflicker.com"],
             "address": {
               "@type": "PostalAddress",
-              "streetAddress": "103, Raj Victoria, Near Samarth Circle, Adajan",
+              "streetAddress": "Raj Victoriya, 103, near Samarth Circle, Adajan Gam",
               "addressLocality": "Surat",
               "addressRegion": "Gujarat",
               "postalCode": "395009",
@@ -114,7 +120,7 @@ export default function ContactPage() {
             alt="Minimalist office" src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2069&auto=format&fit=crop" />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
         </div>
-        <div className="relative z-10 max-w-3xl animate-reveal-up">
+        <div className="relative z-10 w-full max-w-5xl mx-auto animate-reveal-up">
           <span className="text-white/60 text-[10px] tracking-[0.5em] uppercase mb-3 block font-bold">Inquire</span>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light leading-tight tracking-tighter text-white">
           Let's Talk<br/><span className="italic font-serif text-white/90">Strategy</span>
@@ -164,8 +170,8 @@ export default function ContactPage() {
             <div className="pt-2">
               <span className="text-primary text-[10px] font-bold tracking-[0.5em] uppercase mb-3 block">The Repository</span>
               <p className="text-sm font-light text-on-surface opacity-70 leading-relaxed">
-                103, Raj Victoria, Near Samarth Circle<br/>
-                Adajan, Surat - 395009 (Gujarat, India)
+                Raj Victoriya, 103, near Samarth Circle<br/>
+                Adajan Gam, Adajan, Surat, Gujarat 395009
               </p>
               
               <div className="mt-5 w-full h-48 rounded-xl overflow-hidden shadow-sm border border-outline-variant/20">
@@ -236,15 +242,11 @@ export default function ContactPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[9px] font-bold tracking-[0.4em] uppercase text-on-surface-variant block">Objective Type</label>
-                    <select {...register('type')}
-                      className={`w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm font-light focus:ring-2 focus:ring-primary/20 outline-none appearance-none cursor-pointer ${errors.type ? 'ring-2 ring-red-500/50 focus:ring-red-500/50' : ''}`}>
-                      <option>Private Curation Strategy</option>
-                      <option>Expedition Modification</option>
-                      <option>Administrative Inquiry</option>
-                      <option>Corporate Partnership</option>
-                    </select>
-                    {errors.type && <p className="text-red-500 text-[10px] tracking-wide mt-1">{errors.type.message}</p>}
+                    <label className="text-[9px] font-bold tracking-[0.4em] uppercase text-on-surface-variant block">Mobile Number</label>
+                    <input type="tel" placeholder="e.g. +91 9988776655"
+                      {...register('phone')}
+                      className={`w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm font-light focus:ring-2 focus:ring-primary/20 outline-none placeholder:opacity-30 ${errors.phone ? 'ring-2 ring-red-500/50 focus:ring-red-500/50' : ''}`} />
+                    {errors.phone && <p className="text-red-500 text-[10px] tracking-wide mt-1">{errors.phone.message}</p>}
                   </div>
 
                   <div className="space-y-2">

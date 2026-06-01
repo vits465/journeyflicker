@@ -3,14 +3,24 @@ import { api } from './api';
 
 export type HeroPage = 'home' | 'tours' | 'destinations';
 
+export interface CustomHeroSlide {
+  id: string;
+  imageUrl: string;
+  title: string;
+  subtitle: string;
+  tag?: string;
+  href?: string;
+}
+
 export interface HeroSettings {
   home: string[];         // destination IDs
+  homeCustomSlides?: CustomHeroSlide[]; // custom uploaded slides
   tours: string[];        // tour IDs
   destinations: string[]; // destination IDs
   visaBanner?: string;    // image URL for Visa page
 }
 
-const DEFAULT: HeroSettings = { home: [], tours: [], destinations: [], visaBanner: '' };
+const DEFAULT: HeroSettings = { home: [], homeCustomSlides: [], tours: [], destinations: [], visaBanner: '' };
 
 export function useHeroSettings(page: HeroPage): string[] {
   const [ids, setIds] = useState<string[]>([]);

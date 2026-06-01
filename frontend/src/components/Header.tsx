@@ -52,7 +52,8 @@ export function Header() {
         <div className="max-w-6xl mx-auto px-4 sm:px-8 flex justify-between items-center">
 
           {/* Logo */}
-          <NavLink to="/" className="flex items-center z-[110] transition-transform hover:scale-105 duration-300">
+          <NavLink to="/" className="flex items-center gap-2 z-[110] transition-transform hover:scale-105 duration-300">
+            <img src="/favicon.svg" alt="JourneyFlicker Logo" className="w-6 h-6 sm:w-7 sm:h-7 object-contain rounded-lg" />
             <span className={`text-lg sm:text-xl font-light tracking-tighter uppercase transition-colors duration-500 ${isGlass ? 'text-black dark:text-white' : 'text-white'}`}>
               Journey<span className="font-black">Flicker</span>
             </span>

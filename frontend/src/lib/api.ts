@@ -1,3 +1,5 @@
+import { safeSessionStorage } from "./storage";
+
 export const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
 export async function uploadImage(file: File): Promise<string> {
@@ -21,7 +23,7 @@ export async function uploadImage(file: File): Promise<string> {
 }
 
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
-  const token = sessionStorage.getItem("jf_token");
+  const token = safeSessionStorage.getItem("jf_token");
   const headers: HeadersInit = {
     "content-type": "application/json",
     ...(init?.headers ?? {}),
@@ -36,8 +38,8 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
   });
 
   if (res.status === 401) {
-    sessionStorage.removeItem("jf_admin_auth");
-    sessionStorage.removeItem("jf_token");
+    safeSessionStorage.removeItem("jf_admin_auth");
+    safeSessionStorage.removeItem("jf_token");
     window.location.href = "/admin/login";
     throw new Error("Unauthorized");
   }

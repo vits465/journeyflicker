@@ -498,7 +498,7 @@ export default function TourDetailsPage() {
             <p style="font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">The Curator Board</p>
             <p style="margin-bottom: 4px; font-size: 14px;"><strong>Email:</strong> tushar@journeyflicker.com | pashv@journeyflicker.com</p>
             <p style="margin-bottom: 4px; font-size: 14px;"><strong>Phone:</strong> +91 98792 68811 &nbsp;|&nbsp; +91 97266 98987 &nbsp;|&nbsp; 0261 3564717</p>
-            <p style="margin-bottom: 4px; font-size: 14px;"><strong>Address:</strong> 103, Raj Victoria, Near Samarth Circle, Adajan, Surat - 395009 (Gujarat, India)</p>
+            <p style="margin-bottom: 4px; font-size: 14px;"><strong>Address:</strong> Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</p>
           </div>
 
           <script>
@@ -537,9 +537,9 @@ I am viewing this tour on your website and would like a customized quote!`;
       <section className="pt-24 md:pt-28 pb-8 px-4 sm:px-8 md:px-16 max-w-5xl mx-auto animate-reveal-up">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <nav className="flex flex-wrap items-center text-[9px] tracking-[0.3em] uppercase text-on-surface-variant font-bold">
-            <span className="cursor-pointer hover:text-black transition-colors" onClick={() => navigate('/')}>Home</span>
+            <span className="cursor-pointer hover:text-black dark:hover:text-white transition-colors" onClick={() => navigate('/')}>Home</span>
             <span className="mx-3 text-outline-variant/30">/</span>
-            <span className="cursor-pointer hover:text-black transition-colors" onClick={() => navigate('/tours')}>Tours</span>
+            <span className="cursor-pointer hover:text-black dark:hover:text-white transition-colors" onClick={() => navigate('/tours')}>Tours</span>
             <span className="mx-3 text-outline-variant/30">/</span>
             <span className="text-on-surface font-black opacity-40 truncate">{tour.name}</span>
           </nav>

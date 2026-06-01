@@ -86,7 +86,7 @@ router.get("/tour/:id", async (req, res) => {
     doc.addPage();
     doc.fillColor("#000000")
        .fontSize(16)
-       .text("Contact The Curator Board", { underline: true });
+       .text("Contact The Support Board", { underline: true });
     
     doc.moveDown(1);
 
@@ -94,7 +94,7 @@ router.get("/tour/:id", async (req, res) => {
        .fontSize(12)
        .text("Email: tushar@journeyflicker.com | pashv@journeyflicker.com", { lineGap: 5 })
        .text("Phone: +91 98792 68811 | +91 97266 98987 | 0261 3564717", { lineGap: 5 })
-       .text("Address: 103, Raj Victoria, Near Samarth Circle, Adajan, Surat - 395009 (Gujarat, India)", { lineGap: 5 });
+       .text("Address: Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009", { lineGap: 5 });
 
     // Footer
     doc.fillColor("#C8A84B")

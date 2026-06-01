@@ -131,7 +131,7 @@ function VisaCard({ visa, index, defaultExpanded = false }: { visa: Visa; index:
             <p style="font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">The Curator Board</p>
             <p style="margin-bottom: 4px; font-size: 14px;"><strong>Email:</strong> tushar@journeyflicker.com | pashv@journeyflicker.com</p>
             <p style="margin-bottom: 4px; font-size: 14px;"><strong>Phone:</strong> +91 98792 68811 &nbsp;|&nbsp; +91 97266 98987 &nbsp;|&nbsp; 0261 3564717</p>
-            <p style="margin-bottom: 4px; font-size: 14px;"><strong>Address:</strong> 103, Raj Victoria, Near Samarth Circle, Adajan, Surat - 395009 (Gujarat, India)</p>
+            <p style="margin-bottom: 4px; font-size: 14px;"><strong>Address:</strong> Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</p>
           </div>
 
           <script>

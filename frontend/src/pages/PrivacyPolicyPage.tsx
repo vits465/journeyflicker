@@ -20,7 +20,7 @@ export default function PrivacyPolicyPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
         </div>
-        <div className="relative z-10 max-w-3xl animate-reveal-up">
+        <div className="relative z-10 w-full max-w-4xl mx-auto animate-reveal-up">
           <span className="text-white/60 text-[10px] tracking-[0.5em] uppercase mb-3 block font-bold">Identity Protection</span>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light leading-tight tracking-tighter text-white">
             Privacy<br/><span className="italic font-serif text-white/90">Charter</span>
@@ -152,7 +152,7 @@ export default function PrivacyPolicyPage() {
                 <address className="not-italic text-xs border-l-2 border-primary/20 pl-4 space-y-1.5 my-3 text-on-surface-variant opacity-75">
                   <p className="font-bold text-black dark:text-white">Grievance Redressal Officer: Mr. Tushar Patel</p>
                   <p>Email: <a href="mailto:grievance@journeyflicker.com" className="text-primary hover:underline font-normal">grievance@journeyflicker.com</a></p>
-                  <p>Address: 103, Raj Victoria, Adajan, Surat - 395009, Gujarat, India</p>
+                  <p>Address: Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</p>
                 </address>
               </div>
             </div>

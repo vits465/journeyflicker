@@ -92,7 +92,7 @@ export default function DataDeletionPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
         </div>
-        <div className="relative z-10 max-w-3xl animate-reveal-up">
+        <div className="relative z-10 w-full max-w-5xl mx-auto animate-reveal-up">
           <span className="text-white/60 text-[10px] tracking-[0.5em] uppercase mb-3 block font-bold">Security Bureau</span>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light leading-tight tracking-tighter text-white">
             Deletion<br/><span className="italic font-serif text-white/90">Protocol</span>

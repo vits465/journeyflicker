@@ -37,6 +37,9 @@ export default defineConfig({
       }
     })
   ],
+  build: {
+    target: ['es2020', 'safari13']
+  },
   server: {
     port: 5173,
     proxy: {

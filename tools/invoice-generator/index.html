@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premium Invoice Generator — JourneyFlicker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ==========================================================================
+       CORE DESIGN SYSTEM & RESET
+       ========================================================================== */
+    :root {
+      /* Palette */
+      --bg-dark: #0b0f17;
+      --bg-dark-card: #151d2a;
+      --bg-dark-input: #1e293b;
+      --text-dark-primary: #f8fafc;
+      --text-dark-secondary: #94a3b8;
+      
+      --bg-light: #f8fafc;
+      --bg-light-card: #ffffff;
+      --bg-light-input: #f1f5f9;
+      --text-light-primary: #0f172a;
+      --text-light-secondary: #475569;
+      
+      /* Luxury Accents */
+      --gold-primary: #c5a880;
+      --gold-dark: #a3845b;
+      --gold-light: #e2d4be;
+      --gold-glow: rgba(197, 168, 128, 0.15);
+      
+      --accent-blue: #3b82f6;
+      --accent-green: #10b981;
+      --accent-danger: #ef4444;
+      --border-color: rgba(148, 163, 184, 0.15);
+      
+      /* Transition */
+      --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-dark-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: var(--transition-smooth);
+    }
+
+    /* Light Theme Toggle */
+    body.light-theme {
+      background-color: var(--bg-light);
+      color: var(--text-light-primary);
+    }
+
+    /* ==========================================================================
+       LAYOUT STRUCTURE
+       ========================================================================== */
+    .app-container {
+      display: grid;
+      grid-template-columns: 480px 1fr;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    @media (max-width: 1200px) {
+      .app-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ==========================================================================
+       SIDEBAR / EDITOR PANEL
+       ========================================================================== */
+    .sidebar {
+      background-color: var(--bg-dark-card);
+      border-right: 1px solid var(--border-color);
+      padding: 2.5rem 2rem;
+      height: 100vh;
+      overflow-y: auto;
+      position: sticky;
+      top: 0;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(197, 168, 128, 0.3) transparent;
+      transition: var(--transition-smooth);
+    }
+
+    body.light-theme .sidebar {
+      background-color: var(--bg-light-card);
+    }
+
+    .sidebar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .sidebar::-webkit-scrollbar-thumb {
+      background-color: rgba(197, 168, 128, 0.3);
+      border-radius: 4px;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1.5rem;
+    }
+
+    .brand-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--gold-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-dark-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-top: 0.2rem;
+    }
+    body.light-theme .brand-subtitle {
+      color: var(--text-light-secondary);
+    }
+
+    /* Action Controls */
+    .action-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .btn {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border: none;
+      transition: var(--transition-smooth);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary));
+      color: #111827;
+      box-shadow: 0 4px 14px var(--gold-glow);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(197, 168, 128, 0.3);
+    }
+
+    .btn-secondary {
+      background-color: var(--bg-dark-input);
+      color: var(--text-dark-primary);
+      border: 1px solid var(--border-color);
+    }
+    body.light-theme .btn-secondary {
+      background-color: var(--bg-light-input);
+      color: var(--text-light-primary);
+    }
+    .btn-secondary:hover {
+      background-color: rgba(148, 163, 184, 0.1);
+    }
+
+    .btn-danger {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: var(--accent-danger);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+    .btn-danger:hover {
+      background-color: rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-full {
+      grid-column: span 2;
+    }
+
+    /* Form Fields */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+      color: var(--gold-primary);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-dark-input);
+      color: var(--text-dark-primary);
+      font-family: inherit;
+      font-size: 0.875rem;
+      transition: var(--transition-smooth);
+      outline: none;
+    }
+    body.light-theme input, 
+    body.light-theme select, 
+    body.light-theme textarea {
+      background-color: var(--bg-light-input);
+      color: var(--text-light-primary);
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 0 2px var(--gold-glow);
+    }
+
+    .section-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 2rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-dark-primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    body.light-theme .section-title {
+      color: var(--text-light-primary);
+    }
+
+    /* Dynamic Item Rows */
+    .dynamic-item-card {
+      background-color: rgba(148, 163, 184, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .item-delete-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: none;
+      border: none;
+      color: var(--accent-danger);
+      cursor: pointer;
+      font-size: 1.1rem;
+      opacity: 0.6;
+      transition: var(--transition-smooth);
+    }
+    .item-delete-btn:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    /* ==========================================================================
+       PREVIEW WORKSPACE
+       ========================================================================== */
+    .preview-workspace {
+      padding: 3rem;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      overflow-y: auto;
+      max-height: 100vh;
+      background: radial-gradient(circle at top right, rgba(197, 168, 128, 0.05), transparent 60%);
+    }
+
+    /* A4 Luxury Sheet */
+    .invoice-sheet {
+      width: 794px; /* Standard A4 width in pixels at 96 DPI */
+      min-height: 1123px; /* Standard A4 height */
+      background-color: #ffffff;
+      color: #1e293b;
+      padding: 3.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      border-radius: 4px;
+      position: relative;
+      font-size: 14px;
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: var(--transition-smooth);
+    }
+
+    body.light-theme .invoice-sheet {
+      box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
+    }
+
+    /* Invoice Content Styling */
+    .invoice-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 3.5rem;
+    }
+
+    .invoice-logo-area {
+      max-width: 60%;
+    }
+
+    .invoice-logo-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: #0f172a;
+      line-height: 1.2;
+    }
+
+    .invoice-logo-gold {
+      color: #93744b;
+    }
+
+    .invoice-logo-sub {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: #64748b;
+      margin-top: 0.3rem;
+    }
+
+    .invoice-meta-info {
+      text-align: right;
+    }
+
+    .invoice-type {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #93744b;
+      margin-bottom: 0.5rem;
+    }
+
+    .meta-item {
+      font-size: 0.85rem;
+      color: #475569;
+      margin-bottom: 0.25rem;
+    }
+    .meta-item strong {
+      color: #0f172a;
+    }
+
+    /* Billing Parties */
+    .invoice-parties {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      margin-bottom: 3.5rem;
+      border-top: 1px solid #e2e8f0;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 2rem 0;
+    }
+
+    .party-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #93744b;
+      margin-bottom: 0.75rem;
+    }
+
+    .party-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.5rem;
+    }
+
+    .party-details {
+      font-size: 0.85rem;
+      color: #475569;
+      white-space: pre-line;
+      line-height: 1.5;
+    }
+
+    /* Table System */
+    .invoice-table-wrapper {
+      flex-grow: 1;
+      margin-bottom: 3rem;
+    }
+
+    .invoice-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .invoice-table th {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #64748b;
+      border-bottom: 2px solid #e2e8f0;
+      padding: 1rem 0.75rem;
+    }
+
+    .invoice-table th.num-col,
+    .invoice-table td.num-col {
+      text-align: right;
+    }
+
+    .invoice-table td {
+      padding: 1.25rem 0.75rem;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.9rem;
+      color: #334155;
+      vertical-align: top;
+    }
+
+    .invoice-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .item-name-bold {
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 0.25rem;
+    }
+
+    .item-desc-small {
+      font-size: 0.8rem;
+      color: #64748b;
+      line-height: 1.4;
+    }
+
+    /* Calculation Block */
+    .invoice-summary-block {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 2rem;
+      border-top: 2px solid #e2e8f0;
+      padding-top: 2rem;
+      margin-top: auto;
+    }
+
+    .payment-instructions-area {
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+
+    .payment-instructions-title {
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #0f172a;
+      margin-bottom: 0.5rem;
+    }
+
+    .payment-bank-details {
+      line-height: 1.5;
+      margin-top: 0.5rem;
+      font-family: monospace;
+      color: #334155;
+    }
+
+    .summary-calculations {
+      width: 100%;
+    }
+
+    .calc-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      font-size: 0.9rem;
+      color: #475569;
+    }
+
+    .calc-row-total {
+      border-top: 1px solid #e2e8f0;
+      margin-top: 0.5rem;
+      padding-top: 1rem;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: #0f172a;
+    }
+
+    .calc-row-total .total-amount {
+      color: #93744b;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+    }
+
+    /* Footer Curation Signature */
+    .invoice-footer {
+      border-top: 1px solid #f1f5f9;
+      padding-top: 1.5rem;
+      margin-top: 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+
+    .signature-area {
+      text-align: right;
+    }
+    
+    .signature-line {
+      width: 150px;
+      border-bottom: 1px solid #cbd5e1;
+      margin-bottom: 0.5rem;
+      margin-left: auto;
+    }
+
+    .signature-title {
+      font-weight: 600;
+      color: #475569;
+    }
+
+    /* Theme Switcher Toggle styling */
+    .theme-switch-btn {
+      background: none;
+      border: none;
+      color: var(--text-dark-secondary);
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition-smooth);
+    }
+    body.light-theme .theme-switch-btn {
+      color: var(--text-light-secondary);
+    }
+    .theme-switch-btn:hover {
+      color: var(--gold-primary);
+      transform: rotate(15deg);
+    }
+
+    /* ==========================================================================
+       PRINT MEDIA STYLING (THE MAGIC OVERRIDE)
+       ========================================================================== */
+    @media print {
+      body {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+      }
+      
+      .sidebar {
+        display: none !important;
+      }
+
+      .preview-workspace {
+        padding: 0 !important;
+        background: none !important;
+        max-height: none !important;
+        overflow: visible !important;
+      }
+
+      .invoice-sheet {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        min-height: auto !important;
+      }
+
+      .app-container {
+        grid-template-columns: 1fr !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- LEFT SIDEBAR: INVOICE CONTROLS & PRESET INSERTERS -->
+    <div class="sidebar">
+      <div class="brand-section">
+        <div>
+          <h1 class="brand-title">JourneyFlicker</h1>
+          <p class="brand-subtitle">Curation Invoice Studio</p>
+        </div>
+        <button class="theme-switch-btn" id="themeToggleBtn" title="Toggle Theme">
+          <!-- Sun/Moon Icon -->
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" id="themeIcon">
+            <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l.707.707M12 5a7 7 0 100 14 7 7 0 000-14z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="action-group">
+        <button class="btn btn-primary btn-full" onclick="window.print()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          Print / Save PDF
+        </button>
+        <button class="btn btn-secondary" onclick="loadJourneyFlickerPreset()">
+          Load Default Preset
+        </button>
+        <button class="btn btn-danger" onclick="clearAllItems()">
+          Clear Items
+        </button>
+      </div>
+
+      <!-- INVOICE METADATA -->
+      <div class="section-title">Invoice Details</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="inputInvoiceNo">Invoice #</label>
+          <input type="text" id="inputInvoiceNo" value="JF-2026-001" oninput="updateLiveView()">
+        </div>
+        <div class="form-group">
+          <label for="inputCurrency">Currency</label>
+          <select id="inputCurrency" onchange="updateLiveView()">
+            <option value="₹">INR (₹)</option>
+            <option value="$">USD ($)</option>
+            <option value="€">EUR (€)</option>
+            <option value="£">GBP (£)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="inputIssueDate">Issue Date</label>
+          <input type="date" id="inputIssueDate" oninput="updateLiveView()">
+        </div>
+        <div class="form-group">
+          <label for="inputDueDate">Due Date</label>
+          <input type="date" id="inputDueDate" oninput="updateLiveView()">
+        </div>
+      </div>
+
+      <!-- SENDER / DEVELOPER DETAILS -->
+      <div class="section-title">Your Details (Developer)</div>
+      <div class="form-group">
+        <label for="inputSenderName">Your Name / Freelancer Brand</label>
+        <input type="text" id="inputSenderName" value="Elite Web Architect Studio" oninput="updateLiveView()">
+      </div>
+      <div class="form-group">
+        <label for="inputSenderDetails">Your Address & Contact</label>
+        <textarea id="inputSenderDetails" rows="3" oninput="updateLiveView()">hello@elitewebarchitects.com
++91 98765 43210
+Mumbai, MH, India</textarea>
+      </div>
+
+      <!-- CLIENT DETAILS -->
+      <div class="section-title">Client Details (Friend's Company)</div>
+      <div class="form-group">
+        <label for="inputClientName">Client Company Name</label>
+        <input type="text" id="inputClientName" value="JourneyFlicker Curation Pvt. Ltd." oninput="updateLiveView()">
+      </div>
+      <div class="form-group">
+        <label for="inputClientDetails">Client Address & Contact</label>
+        <textarea id="inputClientDetails" rows="3" oninput="updateLiveView()">operations@journeyflicker.com
+New Delhi, DL, India</textarea>
+      </div>
+
+      <!-- DYNAMIC ITEM ENTRIES -->
+      <div class="section-title">
+        <span>Invoice Items</span>
+        <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="addNewItemRow()">+ Add Item</button>
+      </div>
+      
+      <div id="dynamicItemsContainer">
+        <!-- Rows will be injected here by JS -->
+      </div>
+
+      <!-- ADJUSTMENTS & TAXES -->
+      <div class="section-title">Taxes & Adjustments</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="inputTax">Tax Rate (%)</label>
+          <input type="number" id="inputTax" value="0" min="0" max="100" step="0.5" oninput="updateLiveView()">
+        </div>
+        <div class="form-group">
+          <label for="inputDiscount">Discount (%)</label>
+          <input type="number" id="inputDiscount" value="0" min="0" max="100" step="0.5" oninput="updateLiveView()">
+        </div>
+      </div>
+
+      <!-- PAYMENT / BANKING INFORMATION -->
+      <div class="section-title">Payment Information</div>
+      <div class="form-group">
+        <label for="inputBankDetails">Bank / UPI Transfer Details</label>
+        <textarea id="inputBankDetails" rows="4" oninput="updateLiveView()">Bank Name: HDFC Bank Ltd
+A/C Name: ELITE WEB ARCHITECT
+A/C Number: 50200012345678
+IFSC Code: HDFC0000123
+UPI ID: eliteweb@hdfcbank</textarea>
+      </div>
+      
+      <div class="form-group">
+        <label for="inputTerms">Payment Terms & Notes</label>
+        <textarea id="inputTerms" rows="2" oninput="updateLiveView()">Thank you for partnering with us!
+Net 15 days payment timeline.</textarea>
+      </div>
+    </div>
+
+    <!-- RIGHT WORKSPACE: LIVE INVOICE A4 SHEET PREVIEW -->
+    <div class="preview-workspace">
+      
+      <div class="invoice-sheet" id="printSheet">
+        <div>
+          <!-- Header Area -->
+          <div class="invoice-header">
+            <div class="invoice-logo-area">
+              <h2 class="invoice-logo-title">
+                Journey<span class="invoice-logo-gold">Flicker</span>
+              </h2>
+              <p class="invoice-logo-sub">Bespoke Travel Curation Platform</p>
+            </div>
+            
+            <div class="invoice-meta-info">
+              <h3 class="invoice-type">Invoice</h3>
+              <p class="meta-item">Invoice #: <strong id="lblInvoiceNo"></strong></p>
+              <p class="meta-item">Issue Date: <strong id="lblIssueDate"></strong></p>
+              <p class="meta-item">Due Date: <strong id="lblDueDate"></strong></p>
+            </div>
+          </div>
+
+          <!-- Parties Info -->
+          <div class="invoice-parties">
+            <div>
+              <div class="party-title">From / Developer</div>
+              <div class="party-name" id="lblSenderName"></div>
+              <div class="party-details" id="lblSenderDetails"></div>
+            </div>
+            <div>
+              <div class="party-title">Prepared For</div>
+              <div class="party-name" id="lblClientName"></div>
+              <div class="party-details" id="lblClientDetails"></div>
+            </div>
+          </div>
+
+          <!-- Table of Services -->
+          <div class="invoice-table-wrapper">
+            <table class="invoice-table">
+              <thead>
+                <tr>
+                  <th style="width: 55%;">Description of Service</th>
+                  <th class="num-col" style="width: 15%;">Qty</th>
+                  <th class="num-col" style="width: 15%;">Unit Rate</th>
+                  <th class="num-col" style="width: 15%;">Total</th>
+                </tr>
+              </thead>
+              <tbody id="invoiceTableBody">
+                <!-- Services rows will render here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Calculations & Footer Signoff -->
+        <div>
+          <div class="invoice-summary-block">
+            <!-- Payment Instructions -->
+            <div class="payment-instructions-area">
+              <div class="payment-instructions-title">Settlement Terms</div>
+              <p id="lblTerms"></p>
+              <div class="payment-bank-details" id="lblBankDetails"></div>
+            </div>
+
+            <!-- Financial Calculations -->
+            <div class="summary-calculations">
+              <div class="calc-row">
+                <span>Subtotal:</span>
+                <span id="lblSubtotal"></span>
+              </div>
+              <div class="calc-row" id="rowDiscount" style="display: none;">
+                <span>Discount (<span id="lblDiscountPercent"></span>%):</span>
+                <span id="lblDiscountAmount" style="color: var(--accent-danger);"></span>
+              </div>
+              <div class="calc-row" id="rowTax" style="display: none;">
+                <span>GST/Tax (<span id="lblTaxPercent"></span>%):</span>
+                <span id="lblTaxAmount"></span>
+              </div>
+              <div class="calc-row calc-row-total">
+                <span>Total Amount:</span>
+                <span class="total-amount" id="lblGrandTotal"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Editorial Brand Footer -->
+          <div class="invoice-footer">
+            <div>JourneyFlicker Curation Standard · Built on React + Node.js</div>
+            <div class="signature-area">
+              <div class="signature-line"></div>
+              <div class="signature-title">Authorized Signatory</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Set default dates to current date and 15 days out
+    const today = new Date();
+    const fifteenDaysOut = new Date();
+    fifteenDaysOut.setDate(today.getDate() + 15);
+
+    document.getElementById('inputIssueDate').value = today.toISOString().substring(0, 10);
+    document.getElementById('inputDueDate').value = fifteenDaysOut.toISOString().substring(0, 10);
+
+    // Default Custom Preset Items for JourneyFlicker
+    let invoiceItems = [
+      {
+        name: "Premium Responsive Frontend Application",
+        desc: "Interactive Travel curation frontend built with React 18, TypeScript, Vite, & TailwindCSS. Includes cinematic search dashboard, fully-dynamic filtering by region/destination, animated itinerary cards, visual visa portals, and responsive layouts optimized across mobile/desktop.",
+        qty: 1,
+        rate: 45000
+      },
+      {
+        name: "Robust Admin & Content API Infrastructure",
+        desc: "Node.js (ESM) + Express 4 backend with Zod strict schema validation. Features absolute data security with JWT sessions, custom file optimization pipeline to auto-resize client-uploaded travel images, and interactive admin management boards.",
+        qty: 1,
+        rate: 35000
+      },
+      {
+        name: "Production Deployment, Domain Setup & Security Audit",
+        desc: "Live provisioning, SSL certification mapping, rate-limiting configurations for API safety, search engine optimizations (SEO schema, sitemap.xml, custom robots.txt structure), and reverse proxy configuration for seamless frontend-backend link.",
+        qty: 1,
+        rate: 15000
+      },
+      {
+        name: "Editorial Data Entry & Content Curation Curation",
+        desc: "Manual entry, curation, and cataloging of 12+ primary luxury tour itineraries (day-by-day sightseeing agendas, visual guides, dynamic pricing matrices) and visa rules for global gateways. Includes sourcing and formatting premium stock graphics.",
+        qty: 1,
+        rate: 10000
+      }
+    ];
+
+    // Light/Dark Theme Logic
+    const bodyEl = document.body;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const themeIcon = document.getElementById('themeIcon');
+
+    themeToggleBtn.addEventListener('click', () => {
+      bodyEl.classList.toggle('light-theme');
+      const isLight = bodyEl.classList.contains('light-theme');
+      
+      // Update icon
+      if (isLight) {
+        themeIcon.innerHTML = `<path d="M12 3v10M12 21v1m9-9h-1M4 12H3M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>`;
+        themeToggleBtn.style.color = '#475569';
+      } else {
+        themeIcon.innerHTML = `<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l.707.707M12 5a7 7 0 100 14 7 7 0 000-14z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>`;
+        themeToggleBtn.style.color = '#94a3b8';
+      }
+    });
+
+    // Initial render
+    renderItemRows();
+    updateLiveView();
+
+    function renderItemRows() {
+      const container = document.getElementById('dynamicItemsContainer');
+      container.innerHTML = '';
+
+      invoiceItems.forEach((item, index) => {
+        const itemCard = document.createElement('div');
+        itemCard.className = 'dynamic-item-card';
+        itemCard.innerHTML = `
+          <button class="item-delete-btn" onclick="deleteItemRow(${index})" title="Delete Item">×</button>
+          <div class="form-group" style="margin-bottom: 0.75rem;">
+            <label>Item Name</label>
+            <input type="text" value="${item.name}" oninput="itemFieldChanged(${index}, 'name', this.value)">
+          </div>
+          <div class="form-group" style="margin-bottom: 0.75rem;">
+            <label>Description / Technical Scope</label>
+            <textarea rows="3" oninput="itemFieldChanged(${index}, 'desc', this.value)">${item.desc}</textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label>Qty</label>
+              <input type="number" value="${item.qty}" min="1" step="1" oninput="itemFieldChanged(${index}, 'qty', this.value)">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label>Rate</label>
+              <input type="number" value="${item.rate}" min="0" oninput="itemFieldChanged(${index}, 'rate', this.value)">
+            </div>
+          </div>
+        `;
+        container.appendChild(itemCard);
+      });
+    }
+
+    function itemFieldChanged(index, field, value) {
+      if (field === 'qty') {
+        invoiceItems[index].qty = parseInt(value) || 0;
+      } else if (field === 'rate') {
+        invoiceItems[index].rate = parseFloat(value) || 0;
+      } else {
+        invoiceItems[index][field] = value;
+      }
+      updateLiveView();
+    }
+
+    function addNewItemRow() {
+      invoiceItems.push({
+        name: "New Custom Service Item",
+        desc: "Custom travel solutions or extra modifications as agreed with company director.",
+        qty: 1,
+        rate: 5000
+      });
+      renderItemRows();
+      updateLiveView();
+    }
+
+    function deleteItemRow(index) {
+      invoiceItems.splice(index, 1);
+      renderItemRows();
+      updateLiveView();
+    }
+
+    function clearAllItems() {
+      invoiceItems = [];
+      renderItemRows();
+      updateLiveView();
+    }
+
+    function loadJourneyFlickerPreset() {
+      invoiceItems = [
+        {
+          name: "Premium Responsive Frontend Application",
+          desc: "Interactive Travel curation frontend built with React 18, TypeScript, Vite, & TailwindCSS. Includes cinematic search dashboard, fully-dynamic filtering by region/destination, animated itinerary cards, visual visa portals, and responsive layouts optimized across mobile/desktop.",
+          qty: 1,
+          rate: 45000
+        },
+        {
+          name: "Robust Admin & Content API Infrastructure",
+          desc: "Node.js (ESM) + Express 4 backend with Zod strict schema validation. Features absolute data security with JWT sessions, custom file optimization pipeline to auto-resize client-uploaded travel images, and interactive admin management boards.",
+          qty: 1,
+          rate: 35000
+        },
+        {
+          name: "Production Deployment, Domain Setup & Security Audit",
+          desc: "Live provisioning, SSL certification mapping, rate-limiting configurations for API safety, search engine optimizations (SEO schema, sitemap.xml, custom robots.txt structure), and reverse proxy configuration for seamless frontend-backend link.",
+          qty: 1,
+          rate: 15000
+        },
+        {
+          name: "Editorial Data Entry & Content Curation Curation",
+          desc: "Manual entry, curation, and cataloging of 12+ primary luxury tour itineraries (day-by-day sightseeing agendas, visual guides, dynamic pricing matrices) and visa rules for global gateways. Includes sourcing and formatting premium stock graphics.",
+          qty: 1,
+          rate: 10000
+        }
+      ];
+      renderItemRows();
+      updateLiveView();
+    }
+
+    // Updates live preview card
+    function updateLiveView() {
+      // 1. Text Labels
+      document.getElementById('lblInvoiceNo').innerText = document.getElementById('inputInvoiceNo').value;
+      
+      const issueDate = document.getElementById('inputIssueDate').value;
+      const dueDate = document.getElementById('inputDueDate').value;
+      
+      document.getElementById('lblIssueDate').innerText = issueDate ? formatDate(issueDate) : 'N/A';
+      document.getElementById('lblDueDate').innerText = dueDate ? formatDate(dueDate) : 'N/A';
+
+      document.getElementById('lblSenderName').innerText = document.getElementById('inputSenderName').value;
+      document.getElementById('lblSenderDetails').innerText = document.getElementById('inputSenderDetails').value;
+      
+      document.getElementById('lblClientName').innerText = document.getElementById('inputClientName').value;
+      document.getElementById('lblClientDetails').innerText = document.getElementById('inputClientDetails').value;
+      
+      document.getElementById('lblTerms').innerText = document.getElementById('inputTerms').value;
+      document.getElementById('lblBankDetails').innerText = document.getElementById('inputBankDetails').value;
+
+      // 2. Currency Selector
+      const currency = document.getElementById('inputCurrency').value;
+
+      // 3. Render Table
+      const tableBody = document.getElementById('invoiceTableBody');
+      tableBody.innerHTML = '';
+
+      let subtotal = 0;
+
+      invoiceItems.forEach(item => {
+        const rowTotal = item.qty * item.rate;
+        subtotal += rowTotal;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>
+            <div class="item-name-bold">${item.name}</div>
+            <div class="item-desc-small">${item.desc}</div>
+          </td>
+          <td class="num-col">${item.qty}</td>
+          <td class="num-col">${currency}${formatMoney(item.rate)}</td>
+          <td class="num-col" style="font-weight: 600;">${currency}${formatMoney(rowTotal)}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      // If empty
+      if (invoiceItems.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #94a3b8; padding: 2rem 0;">No invoice items added. Click "+ Add Item" to begin.</td></tr>`;
+      }
+
+      // Calculations
+      const discountPercent = parseFloat(document.getElementById('inputDiscount').value) || 0;
+      const taxPercent = parseFloat(document.getElementById('inputTax').value) || 0;
+
+      const discountAmount = subtotal * (discountPercent / 100);
+      const afterDiscount = subtotal - discountAmount;
+      const taxAmount = afterDiscount * (taxPercent / 100);
+      const grandTotal = afterDiscount + taxAmount;
+
+      document.getElementById('lblSubtotal').innerText = `${currency}${formatMoney(subtotal)}`;
+
+      // Discount display
+      if (discountPercent > 0) {
+        document.getElementById('rowDiscount').style.display = 'flex';
+        document.getElementById('lblDiscountPercent').innerText = discountPercent;
+        document.getElementById('lblDiscountAmount').innerText = `-${currency}${formatMoney(discountAmount)}`;
+      } else {
+        document.getElementById('rowDiscount').style.display = 'none';
+      }
+
+      // Tax display
+      if (taxPercent > 0) {
+        document.getElementById('rowTax').style.display = 'flex';
+        document.getElementById('lblTaxPercent').innerText = taxPercent;
+        document.getElementById('lblTaxAmount').innerText = `${currency}${formatMoney(taxAmount)}`;
+      } else {
+        document.getElementById('rowTax').style.display = 'none';
+      }
+
+      document.getElementById('lblGrandTotal').innerText = `${currency}${formatMoney(grandTotal)}`;
+    }
+
+    // Helper formatting functions
+    function formatMoney(amount) {
+      return amount.toLocaleString('en-IN', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function formatDate(dateStr) {
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(dateStr).toLocaleDateString('en-US', options);
+    }
+  </script>
+</body>
+</html>

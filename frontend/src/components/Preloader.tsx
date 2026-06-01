@@ -287,8 +287,7 @@ export function SplashPreloader({ onDone }: { onDone: () => void }) {
             {/* Flight arc */}
             <path d="M7 65 Q65 7 123 65" fill="none" stroke={`${GOLD_LT}aa`} strokeWidth="1.1"
               strokeDasharray="420" strokeDashoffset="420" clipPath="url(#sp-gc)"
-              style={{ animation:'jf-bar .55s 0s ease forwards',
-                       ['--tw-bar-hack' as string]: '420' }}/>
+              style={{ animation:'jf-bar .55s 0s ease forwards' }}/>
             {/* Shadow / spec / atm */}
             <circle cx="65" cy="65" r="58" fill="url(#sp-shd)"/>
             <circle cx="65" cy="65" r="58" fill="url(#sp-spec)" clipPath="url(#sp-gc)"/>

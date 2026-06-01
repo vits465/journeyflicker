@@ -1,11 +1,21 @@
-import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from './api';
+import { safeStorage } from './storage';
 
 export type HeroPage = 'home' | 'tours' | 'destinations';
 
+export interface CustomHeroSlide {
+  id: string;
+  imageUrl: string;
+  title: string;
+  subtitle: string;
+  tag?: string;
+  href?: string;
+}
+
 export interface HeroSettings {
   home: string[];
+  homeCustomSlides?: CustomHeroSlide[];
   tours: string[];
   destinations: string[];
   visaBanner?: string;
@@ -18,10 +28,10 @@ export function useHeroSettings(page: HeroPage): string[] {
     queryKey: ['heroSettings', page],
     queryFn: async () => {
       try {
-        const s = await api.getHeroSettings();
+        const s = await api.getHeroSettings() as HeroSettings;
         return s[page] || [];
       } catch {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const raw = safeStorage.getItem(STORAGE_KEY);
         if (raw) return JSON.parse(raw)[page] || [];
         return [];
       }
@@ -32,18 +42,18 @@ export function useHeroSettings(page: HeroPage): string[] {
 }
 
 export function useAllHeroSettings() {
-  const { data: settings = { home: [], tours: [], destinations: [], visaBanner: '' } } = useQuery({
+  const { data: settings = { home: [], homeCustomSlides: [], tours: [], destinations: [], visaBanner: '' }, isLoading } = useQuery({
     queryKey: ['allHeroSettings'],
     queryFn: async () => {
       try {
-        return await api.getHeroSettings();
+        return await api.getHeroSettings() as HeroSettings;
       } catch {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) return JSON.parse(raw);
-        return { home: [], tours: [], destinations: [], visaBanner: '' };
+        const raw = safeStorage.getItem(STORAGE_KEY);
+        if (raw) return JSON.parse(raw) as HeroSettings;
+        return { home: [], homeCustomSlides: [], tours: [], destinations: [], visaBanner: '' };
       }
     }
   });
 
-  return { settings };
+  return { settings, isLoading };
 }

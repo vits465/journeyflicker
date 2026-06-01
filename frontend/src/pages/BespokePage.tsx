@@ -22,7 +22,7 @@ const initialData: CurationData = {
   vibe: '',
   pace: '',
   month: 'October',
-  budget: '$10,000 – $25,000',
+  budget: 'International: $1000 - $2000',
   guests: 2,
   name: '',
   email: '',
@@ -81,11 +81,18 @@ const PACES = [
   },
 ];
 
-const BUDGET_TIERS = [
-  '$5,000 – $10,000',
-  '$10,000 – $25,000',
-  '$25,000 – $50,000',
-  '$50,000+',
+const DOMESTIC_BUDGETS = [
+  'Below ₹30k',
+  '₹30k - ₹50k',
+  '₹50k++',
+  'Own Your Demand',
+];
+
+const INTERNATIONAL_BUDGETS = [
+  'Below $1000',
+  '$1000 - $2000',
+  '$2000++',
+  'Own Your Demand',
 ];
 
 const MONTHS = [
@@ -102,6 +109,19 @@ export default function BespokePage() {
 
   const updateField = (fields: Partial<CurationData>) => {
     setData(prev => ({ ...prev, ...fields }));
+  };
+
+  const [travelType, setTravelType] = useState<'Domestic' | 'International'>(() => {
+    if (data.budget.startsWith('Domestic:')) {
+      return 'Domestic';
+    }
+    return 'International';
+  });
+
+  const handleTravelTypeChange = (type: 'Domestic' | 'International') => {
+    setTravelType(type);
+    const defaultBudget = type === 'Domestic' ? DOMESTIC_BUDGETS[0] : INTERNATIONAL_BUDGETS[0];
+    updateField({ budget: `${type}: ${defaultBudget}` });
   };
 
   const nextStep = () => {
@@ -244,7 +264,7 @@ ${data.notes.trim() ? `"${data.notes.trim()}"` : 'No additional constraints prov
             {/* ── STEP 2: EXPEDITION PACE ── */}
             {step === 2 && (
               <div className="animate-reveal-up">
-                <h1 className="text-3xl sm:text-4xl font-light tracking-tighter mb-2 italic font-serif">Determine Your Pace.</h1>
+                <h1 className="text-3xl sm:text-4xl font-light tracking-tighter mb-2 italic font-serif">Choose Your Travel.</h1>
                 <p className="text-neutral-400 text-sm font-light mb-8 max-w-xl">Balance is absolute. Calibrate the density of landmarks vs. rest windows.</p>
                 
                 <div className="flex flex-col gap-4">
@@ -272,7 +292,7 @@ ${data.notes.trim() ? `"${data.notes.trim()}"` : 'No additional constraints prov
             {/* ── STEP 3: TIMELINE & GROUP DETAILS ── */}
             {step === 3 && (
               <div className="animate-reveal-up">
-                <h1 className="text-3xl sm:text-4xl font-light tracking-tighter mb-2 italic font-serif">Calibrate Logistics.</h1>
+                <h1 className="text-3xl sm:text-4xl font-light tracking-tighter mb-2 italic font-serif">Organize Your Journey.</h1>
                 <p className="text-neutral-400 text-sm font-light mb-8 max-w-xl">Select your timeline and group variables to match your customized strategy.</p>
                 
                 <div className="space-y-6">
@@ -289,22 +309,66 @@ ${data.notes.trim() ? `"${data.notes.trim()}"` : 'No additional constraints prov
                   </div>
 
                   {/* Budget Selector */}
-                  <div className="space-y-2">
-                    <label className="text-[9px] font-black uppercase tracking-[0.4em] text-neutral-500">Approximate Budget Tier (USD)</label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                      {BUDGET_TIERS.map(b => (
-                        <button key={b} type="button" onClick={() => updateField({ budget: b })}
-                          className={`px-3 py-3 border rounded-xl text-xs font-semibold tracking-tight transition-all duration-300 ${
-                            data.budget === b ? 'bg-white text-black border-white' : 'bg-neutral-950 border-neutral-800 text-neutral-400 hover:border-neutral-700'
-                          }`}>
-                          {b}
+                  <div className="space-y-4 border-t border-neutral-800/40 pt-6">
+                    {/* Destination/Travel Type Tabs */}
+                    <div className="space-y-2">
+                      <label className="text-[9px] font-black uppercase tracking-[0.4em] text-neutral-500">Destination Category</label>
+                      <div className="grid grid-cols-2 gap-2 bg-neutral-950 p-1.5 rounded-xl border border-neutral-800/60 max-w-sm">
+                        <button
+                          type="button"
+                          onClick={() => handleTravelTypeChange('Domestic')}
+                          className={`py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
+                            travelType === 'Domestic' 
+                              ? 'bg-white text-black shadow-md' 
+                              : 'text-neutral-400 hover:text-white hover:bg-neutral-900/40'
+                          }`}
+                        >
+                          Domestic (INR)
                         </button>
-                      ))}
+                        <button
+                          type="button"
+                          onClick={() => handleTravelTypeChange('International')}
+                          className={`py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
+                            travelType === 'International' 
+                              ? 'bg-white text-black shadow-md' 
+                              : 'text-neutral-400 hover:text-white hover:bg-neutral-900/40'
+                          }`}
+                        >
+                          International (USD)
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Dynamic Budget Option List */}
+                    <div className="space-y-2">
+                      <label className="text-[9px] font-black uppercase tracking-[0.4em] text-neutral-500">
+                        Approximate Budget Tier ({travelType === 'Domestic' ? 'INR / ₹' : 'USD / $'})
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {(travelType === 'Domestic' ? DOMESTIC_BUDGETS : INTERNATIONAL_BUDGETS).map(b => {
+                          const value = `${travelType}: ${b}`;
+                          const isSelected = data.budget === value;
+                          return (
+                            <button
+                              key={b}
+                              type="button"
+                              onClick={() => updateField({ budget: value })}
+                              className={`px-3 py-3 border rounded-xl text-xs font-semibold tracking-tight transition-all duration-300 ${
+                                isSelected
+                                  ? 'bg-white text-black border-white shadow-xl scale-[1.02]'
+                                  : 'bg-neutral-950 border-neutral-800/60 text-neutral-400 hover:border-neutral-700 hover:text-white'
+                              }`}
+                            >
+                              {b}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
 
                   {/* Guest Counter */}
-                  <div className="space-y-2">
+                  <div className="space-y-2 border-t border-neutral-800/40 pt-6">
                     <label className="text-[9px] font-black uppercase tracking-[0.4em] text-neutral-500">Number of Guests</label>
                     <div className="flex items-center gap-4 bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-2 w-fit">
                       <button type="button" onClick={() => updateField({ guests: Math.max(1, data.guests - 1) })}

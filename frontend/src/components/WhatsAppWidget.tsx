@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { api } from "../lib/api";
 import toast from "react-hot-toast";
+import { safeSessionStorage } from "../lib/storage";
 
 interface Message {
   sender: "user" | "bot";
@@ -12,10 +13,10 @@ export function WhatsAppWidget() {
   const [showNotification, setShowNotification] = useState(true);
   
   // Registration specs
-  const [name, setName] = useState(() => sessionStorage.getItem("jf_chat_name") || "");
-  const [phone, setPhone] = useState(() => sessionStorage.getItem("jf_chat_phone") || "");
+  const [name, setName] = useState(() => safeSessionStorage.getItem("jf_chat_name") || "");
+  const [phone, setPhone] = useState(() => safeSessionStorage.getItem("jf_chat_phone") || "");
   const [isRegistered, setIsRegistered] = useState(() => {
-    return !!sessionStorage.getItem("jf_chat_name") && !!sessionStorage.getItem("jf_chat_phone");
+    return !!safeSessionStorage.getItem("jf_chat_name") && !!safeSessionStorage.getItem("jf_chat_phone");
   });
 
   const [inputText, setInputText] = useState("");
@@ -28,7 +29,7 @@ export function WhatsAppWidget() {
   // Initialize welcome message when user is registered
   useEffect(() => {
     if (isRegistered) {
-      const savedName = sessionStorage.getItem("jf_chat_name") || "Traveler";
+      const savedName = safeSessionStorage.getItem("jf_chat_name") || "Traveler";
       setMessages([
         {
           sender: "bot",
@@ -61,8 +62,8 @@ export function WhatsAppWidget() {
     setLoadingReg(true);
     try {
       // 1. Save locally to session
-      sessionStorage.setItem("jf_chat_name", name.trim());
-      sessionStorage.setItem("jf_chat_phone", phone.trim());
+      safeSessionStorage.setItem("jf_chat_name", name.trim());
+      safeSessionStorage.setItem("jf_chat_phone", phone.trim());
 
       // 2. Perform background lead registration
       const leadEmail = `${name.toLowerCase().replace(/[^a-z0-9]/g, "")}_chat@journeyflicker.com`;
