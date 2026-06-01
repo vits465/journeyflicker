@@ -1,6 +1,7 @@
 import { useEffect, useState, lazy, Suspense, useCallback } from "react";
 import { Route, Routes } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
+import { Analytics } from "@vercel/analytics/react";
 import "./App.css";
 import { SiteLayout } from "./components/SiteLayout";
 import { SplashPreloader } from "./components/Preloader";
@@ -82,6 +83,7 @@ export default function App() {
               </Routes>
             </Suspense>
           </ErrorBoundary>
+          <Analytics />
         </SearchProvider>
       </ThemeProvider>
     </HelmetProvider>
