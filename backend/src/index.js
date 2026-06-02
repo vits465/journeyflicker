@@ -1121,12 +1121,18 @@ app.post("/api/chat", async (req, res) => {
     }));
 
     const condensedTours = tours.map(t => ({
+      id: t.id,
       name: t.name,
       region: t.region,
       days: t.days,
       price: t.price,
       category: t.category,
-      overview: t.overviewDescription || ""
+      overview: t.overviewDescription || "",
+      itinerary: (t.itinerary || []).map((day, idx) => ({
+        day: idx + 1,
+        title: day.title || "",
+        description: day.description || ""
+      }))
     }));
 
     const condensedVisas = visas.map(v => ({
@@ -1152,9 +1158,13 @@ Customer Info:
 
 Rules:
 1. Be polite, premium, brief, and helpful.
-2. Only suggest destinations, tours, or visas that are listed in the website data above. If a customer asks for a destination not listed, politely suggest our bespoke inquiry form (/bespoke) or contact page (/contact).
-3. Do not suggest or mention WhatsApp or any WhatsApp chatbot.
-4. Respond in direct text. You can use simple markdown like *bold* for emphasis.
+2. If the user mentions or asks about a specific place (e.g. "Bali", "Paris", "Andaman", "Vietnam") or a tour name:
+   a. Look for matching tours in the Website Data.
+   b. Provide a beautiful day-by-day summary of the matching tour(s) using their daily itinerary titles and descriptions.
+   c. Give them a clickable suggestion link to see the tour on the website in the format: "[View Tour Details](/tours/tour_id)".
+3. If a customer asks for a destination not listed, politely suggest our bespoke inquiry form (/bespoke) or contact page (/contact).
+4. Do not suggest or mention WhatsApp or any WhatsApp chatbot.
+5. Respond in direct text. You can use markdown like *bold* for emphasis, and [Anchor Text](/local-url) for links. Example: "[Explore the Dossier](/tours/tour_id)" or "[Request Access](/contact)".
 
 Customer Message: "${message}"`;
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import toast from "react-hot-toast";
 import { safeSessionStorage } from "../lib/storage";
@@ -9,6 +10,7 @@ interface Message {
 }
 
 export function WhatsAppWidget() {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [showNotification, setShowNotification] = useState(true);
   
@@ -117,21 +119,79 @@ export function WhatsAppWidget() {
   };
 
   const renderFormattedText = (text: string) => {
-    // Basic markdown parsing for bold words (**text** or *text*)
     return text.split("\n").map((line, lineIdx) => {
-      // Parse bold elements
-      const parts = line.split(/(\*\*|[*])/g);
-      let isBold = false;
-      
-      const formattedLine = parts.map((part, partIdx) => {
-        if (part === "**" || part === "*") {
-          isBold = !isBold;
-          return null;
+      // First parse links: [text](url)
+      const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+      const parts = [];
+      let lastIndex = 0;
+      let match;
+
+      while ((match = linkRegex.exec(line)) !== null) {
+        // Add preceding text
+        if (match.index > lastIndex) {
+          parts.push(line.slice(lastIndex, match.index));
         }
-        return isBold ? <strong key={partIdx} className="font-extrabold text-on-surface dark:text-white">{part}</strong> : part;
+        
+        const anchorText = match[1];
+        const url = match[2];
+        const isExternal = url.startsWith("http");
+
+        parts.push(
+          isExternal ? (
+            <a 
+              key={match.index} 
+              href={url} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline decoration-emerald-500"
+            >
+              {anchorText}
+            </a>
+          ) : (
+            <a 
+              key={match.index} 
+              href={url} 
+              onClick={(e) => {
+                e.preventDefault();
+                navigate(url);
+              }}
+              className="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline decoration-emerald-500 cursor-pointer"
+            >
+              {anchorText}
+            </a>
+          )
+        );
+
+        lastIndex = linkRegex.lastIndex;
+      }
+
+      if (lastIndex < line.length) {
+        parts.push(line.slice(lastIndex));
+      }
+
+      // Now map over parts to parse bold elements inside text strings
+      const formattedParts = parts.map((part, idx) => {
+        if (typeof part !== 'string') return part;
+
+        const boldParts = part.split(/(\*\*|[*])/g);
+        let isBold = false;
+
+        return boldParts.map((subPart, subIdx) => {
+          if (subPart === "**" || subPart === "*") {
+            isBold = !isBold;
+            return null;
+          }
+          return isBold ? (
+            <strong key={`${idx}-${subIdx}`} className="font-extrabold text-on-surface dark:text-white">
+              {subPart}
+            </strong>
+          ) : (
+            subPart
+          );
+        });
       });
 
-      return <span key={lineIdx} className="block mt-1">{formattedLine}</span>;
+      return <span key={lineIdx} className="block mt-1">{formattedParts}</span>;
     });
   };
 
