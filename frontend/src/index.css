@@ -103,8 +103,14 @@
 
 @layer base {
   body {
-    @apply bg-background text-on-surface font-body overflow-x-hidden;
+    @apply bg-background text-on-surface font-body;
+    overflow-x: clip;
     transition: background-color 0.4s ease, color 0.4s ease;
+  }
+  #root {
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
   }
   ::selection {
     @apply bg-primary text-on-primary;

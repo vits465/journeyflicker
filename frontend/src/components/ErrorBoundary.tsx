@@ -42,28 +42,46 @@ export class ErrorBoundary extends Component<Props, State> {
       if (!lastForceReload || (now - parseInt(lastForceReload)) > 10000) {
         safeSessionStorage.setItem('jf_last_force_reload', now.toString());
         
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.getRegistrations().then((registrations) => {
-            const promises = registrations.map(r => r.unregister());
-            const cachePromise = 'caches' in window 
-              ? caches.keys().then(names => Promise.all(names.map(name => caches.delete(name))))
-              : Promise.resolve();
-
-            Promise.all([...promises, cachePromise]).then(() => {
+        try {
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then((registrations) => {
+              const promises = registrations.map(r => r.unregister());
+              let cachePromise: Promise<any> = Promise.resolve();
               try {
-                const url = new URL(window.location.href);
-                url.searchParams.set('cb', Date.now().toString());
-                window.location.replace(url.toString());
-              } catch {
-                window.location.reload();
+                if ('caches' in window) {
+                  cachePromise = caches.keys().then(names => 
+                    Promise.all(names.map(name => caches.delete(name)))
+                  ).catch(() => Promise.resolve());
+                }
+              } catch (cErr) {
+                console.warn("Cache API cleanup failed inside ErrorBoundary:", cErr);
               }
+
+              Promise.all([...promises, cachePromise]).then(() => {
+                try {
+                  const url = new URL(window.location.href);
+                  url.searchParams.set('cb', Date.now().toString());
+                  window.location.replace(url.toString());
+                } catch {
+                  window.location.reload();
+                }
+              }).catch(() => {
+                window.location.reload();
+              });
             }).catch(() => {
               window.location.reload();
             });
-          }).catch(() => {
-            window.location.reload();
-          });
-        } else {
+          } else {
+            try {
+              const url = new URL(window.location.href);
+              url.searchParams.set('cb', Date.now().toString());
+              window.location.replace(url.toString());
+            } catch {
+              window.location.reload();
+            }
+          }
+        } catch (swErr) {
+          console.warn("ServiceWorker registrations cleanup failed inside ErrorBoundary:", swErr);
           try {
             const url = new URL(window.location.href);
             url.searchParams.set('cb', Date.now().toString());

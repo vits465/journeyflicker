@@ -12,50 +12,62 @@
     <script>
       (function() {
         // Clear old PWA service workers and browser caches from the old website
-        if ('serviceWorker' in navigator) {
-          var MIGRATION_KEY = 'journeyflicker_migration_v2'; // Increment to trigger migration clean-up for all users
-          var hasMigration = false;
-          try {
-            hasMigration = !!localStorage.getItem(MIGRATION_KEY);
-          } catch (e) {
-            hasMigration = true; // Safe fallback: skip migration to prevent refresh loops if storage is disabled
-          }
-          if (!hasMigration) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-              var cleared = false;
-              var unregisterPromises = [];
-              for (var i = 0; i < registrations.length; i++) {
-                unregisterPromises.push(registrations[i].unregister());
-                cleared = true;
-              }
-              
-              var cachePromise = Promise.resolve();
-              if ('caches' in window) {
-                cachePromise = caches.keys().then(function(names) {
-                  var deletePromises = [];
-                  for (var j = 0; j < names.length; j++) {
-                    deletePromises.push(caches.delete(names[j]));
-                    cleared = true;
-                  }
-                  return Promise.all(deletePromises);
-                });
-              }
-
-              Promise.all([Promise.all(unregisterPromises), cachePromise]).then(function() {
-                try {
-                  localStorage.setItem(MIGRATION_KEY, 'true');
-                } catch (e) {}
-                if (cleared) {
-                  window.location.reload();
+        try {
+          if ('serviceWorker' in navigator) {
+            var MIGRATION_KEY = 'journeyflicker_migration_v2'; // Increment to trigger migration clean-up for all users
+            var hasMigration = false;
+            try {
+              hasMigration = !!localStorage.getItem(MIGRATION_KEY);
+            } catch (e) {
+              hasMigration = true; // Safe fallback: skip migration to prevent refresh loops if storage is disabled
+            }
+            if (!hasMigration) {
+              navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                var cleared = false;
+                var unregisterPromises = [];
+                for (var i = 0; i < registrations.length; i++) {
+                  unregisterPromises.push(registrations[i].unregister());
+                  cleared = true;
                 }
-              }).catch(function() {
+                
+                var cachePromise = Promise.resolve();
                 try {
-                  localStorage.setItem(MIGRATION_KEY, 'true');
-                } catch (e) {}
-                window.location.reload();
+                  if ('caches' in window) {
+                    cachePromise = caches.keys().then(function(names) {
+                      var deletePromises = [];
+                      for (var j = 0; j < names.length; j++) {
+                        deletePromises.push(caches.delete(names[j]));
+                        cleared = true;
+                      }
+                      return Promise.all(deletePromises);
+                    }).catch(function() {
+                      return Promise.resolve();
+                    });
+                  }
+                } catch (cErr) {
+                  console.warn('Cache migration check failed:', cErr);
+                }
+
+                Promise.all([Promise.all(unregisterPromises), cachePromise]).then(function() {
+                  try {
+                    localStorage.setItem(MIGRATION_KEY, 'true');
+                  } catch (e) {}
+                  if (cleared) {
+                    window.location.reload();
+                  }
+                }).catch(function() {
+                  try {
+                    localStorage.setItem(MIGRATION_KEY, 'true');
+                  } catch (e) {}
+                  window.location.reload();
+                });
+              }).catch(function(swErr) {
+                console.warn('SW registrations search failed:', swErr);
               });
-            });
+            }
           }
+        } catch (swInitErr) {
+          console.warn('Service worker migration initialisation failed:', swInitErr);
         }
 
         // Global chunk/module load error handler (auto-healing for updates)
@@ -74,33 +86,44 @@
           } catch (e) {}
 
           console.log('Clearing Service Worker registrations and cache due to chunk loading failure...');
-          if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-              var unregisterPromises = [];
-              for (var i = 0; i < registrations.length; i++) {
-                unregisterPromises.push(registrations[i].unregister());
-              }
-              
-              var cachePromise = Promise.resolve();
-              if ('caches' in window) {
-                cachePromise = caches.keys().then(function(names) {
-                  var deletePromises = [];
-                  for (var j = 0; j < names.length; j++) {
-                    deletePromises.push(caches.delete(names[j]));
+          try {
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                var unregisterPromises = [];
+                for (var i = 0; i < registrations.length; i++) {
+                  unregisterPromises.push(registrations[i].unregister());
+                }
+                
+                var cachePromise = Promise.resolve();
+                try {
+                  if ('caches' in window) {
+                    cachePromise = caches.keys().then(function(names) {
+                      var deletePromises = [];
+                      for (var j = 0; j < names.length; j++) {
+                        deletePromises.push(caches.delete(names[j]));
+                      }
+                      return Promise.all(deletePromises);
+                    }).catch(function() {
+                      return Promise.resolve();
+                    });
                   }
-                  return Promise.all(deletePromises);
-                });
-              }
+                } catch (cErr) {
+                  console.warn('Cache key retrieval failed:', cErr);
+                }
 
-              Promise.all([Promise.all(unregisterPromises), cachePromise]).then(function() {
-                performCacheBustingReload();
+                Promise.all([Promise.all(unregisterPromises), cachePromise]).then(function() {
+                  performCacheBustingReload();
+                }).catch(function() {
+                  performCacheBustingReload();
+                });
               }).catch(function() {
                 performCacheBustingReload();
               });
-            }).catch(function() {
+            } else {
               performCacheBustingReload();
-            });
-          } else {
+            }
+          } catch (swForceErr) {
+            console.warn('SW force reload clean failed:', swForceErr);
             performCacheBustingReload();
           }
         }
@@ -197,7 +220,7 @@
       }
     </style>
   </head>
-  <body class="bg-background text-on-surface font-body overflow-x-hidden">
+  <body class="bg-background text-on-surface font-body">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
