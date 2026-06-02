@@ -1077,21 +1077,123 @@ app.get("/api/chatbot/knowledge", async (req, res) => {
 });
 
 app.post("/api/chat", async (req, res) => {
-  const chatbotUrl = process.env.CHATBOT_SERVER_URL || "https://journeyflicker-automation.onrender.com";
-  try {
-    const response = await fetch(`${chatbotUrl}/api/chat`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(req.body),
-    });
-    if (!response.ok) {
-      throw new Error(`Chatbot server error: ${response.status}`);
+  const { message, name, phone } = req.body;
+  const apiKey = process.env.GEMINI_API_KEY;
+
+  if (!apiKey) {
+    // Fallback to proxy if Gemini key is missing on the server
+    const chatbotUrl = process.env.CHATBOT_SERVER_URL || "https://journeyflicker-automation.onrender.com";
+    try {
+      const payload = {
+        message: message ? `${message}\n\n(Instruction: Base your response only on website data such as tours, destinations, and visas. Do not mention or suggest using the WhatsApp chatbot.)` : message,
+        name,
+        phone,
+        source: "website",
+        mode: "website_only"
+      };
+      const response = await fetch(`${chatbotUrl}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      return res.json(data);
+    } catch (err) {
+      console.error("[Proxy Chat Fallback] Failed:", err.message);
+      return res.status(500).json({ error: "Failed to fetch response" });
     }
-    const data = await response.json();
-    res.json(data);
+  }
+
+  try {
+    // 1. Fetch website data from database
+    const [destinations, tours, visas] = await Promise.all([
+      DestModel.find({}).lean(),
+      TourModel.find({ published: { $ne: false } }).lean(),
+      VisaModel.find({}).lean()
+    ]);
+
+    const condensedDestinations = destinations.map(d => ({
+      name: d.name,
+      region: d.region,
+      description: d.description || "",
+      essence: d.essenceText || "",
+      bestMonths: d.bestSeasonsMonths || ""
+    }));
+
+    const condensedTours = tours.map(t => ({
+      name: t.name,
+      region: t.region,
+      days: t.days,
+      price: t.price,
+      category: t.category,
+      overview: t.overviewDescription || ""
+    }));
+
+    const condensedVisas = visas.map(v => ({
+      country: v.country,
+      processing: v.processing,
+      difficulty: v.difficulty,
+      description: v.description || ""
+    }));
+
+    // 2. Build the system prompt with strict context rules
+    const systemPrompt = `You are the expert luxury AI Curation Assistant for JourneyFlicker.
+Your job is to answer customer questions and suggest tours, destinations, and visa information based strictly on our website data.
+Do not suggest any other tours or external companies. Do not refer users to WhatsApp or suggest a WhatsApp chatbot.
+
+Website Data:
+- Destinations: ${JSON.stringify(condensedDestinations)}
+- Tours: ${JSON.stringify(condensedTours)}
+- Visas: ${JSON.stringify(condensedVisas)}
+
+Customer Info:
+- Name: ${name || 'Valued Guest'}
+- Phone: ${phone || 'N/A'}
+
+Rules:
+1. Be polite, premium, brief, and helpful.
+2. Only suggest destinations, tours, or visas that are listed in the website data above. If a customer asks for a destination not listed, politely suggest our bespoke inquiry form (/bespoke) or contact page (/contact).
+3. Do not suggest or mention WhatsApp or any WhatsApp chatbot.
+4. Respond in direct text. You can use simple markdown like *bold* for emphasis.
+
+Customer Message: "${message}"`;
+
+    // 3. Query Gemini API directly
+    const geminiRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: systemPrompt }] }]
+        })
+      }
+    );
+
+    if (!geminiRes.ok) {
+      const errBody = await geminiRes.text();
+      throw new Error(`Gemini API Error (HTTP ${geminiRes.status}): ${errBody}`);
+    }
+
+    const data = await geminiRes.json();
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "I apologize, I am unable to process your request at this moment.";
+    
+    // Log the interaction asynchronously in the database for AI Analytics Dashboard
+    InquiryModel.create({
+      name: name || 'Website Guest',
+      phone: phone || '',
+      type: 'Web AI Chat',
+      destination: '',
+      plan: '',
+      query: message || '',
+      aiResponse: reply,
+      status: 'New'
+    }).catch(err => console.error("Failed to log web chat inquiry:", err));
+
+    res.json({ reply: reply.trim() });
   } catch (err) {
-    console.error("[Proxy Chat] Failed to fetch chatbot AI reply:", err.message);
-    res.status(500).json({ error: "Failed to fetch response" });
+    console.error("[Local Chat] Gemini execution failed:", err.message);
+    res.status(500).json({ error: "Failed to generate reply" });
   }
 });
 

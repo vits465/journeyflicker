@@ -94,6 +94,10 @@ export function Footer() {
                 className="text-[10px] text-white/60 hover:text-white transition-colors block tracking-wide">
                 pashv@journeyflicker.com
               </a>
+              <a href="tel:+919726698987"
+                className="text-[10px] text-white/60 hover:text-white transition-colors block tracking-wide">
+                +91 97266 98987
+              </a>
               <a href="tel:+919879268811"
                 className="text-[10px] text-white/60 hover:text-white transition-colors block tracking-wide">
                 +91 98792 68811

@@ -64,10 +64,10 @@ export function Header() {
             {navItems.map((item) => (
               <NavLink key={item.to} to={item.to} end={item.to === '/'}
                 className={({ isActive }) =>
-                  `text-[10px] tracking-[0.3em] uppercase font-sans transition-all duration-300 ${
+                  `text-[10px] tracking-[0.3em] uppercase font-sans border-b-2 pb-0.5 transition-all duration-300 ${
                     isActive
-                      ? `font-black border-b-2 border-current pb-0.5 ${isGlass ? 'text-black dark:text-white' : 'text-white'}`
-                      : `font-bold ${isGlass ? 'text-black/50 dark:text-white/40 hover:text-black dark:hover:text-white' : 'text-white/60 hover:text-white'}`
+                      ? `font-black border-current ${isGlass ? 'text-black dark:text-white' : 'text-white'}`
+                      : `font-bold border-transparent ${isGlass ? 'text-black/50 dark:text-white/40 hover:text-black dark:hover:text-white' : 'text-white/60 hover:text-white'}`
                   }`
                 }
               >
@@ -90,7 +90,7 @@ export function Header() {
             </button>
 
             <NavLink to="/bespoke"
-              className={`ml-2 px-5 py-2 rounded-full text-[10px] font-black tracking-[0.3em] uppercase transition-all duration-300 ${
+              className={`ml-2 px-5 py-2 rounded-full text-[10px] font-black tracking-[0.3em] uppercase inline-flex items-center justify-center transition-all duration-300 ${
                 isGlass
                   ? 'bg-black dark:bg-white text-white dark:text-black hover:bg-primary dark:hover:bg-gray-200 shadow-lg dark:shadow-white/5'
                   : 'bg-white/10 text-white border border-white/30 hover:bg-white hover:text-black'

@@ -63,6 +63,24 @@ export default function HomePage() {
     queryFn: () => api.listVisas().then(data => data || [])
   });
 
+  const { data: reviews = [], isLoading: loadingReviews } = useQuery({
+    queryKey: ['reviews'],
+    queryFn: () => api.getReviews().then(data => data || [])
+  });
+
+  const homeReviews = useMemo(() => {
+    if (loadingReviews || !reviews.length) {
+      return TESTIMONIALS.map(t => ({
+        id: t.author,
+        author: t.author,
+        content: t.quote,
+        rating: t.rating,
+        date: t.role
+      }));
+    }
+    return [...reviews].sort(() => Math.random() - 0.5).slice(0, 3);
+  }, [reviews, loadingReviews]);
+
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -572,13 +590,13 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {TESTIMONIALS.map((t, i) => (
-              <div key={i}
+            {homeReviews.map((t, i) => (
+              <div key={t.id || i}
                 className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-7 flex flex-col gap-5 hover:bg-white/10 transition-all duration-500 group animate-reveal-up"
                 style={{ animationDelay: `${i * 0.1}s` }}>
                 {/* Stars */}
                 <div className="flex gap-0.5">
-                  {[1,2,3,4,5].map(s => (
+                  {[...Array(t.rating || 5)].map((_, s) => (
                     <svg key={s} className="w-3.5 h-3.5 text-[#F4B400] fill-current" viewBox="0 0 24 24">
                       <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.4 8.168L12 18.896l-7.334 3.857 1.4-8.168L.132 9.21l8.2-1.192z"/>
                     </svg>
@@ -586,7 +604,7 @@ export default function HomePage() {
                 </div>
                 {/* Quote */}
                 <p className="text-sm font-light text-white/70 leading-relaxed italic flex-1 group-hover:text-white/90 transition-colors duration-500">
-                  &ldquo;{t.quote}&rdquo;
+                  &ldquo;{t.content}&rdquo;
                 </p>
                 {/* Author */}
                 <div className="flex items-center gap-3 border-t border-white/10 pt-5">
@@ -599,7 +617,7 @@ export default function HomePage() {
                       <svg className="w-2.5 h-2.5 text-[#4285F4] shrink-0" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-6.887 4.114-4.833 0-8.75-3.917-8.75-8.75s3.917-8.75 8.75-8.75c2.254 0 4.186.82 5.674 2.204l3.14-3.14C18.995 1.554 15.86 0 12.24 0 5.48 0 0 5.48 0 12.24s5.48 12.24 12.24 12.24c6.887 0 11.75-4.833 11.75-12.24 0-.82-.075-1.606-.225-2.355H12.24z"/>
                       </svg>
-                      {t.role}
+                      Google Review • {t.date || 'Verified'}
                     </p>
                   </div>
                 </div>
