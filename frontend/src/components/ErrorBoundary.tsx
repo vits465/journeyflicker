@@ -34,7 +34,9 @@ export class ErrorBoundary extends Component<Props, State> {
     const msg = error?.message || String(error);
     const isChunkError = msg.includes("Failed to fetch dynamically imported module") || 
                          msg.includes("ChunkLoadError") || 
-                         msg.includes("Loading chunk");
+                         msg.includes("Loading chunk") ||
+                         msg.includes("reading 'default'") ||
+                         msg.includes("properties of undefined");
 
     if (isChunkError) {
       console.warn("Chunk load error caught in React ErrorBoundary. Triggering force cache clear and reload...");
