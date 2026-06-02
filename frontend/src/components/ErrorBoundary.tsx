@@ -31,6 +31,51 @@ export class ErrorBoundary extends Component<Props, State> {
     const lastCrash = safeSessionStorage.getItem('jf_last_crash');
     const now = Date.now();
     
+    const msg = error?.message || String(error);
+    const isChunkError = msg.includes("Failed to fetch dynamically imported module") || 
+                         msg.includes("ChunkLoadError") || 
+                         msg.includes("Loading chunk");
+
+    if (isChunkError) {
+      console.warn("Chunk load error caught in React ErrorBoundary. Triggering force cache clear and reload...");
+      const lastForceReload = safeSessionStorage.getItem('jf_last_force_reload');
+      if (!lastForceReload || (now - parseInt(lastForceReload)) > 10000) {
+        safeSessionStorage.setItem('jf_last_force_reload', now.toString());
+        
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then((registrations) => {
+            const promises = registrations.map(r => r.unregister());
+            const cachePromise = 'caches' in window 
+              ? caches.keys().then(names => Promise.all(names.map(name => caches.delete(name))))
+              : Promise.resolve();
+
+            Promise.all([...promises, cachePromise]).then(() => {
+              try {
+                const url = new URL(window.location.href);
+                url.searchParams.set('cb', Date.now().toString());
+                window.location.replace(url.toString());
+              } catch {
+                window.location.reload();
+              }
+            }).catch(() => {
+              window.location.reload();
+            });
+          }).catch(() => {
+            window.location.reload();
+          });
+        } else {
+          try {
+            const url = new URL(window.location.href);
+            url.searchParams.set('cb', Date.now().toString());
+            window.location.replace(url.toString());
+          } catch {
+            window.location.reload();
+          }
+        }
+        return;
+      }
+    }
+
     if (!lastCrash || (now - parseInt(lastCrash)) > 10000) {
       // It hasn't crashed in the last 10 seconds, so this is likely a transient glitch.
       // Auto-heal by refreshing transparently!
@@ -38,7 +83,6 @@ export class ErrorBoundary extends Component<Props, State> {
       window.location.reload();
     }
   }
-
   public render() {
     if (this.state.hasError) {
       return (

@@ -10,32 +10,152 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <script>
-      // Clear old PWA service workers and browser caches from the old website
-      if ('serviceWorker' in navigator) {
-        const MIGRATION_KEY = 'journeyflicker_migration_v1';
-        if (!localStorage.getItem(MIGRATION_KEY)) {
-          navigator.serviceWorker.getRegistrations().then(function(registrations) {
-            let cleared = false;
-            for (let registration of registrations) {
-              registration.unregister();
-              cleared = true;
-            }
-            if ('caches' in window) {
-              caches.keys().then(function(names) {
-                for (let name of names) {
-                  caches.delete(name);
-                  cleared = true;
+      (function() {
+        // Clear old PWA service workers and browser caches from the old website
+        if ('serviceWorker' in navigator) {
+          var MIGRATION_KEY = 'journeyflicker_migration_v2'; // Increment to trigger migration clean-up for all users
+          var hasMigration = false;
+          try {
+            hasMigration = !!localStorage.getItem(MIGRATION_KEY);
+          } catch (e) {
+            hasMigration = true; // Safe fallback: skip migration to prevent refresh loops if storage is disabled
+          }
+          if (!hasMigration) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+              var cleared = false;
+              var unregisterPromises = [];
+              for (var i = 0; i < registrations.length; i++) {
+                unregisterPromises.push(registrations[i].unregister());
+                cleared = true;
+              }
+              
+              var cachePromise = Promise.resolve();
+              if ('caches' in window) {
+                cachePromise = caches.keys().then(function(names) {
+                  var deletePromises = [];
+                  for (var j = 0; j < names.length; j++) {
+                    deletePromises.push(caches.delete(names[j]));
+                    cleared = true;
+                  }
+                  return Promise.all(deletePromises);
+                });
+              }
+
+              Promise.all([Promise.all(unregisterPromises), cachePromise]).then(function() {
+                try {
+                  localStorage.setItem(MIGRATION_KEY, 'true');
+                } catch (e) {}
+                if (cleared) {
+                  window.location.reload();
                 }
+              }).catch(function() {
+                try {
+                  localStorage.setItem(MIGRATION_KEY, 'true');
+                } catch (e) {}
+                window.location.reload();
               });
-            }
-            localStorage.setItem(MIGRATION_KEY, 'true');
-            if (cleared) {
-              // Reload to ensure the clean state is loaded
-              window.location.reload();
-            }
-          });
+            });
+          }
         }
-      }
+
+        // Global chunk/module load error handler (auto-healing for updates)
+        function forceRefreshAndClearCache() {
+          var lastForceReload = null;
+          try {
+            lastForceReload = sessionStorage.getItem('jf_last_force_reload');
+          } catch (e) {}
+          var now = Date.now();
+          if (lastForceReload && (now - parseInt(lastForceReload)) < 10000) {
+            console.warn('Force reload was triggered less than 10 seconds ago. Stopping to prevent loop.');
+            return;
+          }
+          try {
+            sessionStorage.setItem('jf_last_force_reload', now.toString());
+          } catch (e) {}
+
+          console.log('Clearing Service Worker registrations and cache due to chunk loading failure...');
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+              var unregisterPromises = [];
+              for (var i = 0; i < registrations.length; i++) {
+                unregisterPromises.push(registrations[i].unregister());
+              }
+              
+              var cachePromise = Promise.resolve();
+              if ('caches' in window) {
+                cachePromise = caches.keys().then(function(names) {
+                  var deletePromises = [];
+                  for (var j = 0; j < names.length; j++) {
+                    deletePromises.push(caches.delete(names[j]));
+                  }
+                  return Promise.all(deletePromises);
+                });
+              }
+
+              Promise.all([Promise.all(unregisterPromises), cachePromise]).then(function() {
+                performCacheBustingReload();
+              }).catch(function() {
+                performCacheBustingReload();
+              });
+            }).catch(function() {
+              performCacheBustingReload();
+            });
+          } else {
+            performCacheBustingReload();
+          }
+        }
+
+        function performCacheBustingReload() {
+          try {
+            var url = new URL(window.location.href);
+            url.searchParams.set('cb', Date.now().toString());
+            window.location.replace(url.toString());
+          } catch (e) {
+            window.location.reload();
+          }
+        }
+
+        // 1. Vite-specific preload error event
+        window.addEventListener('vite:preloadError', function(event) {
+          console.error('Vite preload error detected:', event);
+          event.preventDefault();
+          forceRefreshAndClearCache();
+        });
+
+        // 2. Global runtime error handler for script loading failures
+        window.addEventListener('error', function(event) {
+          var msg = event.message || '';
+          var isChunkError = msg.indexOf('Failed to fetch dynamically imported module') > -1 || 
+                             msg.indexOf('ChunkLoadError') > -1 || 
+                             msg.indexOf('Loading chunk') > -1;
+          
+          if (!isChunkError && event.target && (event.target.tagName === 'SCRIPT' || event.target.tagName === 'LINK')) {
+            var src = event.target.src || event.target.href || '';
+            if (src.indexOf('/assets/') > -1) {
+              isChunkError = true;
+            }
+          }
+
+          if (isChunkError) {
+            console.error('Chunk loading error detected:', event);
+            event.preventDefault();
+            forceRefreshAndClearCache();
+          }
+        }, true); // Capture phase is critical to intercept resource loading errors
+
+        // 3. Global unhandled promise rejection handler
+        window.addEventListener('unhandledrejection', function(event) {
+          var reason = event.reason;
+          var msg = (reason && (reason.message || String(reason))) || '';
+          if (msg.indexOf('Failed to fetch dynamically imported module') > -1 || 
+              msg.indexOf('ChunkLoadError') > -1 || 
+              msg.indexOf('Loading chunk') > -1) {
+            console.error('Unhandled chunk loading promise rejection detected:', event);
+            event.preventDefault();
+            forceRefreshAndClearCache();
+          }
+        });
+      })();
     </script>
 
     <!-- Meta/Facebook Domain Verification (Replace content value with your actual Facebook verification token) -->
