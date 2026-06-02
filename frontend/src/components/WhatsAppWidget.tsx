@@ -68,6 +68,13 @@ export function WhatsAppWidget() {
       return;
     }
 
+    const cleanPhone = phone.trim().replace(/[\s()-]/g, "");
+    const phoneRegex = /^\+?[0-9]{7,15}$/;
+    if (!phoneRegex.test(cleanPhone)) {
+      toast.error("Please enter a valid phone or WhatsApp number.");
+      return;
+    }
+
     setLoadingReg(true);
     try {
       // 1. Save locally to session
