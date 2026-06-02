@@ -92,7 +92,7 @@ export default function FaqPage() {
       <section className="relative h-[55vh] min-h-[360px] max-h-[560px] flex flex-col justify-end px-4 sm:px-8 md:px-16 overflow-hidden bg-black pb-10 sm:pb-14">
         <div className="absolute inset-0 z-0">
           <img className="absolute inset-0 w-full h-full object-cover opacity-55 grayscale animate-image-pan"
-            alt="Minimalist library" src="https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?q=80&w=2070&auto=format&fit=crop" />
+            alt="Travel planning archive" src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=2070&auto=format&fit=crop" />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
         </div>
         <div className="relative z-10 w-full max-w-5xl mx-auto animate-reveal-up">
