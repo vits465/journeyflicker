@@ -9,6 +9,13 @@ interface Message {
   text: string;
 }
 
+const QUICK_SUGGESTIONS = [
+  "Suggest a luxury tour for Bali",
+  "Show the day-by-day itinerary for Andaman",
+  "What are the visa requirements for Vietnam?",
+  "How do I customize a bespoke tour?"
+];
+
 export function WhatsAppWidget() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -87,20 +94,17 @@ export function WhatsAppWidget() {
     }
   };
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const textToSend = inputText.trim();
-    if (!textToSend || isTyping) return;
+  const sendChatMessage = async (text: string) => {
+    if (isTyping) return;
 
     // 1. Append user message to stream
-    const newMessages: Message[] = [...messages, { sender: "user", text: textToSend }];
+    const newMessages: Message[] = [...messages, { sender: "user", text }];
     setMessages(newMessages);
-    setInputText("");
     setIsTyping(true);
 
     try {
       // 2. Query the live chat endpoint on the website backend (which proxies to the Render Chatbot)
-      const res = await api.chat(textToSend, name, phone);
+      const res = await api.chat(text, name, phone);
       
       // 3. Append AI reply
       setMessages([...newMessages, { sender: "bot", text: res.reply }]);
@@ -116,6 +120,18 @@ export function WhatsAppWidget() {
     } finally {
       setIsTyping(false);
     }
+  };
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const textToSend = inputText.trim();
+    if (!textToSend) return;
+    setInputText("");
+    await sendChatMessage(textToSend);
+  };
+
+  const handleSuggestionClick = async (suggestion: string) => {
+    await sendChatMessage(suggestion);
   };
 
   const renderFormattedText = (text: string) => {
@@ -332,6 +348,30 @@ export function WhatsAppWidget() {
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: "150ms" }} />
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: "300ms" }} />
                       <span className="text-[10px] text-zinc-400 dark:text-zinc-500 ml-1 font-mono">Curator is designing...</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Quick Suggestion Prompts */}
+                {messages.length === 1 && !isTyping && (
+                  <div className="mt-4 space-y-2 animate-reveal-up">
+                    <p className="text-[9px] uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-bold px-1 select-none">Suggested Curation Prompts</p>
+                    <div className="space-y-1.5">
+                      {QUICK_SUGGESTIONS.map((suggestion, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => handleSuggestionClick(suggestion)}
+                          className="w-full text-left bg-white dark:bg-zinc-950 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 border border-neutral-200/50 dark:border-neutral-800/80 rounded-2xl p-3 flex items-center gap-3 transition-all hover:scale-[1.01] active:scale-95 group cursor-pointer shadow-sm"
+                        >
+                          <div className="w-6.5 h-6.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                            <span className="material-symbols-outlined text-[11px] font-semibold">chat_bubble</span>
+                          </div>
+                          <span className="text-[11px] text-zinc-700 dark:text-zinc-300 font-medium group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">
+                            {suggestion}
+                          </span>
+                        </button>
+                      ))}
                     </div>
                   </div>
                 )}
