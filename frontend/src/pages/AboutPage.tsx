@@ -43,7 +43,7 @@ export default function AboutPage() {
         hideSlideText={true}
       >
         <div className="w-full max-w-5xl mx-auto px-4 sm:px-8 md:px-16 text-center md:text-left pt-16 relative z-10 animate-reveal-up">
-          <span className="text-white/60 text-[10px] tracking-[0.5em] uppercase mb-4 block font-bold">Our Journey</span>
+          <span className="text-white/60 text-[10px] tracking-[0.5em] uppercase mb-4 block font-bold">About Us</span>
           <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tighter leading-tight text-white mb-5 drop-shadow-lg">
             Crafting Memories in<br/><span className="italic font-serif text-white/90">Every Destination</span>
           </h1>
@@ -64,10 +64,10 @@ export default function AboutPage() {
           </div>
           <div className="w-full lg:w-1/2 space-y-6 animate-reveal-up" style={{ animationDelay: '0.15s' }}>
             <p className="text-base font-serif italic text-primary/80 dark:text-white border-l-4 border-primary/20 dark:border-white/20 pl-6 py-2 leading-relaxed">
-              "With a passion for travel and a commitment to excellence, we specialize in crafting personalized tour packages that cater to every kind of traveler."
+              "At JourneyFlicker, we believe that every journey should be seamless, inspiring, and truly special."
             </p>
             <p className="text-sm font-light text-on-surface-variant leading-relaxed opacity-70">
-              Whether you're seeking adventure, relaxation, cultural exploration, or a romantic getaway, we bring you closer to the world's most beautiful destinations.
+              With a passion for travel and a commitment to excellence, we specialize in crafting personalized tour packages that cater to every kind of traveler—whether you're seeking adventure, relaxation, cultural exploration, or a romantic getaway.
             </p>
           </div>
         </div>
@@ -85,7 +85,7 @@ export default function AboutPage() {
           {/* Mountains & Beaches */}
           <div className="bg-black flex flex-col justify-center items-center text-center p-6 text-white shadow-xl rounded-2xl group relative overflow-hidden">
             <span className="material-symbols-outlined text-5xl mb-4 font-light opacity-40">landscape</span>
-            <p className="text-[10px] font-bold tracking-[0.5em] uppercase">From Mountains<br/>To Beaches</p>
+            <p className="text-[10px] font-bold tracking-[0.5em] uppercase">From Breathtaking Mountains<br/>To Serene Beaches</p>
           </div>
           {/* Vision */}
           <div className="bg-surface dark:bg-white/5 p-7 md:p-10 shadow-sm hover:shadow-xl transition-all duration-500 rounded-2xl flex flex-col justify-between border border-outline-variant/10 dark:border-white/10">
@@ -147,7 +147,7 @@ export default function AboutPage() {
       <section className="py-14 sm:py-20 md:py-28 px-4 sm:px-8 md:px-16 bg-surface-container-low dark:bg-[#0a0a0a]">
         <div className="max-w-5xl mx-auto flex flex-col lg:flex-row gap-10 lg:gap-20">
           <div className="w-full lg:w-1/3 animate-reveal-up">
-            <span className="text-[10px] font-bold tracking-[0.4em] text-on-surface-variant uppercase mb-3 block">Why Choose Us</span>
+            <span className="text-[10px] font-bold tracking-[0.4em] text-on-surface-variant uppercase mb-3 block">Why Choose JourneyFlicker?</span>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tighter leading-tight text-on-surface dark:text-white">
               Redefining the standard of<br/><span className="italic font-serif opacity-40 dark:opacity-20">Modern Travel.</span>
             </h2>
@@ -193,10 +193,10 @@ export default function AboutPage() {
         <div className="max-w-2xl mx-auto animate-reveal-up relative z-10">
           <span className="text-white/40 text-[10px] font-bold tracking-[0.5em] uppercase mb-4 block">Satisfaction Guaranteed</span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tighter mb-5 leading-tight">
-            Turn Your Travel Dreams<br/><span className="italic font-serif text-white/90">Into Reality.</span>
+            Let's turn your travel dreams<br/><span className="italic font-serif text-white/90">into reality with JourneyFlicker.</span>
           </h2>
           <p className="text-sm font-light text-white/40 mb-8 max-w-md mx-auto leading-relaxed">
-            We don't just plan trips — we create journeys that you will cherish forever. Connect with our curators to get started.
+            At JourneyFlicker, your satisfaction is our priority. We don't just plan trips—we create journeys that you will cherish forever.
           </p>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
             <button className="bg-white text-black px-8 py-3 text-[10px] font-extrabold tracking-[0.4em] uppercase rounded-full hover:bg-primary hover:text-white transition-all shadow-xl w-full sm:w-auto"

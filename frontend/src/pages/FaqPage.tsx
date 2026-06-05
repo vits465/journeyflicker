@@ -2,35 +2,52 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SEO } from '../components/SEO';
 
-type Category = 'Expeditions' | 'Logistics' | 'Protocol';
+type Category = 'Booking & Payment' | 'Brochure Accuracy' | 'Hotel' | 'Flight';
 
 const categories: { name: Category; icon: string }[] = [
-  { name: 'Expeditions', icon: 'explore' },
-  { name: 'Logistics', icon: 'local_shipping' },
-  { name: 'Protocol', icon: 'verified_user' },
+  { name: 'Booking & Payment', icon: 'payments' },
+  { name: 'Brochure Accuracy', icon: 'menu_book' },
+  { name: 'Hotel', icon: 'hotel' },
+  { name: 'Flight', icon: 'flight' },
 ];
 
 const questions: Record<Category, { q: string; a: string }[]> = {
-  Expeditions: [
-    { q: "What defines a Signature Journey?", a: "A highly choreographed expedition characterized by architectural silence, private access to cultural monoliths, and low-density group dynamics (typically max 8 guests)." },
-    { q: "Are private departures available?", a: "Yes. Every itinerary in our portfolio can be sequestered for exclusive private departures. Contact our curators to initiate a private audit." },
-    { q: "Can itineraries be modified?", a: "While our Signature Series are pre-designed for narrative flow, our Bespoke Curation service allows total architectural modification of any existing territory dossier." },
+  'Booking & Payment': [
+    { q: "How can I book a tour?", a: "You can book your tour online by sharing passport, PAN, and Aadhaar copies and making a digital payment. You may also visit our office for assistance." },
+    { q: "When should I book my tour?", a: "We recommend booking at least 6–9 months before departure to secure availability and enjoy early booking benefits." },
+    { q: "Why is the tour price shown in INR and foreign currency?", a: "Some expenses (flights, visas, documentation) are paid in INR, while hotels, sightseeing, and local services are paid in foreign currency." },
+    { q: "When do I need to make payments?", a: "• Booking Amount: At the time of reservation\n• Second Payment: 75–90 days before departure or before visa processing\n• Final Payment: 45 days before departure" },
+    { q: "What payment methods are accepted?", a: "• Bank Transfer\n• UPI\n• Cheque\n• Credit Card (Bank Charge Maybe Apply)\n• Debit Card (Bank Charge Maybe Apply)" },
+    { q: "Is the booking amount refundable?", a: "Refunds are subject to JourneyFlicker’s cancellation policy. Cancellation charges may apply." },
+    { q: "What documents are required?", a: "Valid Passport, PAN Card, and Aadhaar Card. Your passport must be valid for at least 6 months from the travel date." },
   ],
-  Logistics: [
-    { q: "What is the typical curation lead time?", a: "We require a minimum lead time of 4–6 weeks to ensure absolute verification of private access points and secure transport logistics." },
-    { q: "Is transport included?", a: "All signature journeys include full airside-to-airside private transport within the destination territory, typically via executive SUV or private charter." },
-    { q: "What is the cancellation protocol?", a: "Due to the exclusive nature of our sequestered assets, cancellations are handled case-by-case per the Curator Protocol Agreement signed at induction." },
+  'Brochure Accuracy': [
+    { q: "How accurate is the brochure and itinerary information?", a: "All information provided in this brochure, itinerary, or on the JourneyFlicker website is based on details available at the time of publication. JourneyFlicker reserves the right to modify any information, services, or arrangements before or after a booking due to circumstances beyond our control.\n\nWhere possible, any known changes will be communicated to guests at the time of booking. If changes arise after departure, our Tour Manager or local representative will keep guests informed." },
+    { q: "What happens in exceptional situations like hotel overbooking?", a: "In exceptional situations, such as hotel overbooking, operational requirements, or other unforeseen circumstances, JourneyFlicker may arrange accommodation in similar-category hotels or, where necessary, in a nearby city. Such changes will be made with the comfort and convenience of our guests in mind." },
   ],
-  Protocol: [
-    { q: "How is my digital identity protected?", a: "All registry transmissions are encrypted via high-level curator archives. We do not store identity data on public cloud servers." },
-    { q: "Do I need travel insurance?", a: "Active travel insurance with medical evacuation coverage is a mandatory protocol for all JourneyFlicker expeditions." },
-    { q: "What is a Curator Audit?", a: "An audit is a 1-on-1 strategy session with a lead curator to ensure your sensory preferences align with the chosen expedition territory." },
+  'Hotel': [
+    { q: "What is the valid ID proof required?", a: "As per government regulations, all guests aged 18 years and above must carry a valid photo ID at the time of check-in. Accepted IDs include Passport, Driving License, Voter ID, or any government-approved identification document. Failure to provide a valid ID may result in denied check-in, for which JourneyFlicker will not be held responsible." },
+    { q: "Is there an age requirement?", a: "The primary guest checking into the hotel must be at least 18 years of age. Children travelling with adults are welcome as per the hotel's child policy." },
+    { q: "How long does booking confirmation take?", a: "For same-day check-ins, hotel confirmations may take approximately 4–8 working hours, subject to availability and hotel approval." },
+    { q: "What category of accommodation is provided?", a: "JourneyFlicker carefully selects comfortable hotels for all tours. Hotels will be as mentioned in the itinerary or of a similar category and standard." },
+    { q: "How is room allocation managed?", a: "• Rooms are generally provided on a double or twin-sharing basis.\n• Triple occupancy rooms may include an extra mattress, folding cot, or rollaway bed.\n• Bed configurations are subject to hotel availability.\n• Adjacent or connecting rooms cannot be guaranteed." },
+    { q: "Who is responsible for personal belongings?", a: "Guests are solely responsible for their luggage and personal belongings. JourneyFlicker will not be liable for any loss, theft, or damage. Any damage caused to hotel property during the stay must be settled directly by the guest." },
+    { q: "Are extra services included?", a: "Charges for extra beds, meals, room service, mini-bar, laundry, telephone calls, or any other services not specifically included in the booking will be payable directly to the hotel." },
+    { q: "What are the check-in & check-out times?", a: "Standard hotel check-in time is usually 2:00 PM, and check-out time is 12:00 PM. Early check-in or late check-out requests are subject to hotel approval and may incur additional charges." },
+    { q: "What does the room tariff include?", a: "The room tariff includes applicable taxes unless otherwise specified. Additional hotel services and personal expenses are not included and must be paid at check-out." },
+    { q: "What is the accommodation policy?", a: "Hotels reserve the right to refuse accommodation if valid identification or required documents are not provided. Some hotels may also decline bookings from local residents. In such cases, JourneyFlicker shall not be responsible for denied check-ins or refunds." },
+    { q: "What happens if I modify or cancel a booking?", a: "Any changes to a confirmed booking may attract modification or cancellation charges. All amendments are subject to hotel policies and room availability. In case of cancellation or modification, applicable cancellation charges will apply. Any promotional discount or special offer availed at the time of booking may be forfeited." },
+  ],
+  'Flight': [
+    { q: "Are there any service fees or cancellation charges?", a: "• A JourneyFlicker service fee may be charged per passenger in addition to the applicable airline cancellation or rescheduling charges.\n• Airline cancellation and rescheduling charges displayed are indicative and subject to change based on airline policies, fare rules, and currency fluctuations. JourneyFlicker does not guarantee the accuracy of such information." },
+    { q: "Will I be notified of schedule changes?", a: "JourneyFlicker is not responsible for notifying passengers of flight schedule changes, cancellations, airline updates, hotel changes, or any other modifications made by service providers." },
+    { q: "When should I cancel or reschedule flights?", a: "We recommend cancelling or rescheduling your tickets at least 72 hours before the scheduled flight departure." },
   ],
 };
 
 export default function FaqPage() {
   const navigate = useNavigate();
-  const [activeCategory, setActiveCategory] = useState<Category>('Expeditions');
+  const [activeCategory, setActiveCategory] = useState<Category>('Booking & Payment');
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const faqSchema = useMemo(() => {
@@ -96,9 +113,9 @@ export default function FaqPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
         </div>
         <div className="relative z-10 w-full max-w-5xl mx-auto animate-reveal-up">
-          <span className="text-white/60 text-[10px] tracking-[0.5em] uppercase mb-3 block font-bold">Support Bureau</span>
+          <span className="text-white/60 text-[10px] tracking-[0.5em] uppercase mb-3 block font-bold">Support</span>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light leading-tight tracking-tighter text-white">
-            Assistance &<br/><span className="italic font-serif text-white/90">Support Department</span>
+            Assistance &amp;<br/><span className="italic font-serif text-white/90">Support Department</span>
           </h1>
         </div>
       </section>
@@ -140,10 +157,10 @@ export default function FaqPage() {
                     <span className="material-symbols-outlined text-lg font-light">add</span>
                   </div>
                 </button>
-                <div className={`overflow-hidden transition-all duration-300 ease-out ${openIndex === i ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                <div className={`overflow-hidden transition-all duration-300 ease-out ${openIndex === i ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}>
                   <div className="px-5 pb-5">
                     <div className="h-px bg-primary/10 w-24 mb-3" />
-                    <p className="text-sm font-light text-on-surface-variant leading-relaxed opacity-80 max-w-2xl">
+                    <p className="text-sm font-light text-on-surface-variant leading-relaxed opacity-80 max-w-2xl whitespace-pre-wrap">
                       {faq.a}
                     </p>
                   </div>

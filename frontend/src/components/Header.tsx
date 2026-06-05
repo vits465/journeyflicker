@@ -49,7 +49,7 @@ export function Header() {
     <>
       {/* ── NAVBAR ── */}
       <header className={`fixed top-0 w-full z-[100] transition-all duration-500 ${isGlass ? 'bg-white/95 dark:bg-black/90 backdrop-blur shadow-sm dark:shadow-white/5 py-3' : 'bg-transparent py-5'}`}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 flex justify-between items-center">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 flex justify-between items-center relative">
 
           {/* Logo */}
           <NavLink to="/" className="flex items-center gap-2 z-[110] transition-transform hover:scale-105 duration-300">
@@ -60,7 +60,7 @@ export function Header() {
           </NavLink>
 
           {/* Desktop nav */}
-          <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-8 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             {navItems.map((item) => (
               <NavLink key={item.to} to={item.to} end={item.to === '/'}
                 className={({ isActive }) =>
@@ -74,7 +74,10 @@ export function Header() {
                 {item.label}
               </NavLink>
             ))}
+          </nav>
             
+          {/* Desktop Actions */}
+          <div className="hidden lg:flex items-center gap-2">
             <button 
               onClick={openSearch}
               className={`p-2 flex items-center justify-center transition-all duration-300 ${isGlass ? 'text-black/50 dark:text-white/40 hover:text-black dark:hover:text-white' : 'text-white/60 hover:text-white'}`}
@@ -97,7 +100,7 @@ export function Header() {
               }`}>
               Inquire
             </NavLink>
-          </nav>
+          </div>
 
           {/* Mobile toggle area */}
           <div className="flex items-center gap-2 lg:hidden z-[110]">

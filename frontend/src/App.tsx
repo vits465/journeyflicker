@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, Suspense, useCallback } from "react";
+import { useEffect, useState, Suspense, useCallback } from "react";
 import { Route, Routes } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import "./App.css";
@@ -11,23 +11,23 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Toaster } from "react-hot-toast";
 import { installErrorReporter } from "./lib/errorReporter";
 
+// Import Pages Statically to prevent dynamic chunk loading / caching errors
+import HomePage from "./pages/HomePage";
+import ToursPage from "./pages/ToursPage";
+import TourDetailsPage from "./pages/TourDetailsPage";
+import DestinationsPage from "./pages/DestinationsPage";
+import DestinationDetailsPage from "./pages/DestinationDetailsPage";
+import VisasPage from "./pages/VisasPage";
+import AboutPage from "./pages/AboutPage";
+import FaqPage from "./pages/FaqPage";
+import ContactPage from "./pages/ContactPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import TermsAndConditionsPage from "./pages/TermsAndConditionsPage";
+import DataDeletionPage from "./pages/DataDeletionPage";
+import BespokePage from "./pages/BespokePage";
+
 // Install global error reporter immediately (before any rendering)
 installErrorReporter();
-
-// Lazy Load Pages
-const HomePage = lazy(() => import("./pages/HomePage"));
-const ToursPage = lazy(() => import("./pages/ToursPage"));
-const TourDetailsPage = lazy(() => import("./pages/TourDetailsPage"));
-const DestinationsPage = lazy(() => import("./pages/DestinationsPage"));
-const DestinationDetailsPage = lazy(() => import("./pages/DestinationDetailsPage"));
-const VisasPage = lazy(() => import("./pages/VisasPage"));
-const AboutPage = lazy(() => import("./pages/AboutPage"));
-const FaqPage = lazy(() => import("./pages/FaqPage"));
-const ContactPage = lazy(() => import("./pages/ContactPage"));
-const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
-const TermsAndConditionsPage = lazy(() => import("./pages/TermsAndConditionsPage"));
-const DataDeletionPage = lazy(() => import("./pages/DataDeletionPage"));
-const BespokePage = lazy(() => import("./pages/BespokePage"));
 
 export default function App() {
   const [init, setInit] = useState(true);
