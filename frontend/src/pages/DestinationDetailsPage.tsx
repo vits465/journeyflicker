@@ -6,7 +6,7 @@ import { api } from '../lib/api';
 import { Preloader } from '../components/Preloader';
 import { GoogleReviews } from '../components/GoogleReviews';
 
-const DEFAULT_IMG = 'https://images.unsplash.com/photo-1493246232918-d78b97076ac9?q=80&w=2070&auto=format&fit=crop';
+const DEFAULT_IMG = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=2070&auto=format&fit=crop';
 
 /* ─── Landmark Image Slider (mirrors SightseeingSlider from TourDetailsPage) ─── */
 function LandmarkSlider({ items }: { items: NonNullable<Destination['landmarks']> }) {

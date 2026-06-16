@@ -9,7 +9,7 @@ import { AutoCarousel } from '../components/AutoCarousel';
 import { useAllHeroSettings } from '../lib/heroSettings';
 import { optimizeImage } from '../lib/optimize';
 
-const FALLBACK = "https://images.unsplash.com/photo-1493246232918-d78b97076ac9?q=80&w=2070&auto=format&fit=crop";
+const FALLBACK = "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=2070&auto=format&fit=crop";
 
 // ── Static data for informational sections ──
 const STEPS = [

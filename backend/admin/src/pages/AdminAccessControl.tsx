@@ -399,6 +399,7 @@ export default function AdminAccessControl() {
                 { cap: 'Google Reviews Integration', ed: 'Full Access', co: 'Full Access' },
                 { cap: 'Hero Engine & Homepage', ed: 'Full CRUD', co: 'Read Only' },
                 { cap: 'SEO & Metadata Strategy', ed: 'Full CRUD', co: 'Read Only' },
+                { cap: 'Quotation Engine & PDFs', ed: 'Full Access', co: 'Full Access' },
                 { cap: 'WhatsApp Leads & AI Analytics', ed: 'Full Access', co: 'Full Access' },
                 { cap: 'Contact Inquiries & Privacy', ed: 'Full Access', co: 'Full Access' },
                 { cap: 'Database & System Backups', ed: 'Full Access', co: 'No Access' },

@@ -188,7 +188,7 @@ const hiteshPreset: QuotationData = {
     'Flight cost is subject to change at the time of booking.'
   ],
   visualArchive: [
-    'https://images.unsplash.com/photo-1493246232918-d78b97076ac9?q=80&w=600&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=600&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=600&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=600&auto=format&fit=crop'
   ]

@@ -35,7 +35,7 @@ export default function AboutPage() {
       {/* ── HERO ── */}
       <HeroSlider
         slides={[
-          { id: '1', imageUrl: 'https://images.unsplash.com/photo-1493246232918-d78b97076ac9?q=80&w=2070&auto=format&fit=crop', title: 'The Vision' },
+          { id: '1', imageUrl: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=2070&auto=format&fit=crop', title: 'The Vision' },
           { id: '2', imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=2070&auto=format&fit=crop', title: 'Our Offerings' },
           { id: '3', imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop', title: 'Why Choose Us' }
         ]}

@@ -342,7 +342,7 @@ export default function VisasPage() {
     const defaults = [
       { id: '1', imageUrl: bannerImage, title: 'Visa Intelligence' },
       { id: '2', imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=2070&auto=format&fit=crop', title: 'Global Movement' },
-      { id: '3', imageUrl: 'https://images.unsplash.com/photo-1493246232918-d78b97076ac9?q=80&w=2070&auto=format&fit=crop', title: 'Borderless Strategy' }
+      { id: '3', imageUrl: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=2070&auto=format&fit=crop', title: 'Borderless Strategy' }
     ];
 
     if (loading) return defaults;
