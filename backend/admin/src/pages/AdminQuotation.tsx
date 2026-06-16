@@ -510,11 +510,25 @@ export default function AdminQuotation() {
     }
   };
 
-  // Group itinerary into chunks of 3 days
-  const itineraryChunks: ItineraryDay[][] = [];
-  for (let i = 0; i < data.itinerary.length; i += 3) {
-    itineraryChunks.push(data.itinerary.slice(i, i + 3));
-  }
+  // Balanced chunking for itinerary days to distribute days evenly and minimize whitespace
+  const getBalancedChunks = (array: ItineraryDay[], maxPerChunk: number = 3): ItineraryDay[][] => {
+    const total = array.length;
+    if (total === 0) return [];
+    const numChunks = Math.ceil(total / maxPerChunk);
+    const baseSize = Math.floor(total / numChunks);
+    const remainder = total % numChunks;
+    
+    const chunks: ItineraryDay[][] = [];
+    let currentIndex = 0;
+    for (let i = 0; i < numChunks; i++) {
+      const size = baseSize + (i < remainder ? 1 : 0);
+      chunks.push(array.slice(currentIndex, currentIndex + size));
+      currentIndex += size;
+    }
+    return chunks;
+  };
+
+  const itineraryChunks = getBalancedChunks(data.itinerary, 3);
 
   // Print Logic
   const handlePrint = () => {
@@ -794,13 +808,13 @@ export default function AdminQuotation() {
           
           <div class="sect-title" style="margin-top:0;">Day Schedule</div>
           
-          <div class="itinerary-list" style="display: flex; flex-direction: column; gap: 15px;">
+          <div class="itinerary-list" style="display: flex; flex-direction: column; gap: 25px;">
             ${chunk.map((day) => `
-              <div class="itinerary-day" style="display: flex; gap: 15px; ${chunk.indexOf(day) === chunk.length - 1 ? '' : 'border-bottom: 1px solid #eee; padding-bottom: 15px;'}">
-                ${day.imageUrl ? `<img src="${absUrl(day.imageUrl)}" class="day-img" style="width: 130px; height: 90px; object-fit: cover; border-radius: 8px; flex-shrink: 0;" />` : ''}
+              <div class="itinerary-day" style="display: flex; gap: 20px; ${chunk.indexOf(day) === chunk.length - 1 ? '' : 'border-bottom: 1px solid #eee; padding-bottom: 25px;'}">
+                ${day.imageUrl ? `<img src="${absUrl(day.imageUrl)}" class="day-img" style="width: 150px; height: 100px; object-fit: cover; border-radius: 8px; flex-shrink: 0;" />` : ''}
                 <div class="day-info" style="flex: 1;">
-                  <h4 class="day-title" style="font-size: 13px; font-weight: 700; margin: 0 0 5px 0; font-style: italic;">${day.day}: ${day.title}</h4>
-                  <p class="day-desc" style="font-size: 11px; color: #333; margin: 0; line-height: 1.5; text-align: justify;">${day.description}</p>
+                  <h4 class="day-title" style="font-size: 14px; font-weight: 700; margin: 0 0 8px 0; font-style: italic; letter-spacing: 0.5px;">${day.day}: ${day.title}</h4>
+                  <p class="day-desc" style="font-size: 12px; color: #333; margin: 0; line-height: 1.6; text-align: justify;">${day.description}</p>
                 </div>
               </div>
             `).join('')}
@@ -1494,14 +1508,14 @@ export default function AdminQuotation() {
 
                 <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 border-b pb-1 font-serif italic">Detailed Day Schedule</div>
 
-                <div className="space-y-4">
+                <div className="space-y-6">
                   {chunk.map((day, i) => (
-                    <div key={i} className={`pb-3 ${i === chunk.length - 1 ? '' : 'border-b border-gray-100'}`}>
-                      <div className="flex gap-4 items-start">
-                        {day.imageUrl && <img src={day.imageUrl} className="w-28 h-20 object-cover rounded-lg border border-gray-200 shrink-0" alt="" />}
+                    <div key={i} className={`pb-6 ${i === chunk.length - 1 ? '' : 'border-b border-gray-100'}`}>
+                      <div className="flex gap-5 items-start">
+                        {day.imageUrl && <img src={day.imageUrl} className="w-36 h-24 object-cover rounded-lg border border-gray-200 shrink-0" alt="" />}
                         <div className="min-w-0 flex-1">
-                          <div className="font-bold text-sm text-black italic">{day.day}: {day.title || 'Day Schedule details'}</div>
-                          <p className="text-xs text-gray-600 leading-relaxed mt-1 text-justify">{day.description || 'Provide day activities...'}</p>
+                          <div className="font-bold text-sm text-black italic tracking-wide">{day.day}: {day.title || 'Day Schedule details'}</div>
+                          <p className="text-xs text-gray-700 leading-relaxed mt-1.5 text-justify">{day.description || 'Provide day activities...'}</p>
                         </div>
                       </div>
                     </div>
