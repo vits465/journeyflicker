@@ -194,6 +194,80 @@ const hiteshPreset: QuotationData = {
   ]
 };
 
+const domesticPolicyTemplates = {
+  inclusions: [
+    'Accommodation on Double/Twin sharing basis.',
+    'Daily Breakfast & Dinner at all hotels / resorts.',
+    'All transfers and sightseeing by private air-conditioned vehicle as per itinerary.',
+    'AC will be switched off in hill stations / climb routes.',
+    'All toll taxes, parking fees, driver allowance, and road permits.',
+    'Assistance on arrival and departure transfers.'
+  ],
+  exclusions: [
+    'Airfare / Train fares.',
+    'Any personal expenses (laundry, telephone calls, tips, beverages, mineral water).',
+    'Entrance tickets, camera permits, and guide charges at sightseeing points.',
+    'Meals outside of the pre-booked meal plan.',
+    'Extra cost due to landslides, road blocks, natural disasters, or flight delays.',
+    'GST 5% extra applicable on total bill.'
+  ],
+  documentsRequired: [
+    'Original Aadhaar Card / Voter ID Card / Passport.',
+    'Photocopies of photo identity proof for all traveling members.',
+    '2 Passport size photographs per person.'
+  ],
+  cancellationPolicy: [
+    '30 days or more before departure: 25% of total tour cost.',
+    '29 to 15 days before departure: 50% of total tour cost.',
+    '14 to 7 days before departure: 75% of total tour cost.',
+    'Less than 7 days before departure or No Show: 100% of tour cost.'
+  ],
+  importantInfo: [
+    'Rates are based on minimum guest count and subject to change if group size changes.',
+    'Standard hotel check-in time is 14:00 and check-out is 12:00 noon.',
+    'Early check-in or late check-out is subject to room availability and extra charges.',
+    'We act as booking agents only and cannot be held liable for mechanical failures or acts of God.'
+  ]
+};
+
+const internationalPolicyTemplates = {
+  inclusions: [
+    'Accommodation in premium category hotels (Double sharing).',
+    'Daily buffet breakfast at all hotels (additional meals as per plan).',
+    'Private airport arrival & departure transfers.',
+    'Coordinated sightseeing activities with local English-speaking guides.',
+    'All local transportation, highway tolls, and driver allowances.',
+    'Basic travel insurance coverage during the tour.'
+  ],
+  exclusions: [
+    'International & Domestic Airfares & Airport Taxes.',
+    'Visa fee / Visa on Arrival charges (if applicable).',
+    'Mandatory tips for local guides and drivers (typically $3-$5 USD per person per day).',
+    'Personal expenses, laundry, room service, mineral water, and alcoholic drinks.',
+    'City Tax / Tourism Tax payable directly at hotels (if applicable).',
+    'Any other services not explicitly mentioned under Inclusions.'
+  ],
+  documentsRequired: [
+    'Original Passport with minimum 6 months validity from the travel date.',
+    'Approved Visa document (eVisa printout or confirmation).',
+    'Confirmed return flight tickets and hotel vouchers.',
+    'Travel insurance policy copy.',
+    'Declaration forms or health travel passes (as required by host country).'
+  ],
+  cancellationPolicy: [
+    'Flight tickets are subject to actual airline penalties (usually non-refundable).',
+    '45 days or more before departure: 30% of total package cost.',
+    '44 to 30 days before departure: 60% of total package cost.',
+    'Less than 30 days before departure or No Show: 100% of package cost.'
+  ],
+  importantInfo: [
+    'International flight rates are highly volatile and cost will be locked only upon ticketing.',
+    'Ensure passport has at least 2 blank pages for entry stamp.',
+    'Local currency or USD should be carried for personal transactions and tips.',
+    'Check-in and check-out rules apply as per individual country norms.'
+  ]
+};
+
 const mapTourToQuotation = (tour: Tour): QuotationData => {
   // Extract hotels from itinerary accommodations or region
   const hotels: HotelRow[] = [];
@@ -250,6 +324,14 @@ const mapTourToQuotation = (tour: Tour): QuotationData => {
     };
   });
 
+  // Heuristic to detect if it's domestic or international
+  const isInternational = tour.price?.includes('$') || tour.price?.toLowerCase().includes('usd') || 
+    !['gangtok', 'lachung', 'darjeeling', 'sikkim', 'kerala', 'kashmir', 'ladakh', 'goa', 'rajasthan', 'himachal', 'manali', 'shimla', 'uttarakhand', 'agra', 'delhi', 'mumbai', 'india', 'northeast', 'north east'].some(k => 
+      tour.region?.toLowerCase().includes(k) || tour.name?.toLowerCase().includes(k)
+    );
+  
+  const template = isInternational ? internationalPolicyTemplates : domesticPolicyTemplates;
+
   return {
     title: tour.name.toUpperCase(),
     heroImageUrl: tour.heroImageUrl || 'https://images.unsplash.com/photo-1544016768-982d1554f0b9?q=80&w=1200&auto=format&fit=crop',
@@ -264,11 +346,11 @@ const mapTourToQuotation = (tour: Tour): QuotationData => {
     perPersonCost: `Package Cost Adults Rs.${tour.price || '0/-'}`,
     flightCosts: [],
     itinerary,
-    inclusions: hiteshPreset.inclusions,
-    exclusions: hiteshPreset.exclusions,
-    documentsRequired: hiteshPreset.documentsRequired,
-    cancellationPolicy: hiteshPreset.cancellationPolicy,
-    importantInfo: hiteshPreset.importantInfo,
+    inclusions: template.inclusions,
+    exclusions: template.exclusions,
+    documentsRequired: template.documentsRequired,
+    cancellationPolicy: template.cancellationPolicy,
+    importantInfo: template.importantInfo,
     visualArchive: tour.visualArchive && tour.visualArchive.length > 0 ? tour.visualArchive : hiteshPreset.visualArchive
   };
 };
@@ -415,10 +497,28 @@ export default function AdminQuotation() {
     }
   };
 
+  const loadPolicyTemplate = (type: 'domestic' | 'international') => {
+    if (confirm(`Replace inclusions, exclusions, documents required, cancellation policy, and important guidelines with the standard ${type} templates?`)) {
+      const template = type === 'domestic' ? domesticPolicyTemplates : internationalPolicyTemplates;
+      upd({
+        inclusions: template.inclusions,
+        exclusions: template.exclusions,
+        documentsRequired: template.documentsRequired,
+        cancellationPolicy: template.cancellationPolicy,
+        importantInfo: template.importantInfo
+      });
+    }
+  };
+
   // Print Logic
   const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
+    // Create a hidden iframe to prevent popup blocking in all browsers
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'absolute';
+    iframe.style.width = '0px';
+    iframe.style.height = '0px';
+    iframe.style.border = 'none';
+    document.body.appendChild(iframe);
 
     const absUrl = (u?: string) => {
       if (!u) return '';
@@ -431,7 +531,8 @@ export default function AdminQuotation() {
       <html>
         <head>
           <title>${data.title} - JourneyFlicker Quotation</title>
-               @media print {
+          <style>
+            @media print {
               @page { margin: 15mm; }
               .page-container {
                 page-break-after: always;
@@ -463,6 +564,35 @@ export default function AdminQuotation() {
             h1 { font-size: 46px; font-weight: 300; text-transform: uppercase; margin: 0 0 5px 0; letter-spacing: -2px; line-height: 1.1; font-style: italic; }
             .subtitle { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; opacity: 0.6; margin: 0; }
             
+            .header-bar {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              border-bottom: 2px solid #000;
+              padding-bottom: 15px;
+              margin-bottom: 25px;
+            }
+            .header-bar .logo {
+              font-size: 24px;
+              margin-bottom: 0;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              text-transform: uppercase;
+              letter-spacing: -0.5px;
+            }
+            .header-bar .logo img {
+              width: 24px;
+              height: 24px;
+            }
+            .header-info {
+              font-size: 10px;
+              font-weight: 800;
+              text-transform: uppercase;
+              letter-spacing: 2px;
+              color: #666;
+            }
+
             .section { margin-bottom: 35px; page-break-inside: avoid; }
             .sect-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin: 25px 0 15px 0; color: #000; font-style: italic; page-break-inside: avoid; }
             
@@ -517,7 +647,7 @@ export default function AdminQuotation() {
               color: #555;
             }
             .footer-links { display: flex; gap: 15px; margin-top: 4px; }
-          </style>       </style>
+          </style>
         </head>
         <body>
           
@@ -600,10 +730,10 @@ export default function AdminQuotation() {
             </div>
 
             <div class="footer-info">
-              <div>103 | Raj Victoriya, Near Samarth Circle, Adajan, Surat, Gujarat 395009</div>
+              <div>Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
               <div class="footer-links">
                 <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
-                <span>+91 98792 68811 | +91 97266 98987 | 0261 3564717</span>
+                <span>+91 98792 68811 &nbsp;|&nbsp; +91 97266 98987 &nbsp;|&nbsp; 0261 3564717</span>
               </div>
             </div>
           </div>
@@ -633,10 +763,10 @@ export default function AdminQuotation() {
             `).join('')}
             
             <div class="footer-info">
-              <div>103 | Raj Victoriya, Near Samarth Circle, Adajan, Surat, Gujarat 395009</div>
+              <div>Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
               <div class="footer-links">
                 <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
-                <span>+91 98792 68811 | +91 97266 98987 | 0261 3564717</span>
+                <span>+91 98792 68811 &nbsp;|&nbsp; +91 97266 98987 &nbsp;|&nbsp; 0261 3564717</span>
               </div>
             </div>
           </div>
@@ -682,10 +812,10 @@ export default function AdminQuotation() {
             ` : ''}
 
             <div class="footer-info">
-              <div>103 | Raj Victoriya, Near Samarth Circle, Adajan, Surat, Gujarat 395009</div>
+              <div>Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
               <div class="footer-links">
                 <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
-                <span>+91 98792 68811 | +91 97266 98987 | 0261 3564717</span>
+                <span>+91 98792 68811 &nbsp;|&nbsp; +91 97266 98987 &nbsp;|&nbsp; 0261 3564717</span>
               </div>
             </div>
           </div>
@@ -729,25 +859,32 @@ export default function AdminQuotation() {
             ` : ''}
 
             <div class="footer-info">
-              <div>103 | Raj Victoriya, Near Samarth Circle, Adajan, Surat, Gujarat 395009</div>
+              <div>Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
               <div class="footer-links">
                 <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
-                <span>+91 98792 68811 | +91 97266 98987 | 0261 3564717</span>
+                <span>+91 98792 68811 &nbsp;|&nbsp; +91 97266 98987 &nbsp;|&nbsp; 0261 3564717</span>
               </div>
             </div>
           </div>
-          
-          <script>
-            window.onload = () => {
-              setTimeout(() => { window.print(); window.close(); }, 500);
-            };
-          </script>
         </body>
       </html>
     `;
 
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
+    const doc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (doc) {
+      doc.open();
+      doc.write(htmlContent);
+      doc.close();
+      
+      // Wait for resources/images to load inside iframe, then print
+      setTimeout(() => {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+        }, 1000);
+      }, 500);
+    }
   };
 
   return (
@@ -1041,6 +1178,23 @@ export default function AdminQuotation() {
 
         {/* Inclusions & Exclusions */}
         <div className="bg-surface rounded-2xl p-5 border border-outline-variant/30 shadow-sm space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-outline-variant/10 pb-3">
+            <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">5. Terms & Guidelines Templates</h3>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => loadPolicyTemplate('domestic')}
+                className="px-2.5 py-1.5 bg-sky-50 text-sky-700 hover:bg-sky-100 dark:bg-sky-950/40 dark:text-sky-400 dark:hover:bg-sky-900/40 rounded-xl text-[9px] uppercase font-black tracking-widest transition-all"
+              >
+                🇮🇳 Domestic Presets
+              </button>
+              <button 
+                onClick={() => loadPolicyTemplate('international')}
+                className="px-2.5 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:bg-amber-950/40 dark:text-amber-400 dark:hover:bg-amber-900/40 rounded-xl text-[9px] uppercase font-black tracking-widest transition-all"
+              >
+                🌐 International Presets
+              </button>
+            </div>
+          </div>
           
           {/* Inclusions */}
           <div>
