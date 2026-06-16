@@ -31,6 +31,7 @@ const AdminFrontendBackups = lazy(() => import("./pages/AdminFrontendBackups"));
 const AdminBackupManager = lazy(() => import("./pages/AdminBackupManager"));
 const AdminImportExport  = lazy(() => import("./pages/AdminImportExport"));
 const AdminSystemLogs    = lazy(() => import("./pages/AdminSystemLogs"));
+const AdminQuotation     = lazy(() => import("./pages/AdminQuotation"));
 
 export default function App() {
   const [init, setInit] = useState(true);
@@ -88,6 +89,7 @@ export default function App() {
                 <Route path="/backup-manager" element={<AdminBackupManager />} />
                 <Route path="/import-export"  element={<AdminImportExport />} />
                 <Route path="/system-logs"     element={<AdminSystemLogs />} />
+                <Route path="/quotation"       element={<AdminQuotation />} />
               </Route>
 
               {/* Catch-all redirect to dashboard */}
