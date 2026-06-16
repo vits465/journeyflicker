@@ -573,10 +573,10 @@ I am viewing this tour on your website and would like a customized quote!`;
           </div>
           <div className="hidden lg:flex flex-col gap-4 h-full">
             <div className="flex-1 overflow-hidden rounded-2xl group relative bg-black shadow-sm">
-              <img className="absolute inset-0 w-full h-full object-cover transition-transform duration-[5s] group-hover:scale-110 opacity-70 group-hover:opacity-100 grayscale group-hover:grayscale-0" alt="Gallery 1" src={visualArchive[0] || defaultHero} />
+              <img className="absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out group-hover:scale-110 opacity-90 group-hover:opacity-100" alt="Gallery 1" src={visualArchive[0] || defaultHero} />
             </div>
             <div className="flex-1 overflow-hidden rounded-2xl group relative bg-black shadow-sm cursor-pointer">
-              <img className="absolute inset-0 w-full h-full object-cover transition-transform duration-[5s] group-hover:scale-110 opacity-70 group-hover:opacity-100 grayscale group-hover:grayscale-0" alt="Gallery 2" src={visualArchive[1] || tour.heroImageUrl || defaultHero} />
+              <img className="absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out group-hover:scale-110 opacity-90 group-hover:opacity-100" alt="Gallery 2" src={visualArchive[1] || tour.heroImageUrl || defaultHero} />
               <div className="absolute inset-0 flex items-center justify-center bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-all backdrop-blur-sm">
                 <span className="text-[9px] tracking-[0.4em] font-black uppercase border border-white/50 px-8 py-4 rounded-full hover:bg-white hover:text-black transition-all">{visualArchive.length} Photos</span>
               </div>
@@ -673,7 +673,7 @@ I am viewing this tour on your website and would like a customized quote!`;
               <div className="pl-0 sm:pl-10 grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {visualArchive.map((img, i) => (
                   <div key={i} className={`overflow-hidden rounded-xl group relative bg-black shadow-sm ${i === 0 ? 'col-span-2 row-span-2 aspect-square' : 'aspect-square'}`}>
-                    <img className="absolute inset-0 w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105 grayscale group-hover:grayscale-0"
+                    <img className="absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out group-hover:scale-110"
                       alt={`Archive ${i + 1}`} src={img} />
                   </div>
                 ))}
