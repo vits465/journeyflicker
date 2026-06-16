@@ -11,7 +11,7 @@ interface Review {
 }
 
 export default function AdminReviews() {
-  const { canEdit } = useOutletContext<{ canEdit: boolean }>();
+  const { canCRUD } = useOutletContext<{ canEdit: boolean; canCRUD: boolean }>();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -24,7 +24,7 @@ export default function AdminReviews() {
   }, []);
 
   const handleSave = async () => {
-    if (!canEdit) return;
+    if (!canCRUD) return;
     setSaving(true);
     try {
       await api.updateReviews(reviews);
@@ -60,7 +60,7 @@ export default function AdminReviews() {
           <h2 className="text-2xl font-semibold text-on-surface tracking-tight">Google Reviews Integration</h2>
           <p className="text-on-surface-variant text-sm mt-1">Manage the global reviews that randomly appear on Tour and Destination pages.</p>
         </div>
-        {canEdit && (
+        {canCRUD && (
           <div className="flex gap-3">
             <button onClick={addReview} className="px-4 py-2 bg-surface text-on-surface border border-outline-variant/30 rounded-xl hover:bg-surface-container transition-colors text-sm font-bold flex items-center gap-2">
               <span className="material-symbols-outlined text-[18px]">add</span> Add Review
@@ -105,7 +105,7 @@ export default function AdminReviews() {
                       onChange={e => updateReview(review.id, 'author', e.target.value)}
                       className="font-bold text-on-surface text-lg bg-transparent border-b border-transparent hover:border-outline-variant/30 focus:border-primary outline-none px-1 py-0.5 w-full sm:w-auto transition-colors"
                       placeholder="Reviewer Name"
-                      disabled={!canEdit}
+                      disabled={!canCRUD}
                     />
                   </div>
                   <div className="flex items-center gap-3">
@@ -116,7 +116,7 @@ export default function AdminReviews() {
                       onChange={e => updateReview(review.id, 'date', e.target.value)}
                       className="text-xs text-on-surface-variant bg-transparent border-b border-transparent hover:border-outline-variant/30 focus:border-primary outline-none px-1 py-0.5 text-right w-24 transition-colors"
                       placeholder="e.g. 2 months ago"
-                      disabled={!canEdit}
+                      disabled={!canCRUD}
                     />
                   </div>
                 </div>
@@ -126,11 +126,11 @@ export default function AdminReviews() {
                   onChange={e => updateReview(review.id, 'content', e.target.value)}
                   className="text-sm text-on-surface-variant leading-relaxed italic w-full bg-transparent border border-outline-variant/10 hover:border-outline-variant/30 rounded-lg p-3 focus:border-primary outline-none resize-none min-h-[80px] transition-colors"
                   placeholder="Review content..."
-                  disabled={!canEdit}
+                  disabled={!canCRUD}
                 />
               </div>
 
-              {canEdit && (
+              {canCRUD && (
                 <div className="flex flex-row md:flex-col items-center justify-center md:justify-center gap-3 border-t md:border-t-0 md:border-l border-outline-variant/20 pt-4 md:pt-0 md:pl-5 w-full md:w-32 shrink-0">
                   <button onClick={() => removeReview(review.id)} className="w-full px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-xs font-bold flex items-center justify-center gap-1 shadow-sm">
                     <span className="material-symbols-outlined text-[16px]">delete</span> Delete

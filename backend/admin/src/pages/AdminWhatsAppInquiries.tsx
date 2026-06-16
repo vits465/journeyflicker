@@ -25,7 +25,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function AdminWhatsAppInquiries() {
-  const { canEdit } = useAdminAuth();
+  const { canCRUD } = useAdminAuth();
   const queryClient = useQueryClient();
   const [selected, setSelected] = useState<Inquiry | null>(null);
   const [filter, setFilter] = useState<'All' | 'New' | 'Quoted' | 'Booked' | 'Closed'>('All');
@@ -70,7 +70,7 @@ export default function AdminWhatsAppInquiries() {
   };
 
   const handleStatusChange = (status: string) => {
-    if (!selected || !canEdit) return;
+    if (!selected || !canCRUD) return;
     updateStatusMutation.mutate({ id: selected._id, status });
   };
 
@@ -228,7 +228,7 @@ export default function AdminWhatsAppInquiries() {
       </div>
 
       {/* Dynamic Status Changer */}
-      {canEdit && (
+      {canCRUD && (
         <div className="bg-primary/5 p-4 rounded-xl border border-primary/20 space-y-2">
           <label className="text-[9px] font-black tracking-[0.2em] uppercase text-primary/70 block">Update Lead Status</label>
           <select 
@@ -246,7 +246,7 @@ export default function AdminWhatsAppInquiries() {
     </div>
   ) : null;
 
-  const drawerActions = selected && canEdit && (
+  const drawerActions = selected && canCRUD && (
     <button onClick={() => {
       if (confirm('Permanently delete this inquiry from CRM databases?')) deleteMutation.mutate(selected._id);
     }}

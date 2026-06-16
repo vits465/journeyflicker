@@ -24,7 +24,7 @@ const TYPE_COLORS: Record<string, string> = {
 };
 
 export default function AdminContacts() {
-  const { canEdit } = useAdminAuth();
+  const { canCRUD } = useAdminAuth();
   const queryClient = useQueryClient();
   const [selected, setSelected] = useState<Contact | null>(null);
   const [filter, setFilter] = useState<'all' | 'unread'>('unread');
@@ -55,7 +55,7 @@ export default function AdminContacts() {
   };
 
   const handleRowClick = (contact: Contact) => {
-    if (!contact.read && canEdit) {
+    if (!contact.read && canCRUD) {
       markReadMutation.mutate(contact.id);
       // Optimistically update selected
       setSelected({ ...contact, read: true });
@@ -122,7 +122,7 @@ export default function AdminContacts() {
           </button>
         ))}
       </div>
-      {unreadCount > 0 && canEdit && (
+      {unreadCount > 0 && canCRUD && (
         <button onClick={markAllRead}
           className="flex items-center gap-1.5 px-4 py-2 bg-primary/10 text-primary rounded-lg text-xs font-semibold hover:bg-primary/20 transition-colors">
           <span className="material-symbols-outlined text-sm">done_all</span>
@@ -192,7 +192,7 @@ export default function AdminContacts() {
     </div>
   ) : null;
 
-  const drawerActions = selected && canEdit && (
+  const drawerActions = selected && canCRUD && (
     <button onClick={() => {
       if (confirm('Delete this message?')) deleteMutation.mutate(selected.id);
     }}

@@ -108,6 +108,11 @@ const loginLimiter = rateLimit({
   standardHeaders: true, legacyHeaders: false,
   message: { error: "Too many login attempts. Please try again in 15 minutes." },
 });
+const coEditorLoginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 500,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: "Too many login attempts. Please try again in 15 minutes." },
+});
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000, max: 300,
   standardHeaders: true, legacyHeaders: false,
@@ -216,20 +221,24 @@ async function revokeToken(req) {
 function getIp(req) {
   return (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.ip || "unknown";
 }
-async function checkBruteForce(ip) {
-  const count = (await kv.get(`${ATTEMPT_PFX}${ip}`)) || 0;
-  if (count >= 5) {
-    const ttl = await kv.ttl(`${ATTEMPT_PFX}${ip}`);
+async function checkBruteForce(ip, threshold = 5, isCoEditor = false) {
+  const key = isCoEditor ? `${ATTEMPT_PFX}co:${ip}` : `${ATTEMPT_PFX}${ip}`;
+  const count = (await kv.get(key)) || 0;
+  if (count >= threshold) {
+    const ttl = await kv.ttl(key);
     return { blocked: true, waitMins: Math.ceil(Math.max(ttl, 0) / 60) };
   }
   return { blocked: false };
 }
-async function recordFailedAttempt(ip) {
-  const key   = `${ATTEMPT_PFX}${ip}`;
+async function recordFailedAttempt(ip, isCoEditor = false) {
+  const key = isCoEditor ? `${ATTEMPT_PFX}co:${ip}` : `${ATTEMPT_PFX}${ip}`;
   const count = (await kv.get(key)) || 0;
   await kv.set(key, count + 1, { ex: 15 * 60 });
 }
-async function clearAttempts(ip) { await kv.del(`${ATTEMPT_PFX}${ip}`); }
+async function clearAttempts(ip, isCoEditor = false) {
+  const key = isCoEditor ? `${ATTEMPT_PFX}co:${ip}` : `${ATTEMPT_PFX}${ip}`;
+  await kv.del(key);
+}
 
 // ── Auth middleware (async — required because KV calls are Promises) ───────────
 const requireAdmin = async (req, res, next) => {
@@ -254,35 +263,38 @@ function newId(prefix) {
 // ── Auth routes ───────────────────────────────────────────────────────────────
 app.post("/api/auth/login", loginLimiter, async (req, res) => {
   const ip = getIp(req);
-  const bf = await checkBruteForce(ip);
+  const bf = await checkBruteForce(ip, 5, false);
   if (bf.blocked) return res.status(429).json({ error: `Too many failed attempts. Try again in ${bf.waitMins} minute(s).` });
   const { username, password } = req.body || {};
   try {
-    const admin = await AdminModel.findOne({ username: String(username || "") }).lean();
+    const lookupUsername = String(username || "").trim();
+    const admin = await AdminModel.findOne({ 
+      username: { $regex: new RegExp(`^${lookupUsername.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}$`, "i") } 
+    }).lean();
     if (admin) {
       if (await verifyPassword(String(password || ""), admin.password)) {
-        await clearAttempts(ip);
+        await clearAttempts(ip, false);
         return res.json({ token: await issueToken("editor", admin.id), role: "editor", id: admin.id });
       }
     } else {
       // Fallback to ENV if no admins exist (Migration / First run)
       const totalAdmins = await AdminModel.countDocuments();
       if (totalAdmins === 0) {
-        const userMatch = safeEqual(String(username || ""), ADMIN_USERNAME);
+        const userMatch = safeEqual(String(username || "").trim(), ADMIN_USERNAME);
         const passMatch = safeEqual(String(password || ""), ADMIN_PASSWORD);
         if (userMatch && passMatch) {
-          await clearAttempts(ip);
+          await clearAttempts(ip, false);
           // Auto-seed the database with the env credentials
           const hashed = await hashPassword(String(password || ""));
           const newAdminId = newId("admin");
-          await AdminModel.create({ id: newAdminId, username: String(username || ""), password: hashed });
+          await AdminModel.create({ id: newAdminId, username: String(username || "").trim(), password: hashed });
           return res.json({ token: await issueToken("editor", newAdminId), role: "editor", id: newAdminId });
         }
       }
     }
   } catch (e) { console.error(e); }
 
-  await recordFailedAttempt(ip);
+  await recordFailedAttempt(ip, false);
   return res.status(401).json({ error: "Invalid credentials" });
 });
 
@@ -312,19 +324,22 @@ app.put("/api/auth/admin-credentials", requireAdmin, async (req, res) => {
   }
 });
 
-app.post("/api/auth/co-editor-login", loginLimiter, async (req, res) => {
+app.post("/api/auth/co-editor-login", coEditorLoginLimiter, async (req, res) => {
   const ip = getIp(req);
-  const bf = await checkBruteForce(ip);
+  const bf = await checkBruteForce(ip, 500, true);
   if (bf.blocked) return res.status(429).json({ error: `Too many failed attempts. Try again in ${bf.waitMins} minute(s).` });
   const { username, password } = req.body || {};
   try {
-    const account = await CoEditorModel.findOne({ username }).lean();
+    const lookupUsername = String(username || "").trim();
+    const account = await CoEditorModel.findOne({ 
+      username: { $regex: new RegExp(`^${lookupUsername.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}$`, "i") } 
+    }).lean();
     if (account && await verifyPassword(String(password || ""), account.password)) {
-      await clearAttempts(ip);
+      await clearAttempts(ip, true);
       return res.json({ token: await issueToken("co-editor", account.id), role: "co-editor", id: account.id });
     }
   } catch (e) { console.error(e); }
-  await recordFailedAttempt(ip);
+  await recordFailedAttempt(ip, true);
   return res.status(401).json({ error: "Invalid credentials" });
 });
 
@@ -349,12 +364,13 @@ app.get("/api/auth/co-editor-accounts", requireAdmin, async (_req, res) => {
 app.post("/api/auth/co-editor-accounts", requireAdmin, async (req, res) => {
   const parsed = CoEditorAccountSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
+  const username = parsed.data.username.trim().toLowerCase();
   const hashedPassword = await hashPassword(parsed.data.password);
-  const newAcc = { id: newId("coed"), username: parsed.data.username, password: hashedPassword };
+  const newAcc = { id: newId("coed"), username, password: hashedPassword };
 
   const count = await CoEditorModel.countDocuments();
   if (count >= 5) return res.status(400).json({ error: "Maximum 5 co-editor accounts." });
-  const exists = await CoEditorModel.findOne({ username: parsed.data.username });
+  const exists = await CoEditorModel.findOne({ username });
   if (exists) return res.status(400).json({ error: "Username already exists." });
   await CoEditorModel.create(newAcc);
   
@@ -365,6 +381,7 @@ app.put("/api/auth/co-editor-accounts/:id", requireAdmin, async (req, res) => {
   const parsed = CoEditorAccountSchema.partial().safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
   const update = { ...parsed.data };
+  if (update.username) update.username = update.username.trim().toLowerCase();
   if (update.password) update.password = await hashPassword(update.password);
 
   const updated = await CoEditorModel.findOneAndUpdate({ id: req.params.id }, { $set: update }, { new: true }).lean();
@@ -963,7 +980,7 @@ app.delete("/api/visas/:id", requireCRUD, async (req, res) => {
 });
 
 // ── Contacts ──────────────────────────────────────────────────────────────────
-app.get("/api/contacts", requireAdmin, async (_req, res) => {
+app.get("/api/contacts", requireCRUD, async (_req, res) => {
   res.json(await ContactModel.find({}).sort({ createdAt: -1 }).lean());
 });
 app.post("/api/contacts", contactLimiter, async (req, res) => {
@@ -999,23 +1016,23 @@ app.post("/api/contacts", contactLimiter, async (req, res) => {
   
   res.status(201).json(item);
 });
-app.patch("/api/contacts/:id/read", requireAdmin, async (req, res) => {
+app.patch("/api/contacts/:id/read", requireCRUD, async (req, res) => {
   const updated = await ContactModel.findOneAndUpdate({ id: req.params.id }, { $set: { read: true } }, { new: true }).lean();
   if (!updated) return res.status(404).json({ message: "Not found" });
   await logActivity(req, `Marked contact as read: ${updated.name}`);
   res.json(updated);
 });
-app.delete("/api/contacts/:id", requireAdmin, async (req, res) => {
+app.delete("/api/contacts/:id", requireCRUD, async (req, res) => {
   await ContactModel.deleteOne({ id: req.params.id });
   await logActivity(req, "Deleted contact message");
   return res.status(204).end();
 });
 
 // ── WhatsApp Chatbot Inquiries ──
-app.get("/api/whatsapp-inquiries", requireAdmin, async (_req, res) => {
+app.get("/api/whatsapp-inquiries", requireCRUD, async (_req, res) => {
   res.json(await InquiryModel.find({}).sort({ date: -1 }).lean());
 });
-app.patch("/api/whatsapp-inquiries/:id/status", requireAdmin, async (req, res) => {
+app.patch("/api/whatsapp-inquiries/:id/status", requireCRUD, async (req, res) => {
   const { status } = req.body;
   if (!['New', 'Quoted', 'Booked', 'Closed'].includes(status)) {
     return res.status(400).json({ error: "Invalid status value" });
@@ -1025,7 +1042,7 @@ app.patch("/api/whatsapp-inquiries/:id/status", requireAdmin, async (req, res) =
   await logActivity(req, `Updated WhatsApp inquiry status: ${updated.name} -> ${status}`);
   res.json(updated);
 });
-app.delete("/api/whatsapp-inquiries/:id", requireAdmin, async (req, res) => {
+app.delete("/api/whatsapp-inquiries/:id", requireCRUD, async (req, res) => {
   await InquiryModel.findByIdAndDelete(req.params.id);
   await logActivity(req, "Deleted WhatsApp inquiry");
   return res.status(204).end();
@@ -1358,7 +1375,7 @@ app.get("/api/reviews", cacheEdge, async (req, res) => {
   const settings = await SettingsModel.findOne({ key: "google_reviews" }).lean();
   res.json(settings && settings.value ? settings.value : DEFAULT_REVIEWS);
 });
-app.put("/api/admin/reviews", requireAdmin, async (req, res) => {
+app.put("/api/admin/reviews", requireCRUD, async (req, res) => {
   await SettingsModel.updateOne({ key: "google_reviews" }, { $set: { value: req.body, updatedAt: Date.now() } }, { upsert: true });
   await logActivity(req, "Updated Google Reviews");
   res.json({ success: true });

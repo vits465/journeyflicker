@@ -19,7 +19,7 @@ export function AdminLayout() {
 
   // Poll for unread contact submissions
   useEffect(() => {
-    if (!canEdit) return;
+    if (!canCRUD) return;
     const fetchUnread = () => {
       api.listContacts()
         .then(contacts => setUnreadCount(contacts.filter(c => !c.read).length))
@@ -28,7 +28,7 @@ export function AdminLayout() {
     fetchUnread();
     const interval = setInterval(fetchUnread, 60000);
     return () => clearInterval(interval);
-  }, [canEdit]);
+  }, [canCRUD]);
 
   // Redirect to login if not authenticated
   if (!role) return <Navigate to="/login" replace />;
@@ -57,7 +57,13 @@ export function AdminLayout() {
     { path: '/chatbot-analytics', label: 'AI Analytics',   icon: 'trending_up' },
   ];
 
-  const allLinks = canEdit ? [...adminLinks, ...editorOnlyLinks] : adminLinks;
+  const coEditorAllowedKeys = ['/contacts', '/whatsapp-leads', '/chatbot-analytics'];
+  const coEditorLinks = editorOnlyLinks.filter(link => coEditorAllowedKeys.includes(link.path));
+  const allLinks = canEdit 
+    ? [...adminLinks, ...editorOnlyLinks] 
+    : canCRUD 
+    ? [...adminLinks, ...coEditorLinks] 
+    : adminLinks;
 
   const allEditorLinks = [...adminLinks, ...editorOnlyLinks];
 
@@ -197,7 +203,7 @@ export function AdminLayout() {
 
         {/* Content Area */}
         <div className="flex-1 overflow-auto p-4 md:p-6 lg:p-8 relative z-10 admin-scroll">
-          <Outlet context={{ canEdit }} />
+          <Outlet context={{ canEdit, canCRUD }} />
         </div>
       </div>
     </div>

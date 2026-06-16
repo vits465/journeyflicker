@@ -396,11 +396,13 @@ export default function AdminAccessControl() {
                 { cap: 'Manage Tours & Destinations', ed: 'Full CRUD', co: 'Full CRUD' },
                 { cap: 'Visa Portal Intelligence', ed: 'Full CRUD', co: 'Full CRUD' },
                 { cap: 'Media Library Access', ed: 'Full CRUD', co: 'Full CRUD' },
+                { cap: 'Google Reviews Integration', ed: 'Full Access', co: 'Full Access' },
                 { cap: 'Hero Engine & Homepage', ed: 'Full CRUD', co: 'Read Only' },
                 { cap: 'SEO & Metadata Strategy', ed: 'Full CRUD', co: 'Read Only' },
+                { cap: 'WhatsApp Leads & AI Analytics', ed: 'Full Access', co: 'Full Access' },
+                { cap: 'Contact Inquiries & Privacy', ed: 'Full Access', co: 'Full Access' },
                 { cap: 'Database & System Backups', ed: 'Full Access', co: 'No Access' },
                 { cap: 'Co-Editor Account Management', ed: 'Full Access', co: 'No Access' },
-                { cap: 'Contact Inquiries & Privacy', ed: 'Full Access', co: 'No Access' },
                 { cap: 'API Keys & Secrets', ed: 'Full Access', co: 'No Access' },
               ].map((row, i) => (
                 <tr key={i} className="hover:bg-surface-container-low transition-colors">

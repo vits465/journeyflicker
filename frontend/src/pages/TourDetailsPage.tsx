@@ -431,10 +431,6 @@ export default function TourDetailsPage() {
               <span class="info-value">${tour?.days} Days</span>
             </div>
             <div class="info-item">
-              <span class="info-label">Starting Price</span>
-              <span class="info-value">${tour?.price}</span>
-            </div>
-            <div class="info-item">
               <span class="info-label">Transport</span>
               <span class="info-value">${tour?.transport || 'Private Air'}</span>
             </div>
@@ -518,7 +514,6 @@ export default function TourDetailsPage() {
     const formattedText = `Hi JourneyFlicker! ✈️
 I'm interested in inquiring about the tour: *${tour.name}*
 ⏱️ Duration: ${tour.days} Days
-💰 Price: ${tour.price}
 
 I am viewing this tour on your website and would like a customized quote!`;
     window.open(`https://wa.me/919878268882?text=${encodeURIComponent(formattedText)}`, "_blank", "noopener,noreferrer");
@@ -556,14 +551,10 @@ I am viewing this tour on your website and would like a customized quote!`;
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tighter leading-tight italic break-words">{tour.name}</h1>
           </div>
-          <div className="flex items-center justify-around gap-2 sm:gap-6 bg-white p-4 sm:p-5 rounded-2xl border border-outline-variant/20 shadow-sm w-full sm:w-auto shrink-0">
-            <div className="flex flex-col border-r border-outline-variant/30 pr-4 sm:pr-6">
+          <div className="flex items-center justify-center bg-white p-4 sm:p-5 rounded-2xl border border-outline-variant/20 shadow-sm w-full sm:w-auto shrink-0">
+            <div className="flex flex-col">
               <span className="text-[9px] font-black tracking-[0.4em] uppercase text-on-surface-variant mb-1 opacity-50">Duration</span>
               <span className="text-2xl sm:text-3xl font-light tracking-tighter whitespace-nowrap">{tour.days} <span className="text-sm sm:text-base opacity-30 italic font-serif">Days</span></span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[9px] font-black tracking-[0.4em] uppercase text-on-surface-variant mb-1 opacity-50">From</span>
-              <span className="text-2xl sm:text-3xl font-light tracking-tighter font-serif italic whitespace-nowrap">{tour.price}</span>
             </div>
           </div>
         </div>
@@ -625,12 +616,11 @@ I am viewing this tour on your website and would like a customized quote!`;
           </article>
 
           {/* ── QUICK STATS ── */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-5 py-8 border-y border-outline-variant/20 animate-reveal-up pl-0 sm:pl-10">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-5 py-8 border-y border-outline-variant/20 animate-reveal-up pl-0 sm:pl-10">
             {[
               { label: 'Transport',  val: tour.transport || 'Private Air',   icon: 'flight_takeoff' },
               { label: 'Specialist', val: tour.guide     || 'Curator',        icon: 'person' },
               { label: 'Clearance',  val: tour.pickup    || 'VIP Access',     icon: 'verified_user' },
-              { label: 'Max Guests', val: `Max ${tour.maxGuests || 8}`,        icon: 'group' },
             ].map((stat, i) => (
               <div key={i} className="space-y-3 group">
                 <span className="material-symbols-outlined text-outline-variant/40 group-hover:text-black transition-colors duration-500 font-light text-3xl block">{stat.icon}</span>
