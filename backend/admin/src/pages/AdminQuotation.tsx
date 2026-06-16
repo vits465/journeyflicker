@@ -510,10 +510,10 @@ export default function AdminQuotation() {
     }
   };
 
-  // Group itinerary into chunks of 2 days
+  // Group itinerary into chunks of 3 days
   const itineraryChunks: ItineraryDay[][] = [];
-  for (let i = 0; i < data.itinerary.length; i += 2) {
-    itineraryChunks.push(data.itinerary.slice(i, i + 2));
+  for (let i = 0; i < data.itinerary.length; i += 3) {
+    itineraryChunks.push(data.itinerary.slice(i, i + 3));
   }
 
   // Print Logic
@@ -557,6 +557,11 @@ export default function AdminQuotation() {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+      }
+      
+      .page-container.no-border {
+        border: none !important;
+        padding: 20px 0px;
       }
       
       .header { text-align: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 20px; margin-top: 10px; }
@@ -662,6 +667,10 @@ export default function AdminQuotation() {
           margin: 0 auto;
           background: #fff !important;
         }
+        .page-container.no-border {
+          border: none !important;
+          padding: 15px 0px;
+        }
         .page-container:last-child {
           page-break-after: avoid;
           break-after: avoid;
@@ -671,17 +680,28 @@ export default function AdminQuotation() {
   </head>
   <body>
     
-    <!-- PAGE 1: BASIC DETAILS & HOTELS & PRICING -->
+    <!-- PAGE 1: COVER PAGE (NO BORDER) -->
+    <div class="page-container no-border">
+      <div style="text-align: center; margin-top: 30px;">
+        <div class="logo" style="margin-bottom: 25px;">
+          <img src="${window.location.origin}/favicon-96x96.png" class="favicon" style="width: 42px; height: 42px;" alt="JF Logo" />
+          <span style="font-size: 32px; letter-spacing: 2px;">JOURNEY<b>FLICKER</b></span>
+        </div>
+        ${data.heroImageUrl ? `<img src="${absUrl(data.heroImageUrl)}" class="hero-img" style="width: 100%; height: 340px; object-fit: cover; border-radius: 16px; margin-bottom: 30px;" />` : ''}
+        <h1 style="font-size: 48px; font-weight: 300; text-transform: uppercase; margin: 0 0 8px 0; letter-spacing: -2px; line-height: 1.1; font-style: italic; font-family: 'Cormorant Garamond', Georgia, serif;">${data.title}</h1>
+        <p class="subtitle" style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 4px; opacity: 0.6; margin: 0;">${data.destination || ''} &bull; SIGNATURE EXPEDITION</p>
+      </div>
+    </div>
+    
+    <!-- PAGE 2: BASIC DETAILS & HOTELS & PRICING -->
     <div class="page-container">
       <div>
-        <div class="header">
+        <div class="header-bar">
           <div class="logo">
-            <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="JF Logo" />
-            <span>Journey<b>Flicker</b></span>
+            <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="Logo" />
+            <span>JOURNEY<b>FLICKER</b></span>
           </div>
-          ${data.heroImageUrl ? `<img src="${absUrl(data.heroImageUrl)}" class="hero-img" />` : ''}
-          <h1>${data.title}</h1>
-          <p class="subtitle">${data.destination || ''}</p>
+          <div class="header-info">Quotation Details</div>
         </div>
         
         <div class="quote-meta">
@@ -767,7 +787,7 @@ export default function AdminQuotation() {
           <div class="header-bar">
             <div class="logo">
               <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="Logo" />
-              <span>Journey<b>Flicker</b></span>
+              <span>JOURNEY<b>FLICKER</b></span>
             </div>
             <div class="header-info">Detailed Itinerary - Page ${index + 1}</div>
           </div>
@@ -803,7 +823,7 @@ export default function AdminQuotation() {
         <div class="header-bar">
           <div class="logo">
             <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="Logo" />
-            <span>Journey<b>Flicker</b></span>
+            <span>JOURNEY<b>FLICKER</b></span>
           </div>
           <div class="header-info">Terms & Conditions</div>
         </div>
@@ -842,7 +862,7 @@ export default function AdminQuotation() {
           <div class="header-bar">
             <div class="logo">
               <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="Logo" />
-              <span>Journey<b>Flicker</b></span>
+              <span>JOURNEY<b>FLICKER</b></span>
             </div>
             <div class="header-info">Visual Archive</div>
           </div>
@@ -866,13 +886,13 @@ export default function AdminQuotation() {
       </div>
     ` : ''}
 
-    <!-- PAGE: POLICIES & GUIDELINES -->
-    <div class="page-container">
+    <!-- PAGE: POLICIES & GUIDELINES (NO BORDER) -->
+    <div class="page-container no-border" style="height: auto; min-height: 275mm; display: flex; flex-direction: column; justify-content: space-between;">
       <div>
         <div class="header-bar">
           <div class="logo">
             <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="Logo" />
-            <span>Journey<b>Flicker</b></span>
+            <span>JOURNEY<b>FLICKER</b></span>
           </div>
           <div class="header-info">Policy & Guidelines</div>
         </div>
@@ -904,11 +924,17 @@ export default function AdminQuotation() {
         ` : ''}
       </div>
 
-      <div class="footer-info">
-        <div>Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
-        <div class="footer-links">
-          <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
-          <span>+91 98792 68811 &nbsp;|&nbsp; +91 97266 98987 &nbsp;|&nbsp; 0261 3564717</span>
+      <!-- COMPLETE FOOTER (NO BORDER) -->
+      <div class="complete-footer" style="margin-top: 40px; border-top: 2px solid #000; padding-top: 25px; display: flex; flex-direction: column; align-items: flex-start; text-align: left; width: 100%;">
+        <div class="logo" style="display: flex; align-items: center; gap: 8px; font-size: 22px; font-weight: 300; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">
+          <img src="${window.location.origin}/favicon-96x96.png" class="favicon" style="width: 24px; height: 24px;" alt="JF Logo" />
+          <span>JOURNEY<b>FLICKER</b></span>
+        </div>
+        <h4 style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin: 0 0 10px 0; color: #111;">THE CURATOR BOARD</h4>
+        <div style="font-size: 10px; line-height: 1.8; color: #333; font-weight: 500;">
+          <div><strong>Email:</strong> tushar@journeyflicker.com | pashv@journeyflicker.com</div>
+          <div><strong>Phone:</strong> +91 98792 68811 | +91 97266 98987 | 0261 3564717</div>
+          <div><strong>Address:</strong> Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
         </div>
       </div>
     </div>
@@ -1345,19 +1371,32 @@ export default function AdminQuotation() {
         {/* Rendered Live Preview Frame */}
         <div className="bg-gray-100 dark:bg-neutral-900 border border-outline-variant/20 rounded-2xl p-4 max-h-[85vh] overflow-y-auto space-y-6 custom-scrollbar shadow-inner">
           
-          {/* SHEET 1: COVER / DETAILS */}
+          {/* SHEET 1: COVER PAGE (NO BORDER) */}
+          <div className="bg-white text-black p-8 rounded shadow-md max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
+            <div className="text-center mt-12">
+              <div className="flex items-center justify-center gap-2 text-2xl font-light uppercase tracking-tighter mb-8">
+                <img src="/favicon.svg" className="w-8 h-8 object-contain" alt="Logo" />
+                <span>JOURNEY<b>FLICKER</b></span>
+              </div>
+              {data.heroImageUrl && (
+                <img src={data.heroImageUrl} className="w-full h-80 object-cover rounded-2xl mb-8 shadow-sm" alt="Hero Banner" />
+              )}
+              <h1 className="text-4xl font-light uppercase italic tracking-tighter leading-tight mb-2 font-serif" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>{data.title}</h1>
+              <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">{data.destination} &bull; SIGNATURE EXPEDITION</p>
+            </div>
+          </div>
+
+          {/* SHEET 2: DETAILS PAGE */}
           <div className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
             <div>
-              <div className="text-center border-b-2 border-black pb-4 mb-4">
-                <div className="flex items-center justify-center gap-2 text-2xl font-light uppercase tracking-tighter mb-4">
-                  <span className="text-xs uppercase bg-black text-white p-1 rounded font-black">JF</span>
-                  <span>Journey<b>Flicker</b></span>
+              <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
+                <div className="flex items-center gap-2 text-xl font-light uppercase tracking-tighter">
+                  <img src="/favicon.svg" className="w-6 h-6 object-contain" alt="Logo" />
+                  <span>JOURNEY<b>FLICKER</b></span>
                 </div>
-                {data.heroImageUrl && (
-                  <img src={data.heroImageUrl} className="w-full h-44 object-cover rounded-2xl mb-4 shadow-sm" alt="Hero Banner" />
-                )}
-                <h1 className="text-2xl font-light uppercase italic tracking-tighter leading-tight mb-1">{data.title}</h1>
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">{data.destination}</p>
+                <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
+                  Quotation Details
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 bg-gray-50 border border-gray-100 p-2.5 rounded-lg mb-4 text-[10px]">
@@ -1439,14 +1478,14 @@ export default function AdminQuotation() {
             </div>
           </div>
 
-          {/* SHEET 2+: ITINERARY PAGES */}
+          {/* SHEET 3+: ITINERARY PAGES */}
           {itineraryChunks.map((chunk, index) => (
             <div key={index} className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
               <div>
                 <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
                   <div className="flex items-center gap-2 text-xl font-light uppercase tracking-tighter">
-                    <span className="text-xs uppercase bg-black text-white p-1 rounded font-black">JF</span>
-                    <span>Journey<b>Flicker</b></span>
+                    <img src="/favicon.svg" className="w-6 h-6 object-contain" alt="Logo" />
+                    <span>JOURNEY<b>FLICKER</b></span>
                   </div>
                   <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
                     Detailed Itinerary - Page {index + 1}
@@ -1480,13 +1519,13 @@ export default function AdminQuotation() {
             </div>
           ))}
 
-          {/* SHEET 3: TERMS & CONDITIONS (INCLUSIONS/EXCLUSIONS) */}
+          {/* SHEET 4: TERMS & CONDITIONS (INCLUSIONS/EXCLUSIONS) */}
           <div className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
             <div>
               <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
                 <div className="flex items-center gap-2 text-xl font-light uppercase tracking-tighter">
-                  <span className="text-xs uppercase bg-black text-white p-1 rounded font-black">JF</span>
-                  <span>Journey<b>Flicker</b></span>
+                  <img src="/favicon.svg" className="w-6 h-6 object-contain" alt="Logo" />
+                  <span>JOURNEY<b>FLICKER</b></span>
                 </div>
                 <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
                   Terms & Conditions
@@ -1520,14 +1559,14 @@ export default function AdminQuotation() {
             </div>
           </div>
 
-          {/* SHEET 4: VISUAL ARCHIVE GALLERY */}
+          {/* SHEET 5: VISUAL ARCHIVE GALLERY */}
           {data.visualArchive.length > 0 && (
             <div className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
               <div>
                 <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
                   <div className="flex items-center gap-2 text-xl font-light uppercase tracking-tighter">
-                    <span className="text-xs uppercase bg-black text-white p-1 rounded font-black">JF</span>
-                    <span>Journey<b>Flicker</b></span>
+                    <img src="/favicon.svg" className="w-6 h-6 object-contain" alt="Logo" />
+                    <span>JOURNEY<b>FLICKER</b></span>
                   </div>
                   <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
                     Visual Archive
@@ -1552,13 +1591,13 @@ export default function AdminQuotation() {
             </div>
           )}
 
-          {/* SHEET 5: POLICIES & GUIDELINES */}
-          <div className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
+          {/* SHEET 6: POLICIES & GUIDELINES (NO BORDER) */}
+          <div className="bg-white text-black p-8 rounded shadow-md max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
             <div>
               <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
                 <div className="flex items-center gap-2 text-xl font-light uppercase tracking-tighter">
-                  <span className="text-xs uppercase bg-black text-white p-1 rounded font-black">JF</span>
-                  <span>Journey<b>Flicker</b></span>
+                  <img src="/favicon.svg" className="w-6 h-6 object-contain" alt="Logo" />
+                  <span>JOURNEY<b>FLICKER</b></span>
                 </div>
                 <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
                   Policy & Guidelines
@@ -1592,11 +1631,17 @@ export default function AdminQuotation() {
               )}
             </div>
 
-            <div className="border-t border-gray-200 pt-2 flex flex-col items-center text-[7px] text-gray-500 font-bold uppercase tracking-widest text-center mt-auto">
-              <div>103 | Raj Victoriya, Near Samarth Circle, Adajan, Surat, Gujarat 395009</div>
-              <div className="flex gap-4 mt-1">
-                <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
-                <span>+91 98792 68811 | +91 97266 98987 | 0261 3564717</span>
+            {/* COMPLETE FOOTER (NO BORDER) */}
+            <div className="complete-footer mt-10 pt-6 border-t-2 border-black flex flex-col items-start text-left w-full">
+              <div className="logo flex items-center gap-2 text-lg font-light uppercase tracking-tighter mb-3">
+                <img src="/favicon.svg" className="w-6 h-6 object-contain" alt="Logo" />
+                <span>JOURNEY<b>FLICKER</b></span>
+              </div>
+              <h4 className="text-[10px] font-black uppercase tracking-widest text-black mb-2">THE CURATOR BOARD</h4>
+              <div className="text-[9px] leading-relaxed text-gray-600 font-medium space-y-0.5">
+                <div><strong>Email:</strong> tushar@journeyflicker.com | pashv@journeyflicker.com</div>
+                <div><strong>Phone:</strong> +91 98792 68811 | +91 97266 98987 | 0261 3564717</div>
+                <div><strong>Address:</strong> Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
               </div>
             </div>
           </div>
