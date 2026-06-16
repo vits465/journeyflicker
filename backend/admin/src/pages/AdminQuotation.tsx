@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import type { Tour } from '../lib/api';
+import { api } from '../lib/api';
 
 // Interfaces for Quotation Structure
 interface HotelRow {
@@ -23,6 +25,7 @@ interface ItineraryDay {
 
 interface QuotationData {
   title: string;
+  heroImageUrl?: string;
   quotationDate: string;
   travelingDate: string;
   destination: string;
@@ -44,6 +47,7 @@ interface QuotationData {
 
 const emptyQuotation: QuotationData = {
   title: 'NORTH EAST TOUR',
+  heroImageUrl: 'https://images.unsplash.com/photo-1544016768-982d1554f0b9?q=80&w=1200&auto=format&fit=crop',
   quotationDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase().replace(/ /g, '-'),
   travelingDate: '',
   destination: '',
@@ -70,6 +74,7 @@ const emptyQuotation: QuotationData = {
 // Preset sample from Hitesh's North East Tour
 const hiteshPreset: QuotationData = {
   title: 'NORTH EAST TOUR',
+  heroImageUrl: 'https://images.unsplash.com/photo-1544016768-982d1554f0b9?q=80&w=1200&auto=format&fit=crop',
   quotationDate: '09-JUN-2026',
   travelingDate: '11-NOV-2026',
   destination: 'NORTH INDIA',
@@ -189,6 +194,85 @@ const hiteshPreset: QuotationData = {
   ]
 };
 
+const mapTourToQuotation = (tour: Tour): QuotationData => {
+  // Extract hotels from itinerary accommodations or region
+  const hotels: HotelRow[] = [];
+  tour.itinerary?.forEach((day) => {
+    if (day.accommodation) {
+      const exists = hotels.some(h => h.hotels === day.accommodation);
+      if (!exists) {
+        // Find destination by looking at day title or region
+        let dest = tour.region || '';
+        if (day.title) {
+          const split = day.title.split(':');
+          if (split.length > 1 && split[0].toLowerCase().includes('day')) {
+            const cleanTitle = split[1].trim();
+            dest = cleanTitle.split(' ')[0].replace(/[^a-zA-Z]/g, '');
+          }
+        }
+        hotels.push({
+          destination: dest || tour.region || '',
+          hotels: day.accommodation,
+          mealPlan: day.meals || 'Breakfast & Dinner',
+          nights: '01 Nights',
+          rooms: '05'
+        });
+      }
+    }
+  });
+
+  // If no hotels found, create one default row
+  if (hotels.length === 0) {
+    const nightsNum = tour.days > 1 ? tour.days - 1 : 1;
+    hotels.push({
+      destination: tour.region || '',
+      hotels: 'Similar 3* Hotel',
+      mealPlan: 'Breakfast & Dinner',
+      nights: `${String(nightsNum).padStart(2, '0')} Nights`,
+      rooms: '05'
+    });
+  }
+
+  // Map itinerary days
+  const itinerary = (tour.itinerary || []).map((day, i) => {
+    let dayLabel = `Day ${i + 1}`;
+    let title = day.title || '';
+    const dayPrefixMatch = title.match(/^Day\s*\d+\s*[:\-]?\s*(.*)/i);
+    if (dayPrefixMatch) {
+      title = dayPrefixMatch[1].trim();
+    }
+    
+    return {
+      day: dayLabel,
+      title: title.toUpperCase(),
+      description: day.description || '',
+      imageUrl: day.imageUrl || ''
+    };
+  });
+
+  return {
+    title: tour.name.toUpperCase(),
+    heroImageUrl: tour.heroImageUrl || 'https://images.unsplash.com/photo-1544016768-982d1554f0b9?q=80&w=1200&auto=format&fit=crop',
+    quotationDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase().replace(/ /g, '-'),
+    travelingDate: '',
+    destination: tour.region.toUpperCase(),
+    clientName: 'Dear Sir,',
+    greetingText: 'Greeting From JourneyFlicker..!!',
+    messageText: `kindly check below detail of your ${tour.region.toUpperCase()} Tour !!!`,
+    optionTitle: `Option : 01(3*) ${String(tour.days - 1).padStart(2, '0')} Night ${String(tour.days).padStart(2, '0')} Days`,
+    hotels,
+    perPersonCost: `Package Cost Adults Rs.${tour.price || '0/-'}`,
+    flightCosts: [],
+    itinerary,
+    inclusions: hiteshPreset.inclusions,
+    exclusions: hiteshPreset.exclusions,
+    documentsRequired: hiteshPreset.documentsRequired,
+    cancellationPolicy: hiteshPreset.cancellationPolicy,
+    importantInfo: hiteshPreset.importantInfo,
+    visualArchive: tour.visualArchive && tour.visualArchive.length > 0 ? tour.visualArchive : hiteshPreset.visualArchive
+  };
+};
+
 // Styling tokens
 const inputCls = 'w-full px-3 py-2 border border-outline-variant/40 rounded-lg text-sm focus:outline-none focus:border-primary bg-surface-container-low text-on-surface transition-colors';
 const labelCls = 'block text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.15em] mb-1.5';
@@ -200,6 +284,11 @@ export default function AdminQuotation() {
   });
   const [draftsList, setDraftsList] = useState<string[]>([]);
   const [draftName, setDraftName] = useState('');
+
+  // Website tours list for loading existing tours
+  const [websiteTours, setWebsiteTours] = useState<Tour[]>([]);
+  const [selectedTourId, setSelectedTourId] = useState('');
+  const [isLoadingTours, setIsLoadingTours] = useState(false);
   
   // Helpers to add detail inputs
   const [newIncl, setNewIncl] = useState('');
@@ -218,6 +307,36 @@ export default function AdminQuotation() {
   useEffect(() => {
     loadDraftsList();
   }, []);
+
+  useEffect(() => {
+    setIsLoadingTours(true);
+    api.listTours({ limit: 150 })
+      .then(res => {
+        const items = Array.isArray(res) ? res : res.items;
+        setWebsiteTours(items || []);
+      })
+      .catch(err => {
+        console.error('Failed to fetch website tours:', err);
+      })
+      .finally(() => {
+        setIsLoadingTours(false);
+      });
+  }, []);
+
+  const handleImportWebsiteTour = async (tourId: string) => {
+    if (!tourId) return;
+    if (confirm('Load this tour from the website? This will overwrite your current quotation editor data.')) {
+      try {
+        const fullTour = await api.getTour(tourId);
+        const mapped = mapTourToQuotation(fullTour);
+        setData(mapped);
+        setSelectedTourId('');
+      } catch (err) {
+        console.error(err);
+        alert('Failed to load tour details.');
+      }
+    }
+  };
 
   const loadDraftsList = () => {
     const list = Object.keys(localStorage).filter(k => k.startsWith('jf_quote_draft_'));
@@ -312,12 +431,11 @@ export default function AdminQuotation() {
       <html>
         <head>
           <title>${data.title} - JourneyFlicker Quotation</title>
-          <style>
-            @media print {
-              @page { margin: 12mm; }
+               @media print {
+              @page { margin: 15mm; }
               .page-container {
                 page-break-after: always;
-                min-height: 275mm;
+                min-height: 265mm;
                 box-sizing: border-box;
                 position: relative;
                 padding: 15px;
@@ -327,7 +445,7 @@ export default function AdminQuotation() {
                 page-break-after: avoid;
               }
             }
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #000; margin: 0; padding: 0; line-height: 1.5; font-size: 13px; }
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #000; margin: 0; padding: 0; line-height: 1.6; max-width: 800px; margin: 0 auto; }
             .page-container {
               border: 3px double #000;
               padding: 20px;
@@ -337,45 +455,50 @@ export default function AdminQuotation() {
               position: relative;
               background: #fff;
             }
-            .header-bar { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 20px; }
-            .logo { display: flex; align-items: center; gap: 8px; font-size: 26px; font-weight: 300; text-transform: uppercase; letter-spacing: -1px; }
+            .header { text-align: center; border-bottom: 3px solid #000; padding-bottom: 25px; margin-bottom: 30px; margin-top: 20px; }
+            .logo { display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 36px; font-weight: 300; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 25px; }
             .logo b { font-weight: 900; }
-            .favicon { width: 30px; height: 30px; }
-            .header-info { text-align: right; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.7; }
-            .quote-title { text-align: center; font-size: 18px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; margin: 15px 0; border-bottom: 1px solid #eee; padding-bottom: 8px; font-style: italic; }
-            .quote-meta { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-size: 11px; margin-bottom: 15px; background: #fcfcfc; padding: 10px; border-radius: 8px; border: 1px solid #f0f0f0; }
+            .favicon { width: 36px; height: 36px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .hero-img { width: 100%; height: 300px; object-fit: cover; border-radius: 16px; margin-bottom: 25px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            h1 { font-size: 46px; font-weight: 300; text-transform: uppercase; margin: 0 0 5px 0; letter-spacing: -2px; line-height: 1.1; font-style: italic; }
+            .subtitle { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; opacity: 0.6; margin: 0; }
+            
+            .section { margin-bottom: 35px; page-break-inside: avoid; }
+            .sect-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin: 25px 0 15px 0; color: #000; font-style: italic; page-break-inside: avoid; }
+            
+            ul { padding-left: 20px; margin: 0; }
+            li { margin-bottom: 8px; font-size: 14px; color: #333; }
+            p { font-size: 14px; color: #333; margin-top: 0; line-height: 1.7; }
+            
+            .quote-meta { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 12px; margin-bottom: 25px; background: #f9f9f9; padding: 15px; border-radius: 12px; border: 1px solid #eee; page-break-inside: avoid; }
             .meta-item { display: flex; flex-direction: column; }
-            .meta-label { font-weight: 800; text-transform: uppercase; font-size: 8px; color: #666; letter-spacing: 0.5px; }
-            .meta-val { font-weight: bold; color: #000; }
-            .greeting { margin-top: 15px; margin-bottom: 15px; }
-            .greeting p { margin: 3px 0; font-size: 13px; }
+            .meta-label { font-weight: 800; text-transform: uppercase; font-size: 9px; color: #666; letter-spacing: 1px; }
+            .meta-val { font-weight: bold; color: #000; font-size: 14px; }
+            .greeting { margin-top: 20px; margin-bottom: 20px; }
+            .greeting p { margin: 5px 0; font-size: 14px; color: #333; }
             
-            .table-title { font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #000; margin-bottom: 8px; font-style: italic; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11px; }
-            th { background: #000; color: #fff; text-transform: uppercase; font-size: 9px; font-weight: 800; letter-spacing: 0.5px; padding: 8px 10px; border: 1px solid #000; text-align: center; }
-            td { border: 1px solid #ddd; padding: 8px 10px; text-align: left; }
+            .table-title { font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; color: #000; margin-bottom: 10px; font-style: italic; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 12px; }
+            th { background: #000; color: #fff; text-transform: uppercase; font-size: 10px; font-weight: 800; letter-spacing: 1px; padding: 10px 12px; border: 1px solid #000; text-align: center; }
+            td { border: 1px solid #ddd; padding: 10px 12px; text-align: left; }
             
-            .pricing-section { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; background: #fcfcfc; border: 1px solid #eee; border-radius: 10px; padding: 15px; margin-bottom: 25px; page-break-inside: avoid; }
-            .price-title { font-weight: 800; font-size: 9px; text-transform: uppercase; color: #666; margin-bottom: 4px; letter-spacing: 0.5px; }
-            .price-val { font-size: 15px; font-weight: 900; color: #000; }
+            .pricing-section { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; background: #f9f9f9; border: 1px solid #eee; border-radius: 12px; padding: 20px; margin-bottom: 35px; page-break-inside: avoid; }
+            .price-title { font-weight: 800; font-size: 10px; text-transform: uppercase; color: #666; margin-bottom: 6px; letter-spacing: 1px; }
+            .price-val { font-size: 18px; font-weight: 950; color: #000; }
             .flights-list { list-style: none; padding: 0; margin: 0; }
-            .flights-list li { display: flex; justify-content: space-between; font-size: 11px; border-bottom: 1px dashed #eee; padding: 4px 0; }
+            .flights-list li { display: flex; justify-content: space-between; font-size: 12px; border-bottom: 1px dashed #eee; padding: 6px 0; }
             
-            .sect-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid #ddd; padding-bottom: 6px; margin: 25px 0 12px 0; color: #000; font-style: italic; page-break-inside: avoid; }
-            .itinerary-day { margin-bottom: 20px; page-break-inside: avoid; border-bottom: 1px dashed #eee; padding-bottom: 15px; }
+            .itinerary-day { margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #eee; page-break-inside: avoid; }
             .itinerary-day:last-child { border-bottom: none; }
-            .day-header { display: flex; gap: 15px; align-items: flex-start; }
-            .day-img { width: 110px; height: 75px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
-            .day-info { flex-1; }
-            .day-title { font-size: 14px; font-weight: bold; margin: 0 0 6px 0; font-style: italic; }
-            .day-desc { font-size: 12px; color: #333; margin: 0; line-height: 1.6; text-align: justify; }
+            .day-header { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px; }
+            .day-img { width: 120px; height: 80px; object-fit: cover; border-radius: 8px; flex-shrink: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .day-title { font-size: 18px; font-weight: 700; margin: 0 0 5px 0; font-style: italic; }
+            .day-desc { font-size: 13px; color: #333; margin: 0; line-height: 1.7; text-align: justify; }
             
-            .lists-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; page-break-inside: avoid; }
-            ul { padding-left: 18px; margin: 0; }
-            li { margin-bottom: 5px; font-size: 11px; color: #333; }
+            .lists-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; page-break-inside: avoid; }
             
-            .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; page-break-inside: avoid; }
-            .gallery-img { width: 100%; height: 130px; object-fit: cover; border-radius: 6px; }
+            .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; page-break-inside: avoid; }
+            .gallery-img { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
             .footer-info {
               position: absolute;
@@ -394,23 +517,21 @@ export default function AdminQuotation() {
               color: #555;
             }
             .footer-links { display: flex; gap: 15px; margin-top: 4px; }
-          </style>
+          </style>       </style>
         </head>
         <body>
           
           <!-- PAGE 1: BASIC DETAILS & HOTELS & PRICING -->
           <div class="page-container">
-            <div class="header-bar">
+            <div class="header">
               <div class="logo">
-                <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="Logo" />
+                <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="JF Logo" />
                 <span>Journey<b>Flicker</b></span>
               </div>
-              <div class="header-info">
-                International & Domestic Tours | Passport | Visa | Flights | Hotels
-              </div>
+              ${data.heroImageUrl ? `<img src="${absUrl(data.heroImageUrl)}" class="hero-img" />` : ''}
+              <h1>${data.title}</h1>
+              <p class="subtitle">${data.destination || ''}</p>
             </div>
-            
-            <div class="quote-title">${data.title}</div>
             
             <div class="quote-meta">
               <div class="meta-item">
@@ -655,6 +776,33 @@ export default function AdminQuotation() {
             </div>
           </div>
 
+          {/* Website Tour Selector */}
+          <div className="border-t border-outline-variant/20 pt-4 space-y-2">
+            <label className={labelCls}>Load Tour from Website</label>
+            <div className="flex gap-2">
+              <select
+                value={selectedTourId}
+                onChange={e => setSelectedTourId(e.target.value)}
+                className={inputCls}
+                disabled={isLoadingTours}
+              >
+                <option value="">-- Select a Website Tour --</option>
+                {websiteTours.map(t => (
+                  <option key={t.id} value={t.id}>
+                    {t.name} ({t.days} Days - {t.region})
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={() => handleImportWebsiteTour(selectedTourId)}
+                disabled={!selectedTourId}
+                className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg text-xs font-bold whitespace-nowrap hover:opacity-95 transition-opacity disabled:opacity-50"
+              >
+                Load Tour
+              </button>
+            </div>
+          </div>
+
           <div className="border-t border-outline-variant/20 pt-4 flex flex-col sm:flex-row gap-3">
             <input 
               type="text" 
@@ -711,6 +859,10 @@ export default function AdminQuotation() {
             <div>
               <label className={labelCls}>Traveling Date</label>
               <input type="text" value={data.travelingDate} onChange={e => upd({ travelingDate: e.target.value })} className={inputCls} />
+            </div>
+            <div className="col-span-2">
+              <label className={labelCls}>Hero Banner Image URL</label>
+              <input type="text" value={data.heroImageUrl || ''} onChange={e => upd({ heroImageUrl: e.target.value })} className={inputCls} placeholder="https://..." />
             </div>
           </div>
 
@@ -1003,18 +1155,16 @@ export default function AdminQuotation() {
           {/* SHEET 1 */}
           <div className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
             <div>
-              <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
-                <div className="flex items-center gap-2 text-xl font-light uppercase tracking-tighter">
+              <div className="text-center border-b-2 border-black pb-4 mb-4">
+                <div className="flex items-center justify-center gap-2 text-2xl font-light uppercase tracking-tighter mb-4">
                   <span className="text-xs uppercase bg-black text-white p-1 rounded font-black">JF</span>
                   <span>Journey<b>Flicker</b></span>
                 </div>
-                <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
-                  International & Domestic Tours | Passport | Visa | Flights | Hotels
-                </div>
-              </div>
-
-              <div className="text-center text-sm font-black tracking-widest uppercase italic border-b border-gray-200 pb-2 mb-4">
-                {data.title || 'TOUR DETAILS'}
+                {data.heroImageUrl && (
+                  <img src={data.heroImageUrl} className="w-full h-48 object-cover rounded-2xl mb-4 shadow-sm" alt="Hero Banner" />
+                )}
+                <h1 className="text-3xl font-light uppercase italic tracking-tighter leading-tight mb-1">{data.title}</h1>
+                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">{data.destination}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4 bg-gray-50 border border-gray-100 p-2.5 rounded-lg mb-4 text-[10px]">
@@ -1114,11 +1264,11 @@ export default function AdminQuotation() {
               <div className="space-y-4">
                 {data.itinerary.map((day, i) => (
                   <div key={i} className="border-b border-gray-100 pb-3 last:border-b-0">
-                    <div className="flex gap-3 items-start">
-                      {day.imageUrl && <img src={day.imageUrl} className="w-20 h-14 object-cover rounded border border-gray-200 shrink-0" />}
-                      <div className="min-w-0">
-                        <div className="font-bold text-xs text-black italic">{day.day}: {day.title || 'Day Schedule details'}</div>
-                        <p className="text-[11px] text-gray-600 leading-relaxed mt-1 text-justify">{day.description || 'Provide day activities...'}</p>
+                    <div className="flex gap-4 items-start">
+                      {day.imageUrl && <img src={day.imageUrl} className="w-28 h-20 object-cover rounded-lg border border-gray-200 shrink-0" />}
+                      <div className="min-w-0 flex-1">
+                        <div className="font-bold text-sm text-black italic">{day.day}: {day.title || 'Day Schedule details'}</div>
+                        <p className="text-xs text-gray-600 leading-relaxed mt-1 text-justify">{day.description || 'Provide day activities...'}</p>
                       </div>
                     </div>
                   </div>
@@ -1170,7 +1320,7 @@ export default function AdminQuotation() {
                   <div className="text-[10px] font-black text-black border-b pb-1 mb-3 italic">Visual Archive</div>
                   <div className="grid grid-cols-3 gap-2">
                     {data.visualArchive.slice(0, 6).map((url, i) => (
-                      <img key={i} src={url} className="w-full h-20 object-cover rounded border border-gray-200" />
+                      <img key={i} src={url} className="w-full h-28 object-cover rounded-lg border border-gray-200" />
                     ))}
                   </div>
                 </div>
