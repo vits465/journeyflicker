@@ -288,7 +288,7 @@ export default function DestinationsPage() {
                     onClick={() => navigate(`/destinations/${dest.id}`)}>
                     <LazyImage 
                       containerClassName="absolute inset-0 w-full h-full"
-                      className="w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105 grayscale group-hover:grayscale-0"
+                      className="w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105"
                       alt={dest.name} src={optimizeImage(dest.heroImageUrl || FALLBACK, 800)} />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none" />
                     {/* Territory badge */}
@@ -337,7 +337,7 @@ export default function DestinationsPage() {
                     <div className="shrink-0 w-full sm:w-24 aspect-[4/3] sm:aspect-square overflow-hidden rounded-xl bg-surface-container-low relative shadow-sm">
                       <LazyImage 
                         containerClassName="absolute inset-0 w-full h-full"
-                        className="w-full h-full object-cover transition-transform duration-[3s] ease-out group-hover:scale-105 grayscale group-hover:grayscale-0"
+                        className="w-full h-full object-cover transition-transform duration-[3s] ease-out group-hover:scale-105"
                         alt={dest.name} src={optimizeImage(dest.heroImageUrl || FALLBACK, 400)} />
                       <div className="absolute inset-0 flex items-end p-1.5 pointer-events-none z-10">
                         <span className="text-[8px] font-black bg-black/60 text-white/80 px-2 py-0.5 rounded-full tracking-widest">{terr}</span>
@@ -406,7 +406,7 @@ export default function DestinationsPage() {
                     style={{ animationDelay: `${idx * 0.05}s` }}
                   >
                     <div className="aspect-[4/3] overflow-hidden relative">
-                      <img src={tour.heroImageUrl || FALLBACK} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-[4s]" alt={tour.name} />
+                      <img src={tour.heroImageUrl || FALLBACK} className="w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105" alt={tour.name} />
                       <div className="absolute top-2 right-2 bg-black/60 backdrop-blur px-2.5 py-1 rounded-full">
                         <span className="text-[8px] font-black tracking-widest text-white uppercase">{tour.days} Days</span>
                       </div>
@@ -468,7 +468,7 @@ export default function DestinationsPage() {
           </div>
           <div className="w-full lg:w-1/2 animate-reveal-up" style={{ animationDelay: '0.15s' }}>
             <div className="rounded-2xl overflow-hidden aspect-[4/5] relative bg-white/5 border border-white/10 group">
-              <img className="absolute inset-0 w-full h-full object-cover transition-all duration-[5s] grayscale group-hover:grayscale-0 group-hover:scale-105"
+              <img className="absolute inset-0 w-full h-full object-cover transition-all duration-[5s] group-hover:scale-105"
                 alt="Travel Intelligence" src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop" />
             </div>
           </div>

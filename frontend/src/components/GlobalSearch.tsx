@@ -111,7 +111,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                         className="group flex items-center gap-4 p-3 rounded-2xl hover:bg-surface-container-low cursor-pointer transition-all border border-transparent hover:border-outline-variant/20"
                       >
                         <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-black">
-                          <img src={d.heroImageUrl} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" alt={d.name} />
+                          <img src={d.heroImageUrl} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt={d.name} />
                         </div>
                         <div className="min-w-0">
                           <h4 className="text-sm font-semibold truncate group-hover:text-primary transition-colors italic">{d.name}</h4>
@@ -138,7 +138,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                         className="group flex items-center gap-5 p-3 rounded-2xl hover:bg-surface-container-low cursor-pointer transition-all border border-transparent hover:border-outline-variant/20"
                       >
                         <div className="w-24 h-16 rounded-xl overflow-hidden shrink-0 bg-black">
-                          <img src={t.heroImageUrl} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" alt={t.name} />
+                          <img src={t.heroImageUrl} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt={t.name} />
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex justify-between items-start mb-1">

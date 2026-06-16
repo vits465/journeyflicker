@@ -389,11 +389,11 @@ I am viewing this destination on your website and would like a customized quotat
           {/* Secondary images */}
           <div className="hidden lg:flex flex-col gap-4 h-full">
             <div className="flex-1 overflow-hidden rounded-2xl group relative bg-black shadow-sm">
-              <img className="absolute inset-0 w-full h-full object-cover transition-transform duration-[5s] group-hover:scale-110 opacity-70 group-hover:opacity-100 grayscale group-hover:grayscale-0"
+              <img className="absolute inset-0 w-full h-full object-cover transition-transform duration-[5s] group-hover:scale-110 opacity-70 group-hover:opacity-100"
                 alt="Gallery 1" src={gallery[0] || DEFAULT_IMG} />
             </div>
             <div className="flex-1 overflow-hidden rounded-2xl group relative bg-black shadow-sm cursor-pointer">
-              <img className="absolute inset-0 w-full h-full object-cover transition-transform duration-[5s] group-hover:scale-110 opacity-70 group-hover:opacity-100 grayscale group-hover:grayscale-0"
+              <img className="absolute inset-0 w-full h-full object-cover transition-transform duration-[5s] group-hover:scale-110 opacity-70 group-hover:opacity-100"
                 alt="Gallery 2" src={gallery[1] || gallery[0] || DEFAULT_IMG} />
               <div className="absolute inset-0 flex items-center justify-center bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-all backdrop-blur-sm">
                 <span className="text-[9px] tracking-[0.4em] font-black uppercase border border-white/50 px-8 py-4 rounded-full">
@@ -490,7 +490,7 @@ I am viewing this destination on your website and would like a customized quotat
                 {gallery.map((img, i) => (
                   <div key={i}
                     className={`overflow-hidden rounded-xl group relative bg-black shadow-sm ${i === 0 ? 'col-span-2 row-span-2 aspect-square' : 'aspect-square'}`}>
-                    <img className="absolute inset-0 w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105 grayscale group-hover:grayscale-0"
+                    <img className="absolute inset-0 w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105"
                       alt={`Archive ${i + 1}`} src={img} />
                   </div>
                 ))}
@@ -514,7 +514,7 @@ I am viewing this destination on your website and would like a customized quotat
                       style={{ animationDelay: `${i * 0.07}s` }}
                       onClick={() => navigate(`/tours/${tour.id}`)}>
                       <div className="aspect-[4/3] overflow-hidden rounded-2xl mb-3 relative shadow-sm group-hover:shadow-lg transition-all duration-500 bg-black border border-outline-variant/10">
-                        <img className="absolute inset-0 w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105 opacity-90 mix-blend-luminosity group-hover:mix-blend-normal"
+                        <img className="absolute inset-0 w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105 opacity-90"
                           alt={tour.name} src={tour.heroImageUrl || DEFAULT_IMG} />
                         <div className="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full shadow border border-black/5">
                           <span className="text-[9px] font-black tracking-[0.3em] text-black uppercase">{tour.days} Days</span>

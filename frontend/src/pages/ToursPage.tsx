@@ -315,7 +315,7 @@ export default function ToursPage() {
                   <div className="overflow-hidden mb-3.5 aspect-[4/5] bg-surface-container-low rounded-2xl relative shadow-sm group-hover:shadow-xl transition-all duration-500">
                     <LazyImage 
                       containerClassName="absolute inset-0 w-full h-full"
-                      className="w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105 mix-blend-luminosity group-hover:mix-blend-normal"
+                      className="w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105"
                       alt={tour.name} src={optimizeImage(tour.heroImageUrl || FALLBACK, 800)} />
                     {/* Badges */}
                     <div className="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none z-10">

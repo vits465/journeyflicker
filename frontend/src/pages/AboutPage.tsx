@@ -94,7 +94,7 @@ export default function AboutPage() {
           </div>
           {/* Image — spans 2 cols */}
           <div className="sm:col-span-2 relative overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all duration-700 group">
-            <img className="absolute inset-0 w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-[2s]"
+            <img className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-[2s]"
               alt="Travel gear" src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=2070&auto=format&fit=crop" />
           </div>
         </div>

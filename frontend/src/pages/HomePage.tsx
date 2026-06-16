@@ -317,7 +317,7 @@ export default function HomePage() {
                   onClick={() => navigate(`/destinations/${dest.id}`)}>
                   <LazyImage 
                     containerClassName="absolute inset-0 w-full h-full"
-                    className="w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105 grayscale group-hover:grayscale-0"
+                    className="w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105"
                     alt={dest.name} src={optimizeImage(dest.heroImageUrl || FALLBACK, 800)} />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent flex flex-col justify-end p-5">
                     <span className="text-white text-[9px] font-black tracking-[0.5em] uppercase bg-black/40 backdrop-blur-sm self-start px-3 py-1 rounded-full border border-white/20 mb-2">{dest.region}</span>
@@ -404,7 +404,7 @@ export default function HomePage() {
                 {/* Background image */}
                 <LazyImage 
                   containerClassName="absolute inset-0 w-full h-full"
-                  className="w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105 grayscale group-hover:grayscale-0"
+                  className="w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105"
                   src={exp.img} alt={exp.label} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
 
@@ -530,7 +530,7 @@ export default function HomePage() {
                   <div key={visa.id} onClick={() => navigate(`/visas#visa-${visa.id}`)} className="relative cursor-pointer group rounded-2xl overflow-hidden border border-outline-variant/10 shadow-sm hover:shadow-xl transition-all duration-500 aspect-[4/5] bg-black w-[280px] sm:w-[320px] shrink-0">
                     <LazyImage 
                       containerClassName="absolute inset-0 w-full h-full"
-                      className="w-full h-full object-cover transition-transform duration-[5s] ease-out group-hover:scale-105 opacity-60 group-hover:opacity-80 grayscale group-hover:grayscale-0"
+                      className="w-full h-full object-cover transition-transform duration-[5s] ease-out group-hover:scale-105 opacity-60 group-hover:opacity-80"
                       src={optimizeImage(visa.heroImageUrl || FALLBACK, 600)} alt={visa.country} />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-between p-5">
                       <div className="flex justify-between items-start">
