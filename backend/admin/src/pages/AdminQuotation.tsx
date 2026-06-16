@@ -510,15 +510,19 @@ export default function AdminQuotation() {
     }
   };
 
+  // Group itinerary into chunks of 2 days
+  const itineraryChunks: ItineraryDay[][] = [];
+  for (let i = 0; i < data.itinerary.length; i += 2) {
+    itineraryChunks.push(data.itinerary.slice(i, i + 2));
+  }
+
   // Print Logic
   const handlePrint = () => {
-    // Create a hidden iframe to prevent popup blocking in all browsers
-    const iframe = document.createElement('iframe');
-    iframe.style.position = 'absolute';
-    iframe.style.width = '0px';
-    iframe.style.height = '0px';
-    iframe.style.border = 'none';
-    document.body.appendChild(iframe);
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Please allow popups for this website to generate and print the quotation PDF.');
+      return;
+    }
 
     const absUrl = (u?: string) => {
       if (!u) return '';
@@ -526,365 +530,400 @@ export default function AdminQuotation() {
       return `${window.location.origin}${u.startsWith('/') ? '' : '/'}${u}`;
     };
 
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>${data.title} - JourneyFlicker Quotation</title>
-          <style>
-            @media print {
-              @page { margin: 15mm; }
-              .page-container {
-                page-break-after: always;
-                min-height: 265mm;
-                box-sizing: border-box;
-                position: relative;
-                padding: 15px;
-                border: 3px double #000;
-              }
-              .page-container:last-child {
-                page-break-after: avoid;
-              }
-            }
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #000; margin: 0; padding: 0; line-height: 1.6; max-width: 800px; margin: 0 auto; }
-            .page-container {
-              border: 3px double #000;
-              padding: 20px;
-              margin: 15px auto;
-              max-width: 800px;
-              box-sizing: border-box;
-              position: relative;
-              background: #fff;
-            }
-            .header { text-align: center; border-bottom: 3px solid #000; padding-bottom: 25px; margin-bottom: 30px; margin-top: 20px; }
-            .logo { display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 36px; font-weight: 300; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 25px; }
-            .logo b { font-weight: 900; }
-            .favicon { width: 36px; height: 36px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .hero-img { width: 100%; height: 300px; object-fit: cover; border-radius: 16px; margin-bottom: 25px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            h1 { font-size: 46px; font-weight: 300; text-transform: uppercase; margin: 0 0 5px 0; letter-spacing: -2px; line-height: 1.1; font-style: italic; }
-            .subtitle { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; opacity: 0.6; margin: 0; }
-            
-            .header-bar {
-              display: flex;
-              align-items: center;
-              justify-content: space-between;
-              border-bottom: 2px solid #000;
-              padding-bottom: 15px;
-              margin-bottom: 25px;
-            }
-            .header-bar .logo {
-              font-size: 24px;
-              margin-bottom: 0;
-              display: flex;
-              align-items: center;
-              gap: 8px;
-              text-transform: uppercase;
-              letter-spacing: -0.5px;
-            }
-            .header-bar .logo img {
-              width: 24px;
-              height: 24px;
-            }
-            .header-info {
-              font-size: 10px;
-              font-weight: 800;
-              text-transform: uppercase;
-              letter-spacing: 2px;
-              color: #666;
-            }
+    const htmlContent = `<!DOCTYPE html>
+<html>
+  <head>
+    <title>${data.title} - JourneyFlicker Quotation</title>
+    <style>
+      head, style { display: none !important; }
+      
+      body { 
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+        color: #000; 
+        margin: 0; 
+        padding: 0; 
+        line-height: 1.5; 
+      }
+      
+      .page-container {
+        border: 3px double #000;
+        padding: 20px;
+        margin: 15px auto;
+        max-width: 800px;
+        box-sizing: border-box;
+        position: relative;
+        background: #fff;
+        min-height: 275mm;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      
+      .header { text-align: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 20px; margin-top: 10px; }
+      .logo { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 28px; font-weight: 300; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 15px; }
+      .logo b { font-weight: 900; }
+      .favicon { width: 28px; height: 28px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .hero-img { width: 100%; height: 200px; object-fit: cover; border-radius: 12px; margin-bottom: 15px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      h1 { font-size: 32px; font-weight: 300; text-transform: uppercase; margin: 0 0 5px 0; letter-spacing: -1.5px; line-height: 1.1; font-style: italic; }
+      .subtitle { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; opacity: 0.6; margin: 0; }
+      
+      .header-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 2px solid #000;
+        padding-bottom: 12px;
+        margin-bottom: 20px;
+      }
+      .header-bar .logo {
+        font-size: 20px;
+        margin-bottom: 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        text-transform: uppercase;
+        letter-spacing: -0.5px;
+      }
+      .header-bar .logo img {
+        width: 20px;
+        height: 20px;
+      }
+      .header-info {
+        font-size: 9px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #666;
+      }
 
-            .section { margin-bottom: 35px; page-break-inside: avoid; }
-            .sect-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin: 25px 0 15px 0; color: #000; font-style: italic; page-break-inside: avoid; }
-            
-            ul { padding-left: 20px; margin: 0; }
-            li { margin-bottom: 8px; font-size: 14px; color: #333; }
-            p { font-size: 14px; color: #333; margin-top: 0; line-height: 1.7; }
-            
-            .quote-meta { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 12px; margin-bottom: 25px; background: #f9f9f9; padding: 15px; border-radius: 12px; border: 1px solid #eee; page-break-inside: avoid; }
-            .meta-item { display: flex; flex-direction: column; }
-            .meta-label { font-weight: 800; text-transform: uppercase; font-size: 9px; color: #666; letter-spacing: 1px; }
-            .meta-val { font-weight: bold; color: #000; font-size: 14px; }
-            .greeting { margin-top: 20px; margin-bottom: 20px; }
-            .greeting p { margin: 5px 0; font-size: 14px; color: #333; }
-            
-            .table-title { font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; color: #000; margin-bottom: 10px; font-style: italic; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 12px; }
-            th { background: #000; color: #fff; text-transform: uppercase; font-size: 10px; font-weight: 800; letter-spacing: 1px; padding: 10px 12px; border: 1px solid #000; text-align: center; }
-            td { border: 1px solid #ddd; padding: 10px 12px; text-align: left; }
-            
-            .pricing-section { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; background: #f9f9f9; border: 1px solid #eee; border-radius: 12px; padding: 20px; margin-bottom: 35px; page-break-inside: avoid; }
-            .price-title { font-weight: 800; font-size: 10px; text-transform: uppercase; color: #666; margin-bottom: 6px; letter-spacing: 1px; }
-            .price-val { font-size: 18px; font-weight: 950; color: #000; }
-            .flights-list { list-style: none; padding: 0; margin: 0; }
-            .flights-list li { display: flex; justify-content: space-between; font-size: 12px; border-bottom: 1px dashed #eee; padding: 6px 0; }
-            
-            .itinerary-day { margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #eee; page-break-inside: avoid; }
-            .itinerary-day:last-child { border-bottom: none; }
-            .day-header { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px; }
-            .day-img { width: 120px; height: 80px; object-fit: cover; border-radius: 8px; flex-shrink: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .day-title { font-size: 18px; font-weight: 700; margin: 0 0 5px 0; font-style: italic; }
-            .day-desc { font-size: 13px; color: #333; margin: 0; line-height: 1.7; text-align: justify; }
-            
-            .lists-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; page-break-inside: avoid; }
-            
-            .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; page-break-inside: avoid; }
-            .gallery-img { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .sect-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid #ddd; padding-bottom: 6px; margin: 20px 0 12px 0; color: #000; font-style: italic; }
+      
+      ul { padding-left: 15px; margin: 0; }
+      li { margin-bottom: 6px; font-size: 11px; color: #333; }
+      p { font-size: 11px; color: #333; margin-top: 0; line-height: 1.5; }
+      
+      .quote-meta { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-size: 11px; margin-bottom: 15px; background: #f9f9f9; padding: 12px; border-radius: 8px; border: 1px solid #eee; }
+      .meta-item { display: flex; flex-direction: column; }
+      .meta-label { font-weight: 800; text-transform: uppercase; font-size: 8px; color: #666; letter-spacing: 1px; }
+      .meta-val { font-weight: bold; color: #000; font-size: 12px; }
+      .greeting { margin-top: 10px; margin-bottom: 15px; }
+      .greeting p { margin: 4px 0; font-size: 12px; color: #333; }
+      
+      .table-title { font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #000; margin-bottom: 6px; font-style: italic; }
+      table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 11px; }
+      th { background: #000; color: #fff; text-transform: uppercase; font-size: 9px; font-weight: 800; letter-spacing: 1px; padding: 8px 10px; border: 1px solid #000; text-align: center; }
+      td { border: 1px solid #ddd; padding: 8px 10px; text-align: left; }
+      
+      .pricing-section { display: grid; grid-template-columns: 1.5fr 1fr; gap: 15px; background: #f9f9f9; border: 1px solid #eee; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+      .price-title { font-weight: 800; font-size: 9px; text-transform: uppercase; color: #666; margin-bottom: 4px; letter-spacing: 1px; }
+      .price-val { font-size: 16px; font-weight: 950; color: #000; }
+      .flights-list { list-style: none; padding: 0; margin: 0; }
+      .flights-list li { display: flex; justify-content: space-between; font-size: 11px; border-bottom: 1px dashed #eee; padding: 4px 0; }
+      
+      .lists-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px; }
+      
+      .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 15px; }
+      .gallery-img { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
-            .footer-info {
-              position: absolute;
-              bottom: 15px;
-              left: 15px;
-              right: 15px;
-              border-top: 1px solid #eee;
-              padding-top: 10px;
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              text-align: center;
-              font-size: 8px;
-              text-transform: uppercase;
-              letter-spacing: 0.5px;
-              color: #555;
-            }
-            .footer-links { display: flex; gap: 15px; margin-top: 4px; }
-          </style>
-        </head>
-        <body>
-          
-          <!-- PAGE 1: BASIC DETAILS & HOTELS & PRICING -->
-          <div class="page-container">
-            <div class="header">
-              <div class="logo">
-                <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="JF Logo" />
-                <span>Journey<b>Flicker</b></span>
-              </div>
-              ${data.heroImageUrl ? `<img src="${absUrl(data.heroImageUrl)}" class="hero-img" />` : ''}
-              <h1>${data.title}</h1>
-              <p class="subtitle">${data.destination || ''}</p>
-            </div>
-            
-            <div class="quote-meta">
-              <div class="meta-item">
-                <span class="meta-label">Quotation Date</span>
-                <span class="meta-val">${data.quotationDate}</span>
-              </div>
-              <div class="meta-item">
-                <span class="meta-label">Traveling Date</span>
-                <span class="meta-val">${data.travelingDate}</span>
-              </div>
-              <div class="meta-item">
-                <span class="meta-label">Destination</span>
-                <span class="meta-val">${data.destination}</span>
-              </div>
-              <div class="meta-item">
-                <span class="meta-label">Prepared By</span>
-                <span class="meta-val">Curator Board</span>
-              </div>
-            </div>
-            
-            <div class="greeting">
-              <p><strong>${data.clientName}</strong></p>
-              <p>${data.greetingText}</p>
-              <p>${data.messageText}</p>
-            </div>
-            
-            <div class="table-title">${data.optionTitle}</div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Destinations</th>
-                  <th>Hotels</th>
-                  <th>Meal Plan</th>
-                  <th>No of Night</th>
-                  <th>No of Room</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${data.hotels.map(h => `
-                  <tr>
-                    <td>${h.destination}</td>
-                    <td>${h.hotels}</td>
-                    <td style="text-align:center;">${h.mealPlan}</td>
-                    <td style="text-align:center;">${h.nights}</td>
-                    <td style="text-align:center;">${h.rooms}</td>
-                  </tr>
+      .footer-info {
+        border-top: 1px solid #eee;
+        padding-top: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        font-size: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #555;
+        margin-top: auto;
+      }
+      .footer-links { display: flex; gap: 15px; margin-top: 4px; }
+
+      @media print {
+        @page { 
+          size: A4; 
+          margin: 10mm; 
+        }
+        body { 
+          margin: 0; 
+          padding: 0; 
+          background: #fff; 
+        }
+        .page-container {
+          page-break-after: always;
+          break-after: page;
+          height: 275mm;
+          max-height: 275mm;
+          overflow: hidden;
+          box-sizing: border-box;
+          border: 3px double #000;
+          padding: 15px 15px 35px 15px;
+          margin: 0 auto;
+          background: #fff !important;
+        }
+        .page-container:last-child {
+          page-break-after: avoid;
+          break-after: avoid;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    
+    <!-- PAGE 1: BASIC DETAILS & HOTELS & PRICING -->
+    <div class="page-container">
+      <div>
+        <div class="header">
+          <div class="logo">
+            <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="JF Logo" />
+            <span>Journey<b>Flicker</b></span>
+          </div>
+          ${data.heroImageUrl ? `<img src="${absUrl(data.heroImageUrl)}" class="hero-img" />` : ''}
+          <h1>${data.title}</h1>
+          <p class="subtitle">${data.destination || ''}</p>
+        </div>
+        
+        <div class="quote-meta">
+          <div class="meta-item">
+            <span class="meta-label">Quotation Date</span>
+            <span class="meta-val">${data.quotationDate}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Traveling Date</span>
+            <span class="meta-val">${data.travelingDate || '—'}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Destination</span>
+            <span class="meta-val">${data.destination}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Prepared By</span>
+            <span class="meta-val">Curator Board</span>
+          </div>
+        </div>
+        
+        <div class="greeting">
+          <p><strong>${data.clientName}</strong></p>
+          <p>${data.greetingText}</p>
+          <p>${data.messageText}</p>
+        </div>
+        
+        <div class="table-title">${data.optionTitle}</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Destinations</th>
+              <th>Hotels</th>
+              <th>Meal Plan</th>
+              <th>No of Night</th>
+              <th>No of Room</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.hotels.map(h => `
+              <tr>
+                <td>${h.destination || '—'}</td>
+                <td>${h.hotels || '—'}</td>
+                <td style="text-align:center;">${h.mealPlan || '—'}</td>
+                <td style="text-align:center;">${h.nights || '—'}</td>
+                <td style="text-align:center;">${h.rooms || '—'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        
+        <div class="pricing-section">
+          <div class="info-item">
+            <span class="price-title">Per Person Package Cost</span>
+            <span class="price-val">${data.perPersonCost}</span>
+          </div>
+          ${data.flightCosts.length > 0 ? `
+            <div class="info-item">
+              <span class="price-title">Additional Flight Cost</span>
+              <ul class="flights-list">
+                ${data.flightCosts.map(f => `
+                  <li><span>${f.city}</span><strong>${f.cost}</strong></li>
                 `).join('')}
-              </tbody>
-            </table>
-            
-            <div class="pricing-section">
-              <div class="info-item">
-                <span class="price-title">Per Person Package Cost</span>
-                <span class="price-val">${data.perPersonCost}</span>
-              </div>
-              ${data.flightCosts.length > 0 ? `
-                <div class="info-item">
-                  <span class="price-title">Additional Flight Cost</span>
-                  <ul class="flights-list">
-                    ${data.flightCosts.map(f => `
-                      <li><span>${f.city}</span><strong>${f.cost}</strong></li>
-                    `).join('')}
-                  </ul>
-                </div>
-              ` : ''}
+              </ul>
             </div>
+          ` : ''}
+        </div>
+      </div>
 
-            <div class="footer-info">
-              <div>Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
-              <div class="footer-links">
-                <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
-                <span>+91 98792 68811 &nbsp;|&nbsp; +91 97266 98987 &nbsp;|&nbsp; 0261 3564717</span>
-              </div>
+      <div class="footer-info">
+        <div>Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
+        <div class="footer-links">
+          <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
+          <span>+91 98792 68811 &nbsp;|&nbsp; +91 97266 98987 &nbsp;|&nbsp; 0261 3564717</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- ITINERARY PAGES -->
+    ${itineraryChunks.map((chunk, index) => `
+      <div class="page-container">
+        <div>
+          <div class="header-bar">
+            <div class="logo">
+              <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="Logo" />
+              <span>Journey<b>Flicker</b></span>
             </div>
+            <div class="header-info">Detailed Itinerary - Page ${index + 1}</div>
           </div>
           
-          <!-- PAGE 2: ITINERARY DETAILS -->
-          <div class="page-container">
-            <div class="header-bar">
-              <div class="logo">
-                <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="Logo" />
-                <span>Journey<b>Flicker</b></span>
-              </div>
-              <div class="header-info">Detailed Itinerary</div>
-            </div>
-            
-            <div class="sect-title">Detailed Day Schedule</div>
-            
-            ${data.itinerary.map((day) => `
-              <div class="itinerary-day">
-                <div class="day-header">
-                  ${day.imageUrl ? `<img src="${absUrl(day.imageUrl)}" class="day-img" />` : ''}
-                  <div class="day-info">
-                    <h4 class="day-title">${day.day}: ${day.title}</h4>
-                    <p class="day-desc">${day.description}</p>
-                  </div>
+          <div class="sect-title" style="margin-top:0;">Day Schedule</div>
+          
+          <div class="itinerary-list" style="display: flex; flex-direction: column; gap: 15px;">
+            ${chunk.map((day) => `
+              <div class="itinerary-day" style="display: flex; gap: 15px; ${chunk.indexOf(day) === chunk.length - 1 ? '' : 'border-bottom: 1px solid #eee; padding-bottom: 15px;'}">
+                ${day.imageUrl ? `<img src="${absUrl(day.imageUrl)}" class="day-img" style="width: 130px; height: 90px; object-fit: cover; border-radius: 8px; flex-shrink: 0;" />` : ''}
+                <div class="day-info" style="flex: 1;">
+                  <h4 class="day-title" style="font-size: 13px; font-weight: 700; margin: 0 0 5px 0; font-style: italic;">${day.day}: ${day.title}</h4>
+                  <p class="day-desc" style="font-size: 11px; color: #333; margin: 0; line-height: 1.5; text-align: justify;">${day.description}</p>
                 </div>
               </div>
             `).join('')}
-            
-            <div class="footer-info">
-              <div>Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
-              <div class="footer-links">
-                <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
-                <span>+91 98792 68811 &nbsp;|&nbsp; +91 97266 98987 &nbsp;|&nbsp; 0261 3564717</span>
-              </div>
-            </div>
           </div>
-
-          <!-- PAGE 3: INCLUSIONS, EXCLUSIONS & GALLERY -->
-          <div class="page-container">
-            <div class="header-bar">
-              <div class="logo">
-                <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="Logo" />
-                <span>Journey<b>Flicker</b></span>
-              </div>
-              <div class="header-info">Terms & Portfolio</div>
-            </div>
-            
-            <div class="lists-grid">
-              ${data.inclusions.length > 0 ? `
-                <div>
-                  <div class="sect-title" style="margin-top:0;">What's Included</div>
-                  <ul>
-                    ${data.inclusions.map(i => `<li>${i}</li>`).join('')}
-                  </ul>
-                </div>
-              ` : ''}
-              ${data.exclusions.length > 0 ? `
-                <div>
-                  <div class="sect-title" style="margin-top:0;">What's Excluded</div>
-                  <ul>
-                    ${data.exclusions.map(e => `<li>${e}</li>`).join('')}
-                  </ul>
-                </div>
-              ` : ''}
-            </div>
-
-            ${data.visualArchive.length > 0 ? `
-              <div>
-                <div class="sect-title">Visual Archive</div>
-                <div class="gallery-grid">
-                  ${data.visualArchive.slice(0, 9).map(img => `
-                    <img src="${absUrl(img)}" class="gallery-img" />
-                  `).join('')}
-                </div>
-              </div>
-            ` : ''}
-
-            <div class="footer-info">
-              <div>Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
-              <div class="footer-links">
-                <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
-                <span>+91 98792 68811 &nbsp;|&nbsp; +91 97266 98987 &nbsp;|&nbsp; 0261 3564717</span>
-              </div>
-            </div>
+        </div>
+        
+        <div class="footer-info">
+          <div>Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
+          <div class="footer-links">
+            <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
+            <span>+91 98792 68811 &nbsp;|&nbsp; +91 97266 98987 &nbsp;|&nbsp; 0261 3564717</span>
           </div>
+        </div>
+      </div>
+    `).join('')}
 
-          <!-- PAGE 4: DOCUMENTS, CANCELLATIONS & POLICIES -->
-          <div class="page-container">
-            <div class="header-bar">
-              <div class="logo">
-                <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="Logo" />
-                <span>Journey<b>Flicker</b></span>
-              </div>
-              <div class="header-info">Policy & Guidelines</div>
-            </div>
-            
-            <div class="lists-grid">
-              ${data.documentsRequired.length > 0 ? `
-                <div>
-                  <div class="sect-title" style="margin-top:0;">Documents Required</div>
-                  <ul>
-                    ${data.documentsRequired.map(d => `<li>${d}</li>`).join('')}
-                  </ul>
-                </div>
-              ` : ''}
-              ${data.cancellationPolicy.length > 0 ? `
-                <div>
-                  <div class="sect-title" style="margin-top:0;">Cancellation Policy</div>
-                  <ul>
-                    ${data.cancellationPolicy.map(c => `<li>${c}</li>`).join('')}
-                  </ul>
-                </div>
-              ` : ''}
-            </div>
-
-            ${data.importantInfo.length > 0 ? `
-              <div>
-                <div class="sect-title">Important Guidelines</div>
-                <ul>
-                  ${data.importantInfo.map(i => `<li>${i}</li>`).join('')}
-                </ul>
-              </div>
-            ` : ''}
-
-            <div class="footer-info">
-              <div>Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
-              <div class="footer-links">
-                <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
-                <span>+91 98792 68811 &nbsp;|&nbsp; +91 97266 98987 &nbsp;|&nbsp; 0261 3564717</span>
-              </div>
-            </div>
+    <!-- PAGE: INCLUSIONS & EXCLUSIONS -->
+    <div class="page-container">
+      <div>
+        <div class="header-bar">
+          <div class="logo">
+            <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="Logo" />
+            <span>Journey<b>Flicker</b></span>
           </div>
-        </body>
-      </html>
-    `;
+          <div class="header-info">Terms & Conditions</div>
+        </div>
+        
+        <div class="lists-grid">
+          <div>
+            <div class="sect-title" style="margin-top:0;">What's Included</div>
+            <ul style="padding-left: 15px; margin: 0;">
+              ${data.inclusions.map(i => `<li style="font-size: 11px; margin-bottom: 6px; line-height: 1.4;">${i}</li>`).join('')}
+            </ul>
+            ${data.inclusions.length === 0 ? '<p style="font-size: 11px; font-style: italic; color: #888;">None specified</p>' : ''}
+          </div>
+          <div>
+            <div class="sect-title" style="margin-top:0;">What's Excluded</div>
+            <ul style="padding-left: 15px; margin: 0;">
+              ${data.exclusions.map(e => `<li style="font-size: 11px; margin-bottom: 6px; line-height: 1.4;">${e}</li>`).join('')}
+            </ul>
+            ${data.exclusions.length === 0 ? '<p style="font-size: 11px; font-style: italic; color: #888;">None specified</p>' : ''}
+          </div>
+        </div>
+      </div>
 
-    const doc = iframe.contentDocument || iframe.contentWindow?.document;
-    if (doc) {
-      doc.open();
-      doc.write(htmlContent);
-      doc.close();
-      
-      // Wait for resources/images to load inside iframe, then print
-      setTimeout(() => {
-        iframe.contentWindow?.focus();
-        iframe.contentWindow?.print();
-        setTimeout(() => {
-          document.body.removeChild(iframe);
-        }, 1000);
-      }, 500);
-    }
+      <div class="footer-info">
+        <div>Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
+        <div class="footer-links">
+          <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
+          <span>+91 98792 68811 &nbsp;|&nbsp; +91 97266 98987 &nbsp;|&nbsp; 0261 3564717</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: VISUAL ARCHIVE -->
+    ${data.visualArchive.length > 0 ? `
+      <div class="page-container">
+        <div>
+          <div class="header-bar">
+            <div class="logo">
+              <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="Logo" />
+              <span>Journey<b>Flicker</b></span>
+            </div>
+            <div class="header-info">Visual Archive</div>
+          </div>
+          
+          <div class="sect-title" style="margin-top:0;">Tour Gallery</div>
+          
+          <div class="gallery-grid">
+            ${data.visualArchive.slice(0, 6).map(img => `
+              <img src="${absUrl(img)}" class="gallery-img" />
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="footer-info">
+          <div>Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
+          <div class="footer-links">
+            <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
+            <span>+91 98792 68811 &nbsp;|&nbsp; +91 97266 98987 &nbsp;|&nbsp; 0261 3564717</span>
+          </div>
+        </div>
+      </div>
+    ` : ''}
+
+    <!-- PAGE: POLICIES & GUIDELINES -->
+    <div class="page-container">
+      <div>
+        <div class="header-bar">
+          <div class="logo">
+            <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="Logo" />
+            <span>Journey<b>Flicker</b></span>
+          </div>
+          <div class="header-info">Policy & Guidelines</div>
+        </div>
+        
+        <div class="lists-grid">
+          <div>
+            <div class="sect-title" style="margin-top:0;">Documents Required</div>
+            <ul style="padding-left: 15px; margin: 0;">
+              ${data.documentsRequired.map(d => `<li style="font-size: 11px; margin-bottom: 6px; line-height: 1.4;">${d}</li>`).join('')}
+            </ul>
+            ${data.documentsRequired.length === 0 ? '<p style="font-size: 11px; font-style: italic; color: #888;">None specified</p>' : ''}
+          </div>
+          <div>
+            <div class="sect-title" style="margin-top:0;">Cancellation Policy</div>
+            <ul style="padding-left: 15px; margin: 0;">
+              ${data.cancellationPolicy.map(c => `<li style="font-size: 11px; margin-bottom: 6px; line-height: 1.4;">${c}</li>`).join('')}
+            </ul>
+            ${data.cancellationPolicy.length === 0 ? '<p style="font-size: 11px; font-style: italic; color: #888;">None specified</p>' : ''}
+          </div>
+        </div>
+
+        ${data.importantInfo.length > 0 ? `
+          <div style="margin-top: 15px;">
+            <div class="sect-title">Important Guidelines</div>
+            <ul style="padding-left: 15px; margin: 0;">
+              ${data.importantInfo.map(i => `<li style="font-size: 11px; margin-bottom: 6px; line-height: 1.4;">${i}</li>`).join('')}
+            </ul>
+          </div>
+        ` : ''}
+      </div>
+
+      <div class="footer-info">
+        <div>Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
+        <div class="footer-links">
+          <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
+          <span>+91 98792 68811 &nbsp;|&nbsp; +91 97266 98987 &nbsp;|&nbsp; 0261 3564717</span>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      window.onload = () => {
+        setTimeout(() => { window.print(); window.close(); }, 500);
+      };
+    </script>
+  </body>
+</html>`;
+
+    printWindow.document.open();
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
   };
 
   return (
@@ -1306,7 +1345,7 @@ export default function AdminQuotation() {
         {/* Rendered Live Preview Frame */}
         <div className="bg-gray-100 dark:bg-neutral-900 border border-outline-variant/20 rounded-2xl p-4 max-h-[85vh] overflow-y-auto space-y-6 custom-scrollbar shadow-inner">
           
-          {/* SHEET 1 */}
+          {/* SHEET 1: COVER / DETAILS */}
           <div className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
             <div>
               <div className="text-center border-b-2 border-black pb-4 mb-4">
@@ -1315,9 +1354,9 @@ export default function AdminQuotation() {
                   <span>Journey<b>Flicker</b></span>
                 </div>
                 {data.heroImageUrl && (
-                  <img src={data.heroImageUrl} className="w-full h-48 object-cover rounded-2xl mb-4 shadow-sm" alt="Hero Banner" />
+                  <img src={data.heroImageUrl} className="w-full h-44 object-cover rounded-2xl mb-4 shadow-sm" alt="Hero Banner" />
                 )}
-                <h1 className="text-3xl font-light uppercase italic tracking-tighter leading-tight mb-1">{data.title}</h1>
+                <h1 className="text-2xl font-light uppercase italic tracking-tighter leading-tight mb-1">{data.title}</h1>
                 <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">{data.destination}</p>
               </div>
 
@@ -1391,7 +1430,7 @@ export default function AdminQuotation() {
               </div>
             </div>
 
-            <div className="border-t border-gray-200 pt-2 flex flex-col items-center text-[7px] text-gray-500 font-bold uppercase tracking-widest text-center">
+            <div className="border-t border-gray-200 pt-2 flex flex-col items-center text-[7px] text-gray-500 font-bold uppercase tracking-widest text-center mt-auto">
               <div>103 | Raj Victoriya, Near Samarth Circle, Adajan, Surat, Gujarat 395009</div>
               <div className="flex gap-4 mt-1">
                 <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
@@ -1400,46 +1439,48 @@ export default function AdminQuotation() {
             </div>
           </div>
 
-          {/* SHEET 2 */}
-          <div className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
-            <div>
-              <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
-                <div className="flex items-center gap-2 text-xl font-light uppercase tracking-tighter">
-                  <span className="text-xs uppercase bg-black text-white p-1 rounded font-black">JF</span>
-                  <span>Journey<b>Flicker</b></span>
+          {/* SHEET 2+: ITINERARY PAGES */}
+          {itineraryChunks.map((chunk, index) => (
+            <div key={index} className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
+              <div>
+                <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
+                  <div className="flex items-center gap-2 text-xl font-light uppercase tracking-tighter">
+                    <span className="text-xs uppercase bg-black text-white p-1 rounded font-black">JF</span>
+                    <span>Journey<b>Flicker</b></span>
+                  </div>
+                  <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
+                    Detailed Itinerary - Page {index + 1}
+                  </div>
                 </div>
-                <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
-                  Detailed Itinerary
-                </div>
-              </div>
 
-              <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 border-b pb-1 font-serif italic">Detailed Day Schedule</div>
+                <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 border-b pb-1 font-serif italic">Detailed Day Schedule</div>
 
-              <div className="space-y-4">
-                {data.itinerary.map((day, i) => (
-                  <div key={i} className="border-b border-gray-100 pb-3 last:border-b-0">
-                    <div className="flex gap-4 items-start">
-                      {day.imageUrl && <img src={day.imageUrl} className="w-28 h-20 object-cover rounded-lg border border-gray-200 shrink-0" />}
-                      <div className="min-w-0 flex-1">
-                        <div className="font-bold text-sm text-black italic">{day.day}: {day.title || 'Day Schedule details'}</div>
-                        <p className="text-xs text-gray-600 leading-relaxed mt-1 text-justify">{day.description || 'Provide day activities...'}</p>
+                <div className="space-y-4">
+                  {chunk.map((day, i) => (
+                    <div key={i} className={`pb-3 ${i === chunk.length - 1 ? '' : 'border-b border-gray-100'}`}>
+                      <div className="flex gap-4 items-start">
+                        {day.imageUrl && <img src={day.imageUrl} className="w-28 h-20 object-cover rounded-lg border border-gray-200 shrink-0" alt="" />}
+                        <div className="min-w-0 flex-1">
+                          <div className="font-bold text-sm text-black italic">{day.day}: {day.title || 'Day Schedule details'}</div>
+                          <p className="text-xs text-gray-600 leading-relaxed mt-1 text-justify">{day.description || 'Provide day activities...'}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 pt-2 flex flex-col items-center text-[7px] text-gray-500 font-bold uppercase tracking-widest text-center mt-auto">
+                <div>103 | Raj Victoriya, Near Samarth Circle, Adajan, Surat, Gujarat 395009</div>
+                <div className="flex gap-4 mt-1">
+                  <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
+                  <span>+91 98792 68811 | +91 97266 98987 | 0261 3564717</span>
+                </div>
               </div>
             </div>
+          ))}
 
-            <div className="border-t border-gray-200 pt-2 flex flex-col items-center text-[7px] text-gray-500 font-bold uppercase tracking-widest text-center">
-              <div>103 | Raj Victoriya, Near Samarth Circle, Adajan, Surat, Gujarat 395009</div>
-              <div className="flex gap-4 mt-1">
-                <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
-                <span>+91 98792 68811 | +91 97266 98987 | 0261 3564717</span>
-              </div>
-            </div>
-          </div>
-
-          {/* SHEET 3 */}
+          {/* SHEET 3: TERMS & CONDITIONS (INCLUSIONS/EXCLUSIONS) */}
           <div className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
             <div>
               <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
@@ -1448,7 +1489,7 @@ export default function AdminQuotation() {
                   <span>Journey<b>Flicker</b></span>
                 </div>
                 <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
-                  Terms & Portfolio
+                  Terms & Conditions
                 </div>
               </div>
 
@@ -1468,20 +1509,9 @@ export default function AdminQuotation() {
                   </ul>
                 </div>
               </div>
-
-              {data.visualArchive.length > 0 && (
-                <div className="mt-6">
-                  <div className="text-[10px] font-black text-black border-b pb-1 mb-3 italic">Visual Archive</div>
-                  <div className="grid grid-cols-3 gap-2">
-                    {data.visualArchive.slice(0, 6).map((url, i) => (
-                      <img key={i} src={url} className="w-full h-28 object-cover rounded-lg border border-gray-200" />
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
 
-            <div className="border-t border-gray-200 pt-2 flex flex-col items-center text-[7px] text-gray-500 font-bold uppercase tracking-widest text-center">
+            <div className="border-t border-gray-200 pt-2 flex flex-col items-center text-[7px] text-gray-500 font-bold uppercase tracking-widest text-center mt-auto">
               <div>103 | Raj Victoriya, Near Samarth Circle, Adajan, Surat, Gujarat 395009</div>
               <div className="flex gap-4 mt-1">
                 <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
@@ -1490,7 +1520,39 @@ export default function AdminQuotation() {
             </div>
           </div>
 
-          {/* SHEET 4 */}
+          {/* SHEET 4: VISUAL ARCHIVE GALLERY */}
+          {data.visualArchive.length > 0 && (
+            <div className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
+              <div>
+                <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
+                  <div className="flex items-center gap-2 text-xl font-light uppercase tracking-tighter">
+                    <span className="text-xs uppercase bg-black text-white p-1 rounded font-black">JF</span>
+                    <span>Journey<b>Flicker</b></span>
+                  </div>
+                  <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
+                    Visual Archive
+                  </div>
+                </div>
+
+                <div className="text-[10px] font-black text-black border-b pb-1 mb-3 italic">Tour Gallery</div>
+                <div className="grid grid-cols-3 gap-3">
+                  {data.visualArchive.slice(0, 6).map((url, i) => (
+                    <img key={i} src={url} className="w-full h-28 object-cover rounded-lg border border-gray-200" alt="Gallery item" />
+                  ))}
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 pt-2 flex flex-col items-center text-[7px] text-gray-500 font-bold uppercase tracking-widest text-center mt-auto">
+                <div>103 | Raj Victoriya, Near Samarth Circle, Adajan, Surat, Gujarat 395009</div>
+                <div className="flex gap-4 mt-1">
+                  <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
+                  <span>+91 98792 68811 | +91 97266 98987 | 0261 3564717</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SHEET 5: POLICIES & GUIDELINES */}
           <div className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
             <div>
               <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
@@ -1530,7 +1592,7 @@ export default function AdminQuotation() {
               )}
             </div>
 
-            <div className="border-t border-gray-200 pt-2 flex flex-col items-center text-[7px] text-gray-500 font-bold uppercase tracking-widest text-center">
+            <div className="border-t border-gray-200 pt-2 flex flex-col items-center text-[7px] text-gray-500 font-bold uppercase tracking-widest text-center mt-auto">
               <div>103 | Raj Victoriya, Near Samarth Circle, Adajan, Surat, Gujarat 395009</div>
               <div className="flex gap-4 mt-1">
                 <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
