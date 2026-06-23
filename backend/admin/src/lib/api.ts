@@ -243,6 +243,17 @@ export type SystemLogListResponse = {
   pages: number;
 };
 
+export type QuotationRecord = {
+  id: string;
+  name: string;
+  status: 'Draft' | 'Final';
+  clientName: string;
+  destination: string;
+  data: any; // Ideally typed to QuotationData from AdminQuotation.tsx
+  createdAt: number;
+  updatedAt: number;
+};
+
 const _apiCache = new Map<string, { data: any, ts: number, promise?: Promise<any> }>();
 const CACHE_TTL = 60000; // 1 minute
 
@@ -432,6 +443,13 @@ export interface ApiInterface {
   resolveSystemLog: (id: string, resolved: boolean) => Promise<SystemLog>;
   deleteSystemLog: (id: string) => Promise<void>;
   clearSystemLogs: (deleteAll?: boolean) => Promise<{ deleted: number }>;
+  
+  // Quotations
+  listQuotations: (opts?: { search?: string; status?: string; startDate?: string; endDate?: string }) => Promise<QuotationRecord[]>;
+  getQuotation: (id: string) => Promise<QuotationRecord>;
+  createQuotation: (data: Partial<QuotationRecord>) => Promise<QuotationRecord>;
+  updateQuotation: (id: string, data: Partial<QuotationRecord>) => Promise<QuotationRecord>;
+  deleteQuotation: (id: string) => Promise<void>;
 }
 
 export const api: ApiInterface = {
@@ -560,4 +578,18 @@ export const api: ApiInterface = {
   resolveSystemLog: (id, resolved) => http<SystemLog>(`/admin/logs/${id}`, { method: 'PATCH', body: JSON.stringify({ resolved }) }),
   deleteSystemLog:  (id) => http<void>(`/admin/logs/${id}`, { method: 'DELETE' }),
   clearSystemLogs:  (deleteAll = false) => http<{ deleted: number }>(`/admin/logs${deleteAll ? '?deleteAll=true' : ''}`, { method: 'DELETE' }),
+
+  listQuotations: (opts: { search?: string; status?: string; startDate?: string; endDate?: string } = {}) => {
+    const params = new URLSearchParams();
+    if (opts.search) params.set("search", opts.search);
+    if (opts.status) params.set("status", opts.status);
+    if (opts.startDate) params.set("startDate", opts.startDate);
+    if (opts.endDate) params.set("endDate", opts.endDate);
+    const q = params.toString();
+    return http<QuotationRecord[]>(`/admin/quotations${q ? `?${q}` : ''}`);
+  },
+  getQuotation: (id) => http<QuotationRecord>(`/admin/quotations/${id}`),
+  createQuotation: (data) => http<QuotationRecord>("/admin/quotations", { method: "POST", body: JSON.stringify(data) }),
+  updateQuotation: (id, data) => http<QuotationRecord>(`/admin/quotations/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  deleteQuotation: (id) => http<void>(`/admin/quotations/${id}`, { method: "DELETE" }),
 };

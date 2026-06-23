@@ -158,6 +158,18 @@ const InquirySchema = new mongoose.Schema({
   status: { type: String, enum: ['New', 'Quoted', 'Booked', 'Closed'], default: 'New' }
 }, { timestamps: false, versionKey: false });
 
+// ── Quotation ─────────────────────────────────────────────────────────────────
+const QuotationSchema = new mongoose.Schema({
+  id: { type: String, required: true, unique: true, index: true },
+  name: { type: String, required: true, index: true }, // The draft/file name for searching
+  status: { type: String, enum: ['Draft', 'Final'], default: 'Draft', index: true },
+  clientName: { type: String, default: '', index: true },
+  destination: { type: String, default: '', index: true },
+  data: { type: mongoose.Schema.Types.Mixed, required: true }, // The full JSON quotation data
+  createdAt: { type: Number, default: () => Date.now(), index: -1 },
+  updatedAt: { type: Number, default: () => Date.now() },
+}, { timestamps: false, versionKey: false });
+
 export const Destination  = mongoose.models.Destination  || mongoose.model("Destination",  DestinationSchema);
 export const Tour         = mongoose.models.Tour         || mongoose.model("Tour",          TourSchema);
 export const Visa         = mongoose.models.Visa         || mongoose.model("Visa",          VisaSchema);
@@ -169,3 +181,4 @@ export const Admin        = mongoose.models.Admin        || mongoose.model("Admi
 export const Settings     = mongoose.models.Settings     || mongoose.model("Settings",      SettingsSchema);
 export const SystemLog    = mongoose.models.SystemLog    || mongoose.model("SystemLog",     SystemLogSchema);
 export const Inquiry      = mongoose.models.Inquiry      || mongoose.model("Inquiry",       InquirySchema);
+export const Quotation    = mongoose.models.Quotation    || mongoose.model("Quotation",     QuotationSchema);

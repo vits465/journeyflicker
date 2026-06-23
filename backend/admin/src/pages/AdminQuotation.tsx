@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { Tour } from '../lib/api';
+import type { Tour, QuotationRecord } from '../lib/api';
 import { api } from '../lib/api';
 
 // Interfaces for Quotation Structure
@@ -11,9 +11,16 @@ interface HotelRow {
   rooms: string;
 }
 
+interface PackageCostItem {
+  category: string;
+  cost: number;
+  pax: number;
+}
+
 interface FlightCost {
   city: string;
-  cost: string;
+  cost: number;
+  pax: number;
 }
 
 interface ItineraryDay {
@@ -34,7 +41,8 @@ interface QuotationData {
   messageText: string;
   optionTitle: string;
   hotels: HotelRow[];
-  perPersonCost: string;
+  perPersonCost?: string;
+  packageCosts?: PackageCostItem[];
   flightCosts: FlightCost[];
   itinerary: ItineraryDay[];
   inclusions: string[];
@@ -43,6 +51,7 @@ interface QuotationData {
   cancellationPolicy: string[];
   importantInfo: string[];
   visualArchive: string[];
+  preparedBy?: string;
 }
 
 const emptyQuotation: QuotationData = {
@@ -58,7 +67,10 @@ const emptyQuotation: QuotationData = {
   hotels: [
     { destination: '', hotels: '', mealPlan: 'Breakfast & Dinner', nights: '02 Nights', rooms: '05' }
   ],
-  perPersonCost: 'Package Cost Adults Rs.0/-',
+  perPersonCost: '',
+  packageCosts: [
+    { category: 'Adults', cost: 0, pax: 1 }
+  ],
   flightCosts: [],
   itinerary: [
     { day: 'Day 1', title: '', description: '' }
@@ -68,7 +80,8 @@ const emptyQuotation: QuotationData = {
   documentsRequired: [],
   cancellationPolicy: [],
   importantInfo: [],
-  visualArchive: []
+  visualArchive: [],
+  preparedBy: 'Curator Board'
 };
 
 // Preset sample from Hitesh's North East Tour
@@ -89,10 +102,12 @@ const hiteshPreset: QuotationData = {
     { destination: 'Pelling', hotels: 'Pelling Resort/ Crasula Ovata / Similar', mealPlan: 'Breakfast & Dinner', nights: '01 Nights', rooms: '05' },
     { destination: 'Darjeeling', hotels: 'Zambala/ Mount Conifer/ Similar', mealPlan: 'Breakfast & Dinner', nights: '02 Nights', rooms: '05' }
   ],
-  perPersonCost: 'Package Cost Adults Rs.36,600/-X15',
+  packageCosts: [
+    { category: 'Adults', cost: 36600, pax: 15 }
+  ],
   flightCosts: [
-    { city: 'Ex.Mumbai', cost: '22,700/-Per Person' },
-    { city: 'Ex. Ahmedabad', cost: '20,000/- Per Person' }
+    { city: 'Ex. Mumbai', cost: 22700, pax: 15 },
+    { city: 'Ex. Ahmedabad', cost: 20000, pax: 15 }
   ],
   itinerary: [
     {
@@ -191,7 +206,132 @@ const hiteshPreset: QuotationData = {
     'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=600&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=600&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=600&auto=format&fit=crop'
-  ]
+  ],
+  preparedBy: 'Curator Board'
+};
+
+// Demo Preset: Kerala Backwaters & Munnar (7 Nights / 8 Days)
+const keralaPreset: QuotationData = {
+  title: 'KERALA BACKWATERS & MUNNAR TOUR',
+  heroImageUrl: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=1200&auto=format&fit=crop',
+  quotationDate: '19-JUN-2026',
+  travelingDate: '15-OCT-2026',
+  destination: 'KERALA',
+  clientName: 'Dear Sir / Madam,',
+  greetingText: 'Warm Greetings From JourneyFlicker..!!',
+  messageText: 'Kindly find below the detailed itinerary & quotation for your KERALA Tour !!!',
+  optionTitle: 'Option : 01 (3★/4★) 07 Nights 08 Days',
+  hotels: [
+    { destination: 'Cochin', hotels: 'Hotel Abad Atrium / Gokulam Park / Similar (4★)', mealPlan: 'Breakfast & Dinner', nights: '01 Night', rooms: '05' },
+    { destination: 'Munnar', hotels: 'Hotel Tall Trees / Elysium Garden Hill Resort / Similar (3★)', mealPlan: 'Breakfast & Dinner', nights: '02 Nights', rooms: '05' },
+    { destination: 'Thekkady', hotels: 'Spice Village / Cardamom County / Similar (3★)', mealPlan: 'Breakfast & Dinner', nights: '01 Night', rooms: '05' },
+    { destination: 'Alleppey', hotels: 'Premium Houseboat (Deluxe AC Cabin) / Similar', mealPlan: 'All Meals Included', nights: '01 Night', rooms: '05' },
+    { destination: 'Kovalam', hotels: 'Hotel Uday Samudra / Turtle On The Beach / Similar (3★)', mealPlan: 'Breakfast & Dinner', nights: '02 Nights', rooms: '05' }
+  ],
+  packageCosts: [
+    { category: 'Adults', cost: 28500, pax: 10 }
+  ],
+  flightCosts: [
+    { city: 'Ex. Ahmedabad (AMD → COK)', cost: 8200, pax: 10 },
+    { city: 'Ex. Mumbai (BOM → COK)', cost: 5500, pax: 10 },
+    { city: 'Ex. Surat (BOM via Mumbai → COK)', cost: 6800, pax: 10 }
+  ],
+  itinerary: [
+    {
+      day: 'Day 1 (15/Oct/2026)',
+      title: 'ARRIVAL AT COCHIN – FORT KOCHI CITY TOUR',
+      description: 'Arrive at Cochin International Airport. You will be received by our representative and transferred to your hotel. After check-in and freshening up, proceed for a half day city tour of Fort Kochi covering the iconic Chinese Fishing Nets (Cheena Vala) — a unique ancient fishing technique, St. Francis Church (oldest European church in India), Mattancherry Palace (Dutch Palace), and the vibrant Jewish Synagogue at Jew Town. Evening at leisure to explore Marine Drive. Overnight stay in Cochin.'
+    },
+    {
+      day: 'Day 2 (16/Oct/2026)',
+      title: 'COCHIN TO MUNNAR (130 KMS / 04 HRS)',
+      description: 'After breakfast, check out and drive towards Munnar — the "Kashmir of South India." Enjoy a scenic drive through lush green tea estates, spice plantations, waterfalls, and panoramic hills. Enroute, visit the magnificent Cheeyappara Waterfalls and Valara Waterfalls. Also visit Kaladi, the birthplace of Adi Shankaracharya. On arrival at Munnar, check-in to hotel. Evening free to explore the local market. Overnight stay in Munnar.'
+    },
+    {
+      day: 'Day 3 (17/Oct/2026)',
+      title: 'MUNNAR – TEA GARDENS, ERAVIKULAM NATIONAL PARK & ECHO POINT',
+      description: 'After a delicious breakfast, enjoy a full day sightseeing in Munnar. Visit Eravikulam National Park (home of the endangered Nilgiri Tahr), the Tea Museum tracing the entire history of tea production, Mattupetty Dam with scenic boating, Echo Point where your voice echoes across the hills, and Top Station — the highest point in Munnar with breathtaking Western Ghats views. In the evening, stroll through the golden tea gardens at sunset. Overnight stay in Munnar.'
+    },
+    {
+      day: 'Day 4 (18/Oct/2026)',
+      title: 'MUNNAR TO THEKKADY – PERIYAR WILDLIFE SANCTUARY (95 KMS / 03 HRS)',
+      description: 'After breakfast, check out and drive to Thekkady, home of the famous Periyar Tiger Reserve. On arrival, check-in to resort and proceed for a boat ride on Periyar Lake — a chance to spot elephants, bison, sambar deer, and rare birds along the lakeshore. Later visit a spice plantation to learn about cardamom, pepper, nutmeg, and clove cultivation. In the evening, enjoy a thrilling Kalaripayattu (Kerala martial arts) performance. Overnight stay in Thekkady.'
+    },
+    {
+      day: 'Day 5 (19/Oct/2026)',
+      title: 'THEKKADY TO ALLEPPEY – BACKWATERS HOUSEBOAT (145 KMS / 03.5 HRS)',
+      description: 'After breakfast, check out and drive to Alleppey — the "Venice of the East." Board your exclusive premium houseboat at 12:00 Noon. Cruise leisurely through the tranquil backwaters of Kerala on the famous Vembanad and Punnamada Lake. Watch village life pass by — paddy fields, coconut groves, coir-making, and local fishermen. Enjoy authentic Kerala lunch, high tea, and dinner served on board. Watch a golden sunset over the backwaters. Overnight stay on the houseboat.'
+    },
+    {
+      day: 'Day 6 (20/Oct/2026)',
+      title: 'ALLEPPEY TO KOVALAM BEACH (155 KMS / 04 HRS)',
+      description: 'Wake up early to enjoy the misty sunrise over the backwaters. After breakfast on the houseboat, disembark and drive towards Kovalam — one of the most famous beach destinations in India. Enroute, visit the magnificent Padmanabhapuram Palace (the largest wooden palace in Asia, built in Dravidian architecture), and Suchindram Temple. On arrival at Kovalam, check-in to the beachfront resort. Spend the evening relaxing at the crescent-shaped Kovalam Beach or indulge in a traditional Ayurvedic massage. Overnight stay at Kovalam.'
+    },
+    {
+      day: 'Day 7 (21/Oct/2026)',
+      title: 'KOVALAM – TRIVANDRUM CITY SIGHTSEEING & BEACH LEISURE',
+      description: 'After breakfast, visit Trivandrum (Thiruvananthapuram) city covering Padmanabhaswamy Temple (one of the wealthiest temples in the world), Napier Museum, Natural History Museum, and the Zoo & Botanical Garden. Return to Kovalam by afternoon. Spend the evening at leisure — enjoy optional water sports like parasailing, jet ski, or kayaking at extra cost, or simply relax with fresh tender coconut water watching the lighthouse beam across the Arabian Sea. Overnight stay in Kovalam.'
+    },
+    {
+      day: 'Day 8 (22/Oct/2026)',
+      title: 'KOVALAM – TRIVANDRUM AIRPORT – DEPARTURE',
+      description: 'After a leisurely breakfast, check out from the hotel and transfer to Trivandrum International Airport for your onward journey. Carry home the beautiful memories of Kerala — the land of coconut trees, backwaters, spices, and warm smiles. We hope you had a wonderful experience with JourneyFlicker and look forward to crafting your next adventure with us!'
+    }
+  ],
+  inclusions: [
+    'Accommodation on Double/Twin sharing basis for 07 Nights (05 Rooms).',
+    '01 Night Premium AC Deluxe Houseboat in Alleppey (All Meals Included on Houseboat).',
+    'Daily Breakfast & Dinner at all hotels (except houseboat where all 3 meals are included).',
+    'All transfers and sightseeing by private air-conditioned vehicle (Innova / XUV 500 or similar).',
+    'Boat ride at Periyar Lake, Thekkady.',
+    'Backwater Houseboat cruise in Alleppey (Check-in 12 Noon / Check-out 09 AM next day).',
+    'All toll taxes, parking charges, driver bata, and road permits.',
+    'Pick Up & Drop from Cochin Airport / Trivandrum Airport.',
+    'All hotel & GST taxes as applicable on accommodation.'
+  ],
+  exclusions: [
+    'Airfare / Train fare (not included). Flight costs quoted separately above.',
+    'GST 5% extra applicable on the total tour package bill.',
+    'Entrance fees at all sightseeing points and National Parks.',
+    'Eravikulam National Park entry fees (subject to availability & seasonal closure).',
+    'Kalaripayattu show charges at Thekkady (Rs. 200/- per person approx.).',
+    'Water sports activities at Kovalam beach (Parasailing, Jet Ski, Kayaking etc.).',
+    'Ayurvedic massage or spa treatments.',
+    'Personal expenses — laundry, telephone calls, tips, mineral water, soft & hard drinks.',
+    'Any early check-in or late check-out charges at hotels.',
+    'Any increase in fuel or accommodation rates prior to travel date.'
+  ],
+  documentsRequired: [
+    'Original Aadhaar Card / Voter ID Card / Passport (mandatory for all travelers).',
+    'Photocopies of Photo Identity Proof for all traveling members.',
+    '2 Passport size photographs per person.',
+    'For children below 5 years: Birth certificate is required.'
+  ],
+  cancellationPolicy: [
+    '45 days or more before departure: 10% of total package cost.',
+    '44 to 30 days before departure: 25% of total package cost.',
+    '29 to 15 days before departure: 50% of total package cost.',
+    '14 to 7 days before departure: 75% of total package cost.',
+    'Less than 7 days / No Show: 100% of total package cost (non-refundable).',
+    'Houseboat once confirmed — 100% cancellation charges apply at all times.'
+  ],
+  importantInfo: [
+    'Above costing is based on minimum 10 Adults travelling together — cost may change if group size reduces.',
+    'Houseboat check-in is at 12:00 Noon and check-out is at 09:00 AM next day.',
+    'Eravikulam National Park remains closed during Feb–March (calving season) — alternate sightseeing will be arranged.',
+    'Standard hotel check-in is 14:00 hrs and check-out is 12:00 Noon. Early/Late subject to availability.',
+    'Flight costs quoted are approximate and will be locked only at actual time of booking.',
+    'We act as booking agents only and cannot be held liable for mechanical failures, weather, or acts of God.'
+  ],
+  visualArchive: [
+    'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=600&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1593693397690-362cb9666fc2?q=80&w=600&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1578662996442-48f60103fc96?q=80&w=600&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1564507592333-c60657eea523?q=80&w=600&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=600&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=600&auto=format&fit=crop'
+  ],
+  preparedBy: 'Curator Board'
 };
 
 const domesticPolicyTemplates = {
@@ -364,8 +504,18 @@ export default function AdminQuotation() {
     const saved = localStorage.getItem('jf_active_quotation');
     return saved ? JSON.parse(saved) : emptyQuotation;
   });
-  const [draftsList, setDraftsList] = useState<string[]>([]);
+  
+  // Quotation DB States
+  const [activeQuoteId, setActiveQuoteId] = useState<string | null>(null);
+  const [dbQuotations, setDbQuotations] = useState<QuotationRecord[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [isLoadingQuotations, setIsLoadingQuotations] = useState(false);
   const [draftName, setDraftName] = useState('');
+  const [isFinal, setIsFinal] = useState(false);
+  const [viewMode, setViewMode] = useState<'editor' | 'list'>('editor');
 
   // Website tours list for loading existing tours
   const [websiteTours, setWebsiteTours] = useState<Tour[]>([]);
@@ -379,7 +529,11 @@ export default function AdminQuotation() {
   const [newCancel, setNewCancel] = useState('');
   const [newInfo, setNewInfo] = useState('');
   const [newFlightCity, setNewFlightCity] = useState('');
-  const [newFlightCost, setNewFlightCost] = useState('');
+  const [newFlightCost, setNewFlightCost] = useState<number | ''>('');
+  const [newFlightPax, setNewFlightPax] = useState<number | ''>('');
+  const [newPackageCat, setNewPackageCat] = useState('');
+  const [newPackageCost, setNewPackageCost] = useState<number | ''>('');
+  const [newPackagePax, setNewPackagePax] = useState<number | ''>('');
   const [newArchiveUrl, setNewArchiveUrl] = useState('');
 
   useEffect(() => {
@@ -387,8 +541,20 @@ export default function AdminQuotation() {
   }, [data]);
 
   useEffect(() => {
-    loadDraftsList();
-  }, []);
+    loadQuotations();
+  }, [searchQuery, statusFilter, startDate, endDate]);
+
+  const loadQuotations = async () => {
+    setIsLoadingQuotations(true);
+    try {
+      const res = await api.listQuotations({ search: searchQuery, status: statusFilter, startDate, endDate });
+      setDbQuotations(res);
+    } catch (err) {
+      console.error('Failed to load quotations', err);
+    } finally {
+      setIsLoadingQuotations(false);
+    }
+  };
 
   useEffect(() => {
     setIsLoadingTours(true);
@@ -420,10 +586,7 @@ export default function AdminQuotation() {
     }
   };
 
-  const loadDraftsList = () => {
-    const list = Object.keys(localStorage).filter(k => k.startsWith('jf_quote_draft_'));
-    setDraftsList(list.map(k => k.replace('jf_quote_draft_', '')));
-  };
+
 
   const upd = (patch: Partial<QuotationData>) => setData(prev => ({ ...prev, ...patch }));
 
@@ -465,35 +628,83 @@ export default function AdminQuotation() {
     }
   };
 
-  // Draft Actions
-  const handleSaveDraft = () => {
+  // Draft/DB Actions
+  const handleSaveAsNew = async () => {
     if (!draftName.trim()) {
-      alert('Please enter a name for the draft.');
+      alert('Please enter a name for this quotation.');
       return;
     }
-    localStorage.setItem(`jf_quote_draft_${draftName.trim()}`, JSON.stringify(data));
-    alert(`Draft "${draftName.trim()}" saved.`);
-    setDraftName('');
-    loadDraftsList();
-  };
-
-  const handleLoadDraft = (name: string) => {
-    const draft = localStorage.getItem(`jf_quote_draft_${name}`);
-    if (draft && confirm(`Load draft "${name}"? This will overwrite the current editor content.`)) {
-      setData(JSON.parse(draft));
+    try {
+      const payload = {
+        name: draftName.trim(),
+        status: isFinal ? 'Final' : 'Draft' as any,
+        clientName: data.clientName,
+        destination: data.destination,
+        data
+      };
+      const res = await api.createQuotation(payload);
+      setActiveQuoteId(res.id);
+      alert(`New Quotation "${payload.name}" created successfully.`);
+      loadQuotations();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to save quotation as new.');
     }
   };
 
-  const handleDeleteDraft = (name: string) => {
-    if (confirm(`Delete draft "${name}"?`)) {
-      localStorage.removeItem(`jf_quote_draft_${name}`);
-      loadDraftsList();
+  const handleUpdateCurrent = async () => {
+    if (!activeQuoteId) return;
+    if (!draftName.trim()) {
+      alert('Please enter a name for this quotation.');
+      return;
+    }
+    try {
+      const payload = {
+        name: draftName.trim(),
+        status: isFinal ? 'Final' : 'Draft' as any,
+        clientName: data.clientName,
+        destination: data.destination,
+        data
+      };
+      await api.updateQuotation(activeQuoteId, payload);
+      alert(`Quotation "${payload.name}" updated successfully.`);
+      loadQuotations();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update quotation.');
+    }
+  };
+
+  const handleLoadFromDB = (quote: QuotationRecord) => {
+    if (confirm(`Load quotation "${quote.name}"? This will overwrite the current editor content.`)) {
+      setData(quote.data);
+      setActiveQuoteId(quote.id);
+      setDraftName(quote.name);
+      setIsFinal(quote.status === 'Final');
+    }
+  };
+
+  const handleDeleteFromDB = async (id: string, name: string) => {
+    if (confirm(`Delete quotation "${name}" permanently?`)) {
+      try {
+        await api.deleteQuotation(id);
+        if (activeQuoteId === id) {
+          setActiveQuoteId(null);
+        }
+        loadQuotations();
+      } catch (err) {
+        console.error(err);
+        alert('Failed to delete quotation.');
+      }
     }
   };
 
   const handleClearAll = () => {
     if (confirm('Clear the current editor?')) {
       setData(emptyQuotation);
+      setActiveQuoteId(null);
+      setDraftName('');
+      setIsFinal(false);
     }
   };
 
@@ -530,24 +741,20 @@ export default function AdminQuotation() {
 
   const itineraryChunks = getBalancedChunks(data.itinerary, 3);
 
-  // Print Logic
-  const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      alert('Please allow popups for this website to generate and print the quotation PDF.');
-      return;
-    }
-
+  // Print & Word Export Logic
+  const getQuotationHtml = (isWord = false) => {
     const absUrl = (u?: string) => {
       if (!u) return '';
       if (u.startsWith('http') || u.startsWith('data:')) return u;
       return `${window.location.origin}${u.startsWith('/') ? '' : '/'}${u}`;
     };
 
-    const htmlContent = `<!DOCTYPE html>
-<html>
+    return `<!DOCTYPE html>
+<html ${isWord ? `xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"` : ''}>
   <head>
+    <meta charset="utf-8">
     <title>${data.title} - JourneyFlicker Quotation</title>
+    ${isWord ? `<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->` : ''}
     <style>
       head, style { display: none !important; }
       
@@ -556,46 +763,39 @@ export default function AdminQuotation() {
         color: #000; 
         margin: 0; 
         padding: 0; 
-        line-height: 1.5; 
+        line-height: 1.4; 
       }
       
       .page-container {
-        border: 3px double #000;
-        padding: 20px;
-        margin: 15px auto;
+        padding: 16px;
+        margin: 12px auto;
         max-width: 800px;
         box-sizing: border-box;
         position: relative;
         background: #fff;
-        min-height: 275mm;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
       }
       
       .page-container.no-border {
         border: none !important;
-        padding: 20px 0px;
+        padding: 12px 0px;
       }
       
-      .header { text-align: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 20px; margin-top: 10px; }
-      .logo { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 28px; font-weight: 300; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 15px; }
+      .logo { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 28px; font-weight: 300; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 10px; }
       .logo b { font-weight: 900; }
       .favicon { width: 28px; height: 28px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .hero-img { width: 100%; height: 200px; object-fit: cover; border-radius: 12px; margin-bottom: 15px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      h1 { font-size: 32px; font-weight: 300; text-transform: uppercase; margin: 0 0 5px 0; letter-spacing: -1.5px; line-height: 1.1; font-style: italic; }
-      .subtitle { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; opacity: 0.6; margin: 0; }
+      h1 { font-size: 36px; font-weight: 300; text-transform: uppercase; margin: 0 0 6px 0; letter-spacing: -2px; line-height: 1.1; font-style: italic; }
+      .subtitle { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 4px; opacity: 0.6; margin: 0; }
       
       .header-bar {
         display: flex;
         align-items: center;
         justify-content: space-between;
         border-bottom: 2px solid #000;
-        padding-bottom: 12px;
-        margin-bottom: 20px;
+        padding-bottom: 8px;
+        margin-bottom: 12px;
       }
       .header-bar .logo {
-        font-size: 20px;
+        font-size: 18px;
         margin-bottom: 0;
         display: flex;
         align-items: center;
@@ -604,8 +804,8 @@ export default function AdminQuotation() {
         letter-spacing: -0.5px;
       }
       .header-bar .logo img {
-        width: 20px;
-        height: 20px;
+        width: 18px;
+        height: 18px;
       }
       .header-info {
         font-size: 9px;
@@ -615,54 +815,54 @@ export default function AdminQuotation() {
         color: #666;
       }
 
-      .sect-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid #ddd; padding-bottom: 6px; margin: 20px 0 12px 0; color: #000; font-style: italic; }
+      .sect-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin: 12px 0 8px 0; color: #000; font-style: italic; }
       
-      ul { padding-left: 15px; margin: 0; }
-      li { margin-bottom: 6px; font-size: 11px; color: #333; }
-      p { font-size: 11px; color: #333; margin-top: 0; line-height: 1.5; }
+      ul { padding-left: 14px; margin: 0; }
+      li { margin-bottom: 4px; font-size: 10.5px; color: #333; line-height: 1.35; }
+      p { font-size: 11px; color: #333; margin-top: 0; line-height: 1.4; }
       
-      .quote-meta { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-size: 11px; margin-bottom: 15px; background: #f9f9f9; padding: 12px; border-radius: 8px; border: 1px solid #eee; }
+      .quote-meta { margin-bottom: 10px; font-size: 11px; }
       .meta-item { display: flex; flex-direction: column; }
-      .meta-label { font-weight: 800; text-transform: uppercase; font-size: 8px; color: #666; letter-spacing: 1px; }
-      .meta-val { font-weight: bold; color: #000; font-size: 12px; }
-      .greeting { margin-top: 10px; margin-bottom: 15px; }
-      .greeting p { margin: 4px 0; font-size: 12px; color: #333; }
+      .meta-label { font-weight: 800; text-transform: uppercase; font-size: 7.5px; color: #666; letter-spacing: 1px; }
+      .meta-val { font-weight: bold; color: #000; font-size: 11px; }
+      .greeting { margin-top: 8px; margin-bottom: 10px; }
+      .greeting p { margin: 2px 0; font-size: 11px; color: #333; }
       
-      .table-title { font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #000; margin-bottom: 6px; font-style: italic; }
-      table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 11px; }
-      th { background: #000; color: #fff; text-transform: uppercase; font-size: 9px; font-weight: 800; letter-spacing: 1px; padding: 8px 10px; border: 1px solid #000; text-align: center; }
-      td { border: 1px solid #ddd; padding: 8px 10px; text-align: left; }
+      .table-title { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #000; margin-bottom: 4px; font-style: italic; }
+      table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 10.5px; }
+      th { background: #000; color: #fff; text-transform: uppercase; font-size: 8.5px; font-weight: 800; letter-spacing: 1px; padding: 6px 8px; border: 1px solid #000; text-align: center; }
+      td { border: 1px solid #ddd; padding: 5px 8px; text-align: left; }
       
-      .pricing-section { display: grid; grid-template-columns: 1.5fr 1fr; gap: 15px; background: #f9f9f9; border: 1px solid #eee; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
-      .price-title { font-weight: 800; font-size: 9px; text-transform: uppercase; color: #666; margin-bottom: 4px; letter-spacing: 1px; }
-      .price-val { font-size: 16px; font-weight: 950; color: #000; }
+      .pricing-section { margin-bottom: 10px; }
+      .price-title { font-weight: 800; font-size: 8px; text-transform: uppercase; color: #666; margin-bottom: 3px; letter-spacing: 1px; }
+      .price-val { font-size: 14px; font-weight: 900; color: #000; }
       .flights-list { list-style: none; padding: 0; margin: 0; }
-      .flights-list li { display: flex; justify-content: space-between; font-size: 11px; border-bottom: 1px dashed #eee; padding: 4px 0; }
+      .flights-list li { display: flex; justify-content: space-between; font-size: 10px; border-bottom: 1px dashed #eee; padding: 3px 0; }
       
-      .lists-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px; }
+      .lists-grid { margin-bottom: 10px; }
       
-      .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 15px; }
-      .gallery-img { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .gallery-grid { margin-top: 10px; }
+      .gallery-img { width: 100%; height: 180px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
       .footer-info {
         border-top: 1px solid #eee;
-        padding-top: 10px;
+        padding-top: 7px;
+        margin-top: 12px;
         display: flex;
         flex-direction: column;
         align-items: center;
         text-align: center;
-        font-size: 8px;
+        font-size: 7.5px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         color: #555;
-        margin-top: auto;
       }
-      .footer-links { display: flex; gap: 15px; margin-top: 4px; }
+      .footer-links { display: flex; gap: 15px; margin-top: 3px; flex-wrap: wrap; justify-content: center; }
 
       @media print {
         @page { 
           size: A4; 
-          margin: 10mm; 
+          margin: 8mm; 
         }
         body { 
           margin: 0; 
@@ -670,24 +870,25 @@ export default function AdminQuotation() {
           background: #fff; 
         }
         .page-container {
-          page-break-after: always;
-          break-after: page;
-          height: 275mm;
-          max-height: 275mm;
-          overflow: hidden;
           box-sizing: border-box;
-          border: 3px double #000;
-          padding: 15px 15px 35px 15px;
+          padding: 12px 14px 14px 14px;
           margin: 0 auto;
           background: #fff !important;
         }
         .page-container.no-border {
-          border: none !important;
-          padding: 15px 0px;
+          padding: 10px 0px;
         }
-        .page-container:last-child {
-          page-break-after: avoid;
-          break-after: avoid;
+        .page-break {
+          page-break-before: always;
+          break-before: page;
+        }
+      }
+      /* screen preview separator */
+      @media screen {
+        .page-break {
+          border-top: 2px dashed #ccc;
+          margin-top: 16px;
+          padding-top: 16px;
         }
       }
     </style>
@@ -696,256 +897,247 @@ export default function AdminQuotation() {
     
     <!-- PAGE 1: COVER PAGE (NO BORDER) -->
     <div class="page-container no-border">
-      <div style="text-align: center; margin-top: 30px;">
-        <div class="logo" style="margin-bottom: 25px;">
-          <img src="${window.location.origin}/favicon-96x96.png" class="favicon" style="width: 42px; height: 42px;" alt="JF Logo" />
-          <span style="font-size: 32px; letter-spacing: 2px;">JOURNEY<b>FLICKER</b></span>
+      <div style="text-align: center; margin-top: 20px;">
+        <div class="logo" style="margin-bottom: 18px;">
+          <img src="${window.location.origin}/favicon-96x96.png" class="favicon" width="36" height="36" style="width: 36px; height: 36px;" alt="JF Logo" />
+          <span style="font-size: 28px; letter-spacing: 2px;">JOURNEY<b>FLICKER</b></span>
         </div>
-        ${data.heroImageUrl ? `<img src="${absUrl(data.heroImageUrl)}" class="hero-img" style="width: 100%; height: 340px; object-fit: cover; border-radius: 16px; margin-bottom: 30px;" />` : ''}
-        <h1 style="font-size: 48px; font-weight: 300; text-transform: uppercase; margin: 0 0 8px 0; letter-spacing: -2px; line-height: 1.1; font-style: italic; font-family: 'Cormorant Garamond', Georgia, serif;">${data.title}</h1>
-        <p class="subtitle" style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 4px; opacity: 0.6; margin: 0;">${data.destination || ''} &bull; SIGNATURE EXPEDITION</p>
+        ${data.heroImageUrl ? `<img src="${absUrl(data.heroImageUrl)}" class="hero-img" width="800" height="280" style="width: 100%; height: 280px; object-fit: cover; border-radius: 14px; margin-bottom: 20px; -webkit-print-color-adjust: exact; print-color-adjust: exact;" />` : ''}
+        <h1 style="font-size: 40px; font-weight: 300; text-transform: uppercase; margin: 0 0 6px 0; letter-spacing: -2px; line-height: 1.1; font-style: italic; font-family: Georgia, serif;">${data.title}</h1>
+        <p class="subtitle" style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 4px; opacity: 0.6; margin: 0;">${data.destination || ''} &bull; SIGNATURE EXPEDITION</p>
       </div>
     </div>
     
     <!-- PAGE 2: BASIC DETAILS & HOTELS & PRICING -->
     <div class="page-container">
-      <div>
-        <div class="header-bar">
-          <div class="logo">
-            <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="Logo" />
-            <span>JOURNEY<b>FLICKER</b></span>
-          </div>
-          <div class="header-info">Quotation Details</div>
+      <div class="header-bar">
+        <div class="logo">
+          <img src="${window.location.origin}/favicon-96x96.png" class="favicon" width="28" height="28" alt="Logo" />
+          <span>JOURNEY<b>FLICKER</b></span>
         </div>
-        
-        <div class="quote-meta">
-          <div class="meta-item">
-            <span class="meta-label">Quotation Date</span>
-            <span class="meta-val">${data.quotationDate}</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Traveling Date</span>
-            <span class="meta-val">${data.travelingDate || '—'}</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Destination</span>
-            <span class="meta-val">${data.destination}</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Prepared By</span>
-            <span class="meta-val">Curator Board</span>
-          </div>
-        </div>
-        
-        <div class="greeting">
-          <p><strong>${data.clientName}</strong></p>
-          <p>${data.greetingText}</p>
-          <p>${data.messageText}</p>
-        </div>
-        
-        <div class="table-title">${data.optionTitle}</div>
-        <table>
-          <thead>
+        <div class="header-info">Quotation Details</div>
+      </div>
+      
+      <table class="quote-meta" style="width:100%; border-collapse:collapse; background:#f9f9f9; border:1px solid #eee; margin-bottom:10px;" cellpadding="10">
+        <tr>
+          <td style="border:none; padding:10px; width:25%;">
+            <div class="meta-label">Quotation Date</div>
+            <div class="meta-val">${data.quotationDate}</div>
+          </td>
+          <td style="border:none; padding:10px; width:25%;">
+            <div class="meta-label">Traveling Date</div>
+            <div class="meta-val">${data.travelingDate || '—'}</div>
+          </td>
+          <td style="border:none; padding:10px; width:25%;">
+            <div class="meta-label">Destination</div>
+            <div class="meta-val">${data.destination}</div>
+          </td>
+          <td style="border:none; padding:10px; width:25%;">
+            <div class="meta-label">Prepared By</div>
+            <div class="meta-val">${data.preparedBy || 'Curator Board'}</div>
+          </td>
+        </tr>
+      </table>
+      
+      <div class="greeting">
+        <p><strong>${data.clientName}</strong></p>
+        <p>${data.greetingText}</p>
+        <p>${data.messageText}</p>
+      </div>
+      
+      <div class="table-title">${data.optionTitle}</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Destinations</th>
+            <th>Hotels</th>
+            <th>Meal Plan</th>
+            <th>No of Night</th>
+            <th>No of Room</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.hotels.map(h => `
             <tr>
-              <th>Destinations</th>
-              <th>Hotels</th>
-              <th>Meal Plan</th>
-              <th>No of Night</th>
-              <th>No of Room</th>
+              <td>${h.destination || '—'}</td>
+              <td>${h.hotels || '—'}</td>
+              <td style="text-align:center;">${h.mealPlan || '—'}</td>
+              <td style="text-align:center;">${h.nights || '—'}</td>
+              <td style="text-align:center;">${h.rooms || '—'}</td>
             </tr>
-          </thead>
-          <tbody>
-            ${data.hotels.map(h => `
-              <tr>
-                <td>${h.destination || '—'}</td>
-                <td>${h.hotels || '—'}</td>
-                <td style="text-align:center;">${h.mealPlan || '—'}</td>
-                <td style="text-align:center;">${h.nights || '—'}</td>
-                <td style="text-align:center;">${h.rooms || '—'}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-        
-        <div class="pricing-section">
-          <div class="info-item">
-            <span class="price-title">Per Person Package Cost</span>
-            <span class="price-val">${data.perPersonCost}</span>
-          </div>
-          ${data.flightCosts.length > 0 ? `
-            <div class="info-item">
-              <span class="price-title">Additional Flight Cost</span>
+          `).join('')}
+        </tbody>
+      </table>
+      
+      <table class="pricing-section" style="width:100%; border-collapse:collapse; background:#f9f9f9; border:1px solid #eee; margin-bottom:10px;" cellpadding="12">
+        <tr>
+          <td style="border:none; padding:12px; width:60%; vertical-align:top;">
+            <div class="price-title">Package Cost Breakdown</div>
+            <ul class="flights-list">
+              ${(data.packageCosts && data.packageCosts.length > 0)
+                ? data.packageCosts.map(c => `<li><span>${c.category} (x${c.pax})</span><strong>Rs. ${(c.cost * c.pax).toLocaleString('en-IN')}/-</strong></li>`).join('')
+                : `<li><span>Per Person</span><strong>${data.perPersonCost}</strong></li>`
+              }
+            </ul>
+          </td>
+          <td style="border:none; padding:12px; width:40%; vertical-align:top;">
+            ${data.flightCosts.length > 0 ? `
+              <div class="price-title">Flight Cost (Additional)</div>
               <ul class="flights-list">
                 ${data.flightCosts.map(f => `
-                  <li><span>${f.city}</span><strong>${f.cost}</strong></li>
+                  <li><span>${f.city} (x${f.pax || 1})</span><strong>Rs. ${(f.cost * (f.pax || 1)).toLocaleString('en-IN')}/-</strong></li>
                 `).join('')}
               </ul>
-            </div>
-          ` : ''}
-        </div>
-      </div>
-
-      <div class="footer-info">
-        <div>Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
-        <div class="footer-links">
-          <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
-          <span>+91 98792 68811 &nbsp;|&nbsp; +91 97266 98987 &nbsp;|&nbsp; 0261 3564717</span>
-        </div>
-      </div>
+            ` : ''}
+          </td>
+        </tr>
+        ${((data.packageCosts && data.packageCosts.length > 0) || data.flightCosts.length > 0) ? `
+        <tr>
+          <td colspan="2" style="border:none; padding:12px; border-top:1px dashed #ccc; padding-top:10px;">
+            <table style="width:100%; border:none; margin:0; padding:0;" cellpadding="0">
+              <tr>
+                <td style="border:none; padding:0; text-align:left;">
+                  <span class="price-title" style="margin-bottom:0;">Grand Total Estimate</span>
+                </td>
+                <td style="border:none; padding:0; text-align:right;">
+                  <span class="price-val" style="color:#d93025;">Rs. ${((data.packageCosts || []).reduce((sum, c) => sum + (c.cost * c.pax), 0) + (data.flightCosts || []).reduce((sum, f) => sum + (f.cost * (f.pax || 1)), 0)).toLocaleString('en-IN')}/-</span>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        ` : ''}
+      </table>
     </div>
     
-    <!-- ITINERARY PAGES -->
-    ${itineraryChunks.map((chunk, index) => `
-      <div class="page-container">
-        <div>
-          <div class="header-bar">
-            <div class="logo">
-              <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="Logo" />
-              <span>JOURNEY<b>FLICKER</b></span>
-            </div>
-            <div class="header-info">Detailed Itinerary - Page ${index + 1}</div>
-          </div>
-          
-          <div class="sect-title" style="margin-top:0;">Day Schedule</div>
-          
-          <div class="itinerary-list" style="display: flex; flex-direction: column; gap: 25px;">
-            ${chunk.map((day) => `
-              <div class="itinerary-day" style="display: flex; gap: 20px; ${chunk.indexOf(day) === chunk.length - 1 ? '' : 'border-bottom: 1px solid #eee; padding-bottom: 25px;'}">
-                ${day.imageUrl ? `<img src="${absUrl(day.imageUrl)}" class="day-img" style="width: 150px; height: 100px; object-fit: cover; border-radius: 8px; flex-shrink: 0;" />` : ''}
-                <div class="day-info" style="flex: 1;">
-                  <h4 class="day-title" style="font-size: 14px; font-weight: 700; margin: 0 0 8px 0; font-style: italic; letter-spacing: 0.5px;">${day.day}: ${day.title}</h4>
-                  <p class="day-desc" style="font-size: 12px; color: #333; margin: 0; line-height: 1.6; text-align: justify;">${day.description}</p>
-                </div>
-              </div>
-            `).join('')}
-          </div>
+    <!-- ITINERARY: all days in one continuous block, browser breaks naturally -->
+    <div class="page-container page-break">
+      <div class="header-bar">
+        <div class="logo">
+          <img src="${window.location.origin}/favicon-96x96.png" class="favicon" width="28" height="28" alt="Logo" />
+          <span>JOURNEY<b>FLICKER</b></span>
         </div>
-        
-        <div class="footer-info">
-          <div>Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
-          <div class="footer-links">
-            <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
-            <span>+91 98792 68811 &nbsp;|&nbsp; +91 97266 98987 &nbsp;|&nbsp; 0261 3564717</span>
-          </div>
-        </div>
+        <div class="header-info">Detailed Itinerary</div>
       </div>
-    `).join('')}
+
+      <div class="sect-title" style="margin-top:0;">Day Schedule</div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        ${data.itinerary.map((day, di) => `
+          <div style="display: flex; gap: 14px; page-break-inside: avoid; break-inside: avoid; ${di < data.itinerary.length - 1 ? 'border-bottom: 1px solid #eee; padding-bottom: 12px;' : ''}">
+            ${day.imageUrl ? `<img src="${absUrl(day.imageUrl)}" width="120" height="82" style="width: 120px; height: 82px; object-fit: cover; border-radius: 6px; flex-shrink: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact;" />` : ''}
+            <div style="flex: 1;">
+              <h4 style="font-size: 11.5px; font-weight: 700; margin: 0 0 4px 0; font-style: italic; letter-spacing: 0.3px;">${day.day}: ${day.title}</h4>
+              <p style="font-size: 10px; color: #333; margin: 0; line-height: 1.5; text-align: justify;">${day.description}</p>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
 
     <!-- PAGE: INCLUSIONS & EXCLUSIONS -->
-    <div class="page-container">
-      <div>
-        <div class="header-bar">
-          <div class="logo">
-            <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="Logo" />
-            <span>JOURNEY<b>FLICKER</b></span>
-          </div>
-          <div class="header-info">Terms & Conditions</div>
+    <div class="page-container page-break">
+      <div class="header-bar">
+        <div class="logo">
+          <img src="${window.location.origin}/favicon-96x96.png" class="favicon" width="28" height="28" alt="Logo" />
+          <span>JOURNEY<b>FLICKER</b></span>
         </div>
-        
-        <div class="lists-grid">
-          <div>
+        <div class="header-info">Terms &amp; Conditions</div>
+      </div>
+      
+      <table class="lists-grid" style="width:100%; border-collapse:collapse; margin-bottom:10px;">
+        <tr>
+          <td style="border:none; width:50%; vertical-align:top; padding-right:8px;">
             <div class="sect-title" style="margin-top:0;">What's Included</div>
-            <ul style="padding-left: 15px; margin: 0;">
-              ${data.inclusions.map(i => `<li style="font-size: 11px; margin-bottom: 6px; line-height: 1.4;">${i}</li>`).join('')}
+            <ul style="padding-left: 14px; margin: 0;">
+              ${data.inclusions.map(i => `<li style="font-size: 10.5px; margin-bottom: 4px; line-height: 1.35;">${i}</li>`).join('')}
             </ul>
             ${data.inclusions.length === 0 ? '<p style="font-size: 11px; font-style: italic; color: #888;">None specified</p>' : ''}
-          </div>
-          <div>
+          </td>
+          <td style="border:none; width:50%; vertical-align:top; padding-left:8px;">
             <div class="sect-title" style="margin-top:0;">What's Excluded</div>
-            <ul style="padding-left: 15px; margin: 0;">
-              ${data.exclusions.map(e => `<li style="font-size: 11px; margin-bottom: 6px; line-height: 1.4;">${e}</li>`).join('')}
+            <ul style="padding-left: 14px; margin: 0;">
+              ${data.exclusions.map(e => `<li style="font-size: 10.5px; margin-bottom: 4px; line-height: 1.35;">${e}</li>`).join('')}
             </ul>
             ${data.exclusions.length === 0 ? '<p style="font-size: 11px; font-style: italic; color: #888;">None specified</p>' : ''}
-          </div>
-        </div>
-      </div>
-
-      <div class="footer-info">
-        <div>Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
-        <div class="footer-links">
-          <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
-          <span>+91 98792 68811 &nbsp;|&nbsp; +91 97266 98987 &nbsp;|&nbsp; 0261 3564717</span>
-        </div>
-      </div>
+          </td>
+        </tr>
+      </table>
     </div>
 
     <!-- PAGE: VISUAL ARCHIVE -->
     ${data.visualArchive.length > 0 ? `
-      <div class="page-container">
-        <div>
-          <div class="header-bar">
-            <div class="logo">
-              <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="Logo" />
-              <span>JOURNEY<b>FLICKER</b></span>
-            </div>
-            <div class="header-info">Visual Archive</div>
+      <div class="page-container page-break">
+        <div class="header-bar">
+          <div class="logo">
+            <img src="${window.location.origin}/favicon-96x96.png" class="favicon" width="28" height="28" alt="Logo" />
+            <span>JOURNEY<b>FLICKER</b></span>
           </div>
-          
-          <div class="sect-title" style="margin-top:0;">Tour Gallery</div>
-          
-          <div class="gallery-grid">
-            ${data.visualArchive.slice(0, 6).map(img => `
-              <img src="${absUrl(img)}" class="gallery-img" />
-            `).join('')}
-          </div>
+          <div class="header-info">Visual Archive</div>
         </div>
-
-        <div class="footer-info">
-          <div>Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
-          <div class="footer-links">
-            <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
-            <span>+91 98792 68811 &nbsp;|&nbsp; +91 97266 98987 &nbsp;|&nbsp; 0261 3564717</span>
-          </div>
-        </div>
+        
+        <div class="sect-title" style="margin-top:0;">Tour Gallery</div>
+        
+        <table class="gallery-grid" style="width:100%; border-collapse:collapse; margin-top:10px;">
+          ${Array.from({ length: Math.ceil(Math.min(data.visualArchive.length, 6) / 3) }).map((_, rowIndex) => `
+            <tr>
+              ${data.visualArchive.slice(rowIndex * 3, rowIndex * 3 + 3).map(img => `
+                <td style="border:none; padding:5px; width:33.33%; text-align:center;">
+                  <img src="${absUrl(img)}" class="gallery-img" width="250" height="180" style="width:100%; height:180px; object-fit:cover; border-radius:6px; border:1px solid #ddd; -webkit-print-color-adjust:exact; print-color-adjust:exact;" />
+                </td>
+              `).join('')}
+            </tr>
+          `).join('')}
+        </table>
       </div>
     ` : ''}
 
     <!-- PAGE: POLICIES & GUIDELINES (NO BORDER) -->
-    <div class="page-container no-border" style="height: auto; min-height: 275mm; display: flex; flex-direction: column; justify-content: space-between;">
-      <div>
-        <div class="header-bar">
-          <div class="logo">
-            <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="Logo" />
-            <span>JOURNEY<b>FLICKER</b></span>
-          </div>
-          <div class="header-info">Policy & Guidelines</div>
-        </div>
-        
-        <div class="lists-grid">
-          <div>
-            <div class="sect-title" style="margin-top:0;">Documents Required</div>
-            <ul style="padding-left: 15px; margin: 0;">
-              ${data.documentsRequired.map(d => `<li style="font-size: 11px; margin-bottom: 6px; line-height: 1.4;">${d}</li>`).join('')}
-            </ul>
-            ${data.documentsRequired.length === 0 ? '<p style="font-size: 11px; font-style: italic; color: #888;">None specified</p>' : ''}
-          </div>
-          <div>
-            <div class="sect-title" style="margin-top:0;">Cancellation Policy</div>
-            <ul style="padding-left: 15px; margin: 0;">
-              ${data.cancellationPolicy.map(c => `<li style="font-size: 11px; margin-bottom: 6px; line-height: 1.4;">${c}</li>`).join('')}
-            </ul>
-            ${data.cancellationPolicy.length === 0 ? '<p style="font-size: 11px; font-style: italic; color: #888;">None specified</p>' : ''}
-          </div>
-        </div>
-
-        ${data.importantInfo.length > 0 ? `
-          <div style="margin-top: 15px;">
-            <div class="sect-title">Important Guidelines</div>
-            <ul style="padding-left: 15px; margin: 0;">
-              ${data.importantInfo.map(i => `<li style="font-size: 11px; margin-bottom: 6px; line-height: 1.4;">${i}</li>`).join('')}
-            </ul>
-          </div>
-        ` : ''}
-      </div>
-
-      <!-- COMPLETE FOOTER (NO BORDER) -->
-      <div class="complete-footer" style="margin-top: 40px; border-top: 2px solid #000; padding-top: 25px; display: flex; flex-direction: column; align-items: flex-start; text-align: left; width: 100%;">
-        <div class="logo" style="display: flex; align-items: center; gap: 8px; font-size: 22px; font-weight: 300; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">
-          <img src="${window.location.origin}/favicon-96x96.png" class="favicon" style="width: 24px; height: 24px;" alt="JF Logo" />
+    <div class="page-container no-border page-break">
+      <div class="header-bar">
+        <div class="logo">
+          <img src="${window.location.origin}/favicon-96x96.png" class="favicon" width="28" height="28" alt="Logo" />
           <span>JOURNEY<b>FLICKER</b></span>
         </div>
-        <h4 style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin: 0 0 10px 0; color: #111;">THE CURATOR BOARD</h4>
-        <div style="font-size: 10px; line-height: 1.8; color: #333; font-weight: 500;">
+        <div class="header-info">Policy &amp; Guidelines</div>
+      </div>
+      
+      <table class="lists-grid" style="width:100%; border-collapse:collapse; margin-bottom:10px;">
+        <tr>
+          <td style="border:none; width:50%; vertical-align:top; padding-right:8px;">
+            <div class="sect-title" style="margin-top:0;">Documents Required</div>
+            <ul style="padding-left: 14px; margin: 0;">
+              ${data.documentsRequired.map(d => `<li style="font-size: 10.5px; margin-bottom: 4px; line-height: 1.35;">${d}</li>`).join('')}
+            </ul>
+            ${data.documentsRequired.length === 0 ? '<p style="font-size: 11px; font-style: italic; color: #888;">None specified</p>' : ''}
+          </td>
+          <td style="border:none; width:50%; vertical-align:top; padding-left:8px;">
+            <div class="sect-title" style="margin-top:0;">Cancellation Policy</div>
+            <ul style="padding-left: 14px; margin: 0;">
+              ${data.cancellationPolicy.map(c => `<li style="font-size: 10.5px; margin-bottom: 4px; line-height: 1.35;">${c}</li>`).join('')}
+            </ul>
+            ${data.cancellationPolicy.length === 0 ? '<p style="font-size: 11px; font-style: italic; color: #888;">None specified</p>' : ''}
+          </td>
+        </tr>
+      </table>
+
+      ${data.importantInfo.length > 0 ? `
+        <div style="margin-top: 10px;">
+          <div class="sect-title">Important Guidelines</div>
+          <ul style="padding-left: 14px; margin: 0;">
+            ${data.importantInfo.map(i => `<li style="font-size: 10.5px; margin-bottom: 4px; line-height: 1.35;">${i}</li>`).join('')}
+          </ul>
+        </div>
+      ` : ''}
+
+      <!-- COMPLETE FOOTER (NO BORDER) -->
+      <div class="complete-footer" style="margin-top: 24px; border-top: 2px solid #000; padding-top: 16px; display: flex; flex-direction: column; align-items: flex-start; text-align: left; width: 100%;">
+        <div class="logo" style="display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 300; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">
+          <img src="${window.location.origin}/favicon-96x96.png" class="favicon" width="22" height="22" style="width: 22px; height: 22px;" alt="JF Logo" />
+          <span>JOURNEY<b>FLICKER</b></span>
+        </div>
+        <h4 style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin: 0 0 7px 0; color: #111;">THE CURATOR BOARD</h4>
+        <div style="font-size: 9.5px; line-height: 1.7; color: #333; font-weight: 500;">
           <div><strong>Email:</strong> tushar@journeyflicker.com | pashv@journeyflicker.com</div>
           <div><strong>Phone:</strong> +91 98792 68811 | +91 97266 98987 | 0261 3564717</div>
           <div><strong>Address:</strong> Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
@@ -953,35 +1145,169 @@ export default function AdminQuotation() {
       </div>
     </div>
     
+  </body>
+</html>`;
+  };
+
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Please allow popups for this website to generate and print the quotation PDF.');
+      return;
+    }
+    const htmlContent = getQuotationHtml(false).replace('</body>', `
     <script>
       window.onload = () => {
         setTimeout(() => { window.print(); window.close(); }, 500);
       };
     </script>
-  </body>
-</html>`;
-
+  </body>`);
     printWindow.document.open();
     printWindow.document.write(htmlContent);
     printWindow.document.close();
   };
 
+  const handleDownloadWord = () => {
+    const htmlContent = getQuotationHtml(true);
+    const blob = new Blob(['\ufeff', htmlContent], {
+      type: 'application/msword'
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${data.title.replace(/\s+/g, '_')}_Quotation.doc`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
-    <div className="flex flex-col lg:flex-row gap-6 w-full max-w-7xl mx-auto pb-12">
-      
-      {/* ── LEFT PANEL: FORMS & CONTROLS ── */}
+    <div className="w-full max-w-7xl mx-auto pb-12 space-y-6">
+      <div className="flex items-center gap-4 border-b border-outline-variant/30 pb-4">
+        <button 
+          onClick={() => setViewMode('editor')}
+          className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'editor' ? 'bg-primary text-on-primary' : 'bg-surface text-on-surface hover:bg-surface-container'}`}
+        >
+          Quotation Editor
+        </button>
+        <button 
+          onClick={() => { setViewMode('list'); loadQuotations(); }}
+          className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'list' ? 'bg-primary text-on-primary' : 'bg-surface text-on-surface hover:bg-surface-container'}`}
+        >
+          All Quotations Database
+        </button>
+      </div>
+
+      {viewMode === 'list' ? (
+        <div className="bg-surface rounded-2xl p-6 border border-outline-variant/30 shadow-sm space-y-6">
+          <div className="flex flex-col xl:flex-row gap-4 items-center justify-between">
+            <h2 className="text-xl font-black uppercase tracking-wider text-on-surface">Quotations Database</h2>
+            <div className="flex flex-wrap gap-3">
+              <input 
+                type="text" 
+                placeholder="Search..." 
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className={inputCls + " w-auto"}
+              />
+              <select 
+                value={statusFilter} 
+                onChange={e => setStatusFilter(e.target.value)}
+                className={inputCls + " w-auto"}
+              >
+                <option value="All">All Status</option>
+                <option value="Draft">Draft</option>
+                <option value="Final">Final</option>
+              </select>
+              <input 
+                type="date" 
+                value={startDate}
+                onChange={e => setStartDate(e.target.value)}
+                className={inputCls + " w-auto"}
+                title="Start Date"
+              />
+              <input 
+                type="date" 
+                value={endDate}
+                onChange={e => setEndDate(e.target.value)}
+                className={inputCls + " w-auto"}
+                title="End Date"
+              />
+            </div>
+          </div>
+
+          <div className="overflow-x-auto rounded-xl border border-outline-variant/20">
+            <table className="w-full text-left text-sm whitespace-nowrap">
+              <thead className="bg-surface-container text-on-surface-variant font-bold uppercase tracking-wider text-xs">
+                <tr>
+                  <th className="px-4 py-3">Quotation Name</th>
+                  <th className="px-4 py-3">Client</th>
+                  <th className="px-4 py-3">Destination</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Date</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-outline-variant/10">
+                {isLoadingQuotations ? (
+                  <tr><td colSpan={6} className="text-center py-8 opacity-50">Loading database...</td></tr>
+                ) : dbQuotations.length === 0 ? (
+                  <tr><td colSpan={6} className="text-center py-8 opacity-50">No quotations found.</td></tr>
+                ) : (
+                  dbQuotations.map(q => (
+                    <tr key={q.id} className="hover:bg-surface-container/50 transition-colors">
+                      <td className="px-4 py-3 font-bold text-on-surface">{q.name}</td>
+                      <td className="px-4 py-3 text-on-surface-variant">{q.clientName || '—'}</td>
+                      <td className="px-4 py-3 text-on-surface-variant">{q.destination || '—'}</td>
+                      <td className="px-4 py-3">
+                        <span className={`text-[10px] px-2 py-1 rounded font-black uppercase tracking-wider ${q.status === 'Final' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
+                          {q.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-on-surface-variant opacity-80">{new Date(q.updatedAt).toLocaleDateString()}</td>
+                      <td className="px-4 py-3 text-right space-x-2">
+                        <button 
+                          onClick={() => { handleLoadFromDB(q); setViewMode('editor'); }} 
+                          className="px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary/20 rounded font-bold transition-colors"
+                        >
+                          Load & Edit
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteFromDB(q.id, q.name)} 
+                          className="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded font-bold transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col lg:flex-row gap-6 w-full">
+          {/* ── LEFT PANEL: FORMS & CONTROLS ── */}
       <div className="w-full lg:w-1/2 space-y-6">
         
         {/* Presets & Save */}
         <div className="bg-surface rounded-2xl p-5 border border-outline-variant/30 shadow-sm space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h3 className="text-sm font-bold text-on-surface uppercase tracking-wider">Quotation Templates</h3>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <button 
                 onClick={() => loadPreset(hiteshPreset)}
                 className="px-3 py-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl text-[10px] uppercase font-black tracking-widest shadow-md hover:scale-105 transition-all"
               >
-                ⚡ Hitesh North East Preset
+                ⚡ Hitesh North East
+              </button>
+              <button 
+                onClick={() => loadPreset(keralaPreset)}
+                className="px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-500 text-white rounded-xl text-[10px] uppercase font-black tracking-widest shadow-md hover:scale-105 transition-all"
+              >
+                🌴 Kerala Demo
               </button>
               <button 
                 onClick={handleClearAll}
@@ -1019,40 +1345,38 @@ export default function AdminQuotation() {
             </div>
           </div>
 
-          <div className="border-t border-outline-variant/20 pt-4 flex flex-col sm:flex-row gap-3">
-            <input 
-              type="text" 
-              value={draftName} 
-              onChange={e => setDraftName(e.target.value)}
-              className={inputCls} 
-              placeholder="Draft Name (e.g. Kerala July 2026)" 
-            />
-            <button 
-              onClick={handleSaveDraft}
-              className="px-4 py-2 bg-on-surface text-surface dark:bg-white dark:text-black rounded-lg text-xs font-bold whitespace-nowrap hover:opacity-95 transition-opacity"
-            >
-              Save Draft
-            </button>
+          <div className="border-t border-outline-variant/20 pt-4 flex flex-col gap-3">
+            <div className="flex flex-col sm:flex-row gap-3 items-center">
+              <input 
+                type="text" 
+                value={draftName} 
+                onChange={e => setDraftName(e.target.value)}
+                className={inputCls + " flex-1"} 
+                placeholder="Quotation Name (e.g. Kerala July 2026)" 
+              />
+              <label className="flex items-center gap-2 text-xs font-bold whitespace-nowrap cursor-pointer">
+                <input type="checkbox" checked={isFinal} onChange={e => setIsFinal(e.target.checked)} className="accent-primary w-4 h-4" />
+                Mark as Final
+              </label>
+            </div>
+            <div className="flex flex-wrap gap-2 justify-end mt-2">
+              <button 
+                onClick={handleSaveAsNew}
+                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg text-xs font-bold whitespace-nowrap hover:opacity-95 transition-opacity"
+              >
+                Save as New Draft
+              </button>
+              {activeQuoteId && (
+                <button 
+                  onClick={handleUpdateCurrent}
+                  className="px-4 py-2 bg-on-surface text-surface dark:bg-white dark:text-black rounded-lg text-xs font-bold whitespace-nowrap hover:opacity-95 transition-opacity"
+                >
+                  Update Current Draft
+                </button>
+              )}
+            </div>
           </div>
 
-          {draftsList.length > 0 && (
-            <div className="border-t border-outline-variant/20 pt-4">
-              <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Saved Local Drafts</p>
-              <div className="flex flex-wrap gap-2">
-                {draftsList.map(name => (
-                  <div key={name} className="flex items-center gap-1 bg-surface-container-low border border-outline-variant/20 rounded-xl pl-3 pr-1 py-1">
-                    <span className="text-xs truncate font-medium max-w-[120px]">{name}</span>
-                    <button onClick={() => handleLoadDraft(name)} className="text-primary hover:text-primary-variant p-1">
-                      <span className="material-symbols-outlined text-sm font-bold">input</span>
-                    </button>
-                    <button onClick={() => handleDeleteDraft(name)} className="text-red-400 hover:text-red-600 p-1">
-                      <span className="material-symbols-outlined text-sm">close</span>
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Basic Header Info */}
@@ -1067,6 +1391,10 @@ export default function AdminQuotation() {
             <div>
               <label className={labelCls}>Destination Label</label>
               <input type="text" value={data.destination} onChange={e => upd({ destination: e.target.value })} className={inputCls} />
+            </div>
+            <div>
+              <label className={labelCls}>Prepared By</label>
+              <input type="text" value={data.preparedBy || ''} onChange={e => upd({ preparedBy: e.target.value })} className={inputCls} placeholder="Curator Board" />
             </div>
             <div>
               <label className={labelCls}>Quotation Date</label>
@@ -1151,16 +1479,46 @@ export default function AdminQuotation() {
           <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest border-b border-outline-variant/10 pb-2">3. Package & Flight Costs</h3>
           
           <div>
-            <label className={labelCls}>Package Cost (Per Person)</label>
-            <input type="text" value={data.perPersonCost} onChange={e => upd({ perPersonCost: e.target.value })} className={inputCls} placeholder="e.g. Package Cost Adults Rs.36,600/-X15" />
+            <label className={labelCls}>Package Costs</label>
+            <div className="space-y-2 mb-3">
+              {(data.packageCosts || []).map((c, idx) => (
+                <div key={idx} className="flex justify-between items-center bg-surface-container-low p-2 rounded-lg text-sm border border-outline-variant/10">
+                  <span>{c.category} (x{c.pax}): <strong>Rs. {c.cost}/-</strong></span>
+                  <button onClick={() => upd({ packageCosts: (data.packageCosts || []).filter((_, i) => i !== idx) })} className="text-red-400 hover:text-red-600">
+                    <span className="material-symbols-outlined text-sm">close</span>
+                  </button>
+                </div>
+              ))}
+              {(!data.packageCosts || data.packageCosts.length === 0) && data.perPersonCost && (
+                <div className="text-xs text-gray-500 italic mb-2">Legacy Cost: {data.perPersonCost}</div>
+              )}
+            </div>
+
+            <div className="flex gap-2 items-center">
+              <input type="text" value={newPackageCat} onChange={e => setNewPackageCat(e.target.value)} className={inputCls} placeholder="Ex. Adult" />
+              <input type="number" value={newPackageCost} onChange={e => setNewPackageCost(Number(e.target.value))} className={inputCls} placeholder="Cost (e.g. 36000)" />
+              <input type="number" value={newPackagePax} onChange={e => setNewPackagePax(Number(e.target.value))} className={inputCls} placeholder="Pax (e.g. 2)" />
+              <button 
+                onClick={() => {
+                  if (!newPackageCat || !newPackageCost || !newPackagePax) return;
+                  upd({ packageCosts: [...(data.packageCosts || []), { category: newPackageCat.trim(), cost: Number(newPackageCost), pax: Number(newPackagePax) }] });
+                  setNewPackageCat('');
+                  setNewPackageCost('');
+                  setNewPackagePax('');
+                }}
+                className="px-4 py-2 bg-surface-container border border-outline-variant/30 rounded-lg text-xs font-bold hover:bg-surface-container-high transition-all"
+              >
+                + Add
+              </button>
+            </div>
           </div>
 
-          <div className="pt-2">
+          <div className="pt-4 border-t border-outline-variant/10">
             <label className={labelCls}>Flight Costs (Additional)</label>
             <div className="space-y-2 mb-3">
               {data.flightCosts.map((f, idx) => (
                 <div key={idx} className="flex justify-between items-center bg-surface-container-low p-2 rounded-lg text-sm border border-outline-variant/10">
-                  <span>{f.city}: <strong>{f.cost}</strong></span>
+                  <span>{f.city} (x{f.pax || 1}): <strong>Rs. {f.cost}/-</strong></span>
                   <button onClick={() => upd({ flightCosts: data.flightCosts.filter((_, i) => i !== idx) })} className="text-red-400 hover:text-red-600">
                     <span className="material-symbols-outlined text-sm">close</span>
                   </button>
@@ -1168,15 +1526,17 @@ export default function AdminQuotation() {
               ))}
             </div>
 
-            <div className="flex gap-2">
-              <input type="text" value={newFlightCity} onChange={e => setNewFlightCity(e.target.value)} className={inputCls} placeholder="Ex. Mumbai" />
-              <input type="text" value={newFlightCost} onChange={e => setNewFlightCost(e.target.value)} className={inputCls} placeholder="22,700/-Per Person" />
+            <div className="flex gap-2 items-center">
+              <input type="text" value={newFlightCity} onChange={e => setNewFlightCity(e.target.value)} className={inputCls} placeholder="Route (Ex. Mumbai)" />
+              <input type="number" value={newFlightCost} onChange={e => setNewFlightCost(Number(e.target.value))} className={inputCls} placeholder="Cost (e.g. 5000)" />
+              <input type="number" value={newFlightPax} onChange={e => setNewFlightPax(Number(e.target.value))} className={inputCls} placeholder="Pax (e.g. 2)" />
               <button 
                 onClick={() => {
-                  if (!newFlightCity || !newFlightCost) return;
-                  upd({ flightCosts: [...data.flightCosts, { city: newFlightCity.trim(), cost: newFlightCost.trim() }] });
+                  if (!newFlightCity || !newFlightCost || !newFlightPax) return;
+                  upd({ flightCosts: [...data.flightCosts, { city: newFlightCity.trim(), cost: Number(newFlightCost), pax: Number(newFlightPax) }] });
                   setNewFlightCity('');
                   setNewFlightCost('');
+                  setNewFlightPax('');
                 }}
                 className="px-4 py-2 bg-surface-container border border-outline-variant/30 rounded-lg text-xs font-bold hover:bg-surface-container-high transition-all"
               >
@@ -1373,13 +1733,22 @@ export default function AdminQuotation() {
             <h3 className="text-sm font-black text-on-surface">Live Document Preview</h3>
             <p className="text-xs text-on-surface-variant opacity-60">Renders changes dynamically in A4 paper layout format.</p>
           </div>
-          <button 
-            onClick={handlePrint}
-            className="px-6 py-3 bg-gradient-to-br from-green-600 to-emerald-700 text-white rounded-xl text-xs font-black tracking-widest uppercase flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95 transition-all"
-          >
-            <span className="material-symbols-outlined text-sm font-bold">print</span>
-            Print / Download PDF
-          </button>
+          <div className="flex gap-3">
+            <button 
+              onClick={handleDownloadWord}
+              className="px-4 py-3 bg-[#2b579a] text-white rounded-xl text-xs font-black tracking-widest uppercase flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95 transition-all"
+            >
+              <span className="material-symbols-outlined text-sm font-bold">description</span>
+              Word DOC
+            </button>
+            <button 
+              onClick={handlePrint}
+              className="px-4 py-3 bg-gradient-to-br from-green-600 to-emerald-700 text-white rounded-xl text-xs font-black tracking-widest uppercase flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95 transition-all"
+            >
+              <span className="material-symbols-outlined text-sm font-bold">print</span>
+              Print / PDF
+            </button>
+          </div>
         </div>
 
         {/* Rendered Live Preview Frame */}
@@ -1428,7 +1797,7 @@ export default function AdminQuotation() {
                 </div>
                 <div>
                   <div className="text-[7px] font-black text-gray-400 uppercase tracking-widest">Prepared By</div>
-                  <div className="font-bold">Curator Board</div>
+                  <div className="font-bold">{data.preparedBy || 'Curator Board'}</div>
                 </div>
               </div>
 
@@ -1465,7 +1834,19 @@ export default function AdminQuotation() {
               <div className="grid grid-cols-2 gap-4 bg-gray-50 border border-gray-200 p-3 rounded-xl mb-4">
                 <div>
                   <div className="text-[7px] font-black uppercase text-gray-400">Package Cost</div>
-                  <div className="text-xs font-black text-black">{data.perPersonCost}</div>
+                  <ul className="list-none p-0 m-0">
+                    {(data.packageCosts && data.packageCosts.length > 0) ? data.packageCosts.map((c, i) => (
+                      <li key={i} className="flex justify-between border-b border-gray-100 py-1 text-[10px]">
+                        <span>{c.category} (x{c.pax})</span>
+                        <strong>Rs. {(c.cost * c.pax).toLocaleString('en-IN')}/-</strong>
+                      </li>
+                    )) : (
+                      <li className="flex justify-between border-b border-gray-100 py-1 text-[10px]">
+                        <span>Per Person</span>
+                        <strong>{data.perPersonCost}</strong>
+                      </li>
+                    )}
+                  </ul>
                 </div>
                 {data.flightCosts.length > 0 && (
                   <div>
@@ -1473,11 +1854,19 @@ export default function AdminQuotation() {
                     <ul className="list-none p-0 m-0">
                       {data.flightCosts.map((f, i) => (
                         <li key={i} className="flex justify-between border-b border-gray-100 py-1 text-[10px]">
-                          <span>{f.city}</span>
-                          <strong>{f.cost}</strong>
+                          <span>{f.city} (x{f.pax || 1})</span>
+                          <strong>Rs. {(f.cost * (f.pax || 1)).toLocaleString('en-IN')}/-</strong>
                         </li>
                       ))}
                     </ul>
+                  </div>
+                )}
+                {((data.packageCosts && data.packageCosts.length > 0) || data.flightCosts.length > 0) && (
+                  <div className="col-span-2 border-t border-dashed border-gray-300 pt-2 mt-1 flex justify-between items-center">
+                    <span className="text-[9px] font-black uppercase text-gray-500">Grand Total Estimate</span>
+                    <span className="text-sm font-black text-red-600">
+                      Rs. {((data.packageCosts || []).reduce((sum, c) => sum + (c.cost * c.pax), 0) + (data.flightCosts || []).reduce((sum, f) => sum + (f.cost * (f.pax || 1)), 0)).toLocaleString('en-IN')}/-
+                    </span>
                   </div>
                 )}
               </div>
@@ -1663,7 +2052,8 @@ export default function AdminQuotation() {
         </div>
 
       </div>
-
+      </div>
+      )}
     </div>
   );
 }

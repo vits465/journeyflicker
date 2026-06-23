@@ -33,6 +33,10 @@ export function AdminLayout() {
   // Redirect to login if not authenticated
   if (!role) return <Navigate to="/login" replace />;
 
+  if (role === 'quotation' && location.pathname !== '/quotation') {
+    return <Navigate to="/quotation" replace />;
+  }
+
   const adminLinks = [
     { path: '/',              label: 'Dashboard',    icon: 'dashboard' },
     { path: '/destinations', label: 'Destinations', icon: 'location_on' },
@@ -60,7 +64,14 @@ export function AdminLayout() {
 
   const coEditorAllowedKeys = ['/contacts', '/whatsapp-leads', '/chatbot-analytics'];
   const coEditorLinks = editorOnlyLinks.filter(link => coEditorAllowedKeys.includes(link.path));
-  const allLinks = canEdit 
+  
+  const quotationLinks = [
+    { path: '/quotation', label: 'Quotation Gen', icon: 'description' }
+  ];
+
+  const allLinks = role === 'quotation'
+    ? quotationLinks
+    : canEdit 
     ? [...adminLinks, ...editorOnlyLinks] 
     : canCRUD 
     ? [...adminLinks, ...coEditorLinks] 
@@ -72,6 +83,8 @@ export function AdminLayout() {
     ? { label: 'Editor', color: 'bg-green-500', icon: 'manage_accounts' }
     : canCRUD
     ? { label: 'Co-Editor', color: 'bg-violet-500', icon: 'edit_note' }
+    : role === 'quotation'
+    ? { label: 'Quotation', color: 'bg-amber-500', icon: 'description' }
     : { label: 'Viewer', color: 'bg-blue-500', icon: 'visibility' };
 
   return (

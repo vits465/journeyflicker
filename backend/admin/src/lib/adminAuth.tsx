@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { API_BASE } from './api';
 
 // ─── Role types ──────────────────────────────────────────────────────────────
-export type AdminRole = 'editor' | 'co-editor';
+export type AdminRole = 'editor' | 'co-editor' | 'quotation';
 
 interface AuthState {
   role: AdminRole | null;
@@ -95,6 +95,27 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
         const data = await res.json();
         sessionStorage.setItem('jf_token', data.token);
         setAuth({ role: 'co-editor', username });
+        return { ok: true };
+      }
+    } catch { /* network error */ }
+
+    // ── Try quotation login ─────────────────────────────────────────────────
+    try {
+      const res = await fetch(`${API_BASE}/auth/quotation-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (res.status === 429) {
+        const data = await res.json().catch(() => ({}));
+        return { ok: false, error: data.error || 'Too many attempts. Try again later.' };
+      }
+
+      if (res.ok) {
+        const data = await res.json();
+        sessionStorage.setItem('jf_token', data.token);
+        setAuth({ role: 'quotation', username });
         return { ok: true };
       }
     } catch { /* network error */ }

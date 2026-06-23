@@ -18,7 +18,7 @@ import fs from "node:fs";
 
 // ── MongoDB ────────────────────────────────────────────────────────────────────
 import { connectMongo, isMongoConnected } from "./db/mongoose.js";
-import { Destination as DestModel, Tour as TourModel, Visa as VisaModel, Contact as ContactModel, Settings as SettingsModel, CoEditor as CoEditorModel, Media as MediaModel, Admin as AdminModel, SystemLog as SystemLogModel, Inquiry as InquiryModel } from "./db/models/index.js";
+import { Destination as DestModel, Tour as TourModel, Visa as VisaModel, Contact as ContactModel, Settings as SettingsModel, CoEditor as CoEditorModel, Media as MediaModel, Admin as AdminModel, SystemLog as SystemLogModel, Inquiry as InquiryModel, Quotation as QuotationModel } from "./db/models/index.js";
 import { router as backupRouter, startScheduledBackup } from "./routes/backup.js";
 import { router as importExportRouter } from "./routes/import-export.js";
 import { router as enhancedMediaRouter } from "./routes/media.js";
@@ -122,6 +122,8 @@ app.use("/api/", apiLimiter);
 // ── Credentials ───────────────────────────────────────────────────────────────
 const ADMIN_USERNAME  = process.env.ADMIN_USERNAME || "Fliker";
 const ADMIN_PASSWORD  = process.env.ADMIN_PASSWORD || "JourneyFliker0465";
+const QUOTATION_USERNAME = process.env.QUOTATION_USERNAME || "quotation";
+const QUOTATION_PASSWORD = process.env.QUOTATION_PASSWORD || "Quotation@123";
 const TOKEN_TTL       = 8 * 60 * 60; // 8 hours in seconds
 
 if (!process.env.ADMIN_PASSWORD) {
@@ -182,18 +184,22 @@ async function logActivity(req, action) {
 }
 
 // ── Token helpers ─────────────────────────────────────────────────────────────
-async function issueToken(role, identifier = "admin") {
+async function issueToken(role, identifier = "admin", allowMultiple = false) {
   const token = crypto.randomBytes(32).toString("hex");
   const activeKey = `${ACTIVE_PFX}${identifier}`;
   
-  // Revoke previous session if it exists
-  const oldToken = await kv.get(activeKey);
-  if (oldToken) {
-    await kv.del(`${TOKEN_PFX}${oldToken}`);
+  if (!allowMultiple) {
+    // Revoke previous session if it exists
+    const oldToken = await kv.get(activeKey);
+    if (oldToken) {
+      await kv.del(`${TOKEN_PFX}${oldToken}`);
+    }
   }
 
   await kv.set(`${TOKEN_PFX}${token}`, { role, identifier }, { ex: TOKEN_TTL });
-  await kv.set(activeKey, token, { ex: TOKEN_TTL });
+  if (!allowMultiple) {
+    await kv.set(activeKey, token, { ex: TOKEN_TTL });
+  }
   
   return token;
 }
@@ -250,6 +256,13 @@ const requireAdmin = async (req, res, next) => {
 const requireCRUD = async (req, res, next) => {
   const data = await getTokenData(req);
   if (!data || !["editor", "co-editor"].includes(data.role))
+    return res.status(401).json({ error: "Unauthorized" });
+  req.user = data;
+  next();
+};
+const requireQuotationAccess = async (req, res, next) => {
+  const data = await getTokenData(req);
+  if (!data || !["editor", "co-editor", "quotation"].includes(data.role))
     return res.status(401).json({ error: "Unauthorized" });
   req.user = data;
   next();
@@ -339,6 +352,30 @@ app.post("/api/auth/co-editor-login", coEditorLoginLimiter, async (req, res) => 
       return res.json({ token: await issueToken("co-editor", account.id), role: "co-editor", id: account.id });
     }
   } catch (e) { console.error(e); }
+  await recordFailedAttempt(ip, true);
+  return res.status(401).json({ error: "Invalid credentials" });
+});
+
+app.post("/api/auth/quotation-login", coEditorLoginLimiter, async (req, res) => {
+  const ip = getIp(req);
+  const bf = await checkBruteForce(ip, 500, true);
+  if (bf.blocked) return res.status(429).json({ error: `Too many failed attempts. Try again in ${bf.waitMins} minute(s).` });
+  
+  const { username, password } = req.body || {};
+  const lookupUsername = String(username || "").trim().toLowerCase();
+  const lookupPassword = String(password || "").trim();
+
+  // Allow multiple logins at once (allowMultiple = true)
+  const targetUsername = String(QUOTATION_USERNAME).toLowerCase();
+  if (safeEqual(lookupUsername, targetUsername) && safeEqual(lookupPassword, QUOTATION_PASSWORD)) {
+    await clearAttempts(ip, true);
+    return res.json({ 
+      token: await issueToken("quotation", "quotation_common", true), 
+      role: "quotation", 
+      id: "quotation_common" 
+    });
+  }
+
   await recordFailedAttempt(ip, true);
   return res.status(401).json({ error: "Invalid credentials" });
 });
@@ -529,6 +566,96 @@ app.use("/api/admin/import",  adminOpLimiter, requireAdmin, importExportRouter);
 app.use("/api/admin/media",   requireCRUD,    enhancedMediaRouter);
 app.use("/api/admin/migrate", requireAdmin,   migrateRouter);
 app.use("/api/pdf", pdfRouter);
+
+// ── Quotations ────────────────────────────────────────────────────────────────
+app.get("/api/admin/quotations", requireQuotationAccess, async (req, res) => {
+  const { search, status, startDate, endDate } = req.query;
+  const query = {};
+  
+  if (status && status !== 'All') {
+    query.status = status;
+  }
+  
+  if (search) {
+    const regex = new RegExp(search, "i");
+    query.$or = [
+      { name: regex },
+      { clientName: regex },
+      { destination: regex }
+    ];
+  }
+
+  if (startDate || endDate) {
+    query.updatedAt = {};
+    if (startDate) query.updatedAt.$gte = new Date(startDate);
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      query.updatedAt.$lte = end;
+    }
+  }
+  
+  const quotations = await QuotationModel.find(query).sort({ updatedAt: -1 }).lean();
+  res.json(quotations);
+});
+
+app.get("/api/admin/quotations/:id", requireQuotationAccess, async (req, res) => {
+  const quotation = await QuotationModel.findOne({ id: req.params.id }).lean();
+  if (!quotation) return res.status(404).json({ error: "Not found" });
+  res.json(quotation);
+});
+
+app.post("/api/admin/quotations", requireQuotationAccess, async (req, res) => {
+  try {
+    const newIdStr = newId("quote");
+    const item = {
+      id: newIdStr,
+      name: req.body.name,
+      status: req.body.status || 'Draft',
+      clientName: req.body.data?.clientName || '',
+      destination: req.body.data?.destination || '',
+      data: req.body.data,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+    await QuotationModel.create(item);
+    await logActivity(req, `Created quotation: ${item.name}`);
+    res.status(201).json(item);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.put("/api/admin/quotations/:id", requireQuotationAccess, async (req, res) => {
+  try {
+    const update = {
+      name: req.body.name,
+      status: req.body.status || 'Draft',
+      clientName: req.body.data?.clientName || '',
+      destination: req.body.data?.destination || '',
+      data: req.body.data,
+      updatedAt: Date.now(),
+    };
+    const updated = await QuotationModel.findOneAndUpdate(
+      { id: req.params.id },
+      { $set: update },
+      { new: true }
+    ).lean();
+    if (!updated) return res.status(404).json({ error: "Not found" });
+    await logActivity(req, `Updated quotation: ${updated.name}`);
+    res.json(updated);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.delete("/api/admin/quotations/:id", requireQuotationAccess, async (req, res) => {
+  const deleted = await QuotationModel.findOneAndDelete({ id: req.params.id }).lean();
+  if (deleted) {
+    await logActivity(req, `Deleted quotation: ${deleted.name}`);
+  }
+  res.status(204).end();
+});
 
 
 
