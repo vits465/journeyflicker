@@ -1167,20 +1167,6 @@ export default function AdminQuotation() {
     printWindow.document.close();
   };
 
-  const handleDownloadWord = () => {
-    const htmlContent = getQuotationHtml(true);
-    const blob = new Blob(['\ufeff', htmlContent], {
-      type: 'application/msword'
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${data.title.replace(/\s+/g, '_')}_Quotation.doc`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
 
   return (
     <div className="w-full max-w-7xl mx-auto pb-12 space-y-6">
@@ -1734,13 +1720,7 @@ export default function AdminQuotation() {
             <p className="text-xs text-on-surface-variant opacity-60">Renders changes dynamically in A4 paper layout format.</p>
           </div>
           <div className="flex gap-3">
-            <button 
-              onClick={handleDownloadWord}
-              className="px-4 py-3 bg-[#2b579a] text-white rounded-xl text-xs font-black tracking-widest uppercase flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95 transition-all"
-            >
-              <span className="material-symbols-outlined text-sm font-bold">description</span>
-              Word DOC
-            </button>
+
             <button 
               onClick={handlePrint}
               className="px-4 py-3 bg-gradient-to-br from-green-600 to-emerald-700 text-white rounded-xl text-xs font-black tracking-widest uppercase flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95 transition-all"
