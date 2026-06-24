@@ -23,6 +23,13 @@ interface FlightCost {
   pax: number;
 }
 
+interface QuotationOption {
+  optionTitle: string;
+  hotels: HotelRow[];
+  packageCosts: PackageCostItem[];
+  flightCosts: FlightCost[];
+}
+
 interface ItineraryDay {
   day: string;
   title: string;
@@ -39,11 +46,12 @@ interface QuotationData {
   clientName: string;
   greetingText: string;
   messageText: string;
-  optionTitle: string;
-  hotels: HotelRow[];
+  options: QuotationOption[];
+  optionTitle?: string;
+  hotels?: HotelRow[];
   perPersonCost?: string;
   packageCosts?: PackageCostItem[];
-  flightCosts: FlightCost[];
+  flightCosts?: FlightCost[];
   itinerary: ItineraryDay[];
   inclusions: string[];
   exclusions: string[];
@@ -63,15 +71,16 @@ const emptyQuotation: QuotationData = {
   clientName: 'Dear Sir,',
   greetingText: 'Greeting From JourneyFlicker..!!',
   messageText: 'kindly check below detail of your Tour !!!',
-  optionTitle: 'Option : 01(3*) 08 Night 09 Days',
-  hotels: [
-    { destination: '', hotels: '', mealPlan: 'Breakfast & Dinner', nights: '02 Nights', rooms: '05' }
-  ],
-  perPersonCost: '',
-  packageCosts: [
-    { category: 'Adults', cost: 0, pax: 1 }
-  ],
-  flightCosts: [],
+  options: [{
+    optionTitle: 'Option : 01(3*) 08 Night 09 Days',
+    hotels: [
+      { destination: '', hotels: '', mealPlan: 'Breakfast & Dinner', nights: '02 Nights', rooms: '05' }
+    ],
+    packageCosts: [
+      { category: 'Adults', cost: 0, pax: 1 }
+    ],
+    flightCosts: []
+  }],
   itinerary: [
     { day: 'Day 1', title: '', description: '' }
   ],
@@ -94,21 +103,23 @@ const hiteshPreset: QuotationData = {
   clientName: 'Dear Sir,',
   greetingText: 'Greeting From JourneyFlicker..!!',
   messageText: 'kindly check below detail of your NORTH INDIA Tour !!!',
-  optionTitle: 'Option : 01(3*) 08 Night 09 Days',
-  hotels: [
-    { destination: 'Gangtok', hotels: 'Sinkham Grand/ Hungry Jack/ Similar', mealPlan: 'Breakfast & Dinner', nights: '02 Nights', rooms: '05' },
-    { destination: 'Lachung', hotels: "The 'Elite Zone/ Lachug Deezong/ Lachung Heritage / Similar", mealPlan: 'Breakfast & Dinner', nights: '02 Nights', rooms: '05' },
-    { destination: 'Gangtok', hotels: 'Sinkham Grand/ Hungry Jack/ Similar', mealPlan: 'Breakfast & Dinner', nights: '01 Nights', rooms: '05' },
-    { destination: 'Pelling', hotels: 'Pelling Resort/ Crasula Ovata / Similar', mealPlan: 'Breakfast & Dinner', nights: '01 Nights', rooms: '05' },
-    { destination: 'Darjeeling', hotels: 'Zambala/ Mount Conifer/ Similar', mealPlan: 'Breakfast & Dinner', nights: '02 Nights', rooms: '05' }
-  ],
-  packageCosts: [
-    { category: 'Adults', cost: 36600, pax: 15 }
-  ],
-  flightCosts: [
-    { city: 'Ex. Mumbai', cost: 22700, pax: 15 },
-    { city: 'Ex. Ahmedabad', cost: 20000, pax: 15 }
-  ],
+  options: [{
+    optionTitle: 'Option : 01(3*) 08 Night 09 Days',
+    hotels: [
+      { destination: 'Gangtok', hotels: 'Sinkham Grand/ Hungry Jack/ Similar', mealPlan: 'Breakfast & Dinner', nights: '02 Nights', rooms: '05' },
+      { destination: 'Lachung', hotels: "The 'Elite Zone/ Lachug Deezong/ Lachung Heritage / Similar", mealPlan: 'Breakfast & Dinner', nights: '02 Nights', rooms: '05' },
+      { destination: 'Gangtok', hotels: 'Sinkham Grand/ Hungry Jack/ Similar', mealPlan: 'Breakfast & Dinner', nights: '01 Nights', rooms: '05' },
+      { destination: 'Pelling', hotels: 'Pelling Resort/ Crasula Ovata / Similar', mealPlan: 'Breakfast & Dinner', nights: '01 Nights', rooms: '05' },
+      { destination: 'Darjeeling', hotels: 'Zambala/ Mount Conifer/ Similar', mealPlan: 'Breakfast & Dinner', nights: '02 Nights', rooms: '05' }
+    ],
+    packageCosts: [
+      { category: 'Adults', cost: 36600, pax: 15 }
+    ],
+    flightCosts: [
+      { city: 'Ex. Mumbai', cost: 22700, pax: 15 },
+      { city: 'Ex. Ahmedabad', cost: 20000, pax: 15 }
+    ]
+  }],
   itinerary: [
     {
       day: 'Day 1 (11/Nov/2026)',
@@ -220,22 +231,24 @@ const keralaPreset: QuotationData = {
   clientName: 'Dear Sir / Madam,',
   greetingText: 'Warm Greetings From JourneyFlicker..!!',
   messageText: 'Kindly find below the detailed itinerary & quotation for your KERALA Tour !!!',
-  optionTitle: 'Option : 01 (3★/4★) 07 Nights 08 Days',
-  hotels: [
-    { destination: 'Cochin', hotels: 'Hotel Abad Atrium / Gokulam Park / Similar (4★)', mealPlan: 'Breakfast & Dinner', nights: '01 Night', rooms: '05' },
-    { destination: 'Munnar', hotels: 'Hotel Tall Trees / Elysium Garden Hill Resort / Similar (3★)', mealPlan: 'Breakfast & Dinner', nights: '02 Nights', rooms: '05' },
-    { destination: 'Thekkady', hotels: 'Spice Village / Cardamom County / Similar (3★)', mealPlan: 'Breakfast & Dinner', nights: '01 Night', rooms: '05' },
-    { destination: 'Alleppey', hotels: 'Premium Houseboat (Deluxe AC Cabin) / Similar', mealPlan: 'All Meals Included', nights: '01 Night', rooms: '05' },
-    { destination: 'Kovalam', hotels: 'Hotel Uday Samudra / Turtle On The Beach / Similar (3★)', mealPlan: 'Breakfast & Dinner', nights: '02 Nights', rooms: '05' }
-  ],
-  packageCosts: [
-    { category: 'Adults', cost: 28500, pax: 10 }
-  ],
-  flightCosts: [
-    { city: 'Ex. Ahmedabad (AMD → COK)', cost: 8200, pax: 10 },
-    { city: 'Ex. Mumbai (BOM → COK)', cost: 5500, pax: 10 },
-    { city: 'Ex. Surat (BOM via Mumbai → COK)', cost: 6800, pax: 10 }
-  ],
+  options: [{
+    optionTitle: 'Option : 01 (3★/4★) 07 Nights 08 Days',
+    hotels: [
+      { destination: 'Cochin', hotels: 'Hotel Abad Atrium / Gokulam Park / Similar (4★)', mealPlan: 'Breakfast & Dinner', nights: '01 Night', rooms: '05' },
+      { destination: 'Munnar', hotels: 'Hotel Tall Trees / Elysium Garden Hill Resort / Similar (3★)', mealPlan: 'Breakfast & Dinner', nights: '02 Nights', rooms: '05' },
+      { destination: 'Thekkady', hotels: 'Spice Village / Cardamom County / Similar (3★)', mealPlan: 'Breakfast & Dinner', nights: '01 Night', rooms: '05' },
+      { destination: 'Alleppey', hotels: 'Premium Houseboat (Deluxe AC Cabin) / Similar', mealPlan: 'All Meals Included', nights: '01 Night', rooms: '05' },
+      { destination: 'Kovalam', hotels: 'Hotel Uday Samudra / Turtle On The Beach / Similar (3★)', mealPlan: 'Breakfast & Dinner', nights: '02 Nights', rooms: '05' }
+    ],
+    packageCosts: [
+      { category: 'Adults', cost: 28500, pax: 10 }
+    ],
+    flightCosts: [
+      { city: 'Ex. Ahmedabad (AMD → COK)', cost: 8200, pax: 10 },
+      { city: 'Ex. Mumbai (BOM → COK)', cost: 5500, pax: 10 },
+      { city: 'Ex. Surat (BOM via Mumbai → COK)', cost: 6800, pax: 10 }
+    ]
+  }],
   itinerary: [
     {
       day: 'Day 1 (15/Oct/2026)',
@@ -481,10 +494,12 @@ const mapTourToQuotation = (tour: Tour): QuotationData => {
     clientName: 'Dear Sir,',
     greetingText: 'Greeting From JourneyFlicker..!!',
     messageText: `kindly check below detail of your ${tour.region.toUpperCase()} Tour !!!`,
-    optionTitle: `Option : 01(3*) ${String(tour.days - 1).padStart(2, '0')} Night ${String(tour.days).padStart(2, '0')} Days`,
-    hotels,
-    perPersonCost: `Package Cost Adults Rs.${tour.price || '0/-'}`,
-    flightCosts: [],
+    options: [{
+      optionTitle: `Option : 01(3*) ${String(tour.days - 1).padStart(2, '0')} Night ${String(tour.days).padStart(2, '0')} Days`,
+      hotels,
+      packageCosts: tour.price ? [{ category: 'Adults', cost: parseInt(tour.price.replace(/\D/g, '')) || 0, pax: 1 }] : [],
+      flightCosts: []
+    }],
     itinerary,
     inclusions: template.inclusions,
     exclusions: template.exclusions,
@@ -502,7 +517,24 @@ const labelCls = 'block text-[10px] font-bold text-on-surface-variant uppercase 
 export default function AdminQuotation() {
   const [data, setData] = useState<QuotationData>(() => {
     const saved = localStorage.getItem('jf_active_quotation');
-    return saved ? JSON.parse(saved) : emptyQuotation;
+    let parsed: QuotationData = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(emptyQuotation));
+    
+    if (!parsed.options) {
+      parsed.options = [{
+        optionTitle: parsed.optionTitle || '',
+        hotels: parsed.hotels || [],
+        packageCosts: parsed.packageCosts || [],
+        flightCosts: parsed.flightCosts || [],
+      }];
+    }
+    
+    if (!parsed.inclusions || parsed.inclusions.length === 0) parsed.inclusions = [...domesticPolicyTemplates.inclusions];
+    if (!parsed.exclusions || parsed.exclusions.length === 0) parsed.exclusions = [...domesticPolicyTemplates.exclusions];
+    if (!parsed.documentsRequired || parsed.documentsRequired.length === 0) parsed.documentsRequired = [...domesticPolicyTemplates.documentsRequired];
+    if (!parsed.cancellationPolicy || parsed.cancellationPolicy.length === 0) parsed.cancellationPolicy = [...domesticPolicyTemplates.cancellationPolicy];
+    if (!parsed.importantInfo || parsed.importantInfo.length === 0) parsed.importantInfo = [...domesticPolicyTemplates.importantInfo];
+
+    return parsed;
   });
   
   // Quotation DB States
@@ -528,17 +560,23 @@ export default function AdminQuotation() {
   const [newDoc, setNewDoc] = useState('');
   const [newCancel, setNewCancel] = useState('');
   const [newInfo, setNewInfo] = useState('');
-  const [newFlightCity, setNewFlightCity] = useState('');
-  const [newFlightCost, setNewFlightCost] = useState<number | ''>('');
-  const [newFlightPax, setNewFlightPax] = useState<number | ''>('');
-  const [newPackageCat, setNewPackageCat] = useState('');
-  const [newPackageCost, setNewPackageCost] = useState<number | ''>('');
-  const [newPackagePax, setNewPackagePax] = useState<number | ''>('');
   const [newArchiveUrl, setNewArchiveUrl] = useState('');
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('jf_active_quotation', JSON.stringify(data));
   }, [data]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = 'You have unsaved changes. Please save as draft or download before leaving.';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
 
   useEffect(() => {
     loadQuotations();
@@ -578,6 +616,7 @@ export default function AdminQuotation() {
         const fullTour = await api.getTour(tourId);
         const mapped = mapTourToQuotation(fullTour);
         setData(mapped);
+        setHasUnsavedChanges(true);
         setSelectedTourId('');
       } catch (err) {
         console.error(err);
@@ -588,21 +627,52 @@ export default function AdminQuotation() {
 
 
 
-  const upd = (patch: Partial<QuotationData>) => setData(prev => ({ ...prev, ...patch }));
+  const upd = (patch: Partial<QuotationData>) => {
+    setData(prev => ({ ...prev, ...patch }));
+    setHasUnsavedChanges(true);
+  };
 
-  // Hotels Row Manager
-  const addHotelRow = () => {
+  // Options Manager
+  const addOption = () => {
+    const num = data.options.length + 1;
     upd({
-      hotels: [...data.hotels, { destination: '', hotels: '', mealPlan: 'Breakfast & Dinner', nights: '01 Nights', rooms: '05' }]
+      options: [...data.options, {
+        optionTitle: `Option : 0${num}(3*) 08 Night 09 Days`,
+        hotels: [{ destination: '', hotels: '', mealPlan: 'Breakfast & Dinner', nights: '01 Nights', rooms: '05' }],
+        packageCosts: [],
+        flightCosts: []
+      }]
     });
   };
-  const removeHotelRow = (idx: number) => {
-    upd({ hotels: data.hotels.filter((_, i) => i !== idx) });
+  const removeOption = (optIdx: number) => {
+    upd({ options: data.options.filter((_, i) => i !== optIdx) });
   };
-  const updateHotelRow = (idx: number, patch: Partial<HotelRow>) => {
-    upd({
-      hotels: data.hotels.map((row, i) => i === idx ? { ...row, ...patch } : row)
-    });
+  const updateOptionTitle = (optIdx: number, title: string) => {
+    upd({ options: data.options.map((opt, i) => i === optIdx ? { ...opt, optionTitle: title } : opt) });
+  };
+
+  const addHotelRow = (optIdx: number) => {
+    upd({ options: data.options.map((opt, i) => i === optIdx ? { ...opt, hotels: [...opt.hotels, { destination: '', hotels: '', mealPlan: 'Breakfast & Dinner', nights: '01 Nights', rooms: '05' }] } : opt) });
+  };
+  const removeHotelRow = (optIdx: number, rowIdx: number) => {
+    upd({ options: data.options.map((opt, i) => i === optIdx ? { ...opt, hotels: opt.hotels.filter((_, j) => j !== rowIdx) } : opt) });
+  };
+  const updateHotelRow = (optIdx: number, rowIdx: number, patch: Partial<HotelRow>) => {
+    upd({ options: data.options.map((opt, i) => i === optIdx ? { ...opt, hotels: opt.hotels.map((r, j) => j === rowIdx ? { ...r, ...patch } : r) } : opt) });
+  };
+  
+  const addPackageCost = (optIdx: number, cost: PackageCostItem) => {
+    upd({ options: data.options.map((opt, i) => i === optIdx ? { ...opt, packageCosts: [...opt.packageCosts, cost] } : opt) });
+  };
+  const removePackageCost = (optIdx: number, costIdx: number) => {
+    upd({ options: data.options.map((opt, i) => i === optIdx ? { ...opt, packageCosts: opt.packageCosts.filter((_, j) => j !== costIdx) } : opt) });
+  };
+  
+  const addFlightCost = (optIdx: number, cost: FlightCost) => {
+    upd({ options: data.options.map((opt, i) => i === optIdx ? { ...opt, flightCosts: [...opt.flightCosts, cost] } : opt) });
+  };
+  const removeFlightCost = (optIdx: number, costIdx: number) => {
+    upd({ options: data.options.map((opt, i) => i === optIdx ? { ...opt, flightCosts: opt.flightCosts.filter((_, j) => j !== costIdx) } : opt) });
   };
 
   // Itinerary Days Manager
@@ -625,6 +695,7 @@ export default function AdminQuotation() {
   const loadPreset = (preset: QuotationData) => {
     if (confirm('Replace current editor data with the template?')) {
       setData(preset);
+      setHasUnsavedChanges(true);
     }
   };
 
@@ -644,6 +715,7 @@ export default function AdminQuotation() {
       };
       const res = await api.createQuotation(payload);
       setActiveQuoteId(res.id);
+      setHasUnsavedChanges(false);
       alert(`New Quotation "${payload.name}" created successfully.`);
       loadQuotations();
     } catch (err) {
@@ -667,6 +739,7 @@ export default function AdminQuotation() {
         data
       };
       await api.updateQuotation(activeQuoteId, payload);
+      setHasUnsavedChanges(false);
       alert(`Quotation "${payload.name}" updated successfully.`);
       loadQuotations();
     } catch (err) {
@@ -677,10 +750,20 @@ export default function AdminQuotation() {
 
   const handleLoadFromDB = (quote: QuotationRecord) => {
     if (confirm(`Load quotation "${quote.name}"? This will overwrite the current editor content.`)) {
-      setData(quote.data);
+      let parsed = quote.data;
+      if (!parsed.options) {
+        parsed.options = [{
+          optionTitle: parsed.optionTitle || '',
+          hotels: parsed.hotels || [],
+          packageCosts: parsed.packageCosts || [],
+          flightCosts: parsed.flightCosts || [],
+        }];
+      }
+      setData(parsed);
       setActiveQuoteId(quote.id);
       setDraftName(quote.name);
       setIsFinal(quote.status === 'Final');
+      setHasUnsavedChanges(false);
     }
   };
 
@@ -705,6 +788,7 @@ export default function AdminQuotation() {
       setActiveQuoteId(null);
       setDraftName('');
       setIsFinal(false);
+      setHasUnsavedChanges(false);
     }
   };
 
@@ -909,7 +993,7 @@ export default function AdminQuotation() {
     </div>
     
     <!-- PAGE 2: BASIC DETAILS & HOTELS & PRICING -->
-    <div class="page-container">
+    <div class="page-container page-break">
       <div class="header-bar">
         <div class="logo">
           <img src="${window.location.origin}/favicon-96x96.png" class="favicon" width="28" height="28" alt="Logo" />
@@ -945,7 +1029,8 @@ export default function AdminQuotation() {
         <p>${data.messageText}</p>
       </div>
       
-      <div class="table-title">${data.optionTitle}</div>
+      ${data.options.map((opt, optIdx) => `
+      <div class="table-title" style="margin-top: ${optIdx > 0 ? '16px' : '0'};">${opt.optionTitle}</div>
       <table>
         <thead>
           <tr>
@@ -957,7 +1042,7 @@ export default function AdminQuotation() {
           </tr>
         </thead>
         <tbody>
-          ${data.hotels.map(h => `
+          ${opt.hotels.map(h => `
             <tr>
               <td>${h.destination || '—'}</td>
               <td>${h.hotels || '—'}</td>
@@ -974,40 +1059,56 @@ export default function AdminQuotation() {
           <td style="border:none; padding:12px; width:60%; vertical-align:top;">
             <div class="price-title">Package Cost Breakdown</div>
             <ul class="flights-list">
-              ${(data.packageCosts && data.packageCosts.length > 0)
-                ? data.packageCosts.map(c => `<li><span>${c.category} (x${c.pax})</span><strong>Rs. ${(c.cost * c.pax).toLocaleString('en-IN')}/-</strong></li>`).join('')
-                : `<li><span>Per Person</span><strong>${data.perPersonCost}</strong></li>`
+              ${(opt.packageCosts && opt.packageCosts.length > 0)
+                ? opt.packageCosts.map(c => `<li><span>${c.category} (x${c.pax})</span><strong>Rs. ${(c.pax > 0 ? c.cost * c.pax : c.cost).toLocaleString('en-IN')}/- ${c.pax === 0 ? '<span style="font-size:9px; font-weight:normal; color:#666;">(Per Person)</span>' : ''}</strong></li>`).join('')
+                : (data.perPersonCost ? `<li><span>Per Person</span><strong>${data.perPersonCost}</strong></li>` : '')
               }
             </ul>
           </td>
           <td style="border:none; padding:12px; width:40%; vertical-align:top;">
-            ${data.flightCosts.length > 0 ? `
+            ${opt.flightCosts && opt.flightCosts.length > 0 ? `
               <div class="price-title">Flight Cost (Additional)</div>
               <ul class="flights-list">
-                ${data.flightCosts.map(f => `
-                  <li><span>${f.city} (x${f.pax || 1})</span><strong>Rs. ${(f.cost * (f.pax || 1)).toLocaleString('en-IN')}/-</strong></li>
+                ${opt.flightCosts.map(f => `
+                  <li><span>${f.city} (x${f.pax})</span><strong>Rs. ${(f.pax > 0 ? f.cost * f.pax : f.cost).toLocaleString('en-IN')}/- ${f.pax === 0 ? '<span style="font-size:9px; font-weight:normal; color:#666;">(Per Person)</span>' : ''}</strong></li>
                 `).join('')}
               </ul>
             ` : ''}
           </td>
         </tr>
-        ${((data.packageCosts && data.packageCosts.length > 0) || data.flightCosts.length > 0) ? `
+        ${((opt.packageCosts && opt.packageCosts.length > 0) || (opt.flightCosts && opt.flightCosts.length > 0)) ? `
         <tr>
           <td colspan="2" style="border:none; padding:12px; border-top:1px dashed #ccc; padding-top:10px;">
-            <table style="width:100%; border:none; margin:0; padding:0;" cellpadding="0">
-              <tr>
-                <td style="border:none; padding:0; text-align:left;">
-                  <span class="price-title" style="margin-bottom:0;">Grand Total Estimate</span>
-                </td>
-                <td style="border:none; padding:0; text-align:right;">
-                  <span class="price-val" style="color:#d93025;">Rs. ${((data.packageCosts || []).reduce((sum, c) => sum + (c.cost * c.pax), 0) + (data.flightCosts || []).reduce((sum, f) => sum + (f.cost * (f.pax || 1)), 0)).toLocaleString('en-IN')}/-</span>
-                </td>
-              </tr>
+            <div class="price-title" style="margin-bottom:6px;">Total Estimate Breakdown (Option ${optIdx + 1})</div>
+            <table style="width:100%; border-collapse:collapse; text-align:center; font-size:10px; border:1px solid #ccc;" cellpadding="6">
+              <thead>
+                <tr style="background:#eee;">
+                  <th style="border:1px solid #ccc; padding:6px; color:#000; text-align:left;">Category</th>
+                  <th style="border:1px solid #ccc; padding:6px; color:#000;">Package Cost</th>
+                  <th style="border:1px solid #ccc; padding:6px; color:#000;">Flight Cost</th>
+                  <th style="border:1px solid #ccc; padding:6px; color:#000;">Total Estimate</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${(opt.packageCosts || []).map(c => {
+                  const flightCost = opt.flightCosts && opt.flightCosts.length > 0 ? opt.flightCosts[0].cost : 0;
+                  const totalPerPerson = c.cost + flightCost;
+                  return `
+                  <tr>
+                    <td style="border:1px solid #ccc; padding:6px; text-align:left;">${c.category}</td>
+                    <td style="border:1px solid #ccc; padding:6px;">Rs. ${c.cost.toLocaleString('en-IN')}/-</td>
+                    <td style="border:1px solid #ccc; padding:6px;">Rs. ${flightCost.toLocaleString('en-IN')}/-</td>
+                    <td style="border:1px solid #ccc; padding:6px; font-weight:bold; color:#d93025;">Rs. ${totalPerPerson.toLocaleString('en-IN')}/- ${c.pax > 0 ? `x ${String(c.pax).padStart(2, '0')}` : '(Per Person)'}</td>
+                  </tr>
+                  `;
+                }).join('')}
+              </tbody>
             </table>
           </td>
         </tr>
         ` : ''}
       </table>
+      `).join('')}
     </div>
     
     <!-- ITINERARY: all days in one continuous block, browser breaks naturally -->
@@ -1150,6 +1251,7 @@ export default function AdminQuotation() {
   };
 
   const handlePrint = () => {
+    setHasUnsavedChanges(false);
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
       alert('Please allow popups for this website to generate and print the quotation PDF.');
@@ -1412,123 +1514,86 @@ export default function AdminQuotation() {
           </div>
         </div>
 
-        {/* Option Grid (Hotels) */}
-        <div className="bg-surface rounded-2xl p-5 border border-outline-variant/30 shadow-sm space-y-4">
+        {/* Pricing Options */}
+        <div className="bg-surface rounded-2xl p-5 border border-outline-variant/30 shadow-sm space-y-6">
           <div className="flex items-center justify-between border-b border-outline-variant/10 pb-2">
-            <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">2. Hotel & Accommodation Grid</h3>
-            <button onClick={addHotelRow} className="px-3 py-1 bg-surface-container border border-outline-variant/30 hover:bg-surface-container-high text-xs font-bold rounded-lg transition-colors">+ Add Row</button>
+            <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">2. Pricing Options</h3>
+            <button onClick={addOption} className="px-3 py-1 bg-surface-container border border-outline-variant/30 hover:bg-surface-container-high text-xs font-bold rounded-lg transition-colors">+ Add Option</button>
           </div>
 
-          <div>
-            <label className={labelCls}>Option Grid Title</label>
-            <input type="text" value={data.optionTitle} onChange={e => upd({ optionTitle: e.target.value })} className={inputCls} />
-          </div>
+          <div className="space-y-8">
+            {data.options.map((opt, optIdx) => (
+              <div key={optIdx} className="p-4 border border-outline-variant/20 rounded-xl bg-surface-container-lowest space-y-4 relative">
+                {data.options.length > 1 && (
+                  <button onClick={() => removeOption(optIdx)} className="absolute right-3 top-3 text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded-lg shadow-sm">
+                    <span className="material-symbols-outlined text-sm block">delete</span>
+                  </button>
+                )}
+                
+                <div>
+                  <label className={labelCls}>Option Title</label>
+                  <input type="text" value={opt.optionTitle} onChange={e => updateOptionTitle(optIdx, e.target.value)} className={inputCls} placeholder="e.g. Option 1 (3 Star) 08 Nights" />
+                </div>
 
-          <div className="space-y-4 mt-4">
-            {data.hotels.map((row, idx) => (
-              <div key={idx} className="p-3 bg-surface-container-low rounded-xl border border-outline-variant/20 space-y-3 relative">
-                <button 
-                  onClick={() => removeHotelRow(idx)}
-                  className="absolute right-2 top-2 text-red-400 hover:text-red-600"
-                >
-                  <span className="material-symbols-outlined text-base">close</span>
-                </button>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  <div className="col-span-2 sm:col-span-1">
-                    <label className={labelCls}>Destination</label>
-                    <input type="text" value={row.destination} onChange={e => updateHotelRow(idx, { destination: e.target.value })} className={inputCls} placeholder="e.g. Gangtok" />
+                <div className="border-t border-outline-variant/10 pt-4">
+                  <div className="flex justify-between items-center mb-3">
+                    <label className={labelCls + " !mb-0"}>Hotels Grid</label>
+                    <button onClick={() => addHotelRow(optIdx)} className="text-[10px] font-bold text-primary px-2 py-1 bg-primary/10 rounded">+ Row</button>
                   </div>
-                  <div className="col-span-2">
-                    <label className={labelCls}>Hotels / Options</label>
-                    <input type="text" value={row.hotels} onChange={e => updateHotelRow(idx, { hotels: e.target.value })} className={inputCls} placeholder="e.g. Sinkham Grand / Similar" />
-                  </div>
-                  <div>
-                    <label className={labelCls}>Meal Plan</label>
-                    <input type="text" value={row.mealPlan} onChange={e => updateHotelRow(idx, { mealPlan: e.target.value })} className={inputCls} />
-                  </div>
-                  <div>
-                    <label className={labelCls}>Nights</label>
-                    <input type="text" value={row.nights} onChange={e => updateHotelRow(idx, { nights: e.target.value })} className={inputCls} />
-                  </div>
-                  <div>
-                    <label className={labelCls}>Rooms</label>
-                    <input type="text" value={row.rooms} onChange={e => updateHotelRow(idx, { rooms: e.target.value })} className={inputCls} />
+                  <div className="space-y-3">
+                    {opt.hotels.map((row, idx) => (
+                      <div key={idx} className="p-3 bg-surface-container-low rounded-xl border border-outline-variant/20 relative">
+                        <button onClick={() => removeHotelRow(optIdx, idx)} className="absolute right-2 top-2 text-red-400 hover:text-red-600"><span className="material-symbols-outlined text-sm">close</span></button>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          <div className="col-span-2 sm:col-span-1"><input type="text" value={row.destination} onChange={e => updateHotelRow(optIdx, idx, { destination: e.target.value })} className={inputCls + " !text-xs !py-1.5"} placeholder="Dest" /></div>
+                          <div className="col-span-2"><input type="text" value={row.hotels} onChange={e => updateHotelRow(optIdx, idx, { hotels: e.target.value })} className={inputCls + " !text-xs !py-1.5"} placeholder="Hotels" /></div>
+                          <div><input type="text" value={row.mealPlan} onChange={e => updateHotelRow(optIdx, idx, { mealPlan: e.target.value })} className={inputCls + " !text-xs !py-1.5"} placeholder="Meals" /></div>
+                          <div><input type="text" value={row.nights} onChange={e => updateHotelRow(optIdx, idx, { nights: e.target.value })} className={inputCls + " !text-xs !py-1.5"} placeholder="Nights" /></div>
+                          <div><input type="text" value={row.rooms} onChange={e => updateHotelRow(optIdx, idx, { rooms: e.target.value })} className={inputCls + " !text-xs !py-1.5"} placeholder="Rooms" /></div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
+
+                <div className="border-t border-outline-variant/10 pt-4 grid grid-cols-1 gap-6">
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <label className={labelCls + " !mb-0"}>Package Costs</label>
+                      <button onClick={() => addPackageCost(optIdx, { category: 'Adults', cost: 0, pax: 1 })} className="text-[10px] font-bold text-primary px-2 py-1 bg-primary/10 rounded">+ Cost</button>
+                    </div>
+                    <div className="space-y-2">
+                      {opt.packageCosts.map((c, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <input type="text" value={c.category} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, packageCosts: o.packageCosts.map((pc, j) => j === idx ? { ...pc, category: e.target.value } : pc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 flex-1 min-w-[60px]"} placeholder="Cat" />
+                          <input type="number" value={c.cost} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, packageCosts: o.packageCosts.map((pc, j) => j === idx ? { ...pc, cost: Number(e.target.value) } : pc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-20 shrink-0"} placeholder="Cost" />
+                          <input type="number" value={c.pax} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, packageCosts: o.packageCosts.map((pc, j) => j === idx ? { ...pc, pax: Number(e.target.value) } : pc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-16 shrink-0"} placeholder="Pax" />
+                          <button onClick={() => removePackageCost(optIdx, idx)} className="text-red-400 hover:text-red-600 shrink-0"><span className="material-symbols-outlined text-sm">close</span></button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <label className={labelCls + " !mb-0"}>Flight Costs</label>
+                      <button onClick={() => addFlightCost(optIdx, { city: 'Route', cost: 0, pax: 1 })} className="text-[10px] font-bold text-primary px-2 py-1 bg-primary/10 rounded">+ Flight</button>
+                    </div>
+                    <div className="space-y-2">
+                      {opt.flightCosts.map((c, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <input type="text" value={c.city} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, flightCosts: o.flightCosts.map((fc, j) => j === idx ? { ...fc, city: e.target.value } : fc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 flex-1 min-w-[60px]"} placeholder="City" />
+                          <input type="number" value={c.cost} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, flightCosts: o.flightCosts.map((fc, j) => j === idx ? { ...fc, cost: Number(e.target.value) } : fc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-20 shrink-0"} placeholder="Cost" />
+                          <input type="number" value={c.pax} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, flightCosts: o.flightCosts.map((fc, j) => j === idx ? { ...fc, pax: Number(e.target.value) } : fc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-16 shrink-0"} placeholder="Pax" />
+                          <button onClick={() => removeFlightCost(optIdx, idx)} className="text-red-400 hover:text-red-600 shrink-0"><span className="material-symbols-outlined text-sm">close</span></button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
               </div>
             ))}
-          </div>
-        </div>
-
-        {/* Package Costs & Flight Costs */}
-        <div className="bg-surface rounded-2xl p-5 border border-outline-variant/30 shadow-sm space-y-4">
-          <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest border-b border-outline-variant/10 pb-2">3. Package & Flight Costs</h3>
-          
-          <div>
-            <label className={labelCls}>Package Costs</label>
-            <div className="space-y-2 mb-3">
-              {(data.packageCosts || []).map((c, idx) => (
-                <div key={idx} className="flex justify-between items-center bg-surface-container-low p-2 rounded-lg text-sm border border-outline-variant/10">
-                  <span>{c.category} (x{c.pax}): <strong>Rs. {c.cost}/-</strong></span>
-                  <button onClick={() => upd({ packageCosts: (data.packageCosts || []).filter((_, i) => i !== idx) })} className="text-red-400 hover:text-red-600">
-                    <span className="material-symbols-outlined text-sm">close</span>
-                  </button>
-                </div>
-              ))}
-              {(!data.packageCosts || data.packageCosts.length === 0) && data.perPersonCost && (
-                <div className="text-xs text-gray-500 italic mb-2">Legacy Cost: {data.perPersonCost}</div>
-              )}
-            </div>
-
-            <div className="flex gap-2 items-center">
-              <input type="text" value={newPackageCat} onChange={e => setNewPackageCat(e.target.value)} className={inputCls} placeholder="Ex. Adult" />
-              <input type="number" value={newPackageCost} onChange={e => setNewPackageCost(Number(e.target.value))} className={inputCls} placeholder="Cost (e.g. 36000)" />
-              <input type="number" value={newPackagePax} onChange={e => setNewPackagePax(Number(e.target.value))} className={inputCls} placeholder="Pax (e.g. 2)" />
-              <button 
-                onClick={() => {
-                  if (!newPackageCat || !newPackageCost || !newPackagePax) return;
-                  upd({ packageCosts: [...(data.packageCosts || []), { category: newPackageCat.trim(), cost: Number(newPackageCost), pax: Number(newPackagePax) }] });
-                  setNewPackageCat('');
-                  setNewPackageCost('');
-                  setNewPackagePax('');
-                }}
-                className="px-4 py-2 bg-surface-container border border-outline-variant/30 rounded-lg text-xs font-bold hover:bg-surface-container-high transition-all"
-              >
-                + Add
-              </button>
-            </div>
-          </div>
-
-          <div className="pt-4 border-t border-outline-variant/10">
-            <label className={labelCls}>Flight Costs (Additional)</label>
-            <div className="space-y-2 mb-3">
-              {data.flightCosts.map((f, idx) => (
-                <div key={idx} className="flex justify-between items-center bg-surface-container-low p-2 rounded-lg text-sm border border-outline-variant/10">
-                  <span>{f.city} (x{f.pax || 1}): <strong>Rs. {f.cost}/-</strong></span>
-                  <button onClick={() => upd({ flightCosts: data.flightCosts.filter((_, i) => i !== idx) })} className="text-red-400 hover:text-red-600">
-                    <span className="material-symbols-outlined text-sm">close</span>
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex gap-2 items-center">
-              <input type="text" value={newFlightCity} onChange={e => setNewFlightCity(e.target.value)} className={inputCls} placeholder="Route (Ex. Mumbai)" />
-              <input type="number" value={newFlightCost} onChange={e => setNewFlightCost(Number(e.target.value))} className={inputCls} placeholder="Cost (e.g. 5000)" />
-              <input type="number" value={newFlightPax} onChange={e => setNewFlightPax(Number(e.target.value))} className={inputCls} placeholder="Pax (e.g. 2)" />
-              <button 
-                onClick={() => {
-                  if (!newFlightCity || !newFlightCost || !newFlightPax) return;
-                  upd({ flightCosts: [...data.flightCosts, { city: newFlightCity.trim(), cost: Number(newFlightCost), pax: Number(newFlightPax) }] });
-                  setNewFlightCity('');
-                  setNewFlightCost('');
-                  setNewFlightPax('');
-                }}
-                className="px-4 py-2 bg-surface-container border border-outline-variant/30 rounded-lg text-xs font-bold hover:bg-surface-container-high transition-all"
-              >
-                + Add
-              </button>
-            </div>
           </div>
         </div>
 
@@ -1624,11 +1689,15 @@ export default function AdminQuotation() {
           {/* Inclusions */}
           <div>
             <h3 className={labelCls}>Package Inclusions</h3>
-            <div className="space-y-1 mb-2">
+            <div className="space-y-2 mb-3">
               {data.inclusions.map((inc, i) => (
-                <div key={i} className="flex justify-between items-center text-xs p-1.5 bg-surface-container-low rounded border border-outline-variant/10">
-                  <span className="truncate max-w-[90%]">{inc}</span>
-                  <button onClick={() => upd({ inclusions: data.inclusions.filter((_, idx) => idx !== i) })} className="text-red-400">×</button>
+                <div key={i} className="flex items-start gap-2 bg-surface-container-low p-1.5 rounded-lg border border-outline-variant/10">
+                  <textarea 
+                    value={inc} 
+                    onChange={e => upd({ inclusions: data.inclusions.map((item, idx) => idx === i ? e.target.value : item) })} 
+                    className={inputCls + " !text-xs !py-1 !px-2 flex-1 resize-y min-h-[32px]"}
+                  />
+                  <button onClick={() => upd({ inclusions: data.inclusions.filter((_, idx) => idx !== i) })} className="text-red-400 hover:text-red-600 px-2 text-lg leading-none mt-0.5">×</button>
                 </div>
               ))}
             </div>
@@ -1641,11 +1710,15 @@ export default function AdminQuotation() {
           {/* Exclusions */}
           <div className="pt-4 border-t border-outline-variant/10">
             <h3 className={labelCls}>Package Exclusions</h3>
-            <div className="space-y-1 mb-2">
+            <div className="space-y-2 mb-3">
               {data.exclusions.map((ex, i) => (
-                <div key={i} className="flex justify-between items-center text-xs p-1.5 bg-surface-container-low rounded border border-outline-variant/10">
-                  <span className="truncate max-w-[90%]">{ex}</span>
-                  <button onClick={() => upd({ exclusions: data.exclusions.filter((_, idx) => idx !== i) })} className="text-red-400">×</button>
+                <div key={i} className="flex items-start gap-2 bg-surface-container-low p-1.5 rounded-lg border border-outline-variant/10">
+                  <textarea 
+                    value={ex} 
+                    onChange={e => upd({ exclusions: data.exclusions.map((item, idx) => idx === i ? e.target.value : item) })} 
+                    className={inputCls + " !text-xs !py-1 !px-2 flex-1 resize-y min-h-[32px]"}
+                  />
+                  <button onClick={() => upd({ exclusions: data.exclusions.filter((_, idx) => idx !== i) })} className="text-red-400 hover:text-red-600 px-2 text-lg leading-none mt-0.5">×</button>
                 </div>
               ))}
             </div>
@@ -1658,11 +1731,15 @@ export default function AdminQuotation() {
           {/* Documents */}
           <div className="pt-4 border-t border-outline-variant/10">
             <h3 className={labelCls}>Documents Required</h3>
-            <div className="space-y-1 mb-2">
+            <div className="space-y-2 mb-3">
               {data.documentsRequired.map((doc, i) => (
-                <div key={i} className="flex justify-between items-center text-xs p-1.5 bg-surface-container-low rounded border border-outline-variant/10">
-                  <span className="truncate max-w-[90%]">{doc}</span>
-                  <button onClick={() => upd({ documentsRequired: data.documentsRequired.filter((_, idx) => idx !== i) })} className="text-red-400">×</button>
+                <div key={i} className="flex items-start gap-2 bg-surface-container-low p-1.5 rounded-lg border border-outline-variant/10">
+                  <textarea 
+                    value={doc} 
+                    onChange={e => upd({ documentsRequired: data.documentsRequired.map((item, idx) => idx === i ? e.target.value : item) })} 
+                    className={inputCls + " !text-xs !py-1 !px-2 flex-1 resize-y min-h-[32px]"}
+                  />
+                  <button onClick={() => upd({ documentsRequired: data.documentsRequired.filter((_, idx) => idx !== i) })} className="text-red-400 hover:text-red-600 px-2 text-lg leading-none mt-0.5">×</button>
                 </div>
               ))}
             </div>
@@ -1675,11 +1752,15 @@ export default function AdminQuotation() {
           {/* Cancellation */}
           <div className="pt-4 border-t border-outline-variant/10">
             <h3 className={labelCls}>Cancellation Policy</h3>
-            <div className="space-y-1 mb-2">
+            <div className="space-y-2 mb-3">
               {data.cancellationPolicy.map((c, i) => (
-                <div key={i} className="flex justify-between items-center text-xs p-1.5 bg-surface-container-low rounded border border-outline-variant/10">
-                  <span className="truncate max-w-[90%]">{c}</span>
-                  <button onClick={() => upd({ cancellationPolicy: data.cancellationPolicy.filter((_, idx) => idx !== i) })} className="text-red-400">×</button>
+                <div key={i} className="flex items-start gap-2 bg-surface-container-low p-1.5 rounded-lg border border-outline-variant/10">
+                  <textarea 
+                    value={c} 
+                    onChange={e => upd({ cancellationPolicy: data.cancellationPolicy.map((item, idx) => idx === i ? e.target.value : item) })} 
+                    className={inputCls + " !text-xs !py-1 !px-2 flex-1 resize-y min-h-[32px]"}
+                  />
+                  <button onClick={() => upd({ cancellationPolicy: data.cancellationPolicy.filter((_, idx) => idx !== i) })} className="text-red-400 hover:text-red-600 px-2 text-lg leading-none mt-0.5">×</button>
                 </div>
               ))}
             </div>
@@ -1692,11 +1773,15 @@ export default function AdminQuotation() {
           {/* Important Info */}
           <div className="pt-4 border-t border-outline-variant/10">
             <h3 className={labelCls}>Important Information</h3>
-            <div className="space-y-1 mb-2">
+            <div className="space-y-2 mb-3">
               {data.importantInfo.map((inf, i) => (
-                <div key={i} className="flex justify-between items-center text-xs p-1.5 bg-surface-container-low rounded border border-outline-variant/10">
-                  <span className="truncate max-w-[90%]">{inf}</span>
-                  <button onClick={() => upd({ importantInfo: data.importantInfo.filter((_, idx) => idx !== i) })} className="text-red-400">×</button>
+                <div key={i} className="flex items-start gap-2 bg-surface-container-low p-1.5 rounded-lg border border-outline-variant/10">
+                  <textarea 
+                    value={inf} 
+                    onChange={e => upd({ importantInfo: data.importantInfo.map((item, idx) => idx === i ? e.target.value : item) })} 
+                    className={inputCls + " !text-xs !py-1 !px-2 flex-1 resize-y min-h-[32px]"}
+                  />
+                  <button onClick={() => upd({ importantInfo: data.importantInfo.filter((_, idx) => idx !== i) })} className="text-red-400 hover:text-red-600 px-2 text-lg leading-none mt-0.5">×</button>
                 </div>
               ))}
             </div>
@@ -1787,69 +1872,94 @@ export default function AdminQuotation() {
                 <p className="margin-0 leading-relaxed text-gray-600">{data.messageText}</p>
               </div>
 
-              <div className="font-black text-[9px] uppercase tracking-widest text-gray-400 mb-2 italic">{data.optionTitle}</div>
-              <table className="w-full border-collapse text-[10px] mb-4">
-                <thead>
-                  <tr className="bg-black text-white">
-                    <th className="border border-black p-2 text-left uppercase text-[8px] font-black text-white">Destinations</th>
-                    <th className="border border-black p-2 text-left uppercase text-[8px] font-black text-white">Hotels</th>
-                    <th className="border border-black p-2 text-center uppercase text-[8px] font-black text-white">Meal Plan</th>
-                    <th className="border border-black p-2 text-center uppercase text-[8px] font-black text-white">Nights</th>
-                    <th className="border border-black p-2 text-center uppercase text-[8px] font-black text-white">Rooms</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.hotels.map((h, i) => (
-                    <tr key={i} className="border-b border-gray-200">
-                      <td className="border border-gray-200 p-2 font-bold">{h.destination || '—'}</td>
-                      <td className="border border-gray-200 p-2 text-gray-600">{h.hotels || '—'}</td>
-                      <td className="border border-gray-200 p-2 text-center text-gray-600">{h.mealPlan}</td>
-                      <td className="border border-gray-200 p-2 text-center text-gray-600">{h.nights}</td>
-                      <td className="border border-gray-200 p-2 text-center text-gray-600">{h.rooms}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              <div className="grid grid-cols-2 gap-4 bg-gray-50 border border-gray-200 p-3 rounded-xl mb-4">
-                <div>
-                  <div className="text-[7px] font-black uppercase text-gray-400">Package Cost</div>
-                  <ul className="list-none p-0 m-0">
-                    {(data.packageCosts && data.packageCosts.length > 0) ? data.packageCosts.map((c, i) => (
-                      <li key={i} className="flex justify-between border-b border-gray-100 py-1 text-[10px]">
-                        <span>{c.category} (x{c.pax})</span>
-                        <strong>Rs. {(c.cost * c.pax).toLocaleString('en-IN')}/-</strong>
-                      </li>
-                    )) : (
-                      <li className="flex justify-between border-b border-gray-100 py-1 text-[10px]">
-                        <span>Per Person</span>
-                        <strong>{data.perPersonCost}</strong>
-                      </li>
-                    )}
-                  </ul>
-                </div>
-                {data.flightCosts.length > 0 && (
-                  <div>
-                    <div className="text-[7px] font-black uppercase text-gray-400">Additional Flight Costs</div>
-                    <ul className="list-none p-0 m-0">
-                      {data.flightCosts.map((f, i) => (
-                        <li key={i} className="flex justify-between border-b border-gray-100 py-1 text-[10px]">
-                          <span>{f.city} (x{f.pax || 1})</span>
-                          <strong>Rs. {(f.cost * (f.pax || 1)).toLocaleString('en-IN')}/-</strong>
-                        </li>
+              {data.options.map((opt, optIdx) => (
+                <div key={optIdx} className="mb-6">
+                  <div className="font-black text-[9px] uppercase tracking-widest text-gray-400 mb-2 italic">{opt.optionTitle}</div>
+                  <table className="w-full border-collapse text-[10px] mb-4">
+                    <thead>
+                      <tr className="bg-black text-white">
+                        <th className="border border-black p-2 text-left uppercase text-[8px] font-black text-white">Destinations</th>
+                        <th className="border border-black p-2 text-left uppercase text-[8px] font-black text-white">Hotels</th>
+                        <th className="border border-black p-2 text-center uppercase text-[8px] font-black text-white">Meal Plan</th>
+                        <th className="border border-black p-2 text-center uppercase text-[8px] font-black text-white">Nights</th>
+                        <th className="border border-black p-2 text-center uppercase text-[8px] font-black text-white">Rooms</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {opt.hotels.map((h, i) => (
+                        <tr key={i} className="border-b border-gray-200">
+                          <td className="border border-gray-200 p-2 font-bold">{h.destination || '—'}</td>
+                          <td className="border border-gray-200 p-2 text-gray-600">{h.hotels || '—'}</td>
+                          <td className="border border-gray-200 p-2 text-center text-gray-600">{h.mealPlan}</td>
+                          <td className="border border-gray-200 p-2 text-center text-gray-600">{h.nights}</td>
+                          <td className="border border-gray-200 p-2 text-center text-gray-600">{h.rooms}</td>
+                        </tr>
                       ))}
-                    </ul>
+                    </tbody>
+                  </table>
+
+                  <div className="grid grid-cols-2 gap-4 bg-gray-50 border border-gray-200 p-3 rounded-xl mb-4">
+                    <div>
+                      <div className="text-[7px] font-black uppercase text-gray-400">Package Cost</div>
+                      <ul className="list-none p-0 m-0">
+                        {(opt.packageCosts && opt.packageCosts.length > 0) ? opt.packageCosts.map((c, i) => (
+                          <li key={i} className="flex justify-between border-b border-gray-100 py-1 text-[10px]">
+                            <span>{c.category} (x{c.pax})</span>
+                            <strong>Rs. {(c.pax > 0 ? c.cost * c.pax : c.cost).toLocaleString('en-IN')}/- {c.pax === 0 && <span className="text-[9px] font-normal text-gray-400 ml-1">(Per Person)</span>}</strong>
+                          </li>
+                        )) : (data.perPersonCost ? (
+                          <li className="flex justify-between border-b border-gray-100 py-1 text-[10px]">
+                            <span>Per Person</span>
+                            <strong>{data.perPersonCost}</strong>
+                          </li>
+                        ) : null)}
+                      </ul>
+                    </div>
+                    {opt.flightCosts && opt.flightCosts.length > 0 && (
+                      <div>
+                        <div className="text-[7px] font-black uppercase text-gray-400">Additional Flight Costs</div>
+                        <ul className="list-none p-0 m-0">
+                          {opt.flightCosts.map((f, i) => (
+                            <li key={i} className="flex justify-between border-b border-gray-100 py-1 text-[10px]">
+                              <span>{f.city} (x{f.pax})</span>
+                              <strong>Rs. {(f.pax > 0 ? f.cost * f.pax : f.cost).toLocaleString('en-IN')}/- {f.pax === 0 && <span className="text-[9px] font-normal text-gray-400 ml-1">(Per Person)</span>}</strong>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {((opt.packageCosts && opt.packageCosts.length > 0) || (opt.flightCosts && opt.flightCosts.length > 0)) && (
+                      <div className="col-span-2 border-t border-dashed border-gray-300 pt-2 mt-1">
+                        <div className="text-[7px] font-black uppercase text-gray-400 mb-2">Total Estimate Breakdown (Option {optIdx + 1})</div>
+                        <table className="w-full text-[8px] text-center border border-gray-200">
+                          <thead className="bg-gray-100 font-bold">
+                            <tr>
+                              <th className="border border-gray-200 p-1.5 text-left">Category</th>
+                              <th className="border border-gray-200 p-1.5">Package Cost</th>
+                              <th className="border border-gray-200 p-1.5">Flight Cost</th>
+                              <th className="border border-gray-200 p-1.5">Total Estimate</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {(opt.packageCosts || []).map((c, i) => {
+                              const flightCost = opt.flightCosts && opt.flightCosts.length > 0 ? opt.flightCosts[0].cost : 0;
+                              const totalPerPerson = c.cost + flightCost;
+                              return (
+                                <tr key={i}>
+                                  <td className="border border-gray-200 p-1.5 text-left font-bold">{c.category}</td>
+                                  <td className="border border-gray-200 p-1.5">Rs. {c.cost.toLocaleString('en-IN')}/-</td>
+                                  <td className="border border-gray-200 p-1.5">Rs. {flightCost.toLocaleString('en-IN')}/-</td>
+                                  <td className="border border-gray-200 p-1.5 font-bold text-red-600">Rs. {totalPerPerson.toLocaleString('en-IN')}/- {c.pax > 0 ? `x ${String(c.pax).padStart(2, '0')}` : '(Per Person)'}</td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </div>
-                )}
-                {((data.packageCosts && data.packageCosts.length > 0) || data.flightCosts.length > 0) && (
-                  <div className="col-span-2 border-t border-dashed border-gray-300 pt-2 mt-1 flex justify-between items-center">
-                    <span className="text-[9px] font-black uppercase text-gray-500">Grand Total Estimate</span>
-                    <span className="text-sm font-black text-red-600">
-                      Rs. {((data.packageCosts || []).reduce((sum, c) => sum + (c.cost * c.pax), 0) + (data.flightCosts || []).reduce((sum, f) => sum + (f.cost * (f.pax || 1)), 0)).toLocaleString('en-IN')}/-
-                    </span>
-                  </div>
-                )}
-              </div>
+                </div>
+              ))}
             </div>
 
             <div className="border-t border-gray-200 pt-2 flex flex-col items-center text-[7px] text-gray-500 font-bold uppercase tracking-widest text-center mt-auto">
