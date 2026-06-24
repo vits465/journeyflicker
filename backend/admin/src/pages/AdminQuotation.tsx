@@ -1055,30 +1055,9 @@ export default function AdminQuotation() {
       </table>
       
       <table class="pricing-section" style="width:100%; border-collapse:collapse; background:#f9f9f9; border:1px solid #eee; margin-bottom:10px;" cellpadding="12">
-        <tr>
-          <td style="border:none; padding:12px; width:60%; vertical-align:top;">
-            <div class="price-title">Package Cost Breakdown</div>
-            <ul class="flights-list">
-              ${(opt.packageCosts && opt.packageCosts.length > 0)
-                ? opt.packageCosts.map(c => `<li><span>${c.category} (x${c.pax})</span><strong>Rs. ${(c.pax > 0 ? c.cost * c.pax : c.cost).toLocaleString('en-IN')}/- ${c.pax === 0 ? '<span style="font-size:9px; font-weight:normal; color:#666;">(Per Person)</span>' : ''}</strong></li>`).join('')
-                : (data.perPersonCost ? `<li><span>Per Person</span><strong>${data.perPersonCost}</strong></li>` : '')
-              }
-            </ul>
-          </td>
-          <td style="border:none; padding:12px; width:40%; vertical-align:top;">
-            ${opt.flightCosts && opt.flightCosts.length > 0 ? `
-              <div class="price-title">Flight Cost (Additional)</div>
-              <ul class="flights-list">
-                ${opt.flightCosts.map(f => `
-                  <li><span>${f.city} (x${f.pax})</span><strong>Rs. ${(f.pax > 0 ? f.cost * f.pax : f.cost).toLocaleString('en-IN')}/- ${f.pax === 0 ? '<span style="font-size:9px; font-weight:normal; color:#666;">(Per Person)</span>' : ''}</strong></li>
-                `).join('')}
-              </ul>
-            ` : ''}
-          </td>
-        </tr>
         ${((opt.packageCosts && opt.packageCosts.length > 0) || (opt.flightCosts && opt.flightCosts.length > 0)) ? `
         <tr>
-          <td colspan="2" style="border:none; padding:12px; border-top:1px dashed #ccc; padding-top:10px;">
+          <td colspan="2" style="border:none; padding:12px;">
             <div class="price-title" style="margin-bottom:6px;">Total Estimate Breakdown (Option ${optIdx + 1})</div>
             <table style="width:100%; border-collapse:collapse; text-align:center; font-size:10px; border:1px solid #ccc;" cellpadding="6">
               <thead>
