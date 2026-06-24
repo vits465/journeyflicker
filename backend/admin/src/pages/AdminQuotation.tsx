@@ -1061,11 +1061,11 @@ export default function AdminQuotation() {
             <div class="price-title" style="margin-bottom:6px;">Total Estimate Breakdown (Option ${optIdx + 1})</div>
             <table style="width:100%; border-collapse:collapse; text-align:center; font-size:10px; border:1px solid #ccc;" cellpadding="6">
               <thead>
-                <tr style="background:#eee;">
-                  <th style="border:1px solid #ccc; padding:6px; color:#000; text-align:left;">Category</th>
-                  <th style="border:1px solid #ccc; padding:6px; color:#000;">Package Cost</th>
-                  <th style="border:1px solid #ccc; padding:6px; color:#000;">Flight Cost</th>
-                  <th style="border:1px solid #ccc; padding:6px; color:#000;">Total Estimate</th>
+                <tr>
+                  <th style="text-align:left;">Category</th>
+                  <th>Package Cost</th>
+                  <th>Flight Cost</th>
+                  <th>Total Estimate</th>
                 </tr>
               </thead>
               <tbody>
