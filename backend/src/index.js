@@ -267,6 +267,13 @@ const requireQuotationAccess = async (req, res, next) => {
   req.user = data;
   next();
 };
+const requireMediaAccess = async (req, res, next) => {
+  const data = await getTokenData(req);
+  if (!data || !["editor", "co-editor", "quotation"].includes(data.role))
+    return res.status(401).json({ error: "Unauthorized" });
+  req.user = data;
+  next();
+};
 
 // ── Utility ───────────────────────────────────────────────────────────────────
 function newId(prefix) {
@@ -447,7 +454,7 @@ app.use("/uploads", express.static(uploadsDir));
 // Pass `section` in the request body to activate optimization.
 // Supported sections: hero, sightseeing, destinations, tours, visa, overview,
 //                     tour-thumbs, signature, landmarks, gallery, itinerary
-app.post("/api/upload", requireCRUD, uploadMulter.single("file"), async (req, res) => {
+app.post("/api/upload", requireMediaAccess, uploadMulter.single("file"), async (req, res) => {
   let name = req.body.name || "upload";
   let data = req.body.data;
   const section = req.body.section;
@@ -563,7 +570,7 @@ const adminOpLimiter = rateLimit({
 app.use("/api/admin/backup",  adminOpLimiter, requireAdmin, backupRouter);
 app.use("/api/admin/export",  requireAdmin,   importExportRouter);
 app.use("/api/admin/import",  adminOpLimiter, requireAdmin, importExportRouter);
-app.use("/api/admin/media",   requireCRUD,    enhancedMediaRouter);
+app.use("/api/admin/media",   requireMediaAccess,    enhancedMediaRouter);
 app.use("/api/admin/migrate", requireAdmin,   migrateRouter);
 app.use("/api/pdf", pdfRouter);
 

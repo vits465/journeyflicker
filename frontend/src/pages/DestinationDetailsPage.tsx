@@ -224,6 +224,37 @@ export default function DestinationDetailsPage() {
             @media print { @page { margin: 15mm; } }
             body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #000; padding: 0; margin: 0; line-height: 1.6; max-width: 800px; margin: 0 auto; }
             .header { text-align: center; border-bottom: 3px solid #000; padding-bottom: 25px; margin-bottom: 30px; margin-top: 20px; }
+            
+            .journey-logo {
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+              color: inherit;
+            }
+            .journey-logo-img {
+              width: 1.5em;
+              height: 1.5em;
+              object-fit: contain;
+              flex-shrink: 0;
+              border-radius: 0.25rem;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+            .journey-logo-divider {
+              width: 1px;
+              height: 1.5em;
+              background-color: currentColor;
+              opacity: 0.6;
+            }
+            .journey-logo-text {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+              font-weight: 300;
+              letter-spacing: 0.45em;
+              font-size: 0.9em;
+              white-space: nowrap;
+              line-height: 1;
+            }
+
             .logo { display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 36px; font-weight: 300; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 25px; }
             .logo b { font-weight: 900; }
             .favicon { width: 36px; height: 36px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -249,9 +280,10 @@ export default function DestinationDetailsPage() {
         </head>
         <body>
           <div class="header">
-            <div class="logo">
-              <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="JF Logo" />
-              <span>Journey<b>Flicker</b></span>
+            <div class="journey-logo" style="justify-content: center; font-size: 24px; margin-bottom: 25px;">
+              <img src="${window.location.origin}/favicon.svg" class="journey-logo-img" alt="Logo" />
+              <div class="journey-logo-divider"></div>
+              <span class="journey-logo-text">JourneyFlicker</span>
             </div>
             ${destination?.heroImageUrl ? `<img src="${absUrl(destination.heroImageUrl)}" class="hero-img" />` : ''}
             <h1>${destination?.name}</h1>
@@ -291,9 +323,10 @@ export default function DestinationDetailsPage() {
           </div>` : ''}
 
           <div class="section" style="page-break-inside: avoid; border-top: 2px solid #000; padding-top: 30px; margin-top: 50px;">
-            <div class="logo" style="justify-content: flex-start; margin-bottom: 15px;">
-              <img src="${window.location.origin}/favicon-96x96.png" class="favicon" alt="JF Logo" />
-              <span>Journey<b>Flicker</b></span>
+            <div class="journey-logo" style="justify-content: flex-start; font-size: 16px; margin-bottom: 15px;">
+              <img src="${window.location.origin}/favicon.svg" class="journey-logo-img" alt="Logo" />
+              <div class="journey-logo-divider"></div>
+              <span class="journey-logo-text">JourneyFlicker</span>
             </div>
             <p style="font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">The Curator Board</p>
             <p style="margin-bottom: 4px; font-size: 14px;"><strong>Email:</strong> tushar@journeyflicker.com | pashv@journeyflicker.com</p>

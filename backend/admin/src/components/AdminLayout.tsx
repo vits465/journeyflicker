@@ -3,6 +3,7 @@ import { NavLink, Outlet, useLocation, Navigate } from 'react-router-dom';
 import { useAdminAuth } from '../lib/adminAuth';
 import { api } from '../lib/api';
 import { useAdminShortcuts } from '../lib/hooks';
+import { Logo } from './Logo';
 
 export function AdminLayout() {
   const { role, canEdit, canCRUD, username, logout } = useAdminAuth();
@@ -102,9 +103,8 @@ export function AdminLayout() {
 
         {/* Brand */}
         <div className="px-5 py-5 flex items-center justify-between flex-shrink-0 border-b border-white/10">
-          <NavLink to="/" className="text-white font-light tracking-tighter uppercase whitespace-nowrap hover:opacity-80 transition-opacity">
-            <span className="inline lg:inline md:hidden">Journey<span className="font-black">Flicker</span></span>
-            <span className="hidden md:inline lg:hidden text-lg">J<span className="font-black">F</span></span>
+          <NavLink to="/" className="text-white hover:opacity-80 transition-opacity">
+            <Logo textClassName="md:hidden lg:block" />
           </NavLink>
           <button onClick={() => setSidebarOpen(false)} className="md:hidden text-white/40 hover:text-white">
             <span className="material-symbols-outlined text-xl">close</span>

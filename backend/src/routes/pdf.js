@@ -1,5 +1,7 @@
 import express from "express";
 import PDFDocument from "pdfkit";
+import path from "node:path";
+import fs from "node:fs";
 import { Tour as TourModel } from "../db/models/index.js";
 
 export const router = express.Router();
@@ -18,16 +20,34 @@ router.get("/tour/:id", async (req, res) => {
 
     doc.pipe(res);
 
-    // Header styling
-    doc.fillColor("#C8A84B")
-       .fontSize(24)
-       .text("JOURNEYFLICKER", { align: "center", characterSpacing: 2 });
-    
+    // Header styling: Premium unified logo
+    const logoWidth = 220;
+    const startX = (doc.page.width - logoWidth) / 2;
+    const logoY = doc.y;
+
+    const faviconPath = path.join(process.cwd(), "JFfavicon/favicon-96x96.png");
+    if (fs.existsSync(faviconPath)) {
+      doc.image(faviconPath, startX, logoY, { width: 24, height: 24 });
+    }
+
+    doc.strokeColor("#C8A84B")
+       .lineWidth(1)
+       .moveTo(startX + 34, logoY)
+       .lineTo(startX + 34, logoY + 24)
+       .stroke();
+
+    doc.fillColor("#000000")
+       .fontSize(18)
+       .text("JourneyFlicker", startX + 44, logoY + 3, { characterSpacing: 2 });
+
+    doc.y = logoY + 30; // reset y coordinate below the logo block
+
+    doc.moveDown(0.5);
     doc.fillColor("#666666")
        .fontSize(10)
        .text("Global Intelligence Bureau", { align: "center", characterSpacing: 4 });
     
-    doc.moveDown(3);
+    doc.moveDown(2);
 
     // Tour Title
     doc.fillColor("#000000")

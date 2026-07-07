@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import type { Tour, QuotationRecord } from '../lib/api';
 import { api } from '../lib/api';
+import { Logo } from '../components/Logo';
+import { MediaSelectorModal } from '../components/MediaSelectorModal';
 
 // Interfaces for Quotation Structure
 interface HotelRow {
@@ -60,6 +62,7 @@ interface QuotationData {
   importantInfo: string[];
   visualArchive: string[];
   preparedBy?: string;
+  termsAndConditions?: string[];
 }
 
 const emptyQuotation: QuotationData = {
@@ -90,7 +93,8 @@ const emptyQuotation: QuotationData = {
   cancellationPolicy: [],
   importantInfo: [],
   visualArchive: [],
-  preparedBy: 'Curator Board'
+  preparedBy: 'Curator Board',
+  termsAndConditions: []
 };
 
 // Preset sample from Hitesh's North East Tour
@@ -218,7 +222,12 @@ const hiteshPreset: QuotationData = {
     'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=600&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=600&auto=format&fit=crop'
   ],
-  preparedBy: 'Curator Board'
+  preparedBy: 'Curator Board',
+  termsAndConditions: [
+    'The itinerary is tentative and subject to change based on local traffic conditions or weather.',
+    'Any booking is subject to confirmation only after receiving the advance payment.',
+    'All prices are subject to change without prior notice unless booking is fully paid.'
+  ]
 };
 
 // Demo Preset: Kerala Backwaters & Munnar (7 Nights / 8 Days)
@@ -344,7 +353,12 @@ const keralaPreset: QuotationData = {
     'https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=600&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=600&auto=format&fit=crop'
   ],
-  preparedBy: 'Curator Board'
+  preparedBy: 'Curator Board',
+  termsAndConditions: [
+    'The itinerary is tentative and subject to change based on local traffic conditions or weather.',
+    'Any booking is subject to confirmation only after receiving the advance payment.',
+    'All prices are subject to change without prior notice unless booking is fully paid.'
+  ]
 };
 
 const domesticPolicyTemplates = {
@@ -380,6 +394,11 @@ const domesticPolicyTemplates = {
     'Standard hotel check-in time is 14:00 and check-out is 12:00 noon.',
     'Early check-in or late check-out is subject to room availability and extra charges.',
     'We act as booking agents only and cannot be held liable for mechanical failures or acts of God.'
+  ],
+  termsAndConditions: [
+    'The itinerary is tentative and subject to change based on local traffic conditions or weather.',
+    'Any booking is subject to confirmation only after receiving the advance payment.',
+    'All prices are subject to change without prior notice unless booking is fully paid.'
   ]
 };
 
@@ -418,6 +437,11 @@ const internationalPolicyTemplates = {
     'Ensure passport has at least 2 blank pages for entry stamp.',
     'Local currency or USD should be carried for personal transactions and tips.',
     'Check-in and check-out rules apply as per individual country norms.'
+  ],
+  termsAndConditions: [
+    'Visa approval is at the sole discretion of the respective embassy/consulate.',
+    'Passport must have at least 6 months validity from the date of travel.',
+    'All international flight costs are subject to change until tickets are issued.'
   ]
 };
 
@@ -506,11 +530,54 @@ const mapTourToQuotation = (tour: Tour): QuotationData => {
     documentsRequired: template.documentsRequired,
     cancellationPolicy: template.cancellationPolicy,
     importantInfo: template.importantInfo,
-    visualArchive: tour.visualArchive && tour.visualArchive.length > 0 ? tour.visualArchive : hiteshPreset.visualArchive
+    visualArchive: tour.visualArchive && tour.visualArchive.length > 0 ? tour.visualArchive : hiteshPreset.visualArchive,
+    termsAndConditions: template.termsAndConditions
   };
 };
 
-// Styling tokens
+const parseMonthName = (monthStr: string): number => {
+  const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+  return months.indexOf(monthStr.toUpperCase());
+};
+
+const formatDateToInput = (dateStr?: string): string => {
+  if (!dateStr) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+    const day = parts[0];
+    const monthName = parts[1];
+    const year = parts[2];
+    const monthIndex = parseMonthName(monthName);
+    if (monthIndex !== -1 && year.length === 4) {
+      const formattedMonth = String(monthIndex + 1).padStart(2, '0');
+      const formattedDay = day.padStart(2, '0');
+      return `${year}-${formattedMonth}-${formattedDay}`;
+    }
+  }
+  try {
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+      return d.toISOString().split('T')[0];
+    }
+  } catch (e) {}
+  return '';
+};
+
+const formatDateToDB = (dateStr?: string): string => {
+  if (!dateStr) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+      const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = months[d.getMonth()];
+      const year = d.getFullYear();
+      return `${day}-${month}-${year}`;
+    }
+  }
+  return dateStr;
+};
 const inputCls = 'w-full px-3 py-2 border border-outline-variant/40 rounded-lg text-sm focus:outline-none focus:border-primary bg-surface-container-low text-on-surface transition-colors';
 const labelCls = 'block text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.15em] mb-1.5';
 
@@ -533,6 +600,7 @@ export default function AdminQuotation() {
     if (!parsed.documentsRequired || parsed.documentsRequired.length === 0) parsed.documentsRequired = [...domesticPolicyTemplates.documentsRequired];
     if (!parsed.cancellationPolicy || parsed.cancellationPolicy.length === 0) parsed.cancellationPolicy = [...domesticPolicyTemplates.cancellationPolicy];
     if (!parsed.importantInfo || parsed.importantInfo.length === 0) parsed.importantInfo = [...domesticPolicyTemplates.importantInfo];
+    if (!parsed.termsAndConditions || parsed.termsAndConditions.length === 0) parsed.termsAndConditions = [...domesticPolicyTemplates.termsAndConditions];
 
     return parsed;
   });
@@ -557,11 +625,39 @@ export default function AdminQuotation() {
   // Helpers to add detail inputs
   const [newIncl, setNewIncl] = useState('');
   const [newExcl, setNewExcl] = useState('');
+  const [newTerms, setNewTerms] = useState('');
   const [newDoc, setNewDoc] = useState('');
   const [newCancel, setNewCancel] = useState('');
   const [newInfo, setNewInfo] = useState('');
   const [newArchiveUrl, setNewArchiveUrl] = useState('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Media selector modal state
+  const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
+  const [mediaTarget, setMediaTarget] = useState<{
+    type: 'heroImageUrl' | 'itineraryDay' | 'visualArchive';
+    index?: number;
+  } | null>(null);
+
+  const openSelectorFor = (type: 'heroImageUrl' | 'itineraryDay' | 'visualArchive', index?: number) => {
+    setMediaTarget({ type, index });
+    setIsMediaModalOpen(true);
+  };
+
+  const handleMediaSelect = (url: string) => {
+    if (!mediaTarget) return;
+    
+    if (mediaTarget.type === 'heroImageUrl') {
+      upd({ heroImageUrl: url });
+    } else if (mediaTarget.type === 'itineraryDay' && mediaTarget.index !== undefined) {
+      updateItineraryDay(mediaTarget.index, { imageUrl: url });
+    } else if (mediaTarget.type === 'visualArchive') {
+      upd({ visualArchive: [...data.visualArchive, url] });
+    }
+    
+    setIsMediaModalOpen(false);
+    setMediaTarget(null);
+  };
 
   useEffect(() => {
     localStorage.setItem('jf_active_quotation', JSON.stringify(data));
@@ -759,6 +855,9 @@ export default function AdminQuotation() {
           flightCosts: parsed.flightCosts || [],
         }];
       }
+      if (!parsed.termsAndConditions) {
+        parsed.termsAndConditions = [];
+      }
       setData(parsed);
       setActiveQuoteId(quote.id);
       setDraftName(quote.name);
@@ -793,14 +892,15 @@ export default function AdminQuotation() {
   };
 
   const loadPolicyTemplate = (type: 'domestic' | 'international') => {
-    if (confirm(`Replace inclusions, exclusions, documents required, cancellation policy, and important guidelines with the standard ${type} templates?`)) {
+    if (confirm(`Replace inclusions, exclusions, documents required, cancellation policy, important guidelines, and terms & conditions with the standard ${type} templates?`)) {
       const template = type === 'domestic' ? domesticPolicyTemplates : internationalPolicyTemplates;
       upd({
         inclusions: template.inclusions,
         exclusions: template.exclusions,
         documentsRequired: template.documentsRequired,
         cancellationPolicy: template.cancellationPolicy,
-        importantInfo: template.importantInfo
+        importantInfo: template.importantInfo,
+        termsAndConditions: template.termsAndConditions
       });
     }
   };
@@ -825,8 +925,7 @@ export default function AdminQuotation() {
 
   const itineraryChunks = getBalancedChunks(data.itinerary, 3);
 
-  // Print & Word Export Logic
-  const getQuotationHtml = (isWord = false) => {
+  const getQuotationHtmlForData = (data: QuotationData, isWord = false) => {
     const absUrl = (u?: string) => {
       if (!u) return '';
       if (u.startsWith('http') || u.startsWith('data:')) return u;
@@ -864,11 +963,41 @@ export default function AdminQuotation() {
         padding: 12px 0px;
       }
       
+      .journey-logo {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: inherit;
+      }
+      .journey-logo-img {
+        width: 1.5em;
+        height: 1.5em;
+        object-fit: contain;
+        flex-shrink: 0;
+        border-radius: 0.25rem;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .journey-logo-divider {
+        width: 1px;
+        height: 1.5em;
+        background-color: currentColor;
+        opacity: 0.6;
+      }
+      .journey-logo-text {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-weight: 300;
+        letter-spacing: 0.45em;
+        font-size: 0.9em;
+        white-space: nowrap;
+        line-height: 1;
+      }
+
       .logo { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 28px; font-weight: 300; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 10px; }
       .logo b { font-weight: 900; }
       .favicon { width: 28px; height: 28px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      h1 { font-size: 36px; font-weight: 300; text-transform: uppercase; margin: 0 0 6px 0; letter-spacing: -2px; line-height: 1.1; font-style: italic; }
-      .subtitle { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 4px; opacity: 0.6; margin: 0; }
+      h1 { font-size: 36px; font-weight: 300; text-transform: none; margin: 0 0 6px 0; letter-spacing: -2px; line-height: 1.1; font-style: italic; }
+      .subtitle { font-size: 11px; font-weight: 800; text-transform: none; letter-spacing: 4px; opacity: 0.6; margin: 0; }
       
       .header-bar {
         display: flex;
@@ -894,12 +1023,11 @@ export default function AdminQuotation() {
       .header-info {
         font-size: 9px;
         font-weight: 800;
-        text-transform: uppercase;
+        text-transform: none;
         letter-spacing: 2px;
         color: #666;
       }
-
-      .sect-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin: 12px 0 8px 0; color: #000; font-style: italic; }
+      .sect-title { font-size: 11px; font-weight: 800; text-transform: none; letter-spacing: 2px; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin: 12px 0 8px 0; color: #000; font-style: italic; }
       
       ul { padding-left: 14px; margin: 0; }
       li { margin-bottom: 4px; font-size: 10.5px; color: #333; line-height: 1.35; }
@@ -907,18 +1035,18 @@ export default function AdminQuotation() {
       
       .quote-meta { margin-bottom: 10px; font-size: 11px; }
       .meta-item { display: flex; flex-direction: column; }
-      .meta-label { font-weight: 800; text-transform: uppercase; font-size: 7.5px; color: #666; letter-spacing: 1px; }
+      .meta-label { font-weight: 800; text-transform: none; font-size: 7.5px; color: #666; letter-spacing: 1px; }
       .meta-val { font-weight: bold; color: #000; font-size: 11px; }
       .greeting { margin-top: 8px; margin-bottom: 10px; }
       .greeting p { margin: 2px 0; font-size: 11px; color: #333; }
       
-      .table-title { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #000; margin-bottom: 4px; font-style: italic; }
+      .table-title { font-size: 10px; font-weight: bold; text-transform: none; letter-spacing: 1px; color: #000; margin-bottom: 4px; font-style: italic; }
       table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 10.5px; }
-      th { background: #000; color: #fff; text-transform: uppercase; font-size: 8.5px; font-weight: 800; letter-spacing: 1px; padding: 6px 8px; border: 1px solid #000; text-align: center; }
+      th { background: #000; color: #fff; text-transform: none; font-size: 8.5px; font-weight: 800; letter-spacing: 1px; padding: 6px 8px; border: 1px solid #000; text-align: center; }
       td { border: 1px solid #ddd; padding: 5px 8px; text-align: left; }
       
       .pricing-section { margin-bottom: 10px; }
-      .price-title { font-weight: 800; font-size: 8px; text-transform: uppercase; color: #666; margin-bottom: 3px; letter-spacing: 1px; }
+      .price-title { font-weight: 800; font-size: 8px; text-transform: none; color: #666; margin-bottom: 3px; letter-spacing: 1px; }
       .price-val { font-size: 14px; font-weight: 900; color: #000; }
       .flights-list { list-style: none; padding: 0; margin: 0; }
       .flights-list li { display: flex; justify-content: space-between; font-size: 10px; border-bottom: 1px dashed #eee; padding: 3px 0; }
@@ -982,9 +1110,10 @@ export default function AdminQuotation() {
     <!-- PAGE 1: COVER PAGE (NO BORDER) -->
     <div class="page-container no-border">
       <div style="text-align: center; margin-top: 20px;">
-        <div class="logo" style="margin-bottom: 18px;">
-          <img src="${window.location.origin}/favicon-96x96.png" class="favicon" width="36" height="36" style="width: 36px; height: 36px;" alt="JF Logo" />
-          <span style="font-size: 28px; letter-spacing: 2px;">JOURNEY<b>FLICKER</b></span>
+        <div class="journey-logo" style="justify-content: center; font-size: 24px; margin-bottom: 18px;">
+          <img src="${window.location.origin}/favicon.svg" class="journey-logo-img" alt="Logo" />
+          <div class="journey-logo-divider"></div>
+          <span class="journey-logo-text">JourneyFlicker</span>
         </div>
         ${data.heroImageUrl ? `<img src="${absUrl(data.heroImageUrl)}" class="hero-img" width="800" height="280" style="width: 100%; height: 280px; object-fit: cover; border-radius: 14px; margin-bottom: 20px; -webkit-print-color-adjust: exact; print-color-adjust: exact;" />` : ''}
         <h1 style="font-size: 40px; font-weight: 300; text-transform: uppercase; margin: 0 0 6px 0; letter-spacing: -2px; line-height: 1.1; font-style: italic; font-family: Georgia, serif;">${data.title}</h1>
@@ -995,9 +1124,10 @@ export default function AdminQuotation() {
     <!-- PAGE 2: BASIC DETAILS & HOTELS & PRICING -->
     <div class="page-container page-break">
       <div class="header-bar">
-        <div class="logo">
-          <img src="${window.location.origin}/favicon-96x96.png" class="favicon" width="28" height="28" alt="Logo" />
-          <span>JOURNEY<b>FLICKER</b></span>
+        <div class="journey-logo" style="font-size: 16px;">
+          <img src="${window.location.origin}/favicon.svg" class="journey-logo-img" alt="Logo" />
+          <div class="journey-logo-divider"></div>
+          <span class="journey-logo-text">JourneyFlicker</span>
         </div>
         <div class="header-info">Quotation Details</div>
       </div>
@@ -1093,9 +1223,10 @@ export default function AdminQuotation() {
     <!-- ITINERARY: all days in one continuous block, browser breaks naturally -->
     <div class="page-container page-break">
       <div class="header-bar">
-        <div class="logo">
-          <img src="${window.location.origin}/favicon-96x96.png" class="favicon" width="28" height="28" alt="Logo" />
-          <span>JOURNEY<b>FLICKER</b></span>
+        <div class="journey-logo" style="font-size: 16px;">
+          <img src="${window.location.origin}/favicon.svg" class="journey-logo-img" alt="Logo" />
+          <div class="journey-logo-divider"></div>
+          <span class="journey-logo-text">JourneyFlicker</span>
         </div>
         <div class="header-info">Detailed Itinerary</div>
       </div>
@@ -1118,9 +1249,10 @@ export default function AdminQuotation() {
     <!-- PAGE: INCLUSIONS & EXCLUSIONS -->
     <div class="page-container page-break">
       <div class="header-bar">
-        <div class="logo">
-          <img src="${window.location.origin}/favicon-96x96.png" class="favicon" width="28" height="28" alt="Logo" />
-          <span>JOURNEY<b>FLICKER</b></span>
+        <div class="journey-logo" style="font-size: 16px;">
+          <img src="${window.location.origin}/favicon.svg" class="journey-logo-img" alt="Logo" />
+          <div class="journey-logo-divider"></div>
+          <span class="journey-logo-text">JourneyFlicker</span>
         </div>
         <div class="header-info">Terms &amp; Conditions</div>
       </div>
@@ -1143,15 +1275,24 @@ export default function AdminQuotation() {
           </td>
         </tr>
       </table>
+      ${data.termsAndConditions && data.termsAndConditions.length > 0 ? `
+        <div style="margin-top: 15px;">
+          <div class="sect-title" style="margin-top:0;">Terms &amp; Conditions</div>
+          <ul style="padding-left: 14px; margin: 0;">
+            ${data.termsAndConditions.map(t => `<li style="font-size: 10.5px; margin-bottom: 4px; line-height: 1.35;">${t}</li>`).join('')}
+          </ul>
+        </div>
+      ` : ''}
     </div>
 
     <!-- PAGE: VISUAL ARCHIVE -->
     ${data.visualArchive.length > 0 ? `
       <div class="page-container page-break">
         <div class="header-bar">
-          <div class="logo">
-            <img src="${window.location.origin}/favicon-96x96.png" class="favicon" width="28" height="28" alt="Logo" />
-            <span>JOURNEY<b>FLICKER</b></span>
+          <div class="journey-logo" style="font-size: 16px;">
+            <img src="${window.location.origin}/favicon.svg" class="journey-logo-img" alt="Logo" />
+            <div class="journey-logo-divider"></div>
+            <span class="journey-logo-text">JourneyFlicker</span>
           </div>
           <div class="header-info">Visual Archive</div>
         </div>
@@ -1175,9 +1316,10 @@ export default function AdminQuotation() {
     <!-- PAGE: POLICIES & GUIDELINES (NO BORDER) -->
     <div class="page-container no-border page-break">
       <div class="header-bar">
-        <div class="logo">
-          <img src="${window.location.origin}/favicon-96x96.png" class="favicon" width="28" height="28" alt="Logo" />
-          <span>JOURNEY<b>FLICKER</b></span>
+        <div class="journey-logo" style="font-size: 16px;">
+          <img src="${window.location.origin}/favicon.svg" class="journey-logo-img" alt="Logo" />
+          <div class="journey-logo-divider"></div>
+          <span class="journey-logo-text">JourneyFlicker</span>
         </div>
         <div class="header-info">Policy &amp; Guidelines</div>
       </div>
@@ -1212,9 +1354,10 @@ export default function AdminQuotation() {
 
       <!-- COMPLETE FOOTER (NO BORDER) -->
       <div class="complete-footer" style="margin-top: 24px; border-top: 2px solid #000; padding-top: 16px; display: flex; flex-direction: column; align-items: flex-start; text-align: left; width: 100%;">
-        <div class="logo" style="display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 300; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">
-          <img src="${window.location.origin}/favicon-96x96.png" class="favicon" width="22" height="22" style="width: 22px; height: 22px;" alt="JF Logo" />
-          <span>JOURNEY<b>FLICKER</b></span>
+        <div class="journey-logo" style="font-size: 14px; margin-bottom: 8px;">
+          <img src="${window.location.origin}/favicon.svg" class="journey-logo-img" alt="Logo" />
+          <div class="journey-logo-divider"></div>
+          <span class="journey-logo-text">JourneyFlicker</span>
         </div>
         <h4 style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin: 0 0 7px 0; color: #111;">THE CURATOR BOARD</h4>
         <div style="font-size: 9.5px; line-height: 1.7; color: #333; font-weight: 500;">
@@ -1227,6 +1370,38 @@ export default function AdminQuotation() {
     
   </body>
 </html>`;
+  };
+
+  const getQuotationHtml = (isWord = false) => getQuotationHtmlForData(data, isWord);
+
+  const handlePreviewFromDB = (quote: QuotationRecord) => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Please allow popups for this website to preview the quotation.');
+      return;
+    }
+    let parsed = quote.data;
+    if (!parsed.options) {
+      parsed.options = [{
+        optionTitle: parsed.optionTitle || '',
+        hotels: parsed.hotels || [],
+        packageCosts: parsed.packageCosts || [],
+        flightCosts: parsed.flightCosts || [],
+      }];
+    }
+    if (!parsed.termsAndConditions) {
+      parsed.termsAndConditions = [];
+    }
+    const htmlContent = getQuotationHtmlForData(parsed, false).replace('</body>', `
+    <script>
+      window.onload = () => {
+        setTimeout(() => { window.print(); window.close(); }, 500);
+      };
+    </script>
+  </body>`);
+    printWindow.document.open();
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
   };
 
   const handlePrint = () => {
@@ -1334,6 +1509,12 @@ export default function AdminQuotation() {
                       </td>
                       <td className="px-4 py-3 text-on-surface-variant opacity-80">{new Date(q.updatedAt).toLocaleDateString()}</td>
                       <td className="px-4 py-3 text-right space-x-2">
+                        <button 
+                          onClick={() => handlePreviewFromDB(q)} 
+                          className="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded font-bold transition-colors"
+                        >
+                          Preview
+                        </button>
                         <button 
                           onClick={() => { handleLoadFromDB(q); setViewMode('editor'); }} 
                           className="px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary/20 rounded font-bold transition-colors"
@@ -1465,15 +1646,35 @@ export default function AdminQuotation() {
             </div>
             <div>
               <label className={labelCls}>Quotation Date</label>
-              <input type="text" value={data.quotationDate} onChange={e => upd({ quotationDate: e.target.value })} className={inputCls} />
+              <input 
+                type="date" 
+                value={formatDateToInput(data.quotationDate)} 
+                onChange={e => upd({ quotationDate: formatDateToDB(e.target.value) })} 
+                className={inputCls} 
+              />
             </div>
             <div>
               <label className={labelCls}>Traveling Date</label>
-              <input type="text" value={data.travelingDate} onChange={e => upd({ travelingDate: e.target.value })} className={inputCls} />
+              <input 
+                type="date" 
+                value={formatDateToInput(data.travelingDate)} 
+                onChange={e => upd({ travelingDate: formatDateToDB(e.target.value) })} 
+                className={inputCls} 
+              />
             </div>
             <div className="col-span-2">
               <label className={labelCls}>Hero Banner Image URL</label>
-              <input type="text" value={data.heroImageUrl || ''} onChange={e => upd({ heroImageUrl: e.target.value })} className={inputCls} placeholder="https://..." />
+              <div className="flex gap-2">
+                <input type="text" value={data.heroImageUrl || ''} onChange={e => upd({ heroImageUrl: e.target.value })} className={inputCls} placeholder="https://..." />
+                <button 
+                  type="button" 
+                  onClick={() => openSelectorFor('heroImageUrl')} 
+                  className="px-3 py-1 bg-surface-container hover:bg-surface-container-high rounded-xl border border-outline-variant/30 text-xs font-bold flex items-center gap-1 shrink-0 transition-all"
+                >
+                  <span className="material-symbols-outlined text-sm font-bold">photo_library</span>
+                  Select
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1604,7 +1805,17 @@ export default function AdminQuotation() {
                   </div>
                   <div className="col-span-3">
                     <label className={labelCls}>Day Image URL (Optional)</label>
-                    <input type="text" value={day.imageUrl || ''} onChange={e => updateItineraryDay(idx, { imageUrl: e.target.value })} className={inputCls} placeholder="https://..." />
+                    <div className="flex gap-2">
+                      <input type="text" value={day.imageUrl || ''} onChange={e => updateItineraryDay(idx, { imageUrl: e.target.value })} className={inputCls} placeholder="https://..." />
+                      <button 
+                        type="button" 
+                        onClick={() => openSelectorFor('itineraryDay', idx)} 
+                        className="px-3 py-1 bg-surface-container hover:bg-surface-container-high rounded-xl border border-outline-variant/30 text-xs font-bold flex items-center gap-1 shrink-0 transition-all"
+                      >
+                        <span className="material-symbols-outlined text-sm font-bold">photo_library</span>
+                        Select
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1633,12 +1844,20 @@ export default function AdminQuotation() {
           <div className="flex gap-2">
             <input type="text" value={newArchiveUrl} onChange={e => setNewArchiveUrl(e.target.value)} className={inputCls} placeholder="Paste image URL..." />
             <button 
+              type="button" 
+              onClick={() => openSelectorFor('visualArchive')} 
+              className="px-3 py-1 bg-surface-container hover:bg-surface-container-high rounded-xl border border-outline-variant/30 text-xs font-bold flex items-center gap-1 shrink-0 transition-all"
+            >
+              <span className="material-symbols-outlined text-sm font-bold">photo_library</span>
+              Select
+            </button>
+            <button 
               onClick={() => {
                 if (!newArchiveUrl.trim()) return;
                 upd({ visualArchive: [...data.visualArchive, newArchiveUrl.trim()] });
                 setNewArchiveUrl('');
               }}
-              className="px-4 py-2 bg-surface-container border border-outline-variant/30 rounded-lg text-xs font-bold hover:bg-surface-container-high transition-all"
+              className="px-4 py-2 bg-primary text-on-primary rounded-xl text-xs font-bold hover:bg-primary-hover shadow-lg transition-all"
             >
               + Add
             </button>
@@ -1704,6 +1923,27 @@ export default function AdminQuotation() {
             <div className="flex gap-2">
               <input type="text" value={newExcl} onChange={e => setNewExcl(e.target.value)} className={inputCls} placeholder="Add exclusion..." />
               <button onClick={() => { if (newExcl) { upd({ exclusions: [...data.exclusions, newExcl] }); setNewExcl(''); } }} className="px-3 py-1 bg-surface-container rounded-lg text-xs border border-outline-variant/20">+</button>
+            </div>
+          </div>
+
+          {/* Terms & Conditions */}
+          <div className="pt-4 border-t border-outline-variant/10">
+            <h3 className={labelCls}>Terms & Conditions</h3>
+            <div className="space-y-2 mb-3">
+              {(data.termsAndConditions || []).map((term, i) => (
+                <div key={i} className="flex items-start gap-2 bg-surface-container-low p-1.5 rounded-lg border border-outline-variant/10">
+                  <textarea 
+                    value={term} 
+                    onChange={e => upd({ termsAndConditions: (data.termsAndConditions || []).map((item, idx) => idx === i ? e.target.value : item) })} 
+                    className={inputCls + " !text-xs !py-1 !px-2 flex-1 resize-y min-h-[32px]"}
+                  />
+                  <button onClick={() => upd({ termsAndConditions: (data.termsAndConditions || []).filter((_, idx) => idx !== i) })} className="text-red-400 hover:text-red-600 px-2 text-lg leading-none mt-0.5">×</button>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input type="text" value={newTerms} onChange={e => setNewTerms(e.target.value)} className={inputCls} placeholder="Add term or condition..." />
+              <button onClick={() => { if (newTerms) { upd({ termsAndConditions: [...(data.termsAndConditions || []), newTerms] }); setNewTerms(''); } }} className="px-3 py-1 bg-surface-container rounded-lg text-xs border border-outline-variant/20">+</button>
             </div>
           </div>
 
@@ -1801,10 +2041,7 @@ export default function AdminQuotation() {
           {/* SHEET 1: COVER PAGE (NO BORDER) */}
           <div className="bg-white text-black p-8 rounded shadow-md max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
             <div className="text-center mt-12">
-              <div className="flex items-center justify-center gap-2 text-2xl font-light uppercase tracking-tighter mb-8">
-                <img src="/favicon.svg" className="w-8 h-8 object-contain" alt="Logo" />
-                <span>JOURNEY<b>FLICKER</b></span>
-              </div>
+              <Logo className="justify-center mb-8" textClassName="text-2xl" />
               {data.heroImageUrl && (
                 <img src={data.heroImageUrl} className="w-full h-80 object-cover rounded-2xl mb-8 shadow-sm" alt="Hero Banner" />
               )}
@@ -1817,10 +2054,7 @@ export default function AdminQuotation() {
           <div className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
             <div>
               <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
-                <div className="flex items-center gap-2 text-xl font-light uppercase tracking-tighter">
-                  <img src="/favicon.svg" className="w-6 h-6 object-contain" alt="Logo" />
-                  <span>JOURNEY<b>FLICKER</b></span>
-                </div>
+                <Logo textClassName="text-xl" />
                 <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
                   Quotation Details
                 </div>
@@ -1955,10 +2189,7 @@ export default function AdminQuotation() {
             <div key={index} className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
               <div>
                 <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
-                  <div className="flex items-center gap-2 text-xl font-light uppercase tracking-tighter">
-                    <img src="/favicon.svg" className="w-6 h-6 object-contain" alt="Logo" />
-                    <span>JOURNEY<b>FLICKER</b></span>
-                  </div>
+                  <Logo textClassName="text-xl" />
                   <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
                     Detailed Itinerary - Page {index + 1}
                   </div>
@@ -1995,10 +2226,7 @@ export default function AdminQuotation() {
           <div className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
             <div>
               <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
-                <div className="flex items-center gap-2 text-xl font-light uppercase tracking-tighter">
-                  <img src="/favicon.svg" className="w-6 h-6 object-contain" alt="Logo" />
-                  <span>JOURNEY<b>FLICKER</b></span>
-                </div>
+                <Logo textClassName="text-xl" />
                 <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
                   Terms & Conditions
                 </div>
@@ -2020,6 +2248,14 @@ export default function AdminQuotation() {
                   </ul>
                 </div>
               </div>
+              {data.termsAndConditions && data.termsAndConditions.length > 0 && (
+                <div className="mt-4">
+                  <div className="text-[10px] font-black text-black border-b pb-1 mb-2 italic">Terms & Conditions</div>
+                  <ul className="pl-4 m-0 space-y-1 list-disc text-[10px] text-gray-600">
+                    {data.termsAndConditions.map((t, i) => <li key={i}>{t}</li>)}
+                  </ul>
+                </div>
+              )}
             </div>
 
             <div className="border-t border-gray-200 pt-2 flex flex-col items-center text-[7px] text-gray-500 font-bold uppercase tracking-widest text-center mt-auto">
@@ -2036,10 +2272,7 @@ export default function AdminQuotation() {
             <div className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
               <div>
                 <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
-                  <div className="flex items-center gap-2 text-xl font-light uppercase tracking-tighter">
-                    <img src="/favicon.svg" className="w-6 h-6 object-contain" alt="Logo" />
-                    <span>JOURNEY<b>FLICKER</b></span>
-                  </div>
+                  <Logo textClassName="text-xl" />
                   <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
                     Visual Archive
                   </div>
@@ -2067,10 +2300,7 @@ export default function AdminQuotation() {
           <div className="bg-white text-black p-8 rounded shadow-md max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
             <div>
               <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
-                <div className="flex items-center gap-2 text-xl font-light uppercase tracking-tighter">
-                  <img src="/favicon.svg" className="w-6 h-6 object-contain" alt="Logo" />
-                  <span>JOURNEY<b>FLICKER</b></span>
-                </div>
+                <Logo textClassName="text-xl" />
                 <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
                   Policy & Guidelines
                 </div>
@@ -2105,10 +2335,7 @@ export default function AdminQuotation() {
 
             {/* COMPLETE FOOTER (NO BORDER) */}
             <div className="complete-footer mt-10 pt-6 border-t-2 border-black flex flex-col items-start text-left w-full">
-              <div className="logo flex items-center gap-2 text-lg font-light uppercase tracking-tighter mb-3">
-                <img src="/favicon.svg" className="w-6 h-6 object-contain" alt="Logo" />
-                <span>JOURNEY<b>FLICKER</b></span>
-              </div>
+              <Logo className="mb-3" textClassName="text-lg" />
               <h4 className="text-[10px] font-black uppercase tracking-widest text-black mb-2">THE CURATOR BOARD</h4>
               <div className="text-[9px] leading-relaxed text-gray-600 font-medium space-y-0.5">
                 <div><strong>Email:</strong> tushar@journeyflicker.com | pashv@journeyflicker.com</div>
@@ -2123,6 +2350,11 @@ export default function AdminQuotation() {
       </div>
       </div>
       )}
+      <MediaSelectorModal 
+        isOpen={isMediaModalOpen}
+        onClose={() => setIsMediaModalOpen(false)}
+        onSelect={handleMediaSelect}
+      />
     </div>
   );
 }

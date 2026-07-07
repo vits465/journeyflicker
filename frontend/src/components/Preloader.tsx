@@ -325,7 +325,7 @@ export function SplashPreloader({ onDone }: { onDone: () => void }) {
         <div style={{ position:'relative', marginBottom:6 }}>
           <h1 style={{
             fontSize:34, fontWeight:300, letterSpacing:'.22em',
-            textTransform:'uppercase', color:'#f0ead6',
+            textTransform:'none', color:'#f0ead6',
             margin:0, fontFamily:"'Cormorant Garamond','Georgia',serif",
             fontStyle:'italic',
             animation:'jf-fade-up .9s .2s ease both',

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../lib/adminAuth';
+import { Logo } from '../components/Logo';
 
 export default function AdminLoginPage() {
   const { login } = useAdminAuth();
@@ -61,10 +62,8 @@ export default function AdminLoginPage() {
       <div className="relative w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-10">
-          <a href="/" className="inline-block">
-            <span className="text-white text-2xl font-light tracking-tighter uppercase">
-              Journey<span className="font-black">Flicker</span>
-            </span>
+          <a href="/" className="inline-block flex justify-center text-white">
+            <Logo />
           </a>
           <div className="mt-3 flex items-center justify-center gap-2">
             <span className="material-symbols-outlined text-white/30 text-sm">admin_panel_settings</span>

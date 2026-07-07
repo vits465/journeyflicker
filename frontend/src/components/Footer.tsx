@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { Logo } from "./Logo";
 
 const registry = ['Tours', 'Destinations', 'Visas', 'About'];
 const intelligence = ['FAQ', 'Contact', 'Strategy'];
@@ -23,11 +24,8 @@ export function Footer() {
 
           {/* Brand column */}
           <div className="sm:col-span-2 lg:col-span-1 space-y-5">
-            <NavLink to="/" className="group flex items-center gap-2">
-              <img src="/favicon.svg" alt="JourneyFlicker Logo" className="w-6 h-6 sm:w-7 sm:h-7 object-contain rounded-lg" />
-              <span className="text-xl sm:text-2xl font-light tracking-tighter uppercase group-hover:text-primary transition-colors duration-300">
-                Journey<span className="font-black">Flicker</span>
-              </span>
+            <NavLink to="/" className="group flex items-center hover:text-primary transition-colors duration-300">
+              <Logo />
             </NavLink>
             <p className="text-sm font-light text-white/60 leading-relaxed italic font-serif max-w-xs">
               "Providing architectural silence and profound discovery for the discerning voyager."
