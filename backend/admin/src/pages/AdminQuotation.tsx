@@ -380,11 +380,12 @@ const keralaPreset: QuotationData = {
 const domesticPolicyTemplates = {
   inclusions: [
     'Accommodation on Double/Twin sharing basis.',
-    'Daily Breakfast & Dinner at all hotels / resorts.',
+    'Accommodation on with above meal plan.',
     'All transfers and sightseeing by private air-conditioned vehicle as per itinerary.',
     'AC will be switched off in hill stations / climb routes.',
     'All toll taxes, parking fees, driver allowance, and road permits.',
-    'Assistance on arrival and departure transfers.'
+    'Pikup and Drop As per  itinerary.'
+
   ],
   exclusions: [
     'Airfare / Train fares.',
@@ -429,9 +430,6 @@ const internationalPolicyTemplates = {
     'Accommodation in premium category hotels (Double sharing).',
     'Daily buffet breakfast at all hotels (additional meals as per plan).',
     'Private airport arrival & departure transfers.',
-    'Coordinated sightseeing activities with local English-speaking guides.',
-    'All local transportation, highway tolls, and driver allowances.',
-    'Basic travel insurance coverage during the tour.'
   ],
   exclusions: [
     'International & Domestic Airfares & Airport Taxes.',
