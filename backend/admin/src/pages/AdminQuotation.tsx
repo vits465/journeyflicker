@@ -330,12 +330,14 @@ const keralaPreset: QuotationData = {
     'For children below 5 years: Birth certificate is required.'
   ],
   cancellationPolicy: [
-    '45 days or more before departure: 10% of total package cost.',
-    '44 to 30 days before departure: 25% of total package cost.',
-    '29 to 15 days before departure: 50% of total package cost.',
-    '14 to 7 days before departure: 75% of total package cost.',
-    'Less than 7 days / No Show: 100% of total package cost (non-refundable).',
-    'Houseboat once confirmed — 100% cancellation charges apply at all times.'
+    'Once flight tickets are issued, the applicable airline cancellation penalty will be charged.',
+    '50–40 days before departure: 50% of the package cost will be charged.',
+    '40–30 days before departure: 60% of the package cost will be charged.',
+    '30–21 days before departure: 75% of the package cost will be charged.',
+    ' Less than 20 days before departure: 100% of the total package cost will be charged',
+    'The cancellation policy is subject to change as per the hotel’s policy.',
+    'Any non-refundable services, including hotel bookings, transfers, or other third-party arrangements, will be charged in full as per supplier policy.',
+
   ],
   importantInfo: [
     'Above costing is based on minimum 10 Adults travelling together — cost may change if group size reduces.',
@@ -343,7 +345,7 @@ const keralaPreset: QuotationData = {
     'Eravikulam National Park remains closed during Feb–March (calving season) — alternate sightseeing will be arranged.',
     'Standard hotel check-in is 14:00 hrs and check-out is 12:00 Noon. Early/Late subject to availability.',
     'Flight costs quoted are approximate and will be locked only at actual time of booking.',
-    'We act as booking agents only and cannot be held liable for mechanical failures, weather, or acts of God.'
+    'We act as booking agents only and cannot be held liable for mechanical failures, weather, or acts of God.',
   ],
   visualArchive: [
     'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=600&auto=format&fit=crop',
@@ -357,7 +359,10 @@ const keralaPreset: QuotationData = {
   termsAndConditions: [
     'The itinerary is tentative and subject to change based on local traffic conditions or weather.',
     'Any booking is subject to confirmation only after receiving the advance payment.',
-    'All prices are subject to change without prior notice unless booking is fully paid.'
+    'All prices are subject to change without prior notice unless booking is fully paid.',
+    'Any further increase in airfare due to increase in the fuel price, change in government regulations, taxes, etc., charged by the airline will have to be borne by the passengers. JOURNEYFLICKER will not be held responsible for them.',
+      'In case your package needs to be cancelled due to any natural calamity, weather conditions etc. JOURNEYFLICKER shall strive to give you the maximum possible refund subject to the agreement made with our trade partners/vendors',
+    'Any increase in the number of passengers may lead to an increase in the total cost of the tour'  
   ]
 };
 
@@ -391,9 +396,15 @@ const domesticPolicyTemplates = {
   ],
   importantInfo: [
     'Rates are based on minimum guest count and subject to change if group size changes.',
-    'Standard hotel check-in time is 14:00 and check-out is 12:00 noon.',
     'Early check-in or late check-out is subject to room availability and extra charges.',
-    'We act as booking agents only and cannot be held liable for mechanical failures or acts of God.'
+    'We act as booking agents only and cannot be held liable for mechanical failures or acts of God.',
+    'Hotels/Airline will be subject to availability till Reconfirmation.',
+    'Given cost is estimated, based on lowest airfare and hotel rates existing as of now. We don’t hold any confirmation for Hotels/Airline. It’s Subject to availability at the time of booking. Any difference in cost shall be borne by passenger.',
+    'Room allocation Twin rooms /Double room will be as per the availability at the time of check in',
+    'Hotel Check in time 1400hrs, Check out Time 1200hrs (Depend On Hotel Policy)',
+    'Charges for extras (Wi‑Fi, minibar, laundry, room service, etc.) and local taxes are charged directly by the hotel.',
+    'Certain hotels abroad may ask for a security deposit during check-in, which is refundable at check-out subject to the hotels policy.',
+    'The package price does not include special dinner or mandatory charges at time levied by the hotels especially during New Year and Christmas or any special occasions.'
   ],
   termsAndConditions: [
     'The itinerary is tentative and subject to change based on local traffic conditions or weather.',
@@ -492,7 +503,7 @@ const mapTourToQuotation = (tour: Tour): QuotationData => {
     if (dayPrefixMatch) {
       title = dayPrefixMatch[1].trim();
     }
-    
+
     return {
       day: dayLabel,
       title: title.toUpperCase(),
@@ -502,11 +513,11 @@ const mapTourToQuotation = (tour: Tour): QuotationData => {
   });
 
   // Heuristic to detect if it's domestic or international
-  const isInternational = tour.price?.includes('$') || tour.price?.toLowerCase().includes('usd') || 
-    !['gangtok', 'lachung', 'darjeeling', 'sikkim', 'kerala', 'kashmir', 'ladakh', 'goa', 'rajasthan', 'himachal', 'manali', 'shimla', 'uttarakhand', 'agra', 'delhi', 'mumbai', 'india', 'northeast', 'north east'].some(k => 
+  const isInternational = tour.price?.includes('$') || tour.price?.toLowerCase().includes('usd') ||
+    !['gangtok', 'lachung', 'darjeeling', 'sikkim', 'kerala', 'kashmir', 'ladakh', 'goa', 'rajasthan', 'himachal', 'manali', 'shimla', 'uttarakhand', 'agra', 'delhi', 'mumbai', 'india', 'northeast', 'north east'].some(k =>
       tour.region?.toLowerCase().includes(k) || tour.name?.toLowerCase().includes(k)
     );
-  
+
   const template = isInternational ? internationalPolicyTemplates : domesticPolicyTemplates;
 
   return {
@@ -560,7 +571,7 @@ const formatDateToInput = (dateStr?: string): string => {
     if (!isNaN(d.getTime())) {
       return d.toISOString().split('T')[0];
     }
-  } catch (e) {}
+  } catch (e) { }
   return '';
 };
 
@@ -585,7 +596,7 @@ export default function AdminQuotation() {
   const [data, setData] = useState<QuotationData>(() => {
     const saved = localStorage.getItem('jf_active_quotation');
     let parsed: QuotationData = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(emptyQuotation));
-    
+
     if (!parsed.options) {
       parsed.options = [{
         optionTitle: parsed.optionTitle || '',
@@ -594,7 +605,7 @@ export default function AdminQuotation() {
         flightCosts: parsed.flightCosts || [],
       }];
     }
-    
+
     if (!parsed.inclusions || parsed.inclusions.length === 0) parsed.inclusions = [...domesticPolicyTemplates.inclusions];
     if (!parsed.exclusions || parsed.exclusions.length === 0) parsed.exclusions = [...domesticPolicyTemplates.exclusions];
     if (!parsed.documentsRequired || parsed.documentsRequired.length === 0) parsed.documentsRequired = [...domesticPolicyTemplates.documentsRequired];
@@ -604,7 +615,7 @@ export default function AdminQuotation() {
 
     return parsed;
   });
-  
+
   // Quotation DB States
   const [activeQuoteId, setActiveQuoteId] = useState<string | null>(null);
   const [dbQuotations, setDbQuotations] = useState<QuotationRecord[]>([]);
@@ -621,7 +632,7 @@ export default function AdminQuotation() {
   const [websiteTours, setWebsiteTours] = useState<Tour[]>([]);
   const [selectedTourId, setSelectedTourId] = useState('');
   const [isLoadingTours, setIsLoadingTours] = useState(false);
-  
+
   // Helpers to add detail inputs
   const [newIncl, setNewIncl] = useState('');
   const [newExcl, setNewExcl] = useState('');
@@ -646,7 +657,7 @@ export default function AdminQuotation() {
 
   const handleMediaSelect = (url: string) => {
     if (!mediaTarget) return;
-    
+
     if (mediaTarget.type === 'heroImageUrl') {
       upd({ heroImageUrl: url });
     } else if (mediaTarget.type === 'itineraryDay' && mediaTarget.index !== undefined) {
@@ -654,7 +665,7 @@ export default function AdminQuotation() {
     } else if (mediaTarget.type === 'visualArchive') {
       upd({ visualArchive: [...data.visualArchive, url] });
     }
-    
+
     setIsMediaModalOpen(false);
     setMediaTarget(null);
   };
@@ -756,14 +767,14 @@ export default function AdminQuotation() {
   const updateHotelRow = (optIdx: number, rowIdx: number, patch: Partial<HotelRow>) => {
     upd({ options: data.options.map((opt, i) => i === optIdx ? { ...opt, hotels: opt.hotels.map((r, j) => j === rowIdx ? { ...r, ...patch } : r) } : opt) });
   };
-  
+
   const addPackageCost = (optIdx: number, cost: PackageCostItem) => {
     upd({ options: data.options.map((opt, i) => i === optIdx ? { ...opt, packageCosts: [...opt.packageCosts, cost] } : opt) });
   };
   const removePackageCost = (optIdx: number, costIdx: number) => {
     upd({ options: data.options.map((opt, i) => i === optIdx ? { ...opt, packageCosts: opt.packageCosts.filter((_, j) => j !== costIdx) } : opt) });
   };
-  
+
   const addFlightCost = (optIdx: number, cost: FlightCost) => {
     upd({ options: data.options.map((opt, i) => i === optIdx ? { ...opt, flightCosts: [...opt.flightCosts, cost] } : opt) });
   };
@@ -912,7 +923,7 @@ export default function AdminQuotation() {
     const numChunks = Math.ceil(total / maxPerChunk);
     const baseSize = Math.floor(total / numChunks);
     const remainder = total % numChunks;
-    
+
     const chunks: ItineraryDay[][] = [];
     let currentIndex = 0;
     for (let i = 0; i < numChunks; i++) {
@@ -1200,9 +1211,9 @@ export default function AdminQuotation() {
               </thead>
               <tbody>
                 ${(opt.packageCosts || []).map(c => {
-                  const flightCost = opt.flightCosts && opt.flightCosts.length > 0 ? opt.flightCosts[0].cost : 0;
-                  const totalPerPerson = c.cost + flightCost;
-                  return `
+      const flightCost = opt.flightCosts && opt.flightCosts.length > 0 ? opt.flightCosts[0].cost : 0;
+      const totalPerPerson = c.cost + flightCost;
+      return `
                   <tr>
                     <td style="border:1px solid #ccc; padding:6px; text-align:left;">${c.category}</td>
                     <td style="border:1px solid #ccc; padding:6px;">Rs. ${c.cost.toLocaleString('en-IN')}/-</td>
@@ -1210,7 +1221,7 @@ export default function AdminQuotation() {
                     <td style="border:1px solid #ccc; padding:6px; font-weight:bold; color:#d93025;">Rs. ${totalPerPerson.toLocaleString('en-IN')}/- ${c.pax > 0 ? `x ${String(c.pax).padStart(2, '0')}` : '(Per Person)'}</td>
                   </tr>
                   `;
-                }).join('')}
+    }).join('')}
               </tbody>
             </table>
           </td>
@@ -1427,13 +1438,13 @@ export default function AdminQuotation() {
   return (
     <div className="w-full max-w-7xl mx-auto pb-12 space-y-6">
       <div className="flex items-center gap-4 border-b border-outline-variant/30 pb-4">
-        <button 
+        <button
           onClick={() => setViewMode('editor')}
           className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'editor' ? 'bg-primary text-on-primary' : 'bg-surface text-on-surface hover:bg-surface-container'}`}
         >
           Quotation Editor
         </button>
-        <button 
+        <button
           onClick={() => { setViewMode('list'); loadQuotations(); }}
           className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'list' ? 'bg-primary text-on-primary' : 'bg-surface text-on-surface hover:bg-surface-container'}`}
         >
@@ -1446,15 +1457,15 @@ export default function AdminQuotation() {
           <div className="flex flex-col xl:flex-row gap-4 items-center justify-between">
             <h2 className="text-xl font-black uppercase tracking-wider text-on-surface">Quotations Database</h2>
             <div className="flex flex-wrap gap-3">
-              <input 
-                type="text" 
-                placeholder="Search..." 
+              <input
+                type="text"
+                placeholder="Search..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 className={inputCls + " w-auto"}
               />
-              <select 
-                value={statusFilter} 
+              <select
+                value={statusFilter}
                 onChange={e => setStatusFilter(e.target.value)}
                 className={inputCls + " w-auto"}
               >
@@ -1462,15 +1473,15 @@ export default function AdminQuotation() {
                 <option value="Draft">Draft</option>
                 <option value="Final">Final</option>
               </select>
-              <input 
-                type="date" 
+              <input
+                type="date"
                 value={startDate}
                 onChange={e => setStartDate(e.target.value)}
                 className={inputCls + " w-auto"}
                 title="Start Date"
               />
-              <input 
-                type="date" 
+              <input
+                type="date"
                 value={endDate}
                 onChange={e => setEndDate(e.target.value)}
                 className={inputCls + " w-auto"}
@@ -1509,20 +1520,20 @@ export default function AdminQuotation() {
                       </td>
                       <td className="px-4 py-3 text-on-surface-variant opacity-80">{new Date(q.updatedAt).toLocaleDateString()}</td>
                       <td className="px-4 py-3 text-right space-x-2">
-                        <button 
-                          onClick={() => handlePreviewFromDB(q)} 
+                        <button
+                          onClick={() => handlePreviewFromDB(q)}
                           className="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded font-bold transition-colors"
                         >
                           Preview
                         </button>
-                        <button 
-                          onClick={() => { handleLoadFromDB(q); setViewMode('editor'); }} 
+                        <button
+                          onClick={() => { handleLoadFromDB(q); setViewMode('editor'); }}
                           className="px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary/20 rounded font-bold transition-colors"
                         >
                           Load & Edit
                         </button>
-                        <button 
-                          onClick={() => handleDeleteFromDB(q.id, q.name)} 
+                        <button
+                          onClick={() => handleDeleteFromDB(q.id, q.name)}
                           className="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded font-bold transition-colors"
                         >
                           Delete
@@ -1538,819 +1549,819 @@ export default function AdminQuotation() {
       ) : (
         <div className="flex flex-col lg:flex-row gap-6 w-full">
           {/* ── LEFT PANEL: FORMS & CONTROLS ── */}
-      <div className="w-full lg:w-1/2 space-y-6">
-        
-        {/* Presets & Save */}
-        <div className="bg-surface rounded-2xl p-5 border border-outline-variant/30 shadow-sm space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h3 className="text-sm font-bold text-on-surface uppercase tracking-wider">Quotation Templates</h3>
-            <div className="flex flex-wrap gap-2">
-              <button 
-                onClick={() => loadPreset(hiteshPreset)}
-                className="px-3 py-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl text-[10px] uppercase font-black tracking-widest shadow-md hover:scale-105 transition-all"
-              >
-                ⚡ Hitesh North East
-              </button>
-              <button 
-                onClick={() => loadPreset(keralaPreset)}
-                className="px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-500 text-white rounded-xl text-[10px] uppercase font-black tracking-widest shadow-md hover:scale-105 transition-all"
-              >
-                🌴 Kerala Demo
-              </button>
-              <button 
-                onClick={handleClearAll}
-                className="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-[10px] uppercase font-bold tracking-widest transition-colors"
-              >
-                Clear Editor
-              </button>
-            </div>
-          </div>
+          <div className="w-full lg:w-1/2 space-y-6">
 
-          {/* Website Tour Selector */}
-          <div className="border-t border-outline-variant/20 pt-4 space-y-2">
-            <label className={labelCls}>Load Tour from Website</label>
-            <div className="flex gap-2">
-              <select
-                value={selectedTourId}
-                onChange={e => setSelectedTourId(e.target.value)}
-                className={inputCls}
-                disabled={isLoadingTours}
-              >
-                <option value="">-- Select a Website Tour --</option>
-                {websiteTours.map(t => (
-                  <option key={t.id} value={t.id}>
-                    {t.name} ({t.days} Days - {t.region})
-                  </option>
+            {/* Presets & Save */}
+            <div className="bg-surface rounded-2xl p-5 border border-outline-variant/30 shadow-sm space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h3 className="text-sm font-bold text-on-surface uppercase tracking-wider">Quotation Templates</h3>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => loadPreset(hiteshPreset)}
+                    className="px-3 py-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl text-[10px] uppercase font-black tracking-widest shadow-md hover:scale-105 transition-all"
+                  >
+                    ⚡ Hitesh North East
+                  </button>
+                  <button
+                    onClick={() => loadPreset(keralaPreset)}
+                    className="px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-500 text-white rounded-xl text-[10px] uppercase font-black tracking-widest shadow-md hover:scale-105 transition-all"
+                  >
+                    🌴 Kerala Demo
+                  </button>
+                  <button
+                    onClick={handleClearAll}
+                    className="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-[10px] uppercase font-bold tracking-widest transition-colors"
+                  >
+                    Clear Editor
+                  </button>
+                </div>
+              </div>
+
+              {/* Website Tour Selector */}
+              <div className="border-t border-outline-variant/20 pt-4 space-y-2">
+                <label className={labelCls}>Load Tour from Website</label>
+                <div className="flex gap-2">
+                  <select
+                    value={selectedTourId}
+                    onChange={e => setSelectedTourId(e.target.value)}
+                    className={inputCls}
+                    disabled={isLoadingTours}
+                  >
+                    <option value="">-- Select a Website Tour --</option>
+                    {websiteTours.map(t => (
+                      <option key={t.id} value={t.id}>
+                        {t.name} ({t.days} Days - {t.region})
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={() => handleImportWebsiteTour(selectedTourId)}
+                    disabled={!selectedTourId}
+                    className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg text-xs font-bold whitespace-nowrap hover:opacity-95 transition-opacity disabled:opacity-50"
+                  >
+                    Load Tour
+                  </button>
+                </div>
+              </div>
+
+              <div className="border-t border-outline-variant/20 pt-4 flex flex-col gap-3">
+                <div className="flex flex-col sm:flex-row gap-3 items-center">
+                  <input
+                    type="text"
+                    value={draftName}
+                    onChange={e => setDraftName(e.target.value)}
+                    className={inputCls + " flex-1"}
+                    placeholder="Quotation Name (e.g. Kerala July 2026)"
+                  />
+                  <label className="flex items-center gap-2 text-xs font-bold whitespace-nowrap cursor-pointer">
+                    <input type="checkbox" checked={isFinal} onChange={e => setIsFinal(e.target.checked)} className="accent-primary w-4 h-4" />
+                    Mark as Final
+                  </label>
+                </div>
+                <div className="flex flex-wrap gap-2 justify-end mt-2">
+                  <button
+                    onClick={handleSaveAsNew}
+                    className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg text-xs font-bold whitespace-nowrap hover:opacity-95 transition-opacity"
+                  >
+                    Save as New Draft
+                  </button>
+                  {activeQuoteId && (
+                    <button
+                      onClick={handleUpdateCurrent}
+                      className="px-4 py-2 bg-on-surface text-surface dark:bg-white dark:text-black rounded-lg text-xs font-bold whitespace-nowrap hover:opacity-95 transition-opacity"
+                    >
+                      Update Current Draft
+                    </button>
+                  )}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Basic Header Info */}
+            <div className="bg-surface rounded-2xl p-5 border border-outline-variant/30 shadow-sm space-y-4">
+              <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest border-b border-outline-variant/10 pb-2">1. Header & Greetings</h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelCls}>Quotation Title</label>
+                  <input type="text" value={data.title} onChange={e => upd({ title: e.target.value.toUpperCase() })} className={inputCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>Destination Label</label>
+                  <input type="text" value={data.destination} onChange={e => upd({ destination: e.target.value })} className={inputCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>Prepared By</label>
+                  <input type="text" value={data.preparedBy || ''} onChange={e => upd({ preparedBy: e.target.value })} className={inputCls} placeholder="Curator Board" />
+                </div>
+                <div>
+                  <label className={labelCls}>Quotation Date</label>
+                  <input
+                    type="date"
+                    value={formatDateToInput(data.quotationDate)}
+                    onChange={e => upd({ quotationDate: formatDateToDB(e.target.value) })}
+                    className={inputCls}
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>Traveling Date</label>
+                  <input
+                    type="date"
+                    value={formatDateToInput(data.travelingDate)}
+                    onChange={e => upd({ travelingDate: formatDateToDB(e.target.value) })}
+                    className={inputCls}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className={labelCls}>Hero Banner Image URL</label>
+                  <div className="flex gap-2">
+                    <input type="text" value={data.heroImageUrl || ''} onChange={e => upd({ heroImageUrl: e.target.value })} className={inputCls} placeholder="https://..." />
+                    <button
+                      type="button"
+                      onClick={() => openSelectorFor('heroImageUrl')}
+                      className="px-3 py-1 bg-surface-container hover:bg-surface-container-high rounded-xl border border-outline-variant/30 text-xs font-bold flex items-center gap-1 shrink-0 transition-all"
+                    >
+                      <span className="material-symbols-outlined text-sm font-bold">photo_library</span>
+                      Select
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className={labelCls}>Client Name / Address Header</label>
+                  <input type="text" value={data.clientName} onChange={e => upd({ clientName: e.target.value })} className={inputCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>Greeting Line</label>
+                  <input type="text" value={data.greetingText} onChange={e => upd({ greetingText: e.target.value })} className={inputCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>Intro Message</label>
+                  <input type="text" value={data.messageText} onChange={e => upd({ messageText: e.target.value })} className={inputCls} />
+                </div>
+              </div>
+            </div>
+
+            {/* Pricing Options */}
+            <div className="bg-surface rounded-2xl p-5 border border-outline-variant/30 shadow-sm space-y-6">
+              <div className="flex items-center justify-between border-b border-outline-variant/10 pb-2">
+                <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">2. Pricing Options</h3>
+                <button onClick={addOption} className="px-3 py-1 bg-surface-container border border-outline-variant/30 hover:bg-surface-container-high text-xs font-bold rounded-lg transition-colors">+ Add Option</button>
+              </div>
+
+              <div className="space-y-8">
+                {data.options.map((opt, optIdx) => (
+                  <div key={optIdx} className="p-4 border border-outline-variant/20 rounded-xl bg-surface-container-lowest space-y-4 relative">
+                    {data.options.length > 1 && (
+                      <button onClick={() => removeOption(optIdx)} className="absolute right-3 top-3 text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded-lg shadow-sm">
+                        <span className="material-symbols-outlined text-sm block">delete</span>
+                      </button>
+                    )}
+
+                    <div>
+                      <label className={labelCls}>Option Title</label>
+                      <input type="text" value={opt.optionTitle} onChange={e => updateOptionTitle(optIdx, e.target.value)} className={inputCls} placeholder="e.g. Option 1 (3 Star) 08 Nights" />
+                    </div>
+
+                    <div className="border-t border-outline-variant/10 pt-4">
+                      <div className="flex justify-between items-center mb-3">
+                        <label className={labelCls + " !mb-0"}>Hotels Grid</label>
+                        <button onClick={() => addHotelRow(optIdx)} className="text-[10px] font-bold text-primary px-2 py-1 bg-primary/10 rounded">+ Row</button>
+                      </div>
+                      <div className="space-y-3">
+                        {opt.hotels.map((row, idx) => (
+                          <div key={idx} className="p-3 bg-surface-container-low rounded-xl border border-outline-variant/20 relative">
+                            <button onClick={() => removeHotelRow(optIdx, idx)} className="absolute right-2 top-2 text-red-400 hover:text-red-600"><span className="material-symbols-outlined text-sm">close</span></button>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                              <div className="col-span-2 sm:col-span-1"><input type="text" value={row.destination} onChange={e => updateHotelRow(optIdx, idx, { destination: e.target.value })} className={inputCls + " !text-xs !py-1.5"} placeholder="Dest" /></div>
+                              <div className="col-span-2"><input type="text" value={row.hotels} onChange={e => updateHotelRow(optIdx, idx, { hotels: e.target.value })} className={inputCls + " !text-xs !py-1.5"} placeholder="Hotels" /></div>
+                              <div><input type="text" value={row.mealPlan} onChange={e => updateHotelRow(optIdx, idx, { mealPlan: e.target.value })} className={inputCls + " !text-xs !py-1.5"} placeholder="Meals" /></div>
+                              <div><input type="text" value={row.nights} onChange={e => updateHotelRow(optIdx, idx, { nights: e.target.value })} className={inputCls + " !text-xs !py-1.5"} placeholder="Nights" /></div>
+                              <div><input type="text" value={row.rooms} onChange={e => updateHotelRow(optIdx, idx, { rooms: e.target.value })} className={inputCls + " !text-xs !py-1.5"} placeholder="Rooms" /></div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="border-t border-outline-variant/10 pt-4 grid grid-cols-1 gap-6">
+                      <div>
+                        <div className="flex justify-between items-center mb-2">
+                          <label className={labelCls + " !mb-0"}>Package Costs</label>
+                          <button onClick={() => addPackageCost(optIdx, { category: 'Adults', cost: 0, pax: 1 })} className="text-[10px] font-bold text-primary px-2 py-1 bg-primary/10 rounded">+ Cost</button>
+                        </div>
+                        <div className="space-y-2">
+                          {opt.packageCosts.map((c, idx) => (
+                            <div key={idx} className="flex items-center gap-2">
+                              <input type="text" value={c.category} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, packageCosts: o.packageCosts.map((pc, j) => j === idx ? { ...pc, category: e.target.value } : pc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 flex-1 min-w-[60px]"} placeholder="Cat" />
+                              <input type="number" value={c.cost} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, packageCosts: o.packageCosts.map((pc, j) => j === idx ? { ...pc, cost: Number(e.target.value) } : pc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-20 shrink-0"} placeholder="Cost" />
+                              <input type="number" value={c.pax} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, packageCosts: o.packageCosts.map((pc, j) => j === idx ? { ...pc, pax: Number(e.target.value) } : pc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-16 shrink-0"} placeholder="Pax" />
+                              <button onClick={() => removePackageCost(optIdx, idx)} className="text-red-400 hover:text-red-600 shrink-0"><span className="material-symbols-outlined text-sm">close</span></button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between items-center mb-2">
+                          <label className={labelCls + " !mb-0"}>Flight Costs</label>
+                          <button onClick={() => addFlightCost(optIdx, { city: 'Route', cost: 0, pax: 1 })} className="text-[10px] font-bold text-primary px-2 py-1 bg-primary/10 rounded">+ Flight</button>
+                        </div>
+                        <div className="space-y-2">
+                          {opt.flightCosts.map((c, idx) => (
+                            <div key={idx} className="flex items-center gap-2">
+                              <input type="text" value={c.city} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, flightCosts: o.flightCosts.map((fc, j) => j === idx ? { ...fc, city: e.target.value } : fc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 flex-1 min-w-[60px]"} placeholder="City" />
+                              <input type="number" value={c.cost} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, flightCosts: o.flightCosts.map((fc, j) => j === idx ? { ...fc, cost: Number(e.target.value) } : fc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-20 shrink-0"} placeholder="Cost" />
+                              <input type="number" value={c.pax} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, flightCosts: o.flightCosts.map((fc, j) => j === idx ? { ...fc, pax: Number(e.target.value) } : fc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-16 shrink-0"} placeholder="Pax" />
+                              <button onClick={() => removeFlightCost(optIdx, idx)} className="text-red-400 hover:text-red-600 shrink-0"><span className="material-symbols-outlined text-sm">close</span></button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
                 ))}
-              </select>
-              <button
-                onClick={() => handleImportWebsiteTour(selectedTourId)}
-                disabled={!selectedTourId}
-                className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg text-xs font-bold whitespace-nowrap hover:opacity-95 transition-opacity disabled:opacity-50"
-              >
-                Load Tour
-              </button>
+              </div>
             </div>
-          </div>
 
-          <div className="border-t border-outline-variant/20 pt-4 flex flex-col gap-3">
-            <div className="flex flex-col sm:flex-row gap-3 items-center">
-              <input 
-                type="text" 
-                value={draftName} 
-                onChange={e => setDraftName(e.target.value)}
-                className={inputCls + " flex-1"} 
-                placeholder="Quotation Name (e.g. Kerala July 2026)" 
-              />
-              <label className="flex items-center gap-2 text-xs font-bold whitespace-nowrap cursor-pointer">
-                <input type="checkbox" checked={isFinal} onChange={e => setIsFinal(e.target.checked)} className="accent-primary w-4 h-4" />
-                Mark as Final
-              </label>
-            </div>
-            <div className="flex flex-wrap gap-2 justify-end mt-2">
-              <button 
-                onClick={handleSaveAsNew}
-                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg text-xs font-bold whitespace-nowrap hover:opacity-95 transition-opacity"
-              >
-                Save as New Draft
-              </button>
-              {activeQuoteId && (
-                <button 
-                  onClick={handleUpdateCurrent}
-                  className="px-4 py-2 bg-on-surface text-surface dark:bg-white dark:text-black rounded-lg text-xs font-bold whitespace-nowrap hover:opacity-95 transition-opacity"
-                >
-                  Update Current Draft
-                </button>
-              )}
-            </div>
-          </div>
+            {/* Detailed Itinerary */}
+            <div className="bg-surface rounded-2xl p-5 border border-outline-variant/30 shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b border-outline-variant/10 pb-2">
+                <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">4. Day Schedule (Itinerary)</h3>
+                <button onClick={addItineraryDay} className="px-3 py-1 bg-surface-container border border-outline-variant/30 hover:bg-surface-container-high text-xs font-bold rounded-lg transition-colors">+ Add Day</button>
+              </div>
 
-        </div>
+              <div className="space-y-4">
+                {data.itinerary.map((day, idx) => (
+                  <div key={idx} className="p-3 bg-surface-container-low rounded-xl border border-outline-variant/20 space-y-3 relative">
+                    <button onClick={() => removeItineraryDay(idx)} className="absolute right-2 top-2 text-red-400 hover:text-red-600">
+                      <span className="material-symbols-outlined text-base">close</span>
+                    </button>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <label className={labelCls}>Day Index</label>
+                        <input type="text" value={day.day} onChange={e => updateItineraryDay(idx, { day: e.target.value })} className={inputCls} placeholder="Day 1 (11/Nov/2026)" />
+                      </div>
+                      <div className="col-span-2">
+                        <label className={labelCls}>Day Heading / Title</label>
+                        <input type="text" value={day.title} onChange={e => updateItineraryDay(idx, { title: e.target.value })} className={inputCls} placeholder="Title details" />
+                      </div>
+                      <div className="col-span-3">
+                        <label className={labelCls}>Description</label>
+                        <textarea value={day.description} onChange={e => updateItineraryDay(idx, { description: e.target.value })} className={inputCls} rows={4} placeholder="Detailed activities..." />
+                      </div>
+                      <div className="col-span-3">
+                        <label className={labelCls}>Day Image URL (Optional)</label>
+                        <div className="flex gap-2">
+                          <input type="text" value={day.imageUrl || ''} onChange={e => updateItineraryDay(idx, { imageUrl: e.target.value })} className={inputCls} placeholder="https://..." />
+                          <button
+                            type="button"
+                            onClick={() => openSelectorFor('itineraryDay', idx)}
+                            className="px-3 py-1 bg-surface-container hover:bg-surface-container-high rounded-xl border border-outline-variant/30 text-xs font-bold flex items-center gap-1 shrink-0 transition-all"
+                          >
+                            <span className="material-symbols-outlined text-sm font-bold">photo_library</span>
+                            Select
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-        {/* Basic Header Info */}
-        <div className="bg-surface rounded-2xl p-5 border border-outline-variant/30 shadow-sm space-y-4">
-          <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest border-b border-outline-variant/10 pb-2">1. Header & Greetings</h3>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className={labelCls}>Quotation Title</label>
-              <input type="text" value={data.title} onChange={e => upd({ title: e.target.value.toUpperCase() })} className={inputCls} />
-            </div>
-            <div>
-              <label className={labelCls}>Destination Label</label>
-              <input type="text" value={data.destination} onChange={e => upd({ destination: e.target.value })} className={inputCls} />
-            </div>
-            <div>
-              <label className={labelCls}>Prepared By</label>
-              <input type="text" value={data.preparedBy || ''} onChange={e => upd({ preparedBy: e.target.value })} className={inputCls} placeholder="Curator Board" />
-            </div>
-            <div>
-              <label className={labelCls}>Quotation Date</label>
-              <input 
-                type="date" 
-                value={formatDateToInput(data.quotationDate)} 
-                onChange={e => upd({ quotationDate: formatDateToDB(e.target.value) })} 
-                className={inputCls} 
-              />
-            </div>
-            <div>
-              <label className={labelCls}>Traveling Date</label>
-              <input 
-                type="date" 
-                value={formatDateToInput(data.travelingDate)} 
-                onChange={e => upd({ travelingDate: formatDateToDB(e.target.value) })} 
-                className={inputCls} 
-              />
-            </div>
-            <div className="col-span-2">
-              <label className={labelCls}>Hero Banner Image URL</label>
+            {/* Visual Archive */}
+            <div className="bg-surface rounded-2xl p-5 border border-outline-variant/30 shadow-sm space-y-4">
+              <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest border-b border-outline-variant/10 pb-2">5. Visual Archive Gallery</h3>
+
+              <div className="flex flex-wrap gap-2 mb-3">
+                {data.visualArchive.map((url, idx) => (
+                  <div key={idx} className="relative w-20 h-20 border border-outline-variant/20 rounded-xl overflow-hidden group">
+                    <img src={url} className="w-full h-full object-cover" />
+                    <button
+                      onClick={() => upd({ visualArchive: data.visualArchive.filter((_, i) => i !== idx) })}
+                      className="absolute inset-0 bg-red-600/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <span className="material-symbols-outlined text-base">delete</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+
               <div className="flex gap-2">
-                <input type="text" value={data.heroImageUrl || ''} onChange={e => upd({ heroImageUrl: e.target.value })} className={inputCls} placeholder="https://..." />
-                <button 
-                  type="button" 
-                  onClick={() => openSelectorFor('heroImageUrl')} 
+                <input type="text" value={newArchiveUrl} onChange={e => setNewArchiveUrl(e.target.value)} className={inputCls} placeholder="Paste image URL..." />
+                <button
+                  type="button"
+                  onClick={() => openSelectorFor('visualArchive')}
                   className="px-3 py-1 bg-surface-container hover:bg-surface-container-high rounded-xl border border-outline-variant/30 text-xs font-bold flex items-center gap-1 shrink-0 transition-all"
                 >
                   <span className="material-symbols-outlined text-sm font-bold">photo_library</span>
                   Select
                 </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4">
-            <div>
-              <label className={labelCls}>Client Name / Address Header</label>
-              <input type="text" value={data.clientName} onChange={e => upd({ clientName: e.target.value })} className={inputCls} />
-            </div>
-            <div>
-              <label className={labelCls}>Greeting Line</label>
-              <input type="text" value={data.greetingText} onChange={e => upd({ greetingText: e.target.value })} className={inputCls} />
-            </div>
-            <div>
-              <label className={labelCls}>Intro Message</label>
-              <input type="text" value={data.messageText} onChange={e => upd({ messageText: e.target.value })} className={inputCls} />
-            </div>
-          </div>
-        </div>
-
-        {/* Pricing Options */}
-        <div className="bg-surface rounded-2xl p-5 border border-outline-variant/30 shadow-sm space-y-6">
-          <div className="flex items-center justify-between border-b border-outline-variant/10 pb-2">
-            <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">2. Pricing Options</h3>
-            <button onClick={addOption} className="px-3 py-1 bg-surface-container border border-outline-variant/30 hover:bg-surface-container-high text-xs font-bold rounded-lg transition-colors">+ Add Option</button>
-          </div>
-
-          <div className="space-y-8">
-            {data.options.map((opt, optIdx) => (
-              <div key={optIdx} className="p-4 border border-outline-variant/20 rounded-xl bg-surface-container-lowest space-y-4 relative">
-                {data.options.length > 1 && (
-                  <button onClick={() => removeOption(optIdx)} className="absolute right-3 top-3 text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded-lg shadow-sm">
-                    <span className="material-symbols-outlined text-sm block">delete</span>
-                  </button>
-                )}
-                
-                <div>
-                  <label className={labelCls}>Option Title</label>
-                  <input type="text" value={opt.optionTitle} onChange={e => updateOptionTitle(optIdx, e.target.value)} className={inputCls} placeholder="e.g. Option 1 (3 Star) 08 Nights" />
-                </div>
-
-                <div className="border-t border-outline-variant/10 pt-4">
-                  <div className="flex justify-between items-center mb-3">
-                    <label className={labelCls + " !mb-0"}>Hotels Grid</label>
-                    <button onClick={() => addHotelRow(optIdx)} className="text-[10px] font-bold text-primary px-2 py-1 bg-primary/10 rounded">+ Row</button>
-                  </div>
-                  <div className="space-y-3">
-                    {opt.hotels.map((row, idx) => (
-                      <div key={idx} className="p-3 bg-surface-container-low rounded-xl border border-outline-variant/20 relative">
-                        <button onClick={() => removeHotelRow(optIdx, idx)} className="absolute right-2 top-2 text-red-400 hover:text-red-600"><span className="material-symbols-outlined text-sm">close</span></button>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                          <div className="col-span-2 sm:col-span-1"><input type="text" value={row.destination} onChange={e => updateHotelRow(optIdx, idx, { destination: e.target.value })} className={inputCls + " !text-xs !py-1.5"} placeholder="Dest" /></div>
-                          <div className="col-span-2"><input type="text" value={row.hotels} onChange={e => updateHotelRow(optIdx, idx, { hotels: e.target.value })} className={inputCls + " !text-xs !py-1.5"} placeholder="Hotels" /></div>
-                          <div><input type="text" value={row.mealPlan} onChange={e => updateHotelRow(optIdx, idx, { mealPlan: e.target.value })} className={inputCls + " !text-xs !py-1.5"} placeholder="Meals" /></div>
-                          <div><input type="text" value={row.nights} onChange={e => updateHotelRow(optIdx, idx, { nights: e.target.value })} className={inputCls + " !text-xs !py-1.5"} placeholder="Nights" /></div>
-                          <div><input type="text" value={row.rooms} onChange={e => updateHotelRow(optIdx, idx, { rooms: e.target.value })} className={inputCls + " !text-xs !py-1.5"} placeholder="Rooms" /></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="border-t border-outline-variant/10 pt-4 grid grid-cols-1 gap-6">
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <label className={labelCls + " !mb-0"}>Package Costs</label>
-                      <button onClick={() => addPackageCost(optIdx, { category: 'Adults', cost: 0, pax: 1 })} className="text-[10px] font-bold text-primary px-2 py-1 bg-primary/10 rounded">+ Cost</button>
-                    </div>
-                    <div className="space-y-2">
-                      {opt.packageCosts.map((c, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                          <input type="text" value={c.category} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, packageCosts: o.packageCosts.map((pc, j) => j === idx ? { ...pc, category: e.target.value } : pc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 flex-1 min-w-[60px]"} placeholder="Cat" />
-                          <input type="number" value={c.cost} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, packageCosts: o.packageCosts.map((pc, j) => j === idx ? { ...pc, cost: Number(e.target.value) } : pc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-20 shrink-0"} placeholder="Cost" />
-                          <input type="number" value={c.pax} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, packageCosts: o.packageCosts.map((pc, j) => j === idx ? { ...pc, pax: Number(e.target.value) } : pc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-16 shrink-0"} placeholder="Pax" />
-                          <button onClick={() => removePackageCost(optIdx, idx)} className="text-red-400 hover:text-red-600 shrink-0"><span className="material-symbols-outlined text-sm">close</span></button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <label className={labelCls + " !mb-0"}>Flight Costs</label>
-                      <button onClick={() => addFlightCost(optIdx, { city: 'Route', cost: 0, pax: 1 })} className="text-[10px] font-bold text-primary px-2 py-1 bg-primary/10 rounded">+ Flight</button>
-                    </div>
-                    <div className="space-y-2">
-                      {opt.flightCosts.map((c, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                          <input type="text" value={c.city} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, flightCosts: o.flightCosts.map((fc, j) => j === idx ? { ...fc, city: e.target.value } : fc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 flex-1 min-w-[60px]"} placeholder="City" />
-                          <input type="number" value={c.cost} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, flightCosts: o.flightCosts.map((fc, j) => j === idx ? { ...fc, cost: Number(e.target.value) } : fc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-20 shrink-0"} placeholder="Cost" />
-                          <input type="number" value={c.pax} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, flightCosts: o.flightCosts.map((fc, j) => j === idx ? { ...fc, pax: Number(e.target.value) } : fc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-16 shrink-0"} placeholder="Pax" />
-                          <button onClick={() => removeFlightCost(optIdx, idx)} className="text-red-400 hover:text-red-600 shrink-0"><span className="material-symbols-outlined text-sm">close</span></button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Detailed Itinerary */}
-        <div className="bg-surface rounded-2xl p-5 border border-outline-variant/30 shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-outline-variant/10 pb-2">
-            <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">4. Day Schedule (Itinerary)</h3>
-            <button onClick={addItineraryDay} className="px-3 py-1 bg-surface-container border border-outline-variant/30 hover:bg-surface-container-high text-xs font-bold rounded-lg transition-colors">+ Add Day</button>
-          </div>
-
-          <div className="space-y-4">
-            {data.itinerary.map((day, idx) => (
-              <div key={idx} className="p-3 bg-surface-container-low rounded-xl border border-outline-variant/20 space-y-3 relative">
-                <button onClick={() => removeItineraryDay(idx)} className="absolute right-2 top-2 text-red-400 hover:text-red-600">
-                  <span className="material-symbols-outlined text-base">close</span>
-                </button>
-                <div className="grid grid-cols-3 gap-3">
-                  <div>
-                    <label className={labelCls}>Day Index</label>
-                    <input type="text" value={day.day} onChange={e => updateItineraryDay(idx, { day: e.target.value })} className={inputCls} placeholder="Day 1 (11/Nov/2026)" />
-                  </div>
-                  <div className="col-span-2">
-                    <label className={labelCls}>Day Heading / Title</label>
-                    <input type="text" value={day.title} onChange={e => updateItineraryDay(idx, { title: e.target.value })} className={inputCls} placeholder="Title details" />
-                  </div>
-                  <div className="col-span-3">
-                    <label className={labelCls}>Description</label>
-                    <textarea value={day.description} onChange={e => updateItineraryDay(idx, { description: e.target.value })} className={inputCls} rows={4} placeholder="Detailed activities..." />
-                  </div>
-                  <div className="col-span-3">
-                    <label className={labelCls}>Day Image URL (Optional)</label>
-                    <div className="flex gap-2">
-                      <input type="text" value={day.imageUrl || ''} onChange={e => updateItineraryDay(idx, { imageUrl: e.target.value })} className={inputCls} placeholder="https://..." />
-                      <button 
-                        type="button" 
-                        onClick={() => openSelectorFor('itineraryDay', idx)} 
-                        className="px-3 py-1 bg-surface-container hover:bg-surface-container-high rounded-xl border border-outline-variant/30 text-xs font-bold flex items-center gap-1 shrink-0 transition-all"
-                      >
-                        <span className="material-symbols-outlined text-sm font-bold">photo_library</span>
-                        Select
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Visual Archive */}
-        <div className="bg-surface rounded-2xl p-5 border border-outline-variant/30 shadow-sm space-y-4">
-          <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest border-b border-outline-variant/10 pb-2">5. Visual Archive Gallery</h3>
-          
-          <div className="flex flex-wrap gap-2 mb-3">
-            {data.visualArchive.map((url, idx) => (
-              <div key={idx} className="relative w-20 h-20 border border-outline-variant/20 rounded-xl overflow-hidden group">
-                <img src={url} className="w-full h-full object-cover" />
-                <button 
-                  onClick={() => upd({ visualArchive: data.visualArchive.filter((_, i) => i !== idx) })}
-                  className="absolute inset-0 bg-red-600/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                <button
+                  onClick={() => {
+                    if (!newArchiveUrl.trim()) return;
+                    upd({ visualArchive: [...data.visualArchive, newArchiveUrl.trim()] });
+                    setNewArchiveUrl('');
+                  }}
+                  className="px-4 py-2 bg-primary text-on-primary rounded-xl text-xs font-bold hover:bg-primary-hover shadow-lg transition-all"
                 >
-                  <span className="material-symbols-outlined text-base">delete</span>
+                  + Add
                 </button>
               </div>
-            ))}
-          </div>
+            </div>
 
-          <div className="flex gap-2">
-            <input type="text" value={newArchiveUrl} onChange={e => setNewArchiveUrl(e.target.value)} className={inputCls} placeholder="Paste image URL..." />
-            <button 
-              type="button" 
-              onClick={() => openSelectorFor('visualArchive')} 
-              className="px-3 py-1 bg-surface-container hover:bg-surface-container-high rounded-xl border border-outline-variant/30 text-xs font-bold flex items-center gap-1 shrink-0 transition-all"
-            >
-              <span className="material-symbols-outlined text-sm font-bold">photo_library</span>
-              Select
-            </button>
-            <button 
-              onClick={() => {
-                if (!newArchiveUrl.trim()) return;
-                upd({ visualArchive: [...data.visualArchive, newArchiveUrl.trim()] });
-                setNewArchiveUrl('');
-              }}
-              className="px-4 py-2 bg-primary text-on-primary rounded-xl text-xs font-bold hover:bg-primary-hover shadow-lg transition-all"
-            >
-              + Add
-            </button>
-          </div>
-        </div>
-
-        {/* Inclusions & Exclusions */}
-        <div className="bg-surface rounded-2xl p-5 border border-outline-variant/30 shadow-sm space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-outline-variant/10 pb-3">
-            <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">5. Terms & Guidelines Templates</h3>
-            <div className="flex gap-2">
-              <button 
-                onClick={() => loadPolicyTemplate('domestic')}
-                className="px-2.5 py-1.5 bg-sky-50 text-sky-700 hover:bg-sky-100 dark:bg-sky-950/40 dark:text-sky-400 dark:hover:bg-sky-900/40 rounded-xl text-[9px] uppercase font-black tracking-widest transition-all"
-              >
-                🇮🇳 Domestic Presets
-              </button>
-              <button 
-                onClick={() => loadPolicyTemplate('international')}
-                className="px-2.5 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:bg-amber-950/40 dark:text-amber-400 dark:hover:bg-amber-900/40 rounded-xl text-[9px] uppercase font-black tracking-widest transition-all"
-              >
-                🌐 International Presets
-              </button>
-            </div>
-          </div>
-          
-          {/* Inclusions */}
-          <div>
-            <h3 className={labelCls}>Package Inclusions</h3>
-            <div className="space-y-2 mb-3">
-              {data.inclusions.map((inc, i) => (
-                <div key={i} className="flex items-start gap-2 bg-surface-container-low p-1.5 rounded-lg border border-outline-variant/10">
-                  <textarea 
-                    value={inc} 
-                    onChange={e => upd({ inclusions: data.inclusions.map((item, idx) => idx === i ? e.target.value : item) })} 
-                    className={inputCls + " !text-xs !py-1 !px-2 flex-1 resize-y min-h-[32px]"}
-                  />
-                  <button onClick={() => upd({ inclusions: data.inclusions.filter((_, idx) => idx !== i) })} className="text-red-400 hover:text-red-600 px-2 text-lg leading-none mt-0.5">×</button>
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <input type="text" value={newIncl} onChange={e => setNewIncl(e.target.value)} className={inputCls} placeholder="Add inclusion..." />
-              <button onClick={() => { if (newIncl) { upd({ inclusions: [...data.inclusions, newIncl] }); setNewIncl(''); } }} className="px-3 py-1 bg-surface-container rounded-lg text-xs border border-outline-variant/20">+</button>
-            </div>
-          </div>
-
-          {/* Exclusions */}
-          <div className="pt-4 border-t border-outline-variant/10">
-            <h3 className={labelCls}>Package Exclusions</h3>
-            <div className="space-y-2 mb-3">
-              {data.exclusions.map((ex, i) => (
-                <div key={i} className="flex items-start gap-2 bg-surface-container-low p-1.5 rounded-lg border border-outline-variant/10">
-                  <textarea 
-                    value={ex} 
-                    onChange={e => upd({ exclusions: data.exclusions.map((item, idx) => idx === i ? e.target.value : item) })} 
-                    className={inputCls + " !text-xs !py-1 !px-2 flex-1 resize-y min-h-[32px]"}
-                  />
-                  <button onClick={() => upd({ exclusions: data.exclusions.filter((_, idx) => idx !== i) })} className="text-red-400 hover:text-red-600 px-2 text-lg leading-none mt-0.5">×</button>
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <input type="text" value={newExcl} onChange={e => setNewExcl(e.target.value)} className={inputCls} placeholder="Add exclusion..." />
-              <button onClick={() => { if (newExcl) { upd({ exclusions: [...data.exclusions, newExcl] }); setNewExcl(''); } }} className="px-3 py-1 bg-surface-container rounded-lg text-xs border border-outline-variant/20">+</button>
-            </div>
-          </div>
-
-          {/* Terms & Conditions */}
-          <div className="pt-4 border-t border-outline-variant/10">
-            <h3 className={labelCls}>Terms & Conditions</h3>
-            <div className="space-y-2 mb-3">
-              {(data.termsAndConditions || []).map((term, i) => (
-                <div key={i} className="flex items-start gap-2 bg-surface-container-low p-1.5 rounded-lg border border-outline-variant/10">
-                  <textarea 
-                    value={term} 
-                    onChange={e => upd({ termsAndConditions: (data.termsAndConditions || []).map((item, idx) => idx === i ? e.target.value : item) })} 
-                    className={inputCls + " !text-xs !py-1 !px-2 flex-1 resize-y min-h-[32px]"}
-                  />
-                  <button onClick={() => upd({ termsAndConditions: (data.termsAndConditions || []).filter((_, idx) => idx !== i) })} className="text-red-400 hover:text-red-600 px-2 text-lg leading-none mt-0.5">×</button>
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <input type="text" value={newTerms} onChange={e => setNewTerms(e.target.value)} className={inputCls} placeholder="Add term or condition..." />
-              <button onClick={() => { if (newTerms) { upd({ termsAndConditions: [...(data.termsAndConditions || []), newTerms] }); setNewTerms(''); } }} className="px-3 py-1 bg-surface-container rounded-lg text-xs border border-outline-variant/20">+</button>
-            </div>
-          </div>
-
-          {/* Documents */}
-          <div className="pt-4 border-t border-outline-variant/10">
-            <h3 className={labelCls}>Documents Required</h3>
-            <div className="space-y-2 mb-3">
-              {data.documentsRequired.map((doc, i) => (
-                <div key={i} className="flex items-start gap-2 bg-surface-container-low p-1.5 rounded-lg border border-outline-variant/10">
-                  <textarea 
-                    value={doc} 
-                    onChange={e => upd({ documentsRequired: data.documentsRequired.map((item, idx) => idx === i ? e.target.value : item) })} 
-                    className={inputCls + " !text-xs !py-1 !px-2 flex-1 resize-y min-h-[32px]"}
-                  />
-                  <button onClick={() => upd({ documentsRequired: data.documentsRequired.filter((_, idx) => idx !== i) })} className="text-red-400 hover:text-red-600 px-2 text-lg leading-none mt-0.5">×</button>
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <input type="text" value={newDoc} onChange={e => setNewDoc(e.target.value)} className={inputCls} placeholder="Add document rule..." />
-              <button onClick={() => { if (newDoc) { upd({ documentsRequired: [...data.documentsRequired, newDoc] }); setNewDoc(''); } }} className="px-3 py-1 bg-surface-container rounded-lg text-xs border border-outline-variant/20">+</button>
-            </div>
-          </div>
-
-          {/* Cancellation */}
-          <div className="pt-4 border-t border-outline-variant/10">
-            <h3 className={labelCls}>Cancellation Policy</h3>
-            <div className="space-y-2 mb-3">
-              {data.cancellationPolicy.map((c, i) => (
-                <div key={i} className="flex items-start gap-2 bg-surface-container-low p-1.5 rounded-lg border border-outline-variant/10">
-                  <textarea 
-                    value={c} 
-                    onChange={e => upd({ cancellationPolicy: data.cancellationPolicy.map((item, idx) => idx === i ? e.target.value : item) })} 
-                    className={inputCls + " !text-xs !py-1 !px-2 flex-1 resize-y min-h-[32px]"}
-                  />
-                  <button onClick={() => upd({ cancellationPolicy: data.cancellationPolicy.filter((_, idx) => idx !== i) })} className="text-red-400 hover:text-red-600 px-2 text-lg leading-none mt-0.5">×</button>
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <input type="text" value={newCancel} onChange={e => setNewCancel(e.target.value)} className={inputCls} placeholder="Add policy..." />
-              <button onClick={() => { if (newCancel) { upd({ cancellationPolicy: [...data.cancellationPolicy, newCancel] }); setNewCancel(''); } }} className="px-3 py-1 bg-surface-container rounded-lg text-xs border border-outline-variant/20">+</button>
-            </div>
-          </div>
-
-          {/* Important Info */}
-          <div className="pt-4 border-t border-outline-variant/10">
-            <h3 className={labelCls}>Important Information</h3>
-            <div className="space-y-2 mb-3">
-              {data.importantInfo.map((inf, i) => (
-                <div key={i} className="flex items-start gap-2 bg-surface-container-low p-1.5 rounded-lg border border-outline-variant/10">
-                  <textarea 
-                    value={inf} 
-                    onChange={e => upd({ importantInfo: data.importantInfo.map((item, idx) => idx === i ? e.target.value : item) })} 
-                    className={inputCls + " !text-xs !py-1 !px-2 flex-1 resize-y min-h-[32px]"}
-                  />
-                  <button onClick={() => upd({ importantInfo: data.importantInfo.filter((_, idx) => idx !== i) })} className="text-red-400 hover:text-red-600 px-2 text-lg leading-none mt-0.5">×</button>
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <input type="text" value={newInfo} onChange={e => setNewInfo(e.target.value)} className={inputCls} placeholder="Add guideline..." />
-              <button onClick={() => { if (newInfo) { upd({ importantInfo: [...data.importantInfo, newInfo] }); setNewInfo(''); } }} className="px-3 py-1 bg-surface-container rounded-lg text-xs border border-outline-variant/20">+</button>
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-
-      {/* ── RIGHT PANEL: LIVE PREVIEW & PRINT ── */}
-      <div className="w-full lg:w-1/2 space-y-6">
-        
-        {/* Floating Print Action */}
-        <div className="bg-surface rounded-2xl p-5 border border-outline-variant/30 shadow-sm flex items-center justify-between sticky top-6 z-20">
-          <div>
-            <h3 className="text-sm font-black text-on-surface">Live Document Preview</h3>
-            <p className="text-xs text-on-surface-variant opacity-60">Renders changes dynamically in A4 paper layout format.</p>
-          </div>
-          <div className="flex gap-3">
-
-            <button 
-              onClick={handlePrint}
-              className="px-4 py-3 bg-gradient-to-br from-green-600 to-emerald-700 text-white rounded-xl text-xs font-black tracking-widest uppercase flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95 transition-all"
-            >
-              <span className="material-symbols-outlined text-sm font-bold">print</span>
-              Print / PDF
-            </button>
-          </div>
-        </div>
-
-        {/* Rendered Live Preview Frame */}
-        <div className="bg-gray-100 dark:bg-neutral-900 border border-outline-variant/20 rounded-2xl p-4 max-h-[85vh] overflow-y-auto space-y-6 custom-scrollbar shadow-inner">
-          
-          {/* SHEET 1: COVER PAGE (NO BORDER) */}
-          <div className="bg-white text-black p-8 rounded shadow-md max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
-            <div className="text-center mt-12">
-              <Logo className="justify-center mb-8" textClassName="text-2xl" />
-              {data.heroImageUrl && (
-                <img src={data.heroImageUrl} className="w-full h-80 object-cover rounded-2xl mb-8 shadow-sm" alt="Hero Banner" />
-              )}
-              <h1 className="text-4xl font-light uppercase italic tracking-tighter leading-tight mb-2 font-serif" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>{data.title}</h1>
-              <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">{data.destination} &bull; SIGNATURE EXPEDITION</p>
-            </div>
-          </div>
-
-          {/* SHEET 2: DETAILS PAGE */}
-          <div className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
-            <div>
-              <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
-                <Logo textClassName="text-xl" />
-                <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
-                  Quotation Details
+            {/* Inclusions & Exclusions */}
+            <div className="bg-surface rounded-2xl p-5 border border-outline-variant/30 shadow-sm space-y-6">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-outline-variant/10 pb-3">
+                <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">5. Terms & Guidelines Templates</h3>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => loadPolicyTemplate('domestic')}
+                    className="px-2.5 py-1.5 bg-sky-50 text-sky-700 hover:bg-sky-100 dark:bg-sky-950/40 dark:text-sky-400 dark:hover:bg-sky-900/40 rounded-xl text-[9px] uppercase font-black tracking-widest transition-all"
+                  >
+                    🇮🇳 Domestic Presets
+                  </button>
+                  <button
+                    onClick={() => loadPolicyTemplate('international')}
+                    className="px-2.5 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:bg-amber-950/40 dark:text-amber-400 dark:hover:bg-amber-900/40 rounded-xl text-[9px] uppercase font-black tracking-widest transition-all"
+                  >
+                    🌐 International Presets
+                  </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 bg-gray-50 border border-gray-100 p-2.5 rounded-lg mb-4 text-[10px]">
-                <div>
-                  <div className="text-[7px] font-black text-gray-400 uppercase tracking-widest">Quotation Date</div>
-                  <div className="font-bold">{data.quotationDate}</div>
+              {/* Inclusions */}
+              <div>
+                <h3 className={labelCls}>Package Inclusions</h3>
+                <div className="space-y-2 mb-3">
+                  {data.inclusions.map((inc, i) => (
+                    <div key={i} className="flex items-start gap-2 bg-surface-container-low p-1.5 rounded-lg border border-outline-variant/10">
+                      <textarea
+                        value={inc}
+                        onChange={e => upd({ inclusions: data.inclusions.map((item, idx) => idx === i ? e.target.value : item) })}
+                        className={inputCls + " !text-xs !py-1 !px-2 flex-1 resize-y min-h-[32px]"}
+                      />
+                      <button onClick={() => upd({ inclusions: data.inclusions.filter((_, idx) => idx !== i) })} className="text-red-400 hover:text-red-600 px-2 text-lg leading-none mt-0.5">×</button>
+                    </div>
+                  ))}
                 </div>
-                <div>
-                  <div className="text-[7px] font-black text-gray-400 uppercase tracking-widest">Traveling Date</div>
-                  <div className="font-bold">{data.travelingDate || '—'}</div>
-                </div>
-                <div>
-                  <div className="text-[7px] font-black text-gray-400 uppercase tracking-widest">Destination</div>
-                  <div className="font-bold">{data.destination || '—'}</div>
-                </div>
-                <div>
-                  <div className="text-[7px] font-black text-gray-400 uppercase tracking-widest">Prepared By</div>
-                  <div className="font-bold">{data.preparedBy || 'Curator Board'}</div>
+                <div className="flex gap-2">
+                  <input type="text" value={newIncl} onChange={e => setNewIncl(e.target.value)} className={inputCls} placeholder="Add inclusion..." />
+                  <button onClick={() => { if (newIncl) { upd({ inclusions: [...data.inclusions, newIncl] }); setNewIncl(''); } }} className="px-3 py-1 bg-surface-container rounded-lg text-xs border border-outline-variant/20">+</button>
                 </div>
               </div>
 
-              <div className="mb-4">
-                <p className="font-black margin-0 text-[11px]">{data.clientName}</p>
-                <p className="margin-0 leading-relaxed text-gray-600">{data.greetingText}</p>
-                <p className="margin-0 leading-relaxed text-gray-600">{data.messageText}</p>
+              {/* Exclusions */}
+              <div className="pt-4 border-t border-outline-variant/10">
+                <h3 className={labelCls}>Package Exclusions</h3>
+                <div className="space-y-2 mb-3">
+                  {data.exclusions.map((ex, i) => (
+                    <div key={i} className="flex items-start gap-2 bg-surface-container-low p-1.5 rounded-lg border border-outline-variant/10">
+                      <textarea
+                        value={ex}
+                        onChange={e => upd({ exclusions: data.exclusions.map((item, idx) => idx === i ? e.target.value : item) })}
+                        className={inputCls + " !text-xs !py-1 !px-2 flex-1 resize-y min-h-[32px]"}
+                      />
+                      <button onClick={() => upd({ exclusions: data.exclusions.filter((_, idx) => idx !== i) })} className="text-red-400 hover:text-red-600 px-2 text-lg leading-none mt-0.5">×</button>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input type="text" value={newExcl} onChange={e => setNewExcl(e.target.value)} className={inputCls} placeholder="Add exclusion..." />
+                  <button onClick={() => { if (newExcl) { upd({ exclusions: [...data.exclusions, newExcl] }); setNewExcl(''); } }} className="px-3 py-1 bg-surface-container rounded-lg text-xs border border-outline-variant/20">+</button>
+                </div>
               </div>
 
-              {data.options.map((opt, optIdx) => (
-                <div key={optIdx} className="mb-6">
-                  <div className="font-black text-[9px] uppercase tracking-widest text-gray-400 mb-2 italic">{opt.optionTitle}</div>
-                  <table className="w-full border-collapse text-[10px] mb-4">
-                    <thead>
-                      <tr className="bg-black text-white">
-                        <th className="border border-black p-2 text-left uppercase text-[8px] font-black text-white">Destinations</th>
-                        <th className="border border-black p-2 text-left uppercase text-[8px] font-black text-white">Hotels</th>
-                        <th className="border border-black p-2 text-center uppercase text-[8px] font-black text-white">Meal Plan</th>
-                        <th className="border border-black p-2 text-center uppercase text-[8px] font-black text-white">Nights</th>
-                        <th className="border border-black p-2 text-center uppercase text-[8px] font-black text-white">Rooms</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {opt.hotels.map((h, i) => (
-                        <tr key={i} className="border-b border-gray-200">
-                          <td className="border border-gray-200 p-2 font-bold">{h.destination || '—'}</td>
-                          <td className="border border-gray-200 p-2 text-gray-600">{h.hotels || '—'}</td>
-                          <td className="border border-gray-200 p-2 text-center text-gray-600">{h.mealPlan}</td>
-                          <td className="border border-gray-200 p-2 text-center text-gray-600">{h.nights}</td>
-                          <td className="border border-gray-200 p-2 text-center text-gray-600">{h.rooms}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+              {/* Terms & Conditions */}
+              <div className="pt-4 border-t border-outline-variant/10">
+                <h3 className={labelCls}>Terms & Conditions</h3>
+                <div className="space-y-2 mb-3">
+                  {(data.termsAndConditions || []).map((term, i) => (
+                    <div key={i} className="flex items-start gap-2 bg-surface-container-low p-1.5 rounded-lg border border-outline-variant/10">
+                      <textarea
+                        value={term}
+                        onChange={e => upd({ termsAndConditions: (data.termsAndConditions || []).map((item, idx) => idx === i ? e.target.value : item) })}
+                        className={inputCls + " !text-xs !py-1 !px-2 flex-1 resize-y min-h-[32px]"}
+                      />
+                      <button onClick={() => upd({ termsAndConditions: (data.termsAndConditions || []).filter((_, idx) => idx !== i) })} className="text-red-400 hover:text-red-600 px-2 text-lg leading-none mt-0.5">×</button>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input type="text" value={newTerms} onChange={e => setNewTerms(e.target.value)} className={inputCls} placeholder="Add term or condition..." />
+                  <button onClick={() => { if (newTerms) { upd({ termsAndConditions: [...(data.termsAndConditions || []), newTerms] }); setNewTerms(''); } }} className="px-3 py-1 bg-surface-container rounded-lg text-xs border border-outline-variant/20">+</button>
+                </div>
+              </div>
 
-                  <div className="grid grid-cols-2 gap-4 bg-gray-50 border border-gray-200 p-3 rounded-xl mb-4">
+              {/* Documents */}
+              <div className="pt-4 border-t border-outline-variant/10">
+                <h3 className={labelCls}>Documents Required</h3>
+                <div className="space-y-2 mb-3">
+                  {data.documentsRequired.map((doc, i) => (
+                    <div key={i} className="flex items-start gap-2 bg-surface-container-low p-1.5 rounded-lg border border-outline-variant/10">
+                      <textarea
+                        value={doc}
+                        onChange={e => upd({ documentsRequired: data.documentsRequired.map((item, idx) => idx === i ? e.target.value : item) })}
+                        className={inputCls + " !text-xs !py-1 !px-2 flex-1 resize-y min-h-[32px]"}
+                      />
+                      <button onClick={() => upd({ documentsRequired: data.documentsRequired.filter((_, idx) => idx !== i) })} className="text-red-400 hover:text-red-600 px-2 text-lg leading-none mt-0.5">×</button>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input type="text" value={newDoc} onChange={e => setNewDoc(e.target.value)} className={inputCls} placeholder="Add document rule..." />
+                  <button onClick={() => { if (newDoc) { upd({ documentsRequired: [...data.documentsRequired, newDoc] }); setNewDoc(''); } }} className="px-3 py-1 bg-surface-container rounded-lg text-xs border border-outline-variant/20">+</button>
+                </div>
+              </div>
+
+              {/* Cancellation */}
+              <div className="pt-4 border-t border-outline-variant/10">
+                <h3 className={labelCls}>Cancellation Policy</h3>
+                <div className="space-y-2 mb-3">
+                  {data.cancellationPolicy.map((c, i) => (
+                    <div key={i} className="flex items-start gap-2 bg-surface-container-low p-1.5 rounded-lg border border-outline-variant/10">
+                      <textarea
+                        value={c}
+                        onChange={e => upd({ cancellationPolicy: data.cancellationPolicy.map((item, idx) => idx === i ? e.target.value : item) })}
+                        className={inputCls + " !text-xs !py-1 !px-2 flex-1 resize-y min-h-[32px]"}
+                      />
+                      <button onClick={() => upd({ cancellationPolicy: data.cancellationPolicy.filter((_, idx) => idx !== i) })} className="text-red-400 hover:text-red-600 px-2 text-lg leading-none mt-0.5">×</button>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input type="text" value={newCancel} onChange={e => setNewCancel(e.target.value)} className={inputCls} placeholder="Add policy..." />
+                  <button onClick={() => { if (newCancel) { upd({ cancellationPolicy: [...data.cancellationPolicy, newCancel] }); setNewCancel(''); } }} className="px-3 py-1 bg-surface-container rounded-lg text-xs border border-outline-variant/20">+</button>
+                </div>
+              </div>
+
+              {/* Important Info */}
+              <div className="pt-4 border-t border-outline-variant/10">
+                <h3 className={labelCls}>Important Information</h3>
+                <div className="space-y-2 mb-3">
+                  {data.importantInfo.map((inf, i) => (
+                    <div key={i} className="flex items-start gap-2 bg-surface-container-low p-1.5 rounded-lg border border-outline-variant/10">
+                      <textarea
+                        value={inf}
+                        onChange={e => upd({ importantInfo: data.importantInfo.map((item, idx) => idx === i ? e.target.value : item) })}
+                        className={inputCls + " !text-xs !py-1 !px-2 flex-1 resize-y min-h-[32px]"}
+                      />
+                      <button onClick={() => upd({ importantInfo: data.importantInfo.filter((_, idx) => idx !== i) })} className="text-red-400 hover:text-red-600 px-2 text-lg leading-none mt-0.5">×</button>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input type="text" value={newInfo} onChange={e => setNewInfo(e.target.value)} className={inputCls} placeholder="Add guideline..." />
+                  <button onClick={() => { if (newInfo) { upd({ importantInfo: [...data.importantInfo, newInfo] }); setNewInfo(''); } }} className="px-3 py-1 bg-surface-container rounded-lg text-xs border border-outline-variant/20">+</button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* ── RIGHT PANEL: LIVE PREVIEW & PRINT ── */}
+          <div className="w-full lg:w-1/2 space-y-6">
+
+            {/* Floating Print Action */}
+            <div className="bg-surface rounded-2xl p-5 border border-outline-variant/30 shadow-sm flex items-center justify-between sticky top-6 z-20">
+              <div>
+                <h3 className="text-sm font-black text-on-surface">Live Document Preview</h3>
+                <p className="text-xs text-on-surface-variant opacity-60">Renders changes dynamically in A4 paper layout format.</p>
+              </div>
+              <div className="flex gap-3">
+
+                <button
+                  onClick={handlePrint}
+                  className="px-4 py-3 bg-gradient-to-br from-green-600 to-emerald-700 text-white rounded-xl text-xs font-black tracking-widest uppercase flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95 transition-all"
+                >
+                  <span className="material-symbols-outlined text-sm font-bold">print</span>
+                  Print / PDF
+                </button>
+              </div>
+            </div>
+
+            {/* Rendered Live Preview Frame */}
+            <div className="bg-gray-100 dark:bg-neutral-900 border border-outline-variant/20 rounded-2xl p-4 max-h-[85vh] overflow-y-auto space-y-6 custom-scrollbar shadow-inner">
+
+              {/* SHEET 1: COVER PAGE (NO BORDER) */}
+              <div className="bg-white text-black p-8 rounded shadow-md max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
+                <div className="text-center mt-12">
+                  <Logo className="justify-center mb-8" textClassName="text-2xl" />
+                  {data.heroImageUrl && (
+                    <img src={data.heroImageUrl} className="w-full h-80 object-cover rounded-2xl mb-8 shadow-sm" alt="Hero Banner" />
+                  )}
+                  <h1 className="text-4xl font-light uppercase italic tracking-tighter leading-tight mb-2 font-serif" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>{data.title}</h1>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">{data.destination} &bull; SIGNATURE EXPEDITION</p>
+                </div>
+              </div>
+
+              {/* SHEET 2: DETAILS PAGE */}
+              <div className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
+                <div>
+                  <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
+                    <Logo textClassName="text-xl" />
+                    <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
+                      Quotation Details
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 bg-gray-50 border border-gray-100 p-2.5 rounded-lg mb-4 text-[10px]">
                     <div>
-                      <div className="text-[7px] font-black uppercase text-gray-400">Package Cost</div>
-                      <ul className="list-none p-0 m-0">
-                        {(opt.packageCosts && opt.packageCosts.length > 0) ? opt.packageCosts.map((c, i) => (
-                          <li key={i} className="flex justify-between border-b border-gray-100 py-1 text-[10px]">
-                            <span>{c.category} (x{c.pax})</span>
-                            <strong>Rs. {(c.pax > 0 ? c.cost * c.pax : c.cost).toLocaleString('en-IN')}/- {c.pax === 0 && <span className="text-[9px] font-normal text-gray-400 ml-1">(Per Person)</span>}</strong>
-                          </li>
-                        )) : (data.perPersonCost ? (
-                          <li className="flex justify-between border-b border-gray-100 py-1 text-[10px]">
-                            <span>Per Person</span>
-                            <strong>{data.perPersonCost}</strong>
-                          </li>
-                        ) : null)}
+                      <div className="text-[7px] font-black text-gray-400 uppercase tracking-widest">Quotation Date</div>
+                      <div className="font-bold">{data.quotationDate}</div>
+                    </div>
+                    <div>
+                      <div className="text-[7px] font-black text-gray-400 uppercase tracking-widest">Traveling Date</div>
+                      <div className="font-bold">{data.travelingDate || '—'}</div>
+                    </div>
+                    <div>
+                      <div className="text-[7px] font-black text-gray-400 uppercase tracking-widest">Destination</div>
+                      <div className="font-bold">{data.destination || '—'}</div>
+                    </div>
+                    <div>
+                      <div className="text-[7px] font-black text-gray-400 uppercase tracking-widest">Prepared By</div>
+                      <div className="font-bold">{data.preparedBy || 'Curator Board'}</div>
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <p className="font-black margin-0 text-[11px]">{data.clientName}</p>
+                    <p className="margin-0 leading-relaxed text-gray-600">{data.greetingText}</p>
+                    <p className="margin-0 leading-relaxed text-gray-600">{data.messageText}</p>
+                  </div>
+
+                  {data.options.map((opt, optIdx) => (
+                    <div key={optIdx} className="mb-6">
+                      <div className="font-black text-[9px] uppercase tracking-widest text-gray-400 mb-2 italic">{opt.optionTitle}</div>
+                      <table className="w-full border-collapse text-[10px] mb-4">
+                        <thead>
+                          <tr className="bg-black text-white">
+                            <th className="border border-black p-2 text-left uppercase text-[8px] font-black text-white">Destinations</th>
+                            <th className="border border-black p-2 text-left uppercase text-[8px] font-black text-white">Hotels</th>
+                            <th className="border border-black p-2 text-center uppercase text-[8px] font-black text-white">Meal Plan</th>
+                            <th className="border border-black p-2 text-center uppercase text-[8px] font-black text-white">Nights</th>
+                            <th className="border border-black p-2 text-center uppercase text-[8px] font-black text-white">Rooms</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {opt.hotels.map((h, i) => (
+                            <tr key={i} className="border-b border-gray-200">
+                              <td className="border border-gray-200 p-2 font-bold">{h.destination || '—'}</td>
+                              <td className="border border-gray-200 p-2 text-gray-600">{h.hotels || '—'}</td>
+                              <td className="border border-gray-200 p-2 text-center text-gray-600">{h.mealPlan}</td>
+                              <td className="border border-gray-200 p-2 text-center text-gray-600">{h.nights}</td>
+                              <td className="border border-gray-200 p-2 text-center text-gray-600">{h.rooms}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+
+                      <div className="grid grid-cols-2 gap-4 bg-gray-50 border border-gray-200 p-3 rounded-xl mb-4">
+                        <div>
+                          <div className="text-[7px] font-black uppercase text-gray-400">Package Cost</div>
+                          <ul className="list-none p-0 m-0">
+                            {(opt.packageCosts && opt.packageCosts.length > 0) ? opt.packageCosts.map((c, i) => (
+                              <li key={i} className="flex justify-between border-b border-gray-100 py-1 text-[10px]">
+                                <span>{c.category} (x{c.pax})</span>
+                                <strong>Rs. {(c.pax > 0 ? c.cost * c.pax : c.cost).toLocaleString('en-IN')}/- {c.pax === 0 && <span className="text-[9px] font-normal text-gray-400 ml-1">(Per Person)</span>}</strong>
+                              </li>
+                            )) : (data.perPersonCost ? (
+                              <li className="flex justify-between border-b border-gray-100 py-1 text-[10px]">
+                                <span>Per Person</span>
+                                <strong>{data.perPersonCost}</strong>
+                              </li>
+                            ) : null)}
+                          </ul>
+                        </div>
+                        {opt.flightCosts && opt.flightCosts.length > 0 && (
+                          <div>
+                            <div className="text-[7px] font-black uppercase text-gray-400">Additional Flight Costs</div>
+                            <ul className="list-none p-0 m-0">
+                              {opt.flightCosts.map((f, i) => (
+                                <li key={i} className="flex justify-between border-b border-gray-100 py-1 text-[10px]">
+                                  <span>{f.city} (x{f.pax})</span>
+                                  <strong>Rs. {(f.pax > 0 ? f.cost * f.pax : f.cost).toLocaleString('en-IN')}/- {f.pax === 0 && <span className="text-[9px] font-normal text-gray-400 ml-1">(Per Person)</span>}</strong>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {((opt.packageCosts && opt.packageCosts.length > 0) || (opt.flightCosts && opt.flightCosts.length > 0)) && (
+                          <div className="col-span-2 border-t border-dashed border-gray-300 pt-2 mt-1">
+                            <div className="text-[7px] font-black uppercase text-gray-400 mb-2">Total Estimate Breakdown (Option {optIdx + 1})</div>
+                            <table className="w-full text-[8px] text-center border border-gray-200">
+                              <thead className="bg-gray-100 font-bold">
+                                <tr>
+                                  <th className="border border-gray-200 p-1.5 text-left">Category</th>
+                                  <th className="border border-gray-200 p-1.5">Package Cost</th>
+                                  <th className="border border-gray-200 p-1.5">Flight Cost</th>
+                                  <th className="border border-gray-200 p-1.5">Total Estimate</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {(opt.packageCosts || []).map((c, i) => {
+                                  const flightCost = opt.flightCosts && opt.flightCosts.length > 0 ? opt.flightCosts[0].cost : 0;
+                                  const totalPerPerson = c.cost + flightCost;
+                                  return (
+                                    <tr key={i}>
+                                      <td className="border border-gray-200 p-1.5 text-left font-bold">{c.category}</td>
+                                      <td className="border border-gray-200 p-1.5">Rs. {c.cost.toLocaleString('en-IN')}/-</td>
+                                      <td className="border border-gray-200 p-1.5">Rs. {flightCost.toLocaleString('en-IN')}/-</td>
+                                      <td className="border border-gray-200 p-1.5 font-bold text-red-600">Rs. {totalPerPerson.toLocaleString('en-IN')}/- {c.pax > 0 ? `x ${String(c.pax).padStart(2, '0')}` : '(Per Person)'}</td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="border-t border-gray-200 pt-2 flex flex-col items-center text-[7px] text-gray-500 font-bold uppercase tracking-widest text-center mt-auto">
+                  <div>103 | Raj Victoriya, Near Samarth Circle, Adajan, Surat, Gujarat 395009</div>
+                  <div className="flex gap-4 mt-1">
+                    <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
+                    <span>+91 98792 68811 | +91 97266 98987 | 0261 3564717</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* SHEET 3+: ITINERARY PAGES */}
+              {itineraryChunks.map((chunk, index) => (
+                <div key={index} className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
+                  <div>
+                    <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
+                      <Logo textClassName="text-xl" />
+                      <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
+                        Detailed Itinerary - Page {index + 1}
+                      </div>
+                    </div>
+
+                    <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 border-b pb-1 font-serif italic">Detailed Day Schedule</div>
+
+                    <div className="space-y-6">
+                      {chunk.map((day, i) => (
+                        <div key={i} className={`pb-6 ${i === chunk.length - 1 ? '' : 'border-b border-gray-100'}`}>
+                          <div className="flex gap-5 items-start">
+                            {day.imageUrl && <img src={day.imageUrl} className="w-36 h-24 object-cover rounded-lg border border-gray-200 shrink-0" alt="" />}
+                            <div className="min-w-0 flex-1">
+                              <div className="font-bold text-sm text-black italic tracking-wide">{day.day}: {day.title || 'Day Schedule details'}</div>
+                              <p className="text-xs text-gray-700 leading-relaxed mt-1.5 text-justify">{day.description || 'Provide day activities...'}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="border-t border-gray-200 pt-2 flex flex-col items-center text-[7px] text-gray-500 font-bold uppercase tracking-widest text-center mt-auto">
+                    <div>103 | Raj Victoriya, Near Samarth Circle, Adajan, Surat, Gujarat 395009</div>
+                    <div className="flex gap-4 mt-1">
+                      <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
+                      <span>+91 98792 68811 | +91 97266 98987 | 0261 3564717</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {/* SHEET 4: TERMS & CONDITIONS (INCLUSIONS/EXCLUSIONS) */}
+              <div className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
+                <div>
+                  <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
+                    <Logo textClassName="text-xl" />
+                    <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
+                      Terms & Conditions
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-[10px] font-black text-black border-b pb-1 mb-2 italic">What's Included</div>
+                      <ul className="pl-4 m-0 space-y-1 list-disc text-[10px] text-gray-600">
+                        {data.inclusions.map((inc, i) => <li key={i}>{inc}</li>)}
+                        {data.inclusions.length === 0 && <span className="italic opacity-50">None specified</span>}
                       </ul>
                     </div>
-                    {opt.flightCosts && opt.flightCosts.length > 0 && (
-                      <div>
-                        <div className="text-[7px] font-black uppercase text-gray-400">Additional Flight Costs</div>
-                        <ul className="list-none p-0 m-0">
-                          {opt.flightCosts.map((f, i) => (
-                            <li key={i} className="flex justify-between border-b border-gray-100 py-1 text-[10px]">
-                              <span>{f.city} (x{f.pax})</span>
-                              <strong>Rs. {(f.pax > 0 ? f.cost * f.pax : f.cost).toLocaleString('en-IN')}/- {f.pax === 0 && <span className="text-[9px] font-normal text-gray-400 ml-1">(Per Person)</span>}</strong>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    {((opt.packageCosts && opt.packageCosts.length > 0) || (opt.flightCosts && opt.flightCosts.length > 0)) && (
-                      <div className="col-span-2 border-t border-dashed border-gray-300 pt-2 mt-1">
-                        <div className="text-[7px] font-black uppercase text-gray-400 mb-2">Total Estimate Breakdown (Option {optIdx + 1})</div>
-                        <table className="w-full text-[8px] text-center border border-gray-200">
-                          <thead className="bg-gray-100 font-bold">
-                            <tr>
-                              <th className="border border-gray-200 p-1.5 text-left">Category</th>
-                              <th className="border border-gray-200 p-1.5">Package Cost</th>
-                              <th className="border border-gray-200 p-1.5">Flight Cost</th>
-                              <th className="border border-gray-200 p-1.5">Total Estimate</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {(opt.packageCosts || []).map((c, i) => {
-                              const flightCost = opt.flightCosts && opt.flightCosts.length > 0 ? opt.flightCosts[0].cost : 0;
-                              const totalPerPerson = c.cost + flightCost;
-                              return (
-                                <tr key={i}>
-                                  <td className="border border-gray-200 p-1.5 text-left font-bold">{c.category}</td>
-                                  <td className="border border-gray-200 p-1.5">Rs. {c.cost.toLocaleString('en-IN')}/-</td>
-                                  <td className="border border-gray-200 p-1.5">Rs. {flightCost.toLocaleString('en-IN')}/-</td>
-                                  <td className="border border-gray-200 p-1.5 font-bold text-red-600">Rs. {totalPerPerson.toLocaleString('en-IN')}/- {c.pax > 0 ? `x ${String(c.pax).padStart(2, '0')}` : '(Per Person)'}</td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
+                    <div>
+                      <div className="text-[10px] font-black text-black border-b pb-1 mb-2 italic">What's Excluded</div>
+                      <ul className="pl-4 m-0 space-y-1 list-disc text-[10px] text-gray-600">
+                        {data.exclusions.map((exc, i) => <li key={i}>{exc}</li>)}
+                        {data.exclusions.length === 0 && <span className="italic opacity-50">None specified</span>}
+                      </ul>
+                    </div>
+                  </div>
+                  {data.termsAndConditions && data.termsAndConditions.length > 0 && (
+                    <div className="mt-4">
+                      <div className="text-[10px] font-black text-black border-b pb-1 mb-2 italic">Terms & Conditions</div>
+                      <ul className="pl-4 m-0 space-y-1 list-disc text-[10px] text-gray-600">
+                        {data.termsAndConditions.map((t, i) => <li key={i}>{t}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                <div className="border-t border-gray-200 pt-2 flex flex-col items-center text-[7px] text-gray-500 font-bold uppercase tracking-widest text-center mt-auto">
+                  <div>103 | Raj Victoriya, Near Samarth Circle, Adajan, Surat, Gujarat 395009</div>
+                  <div className="flex gap-4 mt-1">
+                    <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
+                    <span>+91 98792 68811 | +91 97266 98987 | 0261 3564717</span>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            <div className="border-t border-gray-200 pt-2 flex flex-col items-center text-[7px] text-gray-500 font-bold uppercase tracking-widest text-center mt-auto">
-              <div>103 | Raj Victoriya, Near Samarth Circle, Adajan, Surat, Gujarat 395009</div>
-              <div className="flex gap-4 mt-1">
-                <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
-                <span>+91 98792 68811 | +91 97266 98987 | 0261 3564717</span>
               </div>
-            </div>
-          </div>
 
-          {/* SHEET 3+: ITINERARY PAGES */}
-          {itineraryChunks.map((chunk, index) => (
-            <div key={index} className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
-              <div>
-                <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
-                  <Logo textClassName="text-xl" />
-                  <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
-                    Detailed Itinerary - Page {index + 1}
-                  </div>
-                </div>
-
-                <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 border-b pb-1 font-serif italic">Detailed Day Schedule</div>
-
-                <div className="space-y-6">
-                  {chunk.map((day, i) => (
-                    <div key={i} className={`pb-6 ${i === chunk.length - 1 ? '' : 'border-b border-gray-100'}`}>
-                      <div className="flex gap-5 items-start">
-                        {day.imageUrl && <img src={day.imageUrl} className="w-36 h-24 object-cover rounded-lg border border-gray-200 shrink-0" alt="" />}
-                        <div className="min-w-0 flex-1">
-                          <div className="font-bold text-sm text-black italic tracking-wide">{day.day}: {day.title || 'Day Schedule details'}</div>
-                          <p className="text-xs text-gray-700 leading-relaxed mt-1.5 text-justify">{day.description || 'Provide day activities...'}</p>
-                        </div>
+              {/* SHEET 5: VISUAL ARCHIVE GALLERY */}
+              {data.visualArchive.length > 0 && (
+                <div className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
+                  <div>
+                    <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
+                      <Logo textClassName="text-xl" />
+                      <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
+                        Visual Archive
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
 
-              <div className="border-t border-gray-200 pt-2 flex flex-col items-center text-[7px] text-gray-500 font-bold uppercase tracking-widest text-center mt-auto">
-                <div>103 | Raj Victoriya, Near Samarth Circle, Adajan, Surat, Gujarat 395009</div>
-                <div className="flex gap-4 mt-1">
-                  <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
-                  <span>+91 98792 68811 | +91 97266 98987 | 0261 3564717</span>
-                </div>
-              </div>
-            </div>
-          ))}
+                    <div className="text-[10px] font-black text-black border-b pb-1 mb-3 italic">Tour Gallery</div>
+                    <div className="grid grid-cols-3 gap-3">
+                      {data.visualArchive.slice(0, 6).map((url, i) => (
+                        <img key={i} src={url} className="w-full h-28 object-cover rounded-lg border border-gray-200" alt="Gallery item" />
+                      ))}
+                    </div>
+                  </div>
 
-          {/* SHEET 4: TERMS & CONDITIONS (INCLUSIONS/EXCLUSIONS) */}
-          <div className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
-            <div>
-              <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
-                <Logo textClassName="text-xl" />
-                <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
-                  Terms & Conditions
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <div className="text-[10px] font-black text-black border-b pb-1 mb-2 italic">What's Included</div>
-                  <ul className="pl-4 m-0 space-y-1 list-disc text-[10px] text-gray-600">
-                    {data.inclusions.map((inc, i) => <li key={i}>{inc}</li>)}
-                    {data.inclusions.length === 0 && <span className="italic opacity-50">None specified</span>}
-                  </ul>
-                </div>
-                <div>
-                  <div className="text-[10px] font-black text-black border-b pb-1 mb-2 italic">What's Excluded</div>
-                  <ul className="pl-4 m-0 space-y-1 list-disc text-[10px] text-gray-600">
-                    {data.exclusions.map((exc, i) => <li key={i}>{exc}</li>)}
-                    {data.exclusions.length === 0 && <span className="italic opacity-50">None specified</span>}
-                  </ul>
-                </div>
-              </div>
-              {data.termsAndConditions && data.termsAndConditions.length > 0 && (
-                <div className="mt-4">
-                  <div className="text-[10px] font-black text-black border-b pb-1 mb-2 italic">Terms & Conditions</div>
-                  <ul className="pl-4 m-0 space-y-1 list-disc text-[10px] text-gray-600">
-                    {data.termsAndConditions.map((t, i) => <li key={i}>{t}</li>)}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            <div className="border-t border-gray-200 pt-2 flex flex-col items-center text-[7px] text-gray-500 font-bold uppercase tracking-widest text-center mt-auto">
-              <div>103 | Raj Victoriya, Near Samarth Circle, Adajan, Surat, Gujarat 395009</div>
-              <div className="flex gap-4 mt-1">
-                <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
-                <span>+91 98792 68811 | +91 97266 98987 | 0261 3564717</span>
-              </div>
-            </div>
-          </div>
-
-          {/* SHEET 5: VISUAL ARCHIVE GALLERY */}
-          {data.visualArchive.length > 0 && (
-            <div className="bg-white text-black p-8 rounded shadow-md border-[3px] border-double border-black max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
-              <div>
-                <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
-                  <Logo textClassName="text-xl" />
-                  <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
-                    Visual Archive
+                  <div className="border-t border-gray-200 pt-2 flex flex-col items-center text-[7px] text-gray-500 font-bold uppercase tracking-widest text-center mt-auto">
+                    <div>103 | Raj Victoriya, Near Samarth Circle, Adajan, Surat, Gujarat 395009</div>
+                    <div className="flex gap-4 mt-1">
+                      <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
+                      <span>+91 98792 68811 | +91 97266 98987 | 0261 3564717</span>
+                    </div>
                   </div>
                 </div>
-
-                <div className="text-[10px] font-black text-black border-b pb-1 mb-3 italic">Tour Gallery</div>
-                <div className="grid grid-cols-3 gap-3">
-                  {data.visualArchive.slice(0, 6).map((url, i) => (
-                    <img key={i} src={url} className="w-full h-28 object-cover rounded-lg border border-gray-200" alt="Gallery item" />
-                  ))}
-                </div>
-              </div>
-
-              <div className="border-t border-gray-200 pt-2 flex flex-col items-center text-[7px] text-gray-500 font-bold uppercase tracking-widest text-center mt-auto">
-                <div>103 | Raj Victoriya, Near Samarth Circle, Adajan, Surat, Gujarat 395009</div>
-                <div className="flex gap-4 mt-1">
-                  <span>tushar@journeyflicker.com | pashv@journeyflicker.com</span>
-                  <span>+91 98792 68811 | +91 97266 98987 | 0261 3564717</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* SHEET 6: POLICIES & GUIDELINES (NO BORDER) */}
-          <div className="bg-white text-black p-8 rounded shadow-md max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
-            <div>
-              <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
-                <Logo textClassName="text-xl" />
-                <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
-                  Policy & Guidelines
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <div className="text-[10px] font-black text-black border-b pb-1 mb-2 italic">Documents Required</div>
-                  <ul className="pl-4 m-0 space-y-1 list-disc text-[10px] text-gray-600">
-                    {data.documentsRequired.map((doc, i) => <li key={i}>{doc}</li>)}
-                    {data.documentsRequired.length === 0 && <span className="italic opacity-50">None specified</span>}
-                  </ul>
-                </div>
-                <div>
-                  <div className="text-[10px] font-black text-black border-b pb-1 mb-2 italic">Cancellation Policy</div>
-                  <ul className="pl-4 m-0 space-y-1 list-disc text-[10px] text-gray-600">
-                    {data.cancellationPolicy.map((c, i) => <li key={i}>{c}</li>)}
-                    {data.cancellationPolicy.length === 0 && <span className="italic opacity-50">None specified</span>}
-                  </ul>
-                </div>
-              </div>
-
-              {data.importantInfo.length > 0 && (
-                <div className="mt-6">
-                  <div className="text-[10px] font-black text-black border-b pb-1 mb-2 italic">Important Guidelines</div>
-                  <ul className="pl-4 m-0 space-y-1 list-disc text-[10px] text-gray-600">
-                    {data.importantInfo.map((inf, i) => <li key={i}>{inf}</li>)}
-                  </ul>
-                </div>
               )}
-            </div>
 
-            {/* COMPLETE FOOTER (NO BORDER) */}
-            <div className="complete-footer mt-10 pt-6 border-t-2 border-black flex flex-col items-start text-left w-full">
-              <Logo className="mb-3" textClassName="text-lg" />
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-black mb-2">THE CURATOR BOARD</h4>
-              <div className="text-[9px] leading-relaxed text-gray-600 font-medium space-y-0.5">
-                <div><strong>Email:</strong> tushar@journeyflicker.com | pashv@journeyflicker.com</div>
-                <div><strong>Phone:</strong> +91 98792 68811 | +91 97266 98987 | 0261 3564717</div>
-                <div><strong>Address:</strong> Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
+              {/* SHEET 6: POLICIES & GUIDELINES (NO BORDER) */}
+              <div className="bg-white text-black p-8 rounded shadow-md max-w-[640px] mx-auto min-h-[850px] relative flex flex-col justify-between" style={{ fontSize: '11px' }}>
+                <div>
+                  <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-4">
+                    <Logo textClassName="text-xl" />
+                    <div className="text-[7px] text-right leading-tight text-gray-500 uppercase tracking-widest font-black">
+                      Policy & Guidelines
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-[10px] font-black text-black border-b pb-1 mb-2 italic">Documents Required</div>
+                      <ul className="pl-4 m-0 space-y-1 list-disc text-[10px] text-gray-600">
+                        {data.documentsRequired.map((doc, i) => <li key={i}>{doc}</li>)}
+                        {data.documentsRequired.length === 0 && <span className="italic opacity-50">None specified</span>}
+                      </ul>
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-black text-black border-b pb-1 mb-2 italic">Cancellation Policy</div>
+                      <ul className="pl-4 m-0 space-y-1 list-disc text-[10px] text-gray-600">
+                        {data.cancellationPolicy.map((c, i) => <li key={i}>{c}</li>)}
+                        {data.cancellationPolicy.length === 0 && <span className="italic opacity-50">None specified</span>}
+                      </ul>
+                    </div>
+                  </div>
+
+                  {data.importantInfo.length > 0 && (
+                    <div className="mt-6">
+                      <div className="text-[10px] font-black text-black border-b pb-1 mb-2 italic">Important Guidelines</div>
+                      <ul className="pl-4 m-0 space-y-1 list-disc text-[10px] text-gray-600">
+                        {data.importantInfo.map((inf, i) => <li key={i}>{inf}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                {/* COMPLETE FOOTER (NO BORDER) */}
+                <div className="complete-footer mt-10 pt-6 border-t-2 border-black flex flex-col items-start text-left w-full">
+                  <Logo className="mb-3" textClassName="text-lg" />
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-black mb-2">THE CURATOR BOARD</h4>
+                  <div className="text-[9px] leading-relaxed text-gray-600 font-medium space-y-0.5">
+                    <div><strong>Email:</strong> tushar@journeyflicker.com | pashv@journeyflicker.com</div>
+                    <div><strong>Phone:</strong> +91 98792 68811 | +91 97266 98987 | 0261 3564717</div>
+                    <div><strong>Address:</strong> Raj Victoriya, 103, near Samarth Circle, Adajan Gam, Adajan, Surat, Gujarat 395009</div>
+                  </div>
+                </div>
               </div>
+
             </div>
+
           </div>
-
         </div>
-
-      </div>
-      </div>
       )}
-      <MediaSelectorModal 
+      <MediaSelectorModal
         isOpen={isMediaModalOpen}
         onClose={() => setIsMediaModalOpen(false)}
         onSelect={handleMediaSelect}
