@@ -203,19 +203,26 @@ const hiteshPreset: QuotationData = {
     'Passport Size Photos, Photocopies Of Photo Identity Proof Of All Members (Passport, Voter Card, Aadhar Card, Driving Licenses etc.)'
   ],
   cancellationPolicy: [
-    'Once the flight ticket are issued actual airline penalty will be applied',
-    '50-40 Days Before Departure : 50 % of package cost',
-    '40-30 Days Before Departure : 60 % of Package cost',
-    '30-21 Days before Departure : 75 % of Package cost',
-    'Once the booking is reconfirmed 100% cancellation will be charged if cancelled less than 21 days prior to arrival.',
-    'Cancellation policy may change according changes in hotel policy'
+        'Once flight tickets are issued, the applicable airline cancellation penalty will be charged.',
+    '50–40 days before departure: 50% of the package cost will be charged.',
+    '40–30 days before departure: 60% of the package cost will be charged.',
+    '30–21 days before departure: 75% of the package cost will be charged.',
+    ' Less than 20 days before departure: 100% of the total package cost will be charged',
+    'The cancellation policy is subject to change as per the hotel’s policy.',
+    'Any non-refundable services, including hotel bookings, transfers, or other third-party arrangements, will be charged in full as per supplier policy.',
   ],
   importantInfo: [
-    'Above costing is based on Minimum 12 Adults 00 Child Travelling together & may change in case the no of adults Change.',
-    'Once the booking is reconfirmed 100% cancellation will be charged if cancelled less than 21 days prior to arrival.',
-    'It is understood that, we act as agent only for all services covered hereby. Further we shall not be responsible for any loss, injury or damage resulting from acts of God, dangers, fire, breakdown of machinery, equipment or vehicles, acts of government authority, etc.',
-    'If booking is done less than 21 days from arrival, immediate reconfirmation will be required.',
-    'Flight cost is subject to change at the time of booking.'
+        'Rates are based on minimum guest count and subject to change if group size changes.',
+    'Early check-in or late check-out is subject to room availability and extra charges.',
+    'We act as booking agents only and cannot be held liable for mechanical failures or acts of God.',
+    'Hotels/Airline will be subject to availability till Reconfirmation.',
+    'Given cost is estimated, based on lowest airfare and hotel rates existing as of now. We don’t hold any confirmation for Hotels/Airline. It’s Subject to availability at the time of booking. Any difference in cost shall be borne by passenger.',
+    'Room allocation Twin rooms /Double room will be as per the availability at the time of check in',
+    'Hotel Check in time 1400hrs, Check out Time 1200hrs (Depend On Hotel Policy)',
+    'Charges for extras (Wi‑Fi, minibar, laundry, room service, etc.) and local taxes are charged directly by the hotel.',
+    'Certain hotels abroad may ask for a security deposit during check-in, which is refundable at check-out subject to the hotels policy.',
+    'The package price does not include special dinner or mandatory charges at time levied by the hotels especially during New Year and Christmas or any special occasions.'
+
   ],
   visualArchive: [
     'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=600&auto=format&fit=crop',
@@ -340,12 +347,16 @@ const keralaPreset: QuotationData = {
 
   ],
   importantInfo: [
-    'Above costing is based on minimum 10 Adults travelling together — cost may change if group size reduces.',
-    'Houseboat check-in is at 12:00 Noon and check-out is at 09:00 AM next day.',
-    'Eravikulam National Park remains closed during Feb–March (calving season) — alternate sightseeing will be arranged.',
-    'Standard hotel check-in is 14:00 hrs and check-out is 12:00 Noon. Early/Late subject to availability.',
-    'Flight costs quoted are approximate and will be locked only at actual time of booking.',
-    'We act as booking agents only and cannot be held liable for mechanical failures, weather, or acts of God.',
+    'Rates are based on minimum guest count and subject to change if group size changes.',
+    'Early check-in or late check-out is subject to room availability and extra charges.',
+    'We act as booking agents only and cannot be held liable for mechanical failures or acts of God.',
+    'Hotels/Airline will be subject to availability till Reconfirmation.',
+    'Given cost is estimated, based on lowest airfare and hotel rates existing as of now. We don’t hold any confirmation for Hotels/Airline. It’s Subject to availability at the time of booking. Any difference in cost shall be borne by passenger.',
+    'Room allocation Twin rooms /Double room will be as per the availability at the time of check in',
+    'Hotel Check in time 1400hrs, Check out Time 1200hrs (Depend On Hotel Policy)',
+    'Charges for extras (Wi‑Fi, minibar, laundry, room service, etc.) and local taxes are charged directly by the hotel.',
+    'Certain hotels abroad may ask for a security deposit during check-in, which is refundable at check-out subject to the hotels policy.',
+    'The package price does not include special dinner or mandatory charges at time levied by the hotels especially during New Year and Christmas or any special occasions.'
   ],
   visualArchive: [
     'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=600&auto=format&fit=crop',
@@ -361,7 +372,7 @@ const keralaPreset: QuotationData = {
     'Any booking is subject to confirmation only after receiving the advance payment.',
     'All prices are subject to change without prior notice unless booking is fully paid.',
     'Any further increase in airfare due to increase in the fuel price, change in government regulations, taxes, etc., charged by the airline will have to be borne by the passengers. JOURNEYFLICKER will not be held responsible for them.',
-      'In case your package needs to be cancelled due to any natural calamity, weather conditions etc. JOURNEYFLICKER shall strive to give you the maximum possible refund subject to the agreement made with our trade partners/vendors',
+    'In case your package needs to be cancelled due to any natural calamity, weather conditions etc. JOURNEYFLICKER shall strive to give you the maximum possible refund subject to the agreement made with our trade partners/vendors',
     'Any increase in the number of passengers may lead to an increase in the total cost of the tour'  
   ]
 };
