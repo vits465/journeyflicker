@@ -61,6 +61,7 @@ interface QuotationData {
   cancellationPolicy: string[];
   importantInfo: string[];
   visualArchive: string[];
+  preparedBy?: string;
   termsAndConditions?: string[];
   noteBox?: string;
 }
