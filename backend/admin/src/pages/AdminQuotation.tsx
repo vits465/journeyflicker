@@ -61,19 +61,110 @@ interface QuotationData {
   cancellationPolicy: string[];
   importantInfo: string[];
   visualArchive: string[];
-  preparedBy?: string;
   termsAndConditions?: string[];
+  noteBox?: string;
 }
 
+const domesticPolicyTemplates = {
+  inclusions: [
+    'Accommodation on Double/Twin sharing basis.',
+    'Accommodation on with above meal plan.',
+    'All transfers and sightseeing by private air-conditioned vehicle as per itinerary.',
+    'AC will be switched off in hill stations / climb routes.',
+    'All toll taxes, parking fees, driver allowance, and road permits.',
+    'Pikup and Drop As per  itinerary.'
+
+  ],
+  exclusions: [
+    'Airfare / Train fares.',
+    'Any personal expenses (laundry, telephone calls, tips, beverages, mineral water).',
+    'Entrance tickets, camera permits, and guide charges at sightseeing points.',
+    'Meals outside of the pre-booked meal plan.',
+    'Extra cost due to landslides, road blocks, natural disasters, or flight delays.',
+    'GST 5% extra applicable on total bill.'
+  ],
+  documentsRequired: [
+    'Original Aadhaar Card / Voter ID Card / Passport.',
+    'Photocopies of photo identity proof for all traveling members.',
+    '2 Passport size photographs per person.'
+  ],
+  cancellationPolicy: [
+    '30 days or more before departure: 25% of total tour cost.',
+    '29 to 15 days before departure: 50% of total tour cost.',
+    '14 to 7 days before departure: 75% of total tour cost.',
+    'Less than 7 days before departure or No Show: 100% of tour cost.'
+  ],
+  importantInfo: [
+    'Rates are based on minimum guest count and subject to change if group size changes.',
+    'Early check-in or late check-out is subject to room availability and extra charges.',
+    'We act as booking agents only and cannot be held liable for mechanical failures or acts of God.',
+    'Hotels/Airline will be subject to availability till Reconfirmation.',
+    'Given cost is estimated, based on lowest airfare and hotel rates existing as of now. We don’t hold any confirmation for Hotels/Airline. It’s Subject to availability at the time of booking. Any difference in cost shall be borne by passenger.',
+    'Room allocation Twin rooms /Double room will be as per the availability at the time of check in',
+    'Hotel Check in time 1400hrs, Check out Time 1200hrs (Depend On Hotel Policy)',
+    'Charges for extras (Wi‑Fi, minibar, laundry, room service, etc.) and local taxes are charged directly by the hotel.',
+    'Certain hotels abroad may ask for a security deposit during check-in, which is refundable at check-out subject to the hotels policy.',
+    'The package price does not include special dinner or mandatory charges at time levied by the hotels especially during New Year and Christmas or any special occasions.'
+  ],
+  termsAndConditions: [
+    'The itinerary is tentative and subject to change based on local traffic conditions or weather.',
+    'Any booking is subject to confirmation only after receiving the advance payment.',
+    'All prices are subject to change without prior notice unless booking is fully paid.'
+  ]
+};
+
+const internationalPolicyTemplates = {
+  inclusions: [
+    'Accommodation in premium category hotels (Double sharing).',
+    'Daily buffet breakfast at all hotels (additional meals as per plan).',
+    'Private airport arrival & departure transfers.',
+  ],
+  exclusions: [
+    'International & Domestic Airfares & Airport Taxes.',
+    'Visa fee / Visa on Arrival charges (if applicable).',
+    'Mandatory tips for local guides and drivers (typically $3-$5 USD per person per day).',
+    'Personal expenses, laundry, room service, mineral water, and alcoholic drinks.',
+    'City Tax / Tourism Tax payable directly at hotels (if applicable).',
+    'Any other services not explicitly mentioned under Inclusions.'
+  ],
+  documentsRequired: [
+    'Original Passport with minimum 6 months validity from the travel date.',
+    'Approved Visa document (eVisa printout or confirmation).',
+    'Confirmed return flight tickets and hotel vouchers.',
+    'Travel insurance policy copy.',
+    'Declaration forms or health travel passes (as required by host country).'
+  ],
+  cancellationPolicy: [
+    'Flight tickets are subject to actual airline penalties (usually non-refundable).',
+    '45 days or more before departure: 30% of total package cost.',
+    '44 to 30 days before departure: 60% of total package cost.',
+    'Less than 30 days before departure or No Show: 100% of package cost.'
+  ],
+  importantInfo: [
+    'International flight rates are highly volatile and cost will be locked only upon ticketing.',
+    'Ensure passport has at least 2 blank pages for entry stamp.',
+    'Local currency or USD should be carried for personal transactions and tips.',
+    'Check-in and check-out rules apply as per individual country norms.'
+  ],
+  termsAndConditions: [
+    'The itinerary is tentative and subject to change based on local traffic conditions or weather.',
+    'Any booking is subject to confirmation only after receiving the advance payment.',
+    'All prices are subject to change without prior notice unless booking is fully paid.',
+    'Visa approval is at the sole discretion of the respective embassy/consulate.',
+    'Passport must have at least 6 months validity from the date of travel.',
+    'All international flight costs are subject to change until tickets are issued.'
+  ]
+};
+
 const emptyQuotation: QuotationData = {
-  title: 'NORTH EAST TOUR',
+  title: 'North East Tour',
   heroImageUrl: 'https://images.unsplash.com/photo-1544016768-982d1554f0b9?q=80&w=1200&auto=format&fit=crop',
   quotationDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase().replace(/ /g, '-'),
   travelingDate: '',
   destination: '',
   clientName: 'Dear Sir,',
   greetingText: 'Greeting From JourneyFlicker..!!',
-  messageText: 'kindly check below detail of your Tour !!!',
+  messageText: 'Kindly check below detail of your Tour !!!',
   options: [{
     optionTitle: 'Option : 01(3*) 08 Night 09 Days',
     hotels: [
@@ -87,26 +178,27 @@ const emptyQuotation: QuotationData = {
   itinerary: [
     { day: 'Day 1', title: '', description: '' }
   ],
-  inclusions: [],
-  exclusions: [],
-  documentsRequired: [],
-  cancellationPolicy: [],
-  importantInfo: [],
+  inclusions: [...domesticPolicyTemplates.inclusions],
+  exclusions: [...domesticPolicyTemplates.exclusions],
+  documentsRequired: [...domesticPolicyTemplates.documentsRequired],
+  cancellationPolicy: [...domesticPolicyTemplates.cancellationPolicy],
+  importantInfo: [...domesticPolicyTemplates.importantInfo],
   visualArchive: [],
   preparedBy: 'Curator Board',
-  termsAndConditions: []
+  termsAndConditions: [...domesticPolicyTemplates.termsAndConditions],
+  noteBox: ''
 };
 
 // Preset sample from Hitesh's North East Tour
 const hiteshPreset: QuotationData = {
-  title: 'NORTH EAST TOUR',
+  title: 'North East Tour',
   heroImageUrl: 'https://images.unsplash.com/photo-1544016768-982d1554f0b9?q=80&w=1200&auto=format&fit=crop',
   quotationDate: '09-JUN-2026',
   travelingDate: '11-NOV-2026',
-  destination: 'NORTH INDIA',
+  destination: 'North India',
   clientName: 'Dear Sir,',
   greetingText: 'Greeting From JourneyFlicker..!!',
-  messageText: 'kindly check below detail of your NORTH INDIA Tour !!!',
+  messageText: 'Kindly check below detail of your North India Tour !!!',
   options: [{
     optionTitle: 'Option : 01(3*) 08 Night 09 Days',
     hotels: [
@@ -239,14 +331,14 @@ const hiteshPreset: QuotationData = {
 
 // Demo Preset: Kerala Backwaters & Munnar (7 Nights / 8 Days)
 const keralaPreset: QuotationData = {
-  title: 'KERALA BACKWATERS & MUNNAR TOUR',
+  title: 'Kerala Backwaters & Munnar Tour',
   heroImageUrl: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=1200&auto=format&fit=crop',
   quotationDate: '19-JUN-2026',
   travelingDate: '15-OCT-2026',
-  destination: 'KERALA',
+  destination: 'Kerala',
   clientName: 'Dear Sir / Madam,',
   greetingText: 'Warm Greetings From JourneyFlicker..!!',
-  messageText: 'Kindly find below the detailed itinerary & quotation for your KERALA Tour !!!',
+  messageText: 'Kindly find below the detailed itinerary & quotation for your Kerala Tour !!!',
   options: [{
     optionTitle: 'Option : 01 (3★/4★) 07 Nights 08 Days',
     hotels: [
@@ -377,92 +469,14 @@ const keralaPreset: QuotationData = {
   ]
 };
 
-const domesticPolicyTemplates = {
-  inclusions: [
-    'Accommodation on Double/Twin sharing basis.',
-    'Accommodation on with above meal plan.',
-    'All transfers and sightseeing by private air-conditioned vehicle as per itinerary.',
-    'AC will be switched off in hill stations / climb routes.',
-    'All toll taxes, parking fees, driver allowance, and road permits.',
-    'Pikup and Drop As per  itinerary.'
 
-  ],
-  exclusions: [
-    'Airfare / Train fares.',
-    'Any personal expenses (laundry, telephone calls, tips, beverages, mineral water).',
-    'Entrance tickets, camera permits, and guide charges at sightseeing points.',
-    'Meals outside of the pre-booked meal plan.',
-    'Extra cost due to landslides, road blocks, natural disasters, or flight delays.',
-    'GST 5% extra applicable on total bill.'
-  ],
-  documentsRequired: [
-    'Original Aadhaar Card / Voter ID Card / Passport.',
-    'Photocopies of photo identity proof for all traveling members.',
-    '2 Passport size photographs per person.'
-  ],
-  cancellationPolicy: [
-    '30 days or more before departure: 25% of total tour cost.',
-    '29 to 15 days before departure: 50% of total tour cost.',
-    '14 to 7 days before departure: 75% of total tour cost.',
-    'Less than 7 days before departure or No Show: 100% of tour cost.'
-  ],
-  importantInfo: [
-    'Rates are based on minimum guest count and subject to change if group size changes.',
-    'Early check-in or late check-out is subject to room availability and extra charges.',
-    'We act as booking agents only and cannot be held liable for mechanical failures or acts of God.',
-    'Hotels/Airline will be subject to availability till Reconfirmation.',
-    'Given cost is estimated, based on lowest airfare and hotel rates existing as of now. We don’t hold any confirmation for Hotels/Airline. It’s Subject to availability at the time of booking. Any difference in cost shall be borne by passenger.',
-    'Room allocation Twin rooms /Double room will be as per the availability at the time of check in',
-    'Hotel Check in time 1400hrs, Check out Time 1200hrs (Depend On Hotel Policy)',
-    'Charges for extras (Wi‑Fi, minibar, laundry, room service, etc.) and local taxes are charged directly by the hotel.',
-    'Certain hotels abroad may ask for a security deposit during check-in, which is refundable at check-out subject to the hotels policy.',
-    'The package price does not include special dinner or mandatory charges at time levied by the hotels especially during New Year and Christmas or any special occasions.'
-  ],
-  termsAndConditions: [
-    'The itinerary is tentative and subject to change based on local traffic conditions or weather.',
-    'Any booking is subject to confirmation only after receiving the advance payment.',
-    'All prices are subject to change without prior notice unless booking is fully paid.'
-  ]
-};
 
-const internationalPolicyTemplates = {
-  inclusions: [
-    'Accommodation in premium category hotels (Double sharing).',
-    'Daily buffet breakfast at all hotels (additional meals as per plan).',
-    'Private airport arrival & departure transfers.',
-  ],
-  exclusions: [
-    'International & Domestic Airfares & Airport Taxes.',
-    'Visa fee / Visa on Arrival charges (if applicable).',
-    'Mandatory tips for local guides and drivers (typically $3-$5 USD per person per day).',
-    'Personal expenses, laundry, room service, mineral water, and alcoholic drinks.',
-    'City Tax / Tourism Tax payable directly at hotels (if applicable).',
-    'Any other services not explicitly mentioned under Inclusions.'
-  ],
-  documentsRequired: [
-    'Original Passport with minimum 6 months validity from the travel date.',
-    'Approved Visa document (eVisa printout or confirmation).',
-    'Confirmed return flight tickets and hotel vouchers.',
-    'Travel insurance policy copy.',
-    'Declaration forms or health travel passes (as required by host country).'
-  ],
-  cancellationPolicy: [
-    'Flight tickets are subject to actual airline penalties (usually non-refundable).',
-    '45 days or more before departure: 30% of total package cost.',
-    '44 to 30 days before departure: 60% of total package cost.',
-    'Less than 30 days before departure or No Show: 100% of package cost.'
-  ],
-  importantInfo: [
-    'International flight rates are highly volatile and cost will be locked only upon ticketing.',
-    'Ensure passport has at least 2 blank pages for entry stamp.',
-    'Local currency or USD should be carried for personal transactions and tips.',
-    'Check-in and check-out rules apply as per individual country norms.'
-  ],
-  termsAndConditions: [
-    'Visa approval is at the sole discretion of the respective embassy/consulate.',
-    'Passport must have at least 6 months validity from the date of travel.',
-    'All international flight costs are subject to change until tickets are issued.'
-  ]
+const toTitleCase = (str: string) => {
+  if (!str) return '';
+  return str.split(' ').map(word => {
+    if (word.length === 0) return word;
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  }).join(' ');
 };
 
 const mapTourToQuotation = (tour: Tour): QuotationData => {
@@ -515,7 +529,7 @@ const mapTourToQuotation = (tour: Tour): QuotationData => {
 
     return {
       day: dayLabel,
-      title: title.toUpperCase(),
+      title: toTitleCase(title),
       description: day.description || '',
       imageUrl: day.imageUrl || ''
     };
@@ -530,14 +544,14 @@ const mapTourToQuotation = (tour: Tour): QuotationData => {
   const template = isInternational ? internationalPolicyTemplates : domesticPolicyTemplates;
 
   return {
-    title: tour.name.toUpperCase(),
+    title: toTitleCase(tour.name),
     heroImageUrl: tour.heroImageUrl || 'https://images.unsplash.com/photo-1544016768-982d1554f0b9?q=80&w=1200&auto=format&fit=crop',
     quotationDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase().replace(/ /g, '-'),
     travelingDate: '',
-    destination: tour.region.toUpperCase(),
+    destination: toTitleCase(tour.region),
     clientName: 'Dear Sir,',
     greetingText: 'Greeting From JourneyFlicker..!!',
-    messageText: `kindly check below detail of your ${tour.region.toUpperCase()} Tour !!!`,
+    messageText: `Kindly check below detail of your ${toTitleCase(tour.region)} Tour !!!`,
     options: [{
       optionTitle: `Option : 01(3*) ${String(tour.days - 1).padStart(2, '0')} Night ${String(tour.days).padStart(2, '0')} Days`,
       hotels,
@@ -1136,7 +1150,7 @@ export default function AdminQuotation() {
           <span class="journey-logo-text">JourneyFlicker</span>
         </div>
         ${data.heroImageUrl ? `<img src="${absUrl(data.heroImageUrl)}" class="hero-img" width="800" height="280" style="width: 100%; height: 280px; object-fit: cover; border-radius: 14px; margin-bottom: 20px; -webkit-print-color-adjust: exact; print-color-adjust: exact;" />` : ''}
-        <h1 style="font-size: 40px; font-weight: 300; text-transform: uppercase; margin: 0 0 6px 0; letter-spacing: -2px; line-height: 1.1; font-style: italic; font-family: Georgia, serif;">${data.title}</h1>
+        <h1 style="font-size: 40px; font-weight: 300; text-transform: capitalize; margin: 0 0 6px 0; letter-spacing: -2px; line-height: 1.1; font-style: italic; font-family: Georgia, serif;">${data.title}</h1>
         <p class="subtitle" style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 4px; opacity: 0.6; margin: 0;">${data.destination || ''} &bull; SIGNATURE EXPEDITION</p>
       </div>
     </div>
@@ -1295,6 +1309,11 @@ export default function AdminQuotation() {
           </td>
         </tr>
       </table>
+      ${data.noteBox ? `
+        <div style="margin-top: 12px; margin-bottom: 12px; background-color: #fff3cd; color: #856404; padding: 12px; border-left: 4px solid #ffeeba; border-radius: 4px; font-size: 11px; font-weight: bold; font-style: italic; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+          Note: ${data.noteBox}
+        </div>
+      ` : ''}
       ${data.termsAndConditions && data.termsAndConditions.length > 0 ? `
         <div style="margin-top: 15px;">
           <div class="sect-title" style="margin-top:0;">Terms &amp; Conditions</div>
@@ -1654,7 +1673,7 @@ export default function AdminQuotation() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className={labelCls}>Quotation Title</label>
-                  <input type="text" value={data.title} onChange={e => upd({ title: e.target.value.toUpperCase() })} className={inputCls} />
+                  <input type="text" value={data.title} onChange={e => upd({ title: e.target.value })} className={inputCls} />
                 </div>
                 <div>
                   <label className={labelCls}>Destination Label</label>
@@ -1946,6 +1965,17 @@ export default function AdminQuotation() {
                 </div>
               </div>
 
+              {/* Highlighted Note Box */}
+              <div className="pt-4 border-t border-outline-variant/10">
+                <h3 className={labelCls}>Highlighted Note (Below Inclusions/Exclusions)</h3>
+                <textarea
+                  value={data.noteBox || ''}
+                  onChange={e => upd({ noteBox: e.target.value })}
+                  placeholder="E.g., Any special note for the client..."
+                  className={inputCls + " !text-xs !py-2 !px-3 min-h-[60px] resize-y"}
+                />
+              </div>
+
               {/* Terms & Conditions */}
               <div className="pt-4 border-t border-outline-variant/10">
                 <h3 className={labelCls}>Terms & Conditions</h3>
@@ -2065,7 +2095,7 @@ export default function AdminQuotation() {
                   {data.heroImageUrl && (
                     <img src={data.heroImageUrl} className="w-full h-80 object-cover rounded-2xl mb-8 shadow-sm" alt="Hero Banner" />
                   )}
-                  <h1 className="text-4xl font-light uppercase italic tracking-tighter leading-tight mb-2 font-serif" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>{data.title}</h1>
+                  <h1 className="text-4xl font-light capitalize italic tracking-tighter leading-tight mb-2 font-serif" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>{data.title}</h1>
                   <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">{data.destination} &bull; SIGNATURE EXPEDITION</p>
                 </div>
               </div>
@@ -2268,6 +2298,13 @@ export default function AdminQuotation() {
                       </ul>
                     </div>
                   </div>
+                  
+                  {data.noteBox && (
+                    <div className="mt-4 p-3 bg-yellow-50 text-yellow-800 border-l-4 border-yellow-400 rounded text-[10px] font-bold italic" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      Note: {data.noteBox}
+                    </div>
+                  )}
+
                   {data.termsAndConditions && data.termsAndConditions.length > 0 && (
                     <div className="mt-4">
                       <div className="text-[10px] font-black text-black border-b pb-1 mb-2 italic">Terms & Conditions</div>
