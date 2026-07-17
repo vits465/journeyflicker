@@ -560,13 +560,13 @@ const mapTourToQuotation = (tour: Tour): QuotationData => {
       flightCosts: []
     }],
     itinerary,
-    inclusions: template.inclusions,
-    exclusions: template.exclusions,
-    documentsRequired: template.documentsRequired,
-    cancellationPolicy: template.cancellationPolicy,
-    importantInfo: template.importantInfo,
-    visualArchive: tour.visualArchive && tour.visualArchive.length > 0 ? tour.visualArchive : hiteshPreset.visualArchive,
-    termsAndConditions: template.termsAndConditions
+    inclusions: [...template.inclusions],
+    exclusions: [...template.exclusions],
+    documentsRequired: [...template.documentsRequired],
+    cancellationPolicy: [...template.cancellationPolicy],
+    importantInfo: [...template.importantInfo],
+    visualArchive: tour.visualArchive && tour.visualArchive.length > 0 ? [...tour.visualArchive] : [...hiteshPreset.visualArchive],
+    termsAndConditions: [...template.termsAndConditions]
   };
 };
 
@@ -930,12 +930,12 @@ export default function AdminQuotation() {
     if (confirm(`Replace inclusions, exclusions, documents required, cancellation policy, important guidelines, and terms & conditions with the standard ${type} templates?`)) {
       const template = type === 'domestic' ? domesticPolicyTemplates : internationalPolicyTemplates;
       upd({
-        inclusions: template.inclusions,
-        exclusions: template.exclusions,
-        documentsRequired: template.documentsRequired,
-        cancellationPolicy: template.cancellationPolicy,
-        importantInfo: template.importantInfo,
-        termsAndConditions: template.termsAndConditions
+        inclusions: [...template.inclusions],
+        exclusions: [...template.exclusions],
+        documentsRequired: [...template.documentsRequired],
+        cancellationPolicy: [...template.cancellationPolicy],
+        importantInfo: [...template.importantInfo],
+        termsAndConditions: [...template.termsAndConditions]
       });
     }
   };
