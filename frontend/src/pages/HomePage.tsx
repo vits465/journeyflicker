@@ -248,11 +248,6 @@ export default function HomePage() {
           <h1 className="text-4xl sm:text-6xl md:text-7xl text-white tracking-tighter leading-[0.98] sm:leading-[0.88] font-light drop-shadow-2xl mb-2">
             Journey<br/><span className="italic font-serif text-white/90">Beyond.</span>
           </h1>
-          {heroSlides.length > 0 && heroSlides[0].id !== 'fallback' && (
-            <p className="text-white/40 text-xs font-black tracking-[0.5em] uppercase mt-3 mb-5">
-              Now Featuring: <span className="text-white/70">{heroSlides[0]?.title}</span>
-            </p>
-          )}
           <div 
             className="bg-white/10 backdrop-blur-3xl border border-white/20 rounded-2xl sm:rounded-full w-full max-w-2xl flex flex-col sm:flex-row items-stretch p-2 gap-2 shadow-2xl hover:bg-white/15 transition-all duration-500 mt-4 cursor-pointer"
             onClick={openSearch}
