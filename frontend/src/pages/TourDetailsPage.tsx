@@ -14,39 +14,50 @@ function SightseeingSlider({ items }: { items: NonNullable<Tour['sightseeing']> 
   const progRef  = useRef<ReturnType<typeof setInterval> | null>(null);
   const MS = 4500;
 
+  const validItems = (items || []).filter(Boolean);
+
+  // Reset index when items list changes
+  useEffect(() => {
+    setIdx(0);
+    setProg(0);
+  }, [items]);
+
   const go = useCallback((next: number) => {
     setIdx(next);
     setProg(0);
   }, []);
 
   useEffect(() => {
-    if (items.length <= 1) return;
-    timerRef.current = setInterval(() => go((idx + 1) % items.length), MS);
+    if (validItems.length <= 1) return;
+    timerRef.current = setInterval(() => go((idx + 1) % validItems.length), MS);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [go, idx, items.length]);
+  }, [go, idx, validItems.length]);
 
   useEffect(() => {
     setProg(0);
-    if (items.length <= 1) return;
+    if (validItems.length <= 1) return;
     const step = 100 / (MS / 50);
     progRef.current = setInterval(() => setProg(p => Math.min(p + step, 100)), 50);
     return () => { if (progRef.current) clearInterval(progRef.current); };
-  }, [idx, items.length]);
+  }, [idx, validItems.length]);
 
-  const current = items[idx];
-  const images = items.filter(s => s.imageUrl);
+  if (!validItems.length) return null;
+
+  const safeIdx = Math.min(Math.max(0, idx), validItems.length - 1);
+  const current = validItems[safeIdx] || validItems[0] || {};
+  const images = validItems.filter(s => s?.imageUrl);
 
   if (!images.length) {
     // No images — show a simple grid of icon cards
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {items.map((site, i) => (
+        {validItems.map((site, i) => (
           <div key={i} className="bg-surface dark:bg-white/5 border border-outline-variant/20 dark:border-white/10 rounded-2xl p-5 hover:shadow-md transition-shadow group">
             <div className="w-10 h-10 rounded-full bg-surface-container-low dark:bg-white/10 group-hover:bg-on-surface dark:group-hover:bg-white group-hover:text-surface dark:group-hover:text-black transition-all flex items-center justify-center mb-3">
-              <span className="material-symbols-outlined font-light text-xl">{site.icon || 'star'}</span>
+              <span className="material-symbols-outlined font-light text-xl">{site?.icon || 'star'}</span>
             </div>
-            <h4 className="text-lg font-light tracking-tighter italic mb-1 dark:text-white">{site.title}</h4>
-            <p className="text-sm font-light text-on-surface-variant dark:text-white/50 leading-relaxed opacity-60">{site.description}</p>
+            <h4 className="text-lg font-light tracking-tighter italic mb-1 dark:text-white">{site?.title || ''}</h4>
+            <p className="text-sm font-light text-on-surface-variant dark:text-white/50 leading-relaxed opacity-60">{site?.description || ''}</p>
           </div>
         ))}
       </div>
@@ -57,36 +68,36 @@ function SightseeingSlider({ items }: { items: NonNullable<Tour['sightseeing']> 
     <div className="flex flex-col lg:flex-row gap-6">
       {/* ── Main image with crossfade ── */}
       <div className="relative flex-1 overflow-hidden rounded-2xl bg-black shadow-md aspect-[16/9] lg:aspect-auto lg:h-[420px]">
-        {items.map((s, i) => s.imageUrl && (
-          <img key={i} src={s.imageUrl} alt={s.title}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${i === idx ? 'opacity-100' : 'opacity-0'}`} />
+        {validItems.map((s, i) => s?.imageUrl && (
+          <img key={i} src={s.imageUrl} alt={s?.title || ''}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${i === safeIdx ? 'opacity-100' : 'opacity-0'}`} />
         ))}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
         {/* Info overlay */}
         <div className="absolute bottom-0 inset-x-0 p-5">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-8 h-8 rounded-full bg-white/10 border border-white/20 backdrop-blur flex items-center justify-center">
-              <span className="material-symbols-outlined text-white font-light text-base">{current.icon || 'star'}</span>
+              <span className="material-symbols-outlined text-white font-light text-base">{current?.icon || 'star'}</span>
             </div>
             <span className="text-[8px] font-black tracking-[0.4em] uppercase text-white/50">Landmark</span>
           </div>
-          <h4 className="text-xl sm:text-2xl font-light text-white tracking-tighter italic">{current.title}</h4>
-          <p className="text-xs font-light text-white/60 leading-relaxed mt-1 max-w-md">{current.description}</p>
+          <h4 className="text-xl sm:text-2xl font-light text-white tracking-tighter italic">{current?.title || ''}</h4>
+          <p className="text-xs font-light text-white/60 leading-relaxed mt-1 max-w-md">{current?.description || ''}</p>
         </div>
         {/* Progress bar */}
-        {items.length > 1 && (
+        {validItems.length > 1 && (
           <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/10">
             <div className="h-full bg-primary origin-left" style={{ transform: `scaleX(${prog / 100})`, transition: 'transform 50ms linear' }} />
           </div>
         )}
         {/* Arrows */}
-        {items.length > 1 && (
+        {validItems.length > 1 && (
           <>
-            <button onClick={() => go((idx - 1 + items.length) % items.length)}
+            <button onClick={() => go((safeIdx - 1 + validItems.length) % validItems.length)}
               className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/10 border border-white/20 backdrop-blur flex items-center justify-center text-white hover:bg-white hover:text-black transition-all">
               <span className="material-symbols-outlined text-base font-light">chevron_left</span>
             </button>
-            <button onClick={() => go((idx + 1) % items.length)}
+            <button onClick={() => go((safeIdx + 1) % validItems.length)}
               className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/10 border border-white/20 backdrop-blur flex items-center justify-center text-white hover:bg-white hover:text-black transition-all">
               <span className="material-symbols-outlined text-base font-light">chevron_right</span>
             </button>
@@ -96,20 +107,20 @@ function SightseeingSlider({ items }: { items: NonNullable<Tour['sightseeing']> 
 
       {/* ── Thumbnail track + details list ── */}
       <div className="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-y-auto lg:max-h-[420px] lg:w-56 shrink-0 pr-1 no-scrollbar">
-        {items.map((site, i) => (
+        {validItems.map((site, i) => (
           <button key={i} onClick={() => go(i)}
-            className={`shrink-0 flex lg:flex items-center gap-3 rounded-xl border p-2 transition-all text-left ${i === idx ? 'border-on-surface dark:border-white bg-on-surface/5 dark:bg-white/10 shadow-sm' : 'border-outline-variant/20 dark:border-white/5 hover:border-on-surface/30 dark:hover:border-white/30'}`}>
-            {site.imageUrl ? (
-              <img src={site.imageUrl} alt={site.title}
-                className={`w-12 h-12 lg:w-10 lg:h-10 object-cover rounded-lg shrink-0 transition-all duration-300 ${i === idx ? 'grayscale-0' : 'grayscale opacity-50'}`} />
+            className={`shrink-0 flex lg:flex items-center gap-3 rounded-xl border p-2 transition-all text-left ${i === safeIdx ? 'border-on-surface dark:border-white bg-on-surface/5 dark:bg-white/10 shadow-sm' : 'border-outline-variant/20 dark:border-white/5 hover:border-on-surface/30 dark:hover:border-white/30'}`}>
+            {site?.imageUrl ? (
+              <img src={site.imageUrl} alt={site?.title || ''}
+                className={`w-12 h-12 lg:w-10 lg:h-10 object-cover rounded-lg shrink-0 transition-all duration-300 ${i === safeIdx ? 'grayscale-0' : 'grayscale opacity-50'}`} />
             ) : (
               <div className="w-12 h-12 lg:w-10 lg:h-10 bg-surface-container-low rounded-lg shrink-0 flex items-center justify-center">
-                <span className="material-symbols-outlined text-base font-light text-on-surface-variant">{site.icon || 'star'}</span>
+                <span className="material-symbols-outlined text-base font-light text-on-surface-variant">{site?.icon || 'star'}</span>
               </div>
             )}
             <div className="hidden lg:block min-w-0">
-              <p className={`text-xs font-semibold truncate ${i === idx ? 'text-black' : 'text-on-surface-variant'}`}>{site.title}</p>
-              <p className="text-[10px] text-on-surface-variant/50 font-light truncate">{site.description?.slice(0, 40)}…</p>
+              <p className={`text-xs font-semibold truncate ${i === safeIdx ? 'text-black dark:text-white' : 'text-on-surface-variant'}`}>{site?.title || ''}</p>
+              <p className="text-[10px] text-on-surface-variant/50 font-light truncate">{site?.description?.slice(0, 40) || ''}…</p>
             </div>
           </button>
         ))}

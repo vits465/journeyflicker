@@ -6,12 +6,47 @@
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
+/**
+ * Filter out benign browser noise, in-app browser injected scripts,
+ * third-party extensions, and auto-healed transient errors.
+ */
+function shouldIgnoreError(message: string, stack?: string, filename?: string): boolean {
+  if (!message && !stack) return true;
+  const combined = `${message || ''} ${stack || ''} ${filename || ''}`.toLowerCase();
+
+  const ignoredPatterns = [
+    'script error.',
+    'webkit.messagehandlers',
+    'senddatatonative',
+    'sendpagehidemessage',
+    'sendpageshowmessage',
+    'chrome-extension://',
+    'moz-extension://',
+    'safari-extension://',
+    'safari-web-extension://',
+    'resizeobserver loop',
+    'failed to fetch dynamically imported module',
+    'loading chunk',
+    'chunkloaderror',
+    'window.webkit',
+    'evaluating \'window.webkit',
+    'evaluating "window.webkit',
+  ];
+
+  return ignoredPatterns.some(pattern => combined.includes(pattern));
+}
+
 async function sendLog(payload: {
   level: 'error' | 'warn' | 'info';
   message: string;
   stack?: string;
   url?: string;
+  filename?: string;
 }) {
+  if (shouldIgnoreError(payload.message, payload.stack, payload.filename)) {
+    return;
+  }
+
   try {
     await fetch(`${API_BASE}/logs`, {
       method: 'POST',
@@ -19,8 +54,8 @@ async function sendLog(payload: {
       body: JSON.stringify({
         ...payload,
         source: 'frontend',
-        url: payload.url || window.location.href,
-        userAgent: navigator.userAgent,
+        url: payload.url || (typeof window !== 'undefined' ? window.location.href : ''),
+        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
       }),
     });
   } catch {
@@ -38,12 +73,14 @@ export function installErrorReporter() {
   window.addEventListener('error', (event) => {
     // Ignore cross-origin script errors (no message content)
     if (!event.message || event.message === 'Script error.') return;
+    if (shouldIgnoreError(event.message, event.error?.stack, event.filename)) return;
 
     sendLog({
       level: 'error',
       message: event.message,
-      stack: event.error?.stack || `${event.filename}:${event.lineno}:${event.colno}`,
+      stack: event.error?.stack || `${event.filename || ''}:${event.lineno || ''}:${event.colno || ''}`,
       url: window.location.href,
+      filename: event.filename,
     });
   });
 
@@ -57,10 +94,13 @@ export function installErrorReporter() {
         ? reason
         : JSON.stringify(reason);
 
+    const stack = reason instanceof Error ? reason.stack : undefined;
+    if (shouldIgnoreError(message, stack)) return;
+
     sendLog({
       level: 'error',
       message: `Unhandled Promise Rejection: ${message}`,
-      stack: reason instanceof Error ? reason.stack : undefined,
+      stack,
       url: window.location.href,
     });
   });
@@ -69,10 +109,13 @@ export function installErrorReporter() {
 // Expose manual reporting for use in React Error Boundaries
 export function reportError(error: Error | unknown, context?: string) {
   const err = error instanceof Error ? error : new Error(String(error));
+  if (shouldIgnoreError(err.message, err.stack)) return;
+
   sendLog({
     level: 'error',
     message: context ? `[${context}] ${err.message}` : err.message,
     stack: err.stack,
-    url: window.location.href,
+    url: typeof window !== 'undefined' ? window.location.href : '',
   });
 }
+

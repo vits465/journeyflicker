@@ -16,75 +16,85 @@ function LandmarkSlider({ items }: { items: NonNullable<Destination['landmarks']
   const progRef  = useRef<ReturnType<typeof setInterval> | null>(null);
   const MS = 4500;
 
+  const validItems = (items || []).filter(Boolean);
+
+  // Reset index when items list changes
+  useEffect(() => {
+    setIdx(0);
+    setProg(0);
+  }, [items]);
+
   const go = useCallback((next: number) => { setIdx(next); setProg(0); }, []);
 
   useEffect(() => {
-    if (items.length <= 1) return;
-    timerRef.current = setInterval(() => go((idx + 1) % items.length), MS);
+    if (validItems.length <= 1) return;
+    timerRef.current = setInterval(() => go((idx + 1) % validItems.length), MS);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [go, idx, items.length]);
+  }, [go, idx, validItems.length]);
 
   useEffect(() => {
     setProg(0);
-    if (items.length <= 1) return;
+    if (validItems.length <= 1) return;
     const step = 100 / (MS / 50);
     progRef.current = setInterval(() => setProg(p => Math.min(p + step, 100)), 50);
     return () => { if (progRef.current) clearInterval(progRef.current); };
-  }, [idx, items.length]);
+  }, [idx, validItems.length]);
 
-  const hasImages = items.some(l => l.imageUrl);
+  if (!validItems.length) return null;
+
+  const safeIdx = Math.min(Math.max(0, idx), validItems.length - 1);
+  const current = validItems[safeIdx] || validItems[0] || {};
+  const hasImages = validItems.some(l => l?.imageUrl);
 
   if (!hasImages) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {items.map((lm, i) => (
+        {validItems.map((lm, i) => (
           <div key={i} className="bg-white border border-outline-variant/20 rounded-2xl p-5 hover:shadow-md transition-shadow group">
             <div className="w-8 h-8 bg-surface-container-low rounded-full flex items-center justify-center mb-3">
               <span className="material-symbols-outlined text-on-surface-variant font-light text-lg">location_on</span>
             </div>
-            <span className="text-[8px] font-black tracking-[0.4em] uppercase text-primary/60 mb-1 block">{lm.category}</span>
-            <h4 className="text-lg font-light tracking-tighter italic mb-1">{lm.title}</h4>
-            <p className="text-sm font-light text-on-surface-variant leading-relaxed opacity-60">{lm.description}</p>
+            <span className="text-[8px] font-black tracking-[0.4em] uppercase text-primary/60 mb-1 block">{lm?.category || ''}</span>
+            <h4 className="text-lg font-light tracking-tighter italic mb-1">{lm?.title || ''}</h4>
+            <p className="text-sm font-light text-on-surface-variant leading-relaxed opacity-60">{lm?.description || ''}</p>
           </div>
         ))}
       </div>
     );
   }
 
-  const current = items[idx];
-
   return (
     <div className="flex flex-col lg:flex-row gap-6">
       {/* ── Main image with crossfade ── */}
       <div className="relative flex-1 overflow-hidden rounded-2xl bg-black shadow-md aspect-[16/9] lg:aspect-auto lg:h-[420px]">
-        {items.map((lm, i) => lm.imageUrl && (
-          <img key={i} src={lm.imageUrl} alt={lm.title}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${i === idx ? 'opacity-100' : 'opacity-0'}`} />
+        {validItems.map((lm, i) => lm?.imageUrl && (
+          <img key={i} src={lm.imageUrl} alt={lm?.title || ''}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${i === safeIdx ? 'opacity-100' : 'opacity-0'}`} />
         ))}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
         {/* Overlay info */}
         <div className="absolute bottom-0 inset-x-0 p-5">
-          <span className="text-[8px] font-black tracking-[0.4em] uppercase text-primary/80 mb-1 block">{current.category}</span>
-          <h4 className="text-xl sm:text-2xl font-light text-white tracking-tighter italic">{current.title}</h4>
-          <p className="text-xs font-light text-white/60 leading-relaxed mt-1 max-w-md">{current.description}</p>
+          <span className="text-[8px] font-black tracking-[0.4em] uppercase text-primary/80 mb-1 block">{current?.category || ''}</span>
+          <h4 className="text-xl sm:text-2xl font-light text-white tracking-tighter italic">{current?.title || ''}</h4>
+          <p className="text-xs font-light text-white/60 leading-relaxed mt-1 max-w-md">{current?.description || ''}</p>
         </div>
 
         {/* Progress bar */}
-        {items.length > 1 && (
+        {validItems.length > 1 && (
           <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/10">
             <div className="h-full bg-primary origin-left" style={{ transform: `scaleX(${prog / 100})`, transition: 'transform 50ms linear' }} />
           </div>
         )}
 
         {/* Arrows */}
-        {items.length > 1 && (
+        {validItems.length > 1 && (
           <>
-            <button onClick={() => go((idx - 1 + items.length) % items.length)}
+            <button onClick={() => go((safeIdx - 1 + validItems.length) % validItems.length)}
               className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/10 border border-white/20 backdrop-blur flex items-center justify-center text-white hover:bg-white hover:text-black transition-all">
               <span className="material-symbols-outlined text-base font-light">chevron_left</span>
             </button>
-            <button onClick={() => go((idx + 1) % items.length)}
+            <button onClick={() => go((safeIdx + 1) % validItems.length)}
               className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/10 border border-white/20 backdrop-blur flex items-center justify-center text-white hover:bg-white hover:text-black transition-all">
               <span className="material-symbols-outlined text-base font-light">chevron_right</span>
             </button>
@@ -94,22 +104,22 @@ function LandmarkSlider({ items }: { items: NonNullable<Destination['landmarks']
 
       {/* ── Thumbnail track ── */}
       <div className="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-y-auto lg:max-h-[420px] lg:w-56 shrink-0 pr-1">
-        {items.map((lm, i) => (
+        {validItems.map((lm, i) => (
           <button key={i} onClick={() => go(i)}
             className={`shrink-0 flex lg:flex items-center gap-3 rounded-xl border p-2 transition-all text-left ${
-              i === idx ? 'border-black bg-black/5 shadow-sm' : 'border-outline-variant/20 hover:border-black/30'
+              i === safeIdx ? 'border-black bg-black/5 shadow-sm' : 'border-outline-variant/20 hover:border-black/30'
             }`}>
-            {lm.imageUrl ? (
-              <img src={lm.imageUrl} alt={lm.title}
-                className={`w-12 h-12 lg:w-10 lg:h-10 object-cover rounded-lg shrink-0 transition-all duration-300 ${i === idx ? 'grayscale-0' : 'grayscale opacity-50'}`} />
+            {lm?.imageUrl ? (
+              <img src={lm.imageUrl} alt={lm?.title || ''}
+                className={`w-12 h-12 lg:w-10 lg:h-10 object-cover rounded-lg shrink-0 transition-all duration-300 ${i === safeIdx ? 'grayscale-0' : 'grayscale opacity-50'}`} />
             ) : (
               <div className="w-12 h-12 lg:w-10 lg:h-10 bg-surface-container-low rounded-lg shrink-0 flex items-center justify-center">
                 <span className="material-symbols-outlined text-base font-light text-on-surface-variant">location_on</span>
               </div>
             )}
             <div className="hidden lg:block min-w-0">
-              <p className={`text-xs font-semibold truncate ${i === idx ? 'text-black' : 'text-on-surface-variant'}`}>{lm.title}</p>
-              <p className="text-[10px] text-on-surface-variant/50 font-light tracking-widest uppercase">{lm.category}</p>
+              <p className={`text-xs font-semibold truncate ${i === safeIdx ? 'text-black' : 'text-on-surface-variant'}`}>{lm?.title || ''}</p>
+              <p className="text-[10px] text-on-surface-variant/50 font-light tracking-widest uppercase">{lm?.category || ''}</p>
             </div>
           </button>
         ))}

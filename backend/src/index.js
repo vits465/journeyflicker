@@ -1443,6 +1443,29 @@ app.post("/api/logs", logLimiter, async (req, res) => {
   try {
     const { level = "error", source = "frontend", message, stack, url, userAgent } = req.body;
     if (!message) return res.status(400).json({ error: "message is required" });
+
+    const combined = `${message} ${stack || ''}`.toLowerCase();
+    const ignoredPatterns = [
+      'script error.',
+      'webkit.messagehandlers',
+      'senddatatonative',
+      'sendpagehidemessage',
+      'sendpageshowmessage',
+      'chrome-extension://',
+      'moz-extension://',
+      'safari-extension://',
+      'safari-web-extension://',
+      'resizeobserver loop',
+      'failed to fetch dynamically imported module',
+      'loading chunk',
+      'chunkloaderror',
+      'window.webkit',
+    ];
+
+    if (ignoredPatterns.some(p => combined.includes(p))) {
+      return res.status(200).json({ ok: true, ignored: true });
+    }
+
     const id = newId("log");
     await SystemLogModel.create({ id, level, source, message: String(message).slice(0, 2000), stack: String(stack || "").slice(0, 5000), url: String(url || "").slice(0, 500), userAgent: String(userAgent || "").slice(0, 300) });
     res.status(201).json({ ok: true });

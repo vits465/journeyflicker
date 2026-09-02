@@ -25,11 +25,15 @@ interface FlightCost {
   pax: number;
 }
 
+type TrainCost = FlightCost;
+
 interface QuotationOption {
   optionTitle: string;
   hotels: HotelRow[];
   packageCosts: PackageCostItem[];
+  transportType?: 'flight' | 'train';
   flightCosts: FlightCost[];
+  trainCosts?: FlightCost[];
 }
 
 interface ItineraryDay {
@@ -53,7 +57,9 @@ interface QuotationData {
   hotels?: HotelRow[];
   perPersonCost?: string;
   packageCosts?: PackageCostItem[];
+  transportType?: 'flight' | 'train';
   flightCosts?: FlightCost[];
+  trainCosts?: FlightCost[];
   itinerary: ItineraryDay[];
   inclusions: string[];
   exclusions: string[];
@@ -66,6 +72,19 @@ interface QuotationData {
   noteBox?: string;
 }
 
+const commonImportantInfo: string[] = [
+  'Rates are based on minimum guest count and subject to change if group size changes.',
+  'Early check-in or late check-out is subject to room availability and extra charges.',
+  'We act as booking agents only and cannot be held liable for mechanical failures or acts of God.',
+  'Hotels/Airline will be subject to availability till Reconfirmation.',
+  'Given cost is estimated, based on lowest airfare and hotel rates existing as of now. We don’t hold any confirmation for Hotels/Airline. It’s Subject to availability at the time of booking. Any difference in cost shall be borne by passenger.',
+  'Room allocation Twin rooms /Double room will be as per the availability at the time of check in',
+  'Hotel Check in time 1400hrs, Check out Time 1200hrs (Depend On Hotel Policy)',
+  'Charges for extras (Wi‑Fi, minibar, laundry, room service, etc.) and local taxes are charged directly by the hotel.',
+  'Certain hotels abroad may ask for a security deposit during check-in, which is refundable at check-out subject to the hotels policy.',
+  'The package price does not include special dinner or mandatory charges at time levied by the hotels especially during New Year and Christmas or any special occasions.'
+];
+
 const domesticPolicyTemplates = {
   inclusions: [
     'Accommodation on Double/Twin sharing basis.',
@@ -74,7 +93,6 @@ const domesticPolicyTemplates = {
     'AC will be switched off in hill stations / climb routes.',
     'All toll taxes, parking fees, driver allowance, and road permits.',
     'Pikup and Drop As per  itinerary.'
-
   ],
   exclusions: [
     'Airfare / Train fares.',
@@ -95,18 +113,7 @@ const domesticPolicyTemplates = {
     '14 to 7 days before departure: 75% of total tour cost.',
     'Less than 7 days before departure or No Show: 100% of tour cost.'
   ],
-  importantInfo: [
-    'Rates are based on minimum guest count and subject to change if group size changes.',
-    'Early check-in or late check-out is subject to room availability and extra charges.',
-    'We act as booking agents only and cannot be held liable for mechanical failures or acts of God.',
-    'Hotels/Airline will be subject to availability till Reconfirmation.',
-    'Given cost is estimated, based on lowest airfare and hotel rates existing as of now. We don’t hold any confirmation for Hotels/Airline. It’s Subject to availability at the time of booking. Any difference in cost shall be borne by passenger.',
-    'Room allocation Twin rooms /Double room will be as per the availability at the time of check in',
-    'Hotel Check in time 1400hrs, Check out Time 1200hrs (Depend On Hotel Policy)',
-    'Charges for extras (Wi‑Fi, minibar, laundry, room service, etc.) and local taxes are charged directly by the hotel.',
-    'Certain hotels abroad may ask for a security deposit during check-in, which is refundable at check-out subject to the hotels policy.',
-    'The package price does not include special dinner or mandatory charges at time levied by the hotels especially during New Year and Christmas or any special occasions.'
-  ],
+  importantInfo: [...commonImportantInfo],
   termsAndConditions: [
     'The itinerary is tentative and subject to change based on local traffic conditions or weather.',
     'Any booking is subject to confirmation only after receiving the advance payment.',
@@ -141,12 +148,7 @@ const internationalPolicyTemplates = {
     '44 to 30 days before departure: 60% of total package cost.',
     'Less than 30 days before departure or No Show: 100% of package cost.'
   ],
-  importantInfo: [
-    'International flight rates are highly volatile and cost will be locked only upon ticketing.',
-    'Ensure passport has at least 2 blank pages for entry stamp.',
-    'Local currency or USD should be carried for personal transactions and tips.',
-    'Check-in and check-out rules apply as per individual country norms.'
-  ],
+  importantInfo: [...commonImportantInfo],
   termsAndConditions: [
     'The itinerary is tentative and subject to change based on local traffic conditions or weather.',
     'Any booking is subject to confirmation only after receiving the advance payment.',
@@ -174,7 +176,9 @@ const emptyQuotation: QuotationData = {
     packageCosts: [
       { category: 'Adults', cost: 0, pax: 1 }
     ],
-    flightCosts: []
+    transportType: 'flight',
+    flightCosts: [],
+    trainCosts: []
   }],
   itinerary: [
     { day: 'Day 1', title: '', description: '' }
@@ -212,10 +216,12 @@ const hiteshPreset: QuotationData = {
     packageCosts: [
       { category: 'Adults', cost: 36600, pax: 15 }
     ],
+    transportType: 'flight',
     flightCosts: [
       { city: 'Ex. Mumbai', cost: 22700, pax: 15 },
       { city: 'Ex. Ahmedabad', cost: 20000, pax: 15 }
-    ]
+    ],
+    trainCosts: []
   }],
   itinerary: [
     {
@@ -352,11 +358,13 @@ const keralaPreset: QuotationData = {
     packageCosts: [
       { category: 'Adults', cost: 28500, pax: 10 }
     ],
+    transportType: 'flight',
     flightCosts: [
       { city: 'Ex. Ahmedabad (AMD → COK)', cost: 8200, pax: 10 },
       { city: 'Ex. Mumbai (BOM → COK)', cost: 5500, pax: 10 },
       { city: 'Ex. Surat (BOM via Mumbai → COK)', cost: 6800, pax: 10 }
-    ]
+    ],
+    trainCosts: []
   }],
   itinerary: [
     {
@@ -557,7 +565,9 @@ const mapTourToQuotation = (tour: Tour): QuotationData => {
       optionTitle: `Option : 01(3*) ${String(tour.days - 1).padStart(2, '0')} Night ${String(tour.days).padStart(2, '0')} Days`,
       hotels,
       packageCosts: tour.price ? [{ category: 'Adults', cost: parseInt(tour.price.replace(/\D/g, '')) || 0, pax: 1 }] : [],
-      flightCosts: []
+      transportType: 'flight',
+      flightCosts: [],
+      trainCosts: []
     }],
     itinerary,
     inclusions: [...template.inclusions],
@@ -613,6 +623,16 @@ const formatDateToDB = (dateStr?: string): string => {
   }
   return dateStr;
 };
+
+const toCamelCase = (val: string | undefined | null): string => {
+  if (!val || typeof val !== 'string') return '—';
+  const trimmed = val.trim();
+  if (!trimmed) return '—';
+  return trimmed
+    .toLowerCase()
+    .replace(/(^|[\s\/\-\(&,])([a-z])/g, (_, boundary, letter) => boundary + letter.toUpperCase());
+};
+
 const inputCls = 'w-full px-3 py-2 border border-outline-variant/40 rounded-lg text-sm focus:outline-none focus:border-primary bg-surface-container-low text-on-surface transition-colors';
 const labelCls = 'block text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.15em] mb-1.5';
 
@@ -626,8 +646,17 @@ export default function AdminQuotation() {
         optionTitle: parsed.optionTitle || '',
         hotels: parsed.hotels || [],
         packageCosts: parsed.packageCosts || [],
+        transportType: parsed.transportType || 'flight',
         flightCosts: parsed.flightCosts || [],
+        trainCosts: parsed.trainCosts || [],
       }];
+    } else {
+      parsed.options = parsed.options.map(opt => ({
+        ...opt,
+        transportType: opt.transportType || (opt.trainCosts && opt.trainCosts.length > 0 && (!opt.flightCosts || opt.flightCosts.length === 0) ? 'train' : 'flight'),
+        flightCosts: opt.flightCosts || [],
+        trainCosts: opt.trainCosts || []
+      }));
     }
 
     if (!parsed.inclusions || parsed.inclusions.length === 0) parsed.inclusions = [...domesticPolicyTemplates.inclusions];
@@ -666,6 +695,60 @@ export default function AdminQuotation() {
   const [newInfo, setNewInfo] = useState('');
   const [newArchiveUrl, setNewArchiveUrl] = useState('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Itinerary drag & drop reorder state
+  const [draggedDayIdx, setDraggedDayIdx] = useState<number | null>(null);
+  const [dragOverDayIdx, setDragOverDayIdx] = useState<number | null>(null);
+  const [isCompactItinerary, setIsCompactItinerary] = useState(false);
+
+  // Hotel grid drag & drop reorder state
+  const [draggedHotelRow, setDraggedHotelRow] = useState<{ optIdx: number; rowIdx: number } | null>(null);
+  const [dragOverHotelRow, setDragOverHotelRow] = useState<{ optIdx: number; rowIdx: number } | null>(null);
+
+  // Auto-scroll while dragging cards/rows near top/bottom edges of the page
+  useEffect(() => {
+    if (draggedDayIdx === null && draggedHotelRow === null) return;
+
+    let animId: number;
+    let speed = 0;
+
+    const handleGlobalDrag = (e: DragEvent) => {
+      if (e.clientY === 0 && e.clientX === 0) return;
+      
+      const scrollEl = document.querySelector('.admin-scroll') as HTMLElement || document.documentElement;
+      const rect = scrollEl.getBoundingClientRect();
+      const edgeThreshold = 140;
+
+      if (e.clientY < rect.top + edgeThreshold && e.clientY > rect.top - 60) {
+        const ratio = Math.max(0, 1 - (e.clientY - rect.top) / edgeThreshold);
+        speed = -Math.max(6, Math.round(ratio * 30));
+      } else if (e.clientY > rect.bottom - edgeThreshold && e.clientY < rect.bottom + 60) {
+        const ratio = Math.max(0, 1 - (rect.bottom - e.clientY) / edgeThreshold);
+        speed = Math.max(6, Math.round(ratio * 30));
+      } else {
+        speed = 0;
+      }
+    };
+
+    const loop = () => {
+      if (speed !== 0) {
+        const scrollEl = document.querySelector('.admin-scroll') as HTMLElement;
+        if (scrollEl) {
+          scrollEl.scrollTop += speed;
+        }
+        window.scrollBy(0, speed);
+      }
+      animId = requestAnimationFrame(loop);
+    };
+
+    window.addEventListener('dragover', handleGlobalDrag);
+    animId = requestAnimationFrame(loop);
+
+    return () => {
+      window.removeEventListener('dragover', handleGlobalDrag);
+      cancelAnimationFrame(animId);
+    };
+  }, [draggedDayIdx, draggedHotelRow]);
 
   // Media selector modal state
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
@@ -771,7 +854,9 @@ export default function AdminQuotation() {
         optionTitle: `Option : 0${num}(3*) 08 Night 09 Days`,
         hotels: [{ destination: '', hotels: '', mealPlan: 'Breakfast & Dinner', nights: '01 Nights', rooms: '05' }],
         packageCosts: [],
-        flightCosts: []
+        transportType: 'flight',
+        flightCosts: [],
+        trainCosts: []
       }]
     });
   };
@@ -792,6 +877,63 @@ export default function AdminQuotation() {
     upd({ options: data.options.map((opt, i) => i === optIdx ? { ...opt, hotels: opt.hotels.map((r, j) => j === rowIdx ? { ...r, ...patch } : r) } : opt) });
   };
 
+  const moveHotelRow = (optIdx: number, fromIdx: number, toIdx: number) => {
+    const opt = data.options[optIdx];
+    if (!opt || !opt.hotels || fromIdx === toIdx || fromIdx < 0 || toIdx < 0 || fromIdx >= opt.hotels.length || toIdx >= opt.hotels.length) return;
+    const list = [...opt.hotels];
+    const [moved] = list.splice(fromIdx, 1);
+    list.splice(toIdx, 0, moved);
+    upd({
+      options: data.options.map((o, i) => i === optIdx ? { ...o, hotels: list } : o)
+    });
+  };
+
+  const handleHotelDragStart = (e: React.DragEvent, optIdx: number, rowIdx: number) => {
+    e.stopPropagation();
+    e.dataTransfer.setData('text/plain', JSON.stringify({ optIdx, rowIdx }));
+    e.dataTransfer.effectAllowed = 'move';
+    setDraggedHotelRow({ optIdx, rowIdx });
+  };
+
+  const handleHotelDragOver = (e: React.DragEvent, optIdx: number, rowIdx: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = 'move';
+    if (!dragOverHotelRow || dragOverHotelRow.optIdx !== optIdx || dragOverHotelRow.rowIdx !== rowIdx) {
+      setDragOverHotelRow({ optIdx, rowIdx });
+    }
+  };
+
+  const handleHotelDragLeave = (e: React.DragEvent, optIdx: number, rowIdx: number) => {
+    e.stopPropagation();
+    if (dragOverHotelRow && dragOverHotelRow.optIdx === optIdx && dragOverHotelRow.rowIdx === rowIdx) {
+      setDragOverHotelRow(null);
+    }
+  };
+
+  const handleHotelDrop = (e: React.DragEvent, targetOptIdx: number, targetRowIdx: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const raw = e.dataTransfer.getData('text/plain');
+      const parsed = raw ? JSON.parse(raw) : draggedHotelRow;
+      if (parsed && parsed.optIdx === targetOptIdx && parsed.rowIdx !== targetRowIdx) {
+        moveHotelRow(targetOptIdx, parsed.rowIdx, targetRowIdx);
+      }
+    } catch {
+      if (draggedHotelRow && draggedHotelRow.optIdx === targetOptIdx && draggedHotelRow.rowIdx !== targetRowIdx) {
+        moveHotelRow(targetOptIdx, draggedHotelRow.rowIdx, targetRowIdx);
+      }
+    }
+    setDraggedHotelRow(null);
+    setDragOverHotelRow(null);
+  };
+
+  const handleHotelDragEnd = () => {
+    setDraggedHotelRow(null);
+    setDragOverHotelRow(null);
+  };
+
   const addPackageCost = (optIdx: number, cost: PackageCostItem) => {
     upd({ options: data.options.map((opt, i) => i === optIdx ? { ...opt, packageCosts: [...opt.packageCosts, cost] } : opt) });
   };
@@ -800,10 +942,21 @@ export default function AdminQuotation() {
   };
 
   const addFlightCost = (optIdx: number, cost: FlightCost) => {
-    upd({ options: data.options.map((opt, i) => i === optIdx ? { ...opt, flightCosts: [...opt.flightCosts, cost] } : opt) });
+    upd({ options: data.options.map((opt, i) => i === optIdx ? { ...opt, transportType: 'flight', flightCosts: [...(opt.flightCosts || []), cost] } : opt) });
   };
   const removeFlightCost = (optIdx: number, costIdx: number) => {
-    upd({ options: data.options.map((opt, i) => i === optIdx ? { ...opt, flightCosts: opt.flightCosts.filter((_, j) => j !== costIdx) } : opt) });
+    upd({ options: data.options.map((opt, i) => i === optIdx ? { ...opt, flightCosts: (opt.flightCosts || []).filter((_, j) => j !== costIdx) } : opt) });
+  };
+
+  const addTrainCost = (optIdx: number, cost: TrainCost) => {
+    upd({ options: data.options.map((opt, i) => i === optIdx ? { ...opt, transportType: 'train', trainCosts: [...(opt.trainCosts || []), cost] } : opt) });
+  };
+  const removeTrainCost = (optIdx: number, costIdx: number) => {
+    upd({ options: data.options.map((opt, i) => i === optIdx ? { ...opt, trainCosts: (opt.trainCosts || []).filter((_, j) => j !== costIdx) } : opt) });
+  };
+
+  const setOptionTransportType = (optIdx: number, transportType: 'flight' | 'train') => {
+    upd({ options: data.options.map((opt, i) => i === optIdx ? { ...opt, transportType } : opt) });
   };
 
   // Itinerary Days Manager
@@ -820,6 +973,63 @@ export default function AdminQuotation() {
     upd({
       itinerary: data.itinerary.map((day, i) => i === idx ? { ...day, ...patch } : day)
     });
+  };
+
+  const moveItineraryDay = (fromIdx: number, toIdx: number) => {
+    if (fromIdx === toIdx || fromIdx < 0 || toIdx < 0 || fromIdx >= data.itinerary.length || toIdx >= data.itinerary.length) return;
+    const list = [...data.itinerary];
+    const [moved] = list.splice(fromIdx, 1);
+    list.splice(toIdx, 0, moved);
+    upd({ itinerary: list });
+  };
+
+  const handleDayDragStart = (e: React.DragEvent, idx: number) => {
+    e.dataTransfer.setData('text/plain', String(idx));
+    e.dataTransfer.effectAllowed = 'move';
+    setDraggedDayIdx(idx);
+  };
+
+  const handleDayDragOver = (e: React.DragEvent, idx: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragOverDayIdx !== idx) {
+      setDragOverDayIdx(idx);
+    }
+  };
+
+  const handleDayDragLeave = (_e: React.DragEvent, idx: number) => {
+    if (dragOverDayIdx === idx) {
+      setDragOverDayIdx(null);
+    }
+  };
+
+  const handleDayDrop = (e: React.DragEvent, targetIdx: number) => {
+    e.preventDefault();
+    const sourceIdxStr = e.dataTransfer.getData('text/plain');
+    const sourceIdx = sourceIdxStr !== '' ? Number(sourceIdxStr) : draggedDayIdx;
+
+    if (sourceIdx !== null && sourceIdx !== undefined && !isNaN(sourceIdx) && sourceIdx !== targetIdx) {
+      moveItineraryDay(sourceIdx, targetIdx);
+    }
+    setDraggedDayIdx(null);
+    setDragOverDayIdx(null);
+  };
+
+  const handleDayDragEnd = () => {
+    setDraggedDayIdx(null);
+    setDragOverDayIdx(null);
+  };
+
+  const autoRenumberItineraryDays = () => {
+    const updated = data.itinerary.map((d, i) => {
+      const match = d.day.match(/^Day\s*\d+(\s*.*)?$/i);
+      if (match) {
+        const suffix = match[1] || '';
+        return { ...d, day: `Day ${i + 1}${suffix}` };
+      }
+      return { ...d, day: `Day ${i + 1}` };
+    });
+    upd({ itinerary: updated });
   };
 
   // Preset Loaders
@@ -887,8 +1097,17 @@ export default function AdminQuotation() {
           optionTitle: parsed.optionTitle || '',
           hotels: parsed.hotels || [],
           packageCosts: parsed.packageCosts || [],
+          transportType: parsed.transportType || 'flight',
           flightCosts: parsed.flightCosts || [],
+          trainCosts: parsed.trainCosts || [],
         }];
+      } else {
+        parsed.options = parsed.options.map(opt => ({
+          ...opt,
+          transportType: opt.transportType || (opt.trainCosts && opt.trainCosts.length > 0 && (!opt.flightCosts || opt.flightCosts.length === 0) ? 'train' : 'flight'),
+          flightCosts: opt.flightCosts || [],
+          trainCosts: opt.trainCosts || []
+        }));
       }
       if (!parsed.termsAndConditions) {
         parsed.termsAndConditions = [];
@@ -1209,18 +1428,31 @@ export default function AdminQuotation() {
         <tbody>
           ${opt.hotels.map(h => `
             <tr>
-              <td>${h.destination || '—'}</td>
-              <td>${h.hotels || '—'}</td>
-              <td style="text-align:center;">${h.mealPlan || '—'}</td>
-              <td style="text-align:center;">${h.nights || '—'}</td>
-              <td style="text-align:center;">${h.rooms || '—'}</td>
+              <td style="text-transform: capitalize; font-weight: 600;">${toCamelCase(h.destination)}</td>
+              <td style="text-transform: capitalize;">${toCamelCase(h.hotels)}</td>
+              <td style="text-align:center; text-transform: capitalize;">${toCamelCase(h.mealPlan)}</td>
+              <td style="text-align:center; text-transform: capitalize;">${toCamelCase(h.nights)}</td>
+              <td style="text-align:center; text-transform: capitalize;">${toCamelCase(h.rooms)}</td>
             </tr>
           `).join('')}
         </tbody>
       </table>
       
       <table class="pricing-section" style="width:100%; border-collapse:collapse; background:#f9f9f9; border:1px solid #eee; margin-bottom:10px;" cellpadding="12">
-        ${((opt.packageCosts && opt.packageCosts.length > 0) || (opt.flightCosts && opt.flightCosts.length > 0)) ? `
+        ${(() => {
+          const transportMode = opt.transportType || (opt.trainCosts && opt.trainCosts.length > 0 && (!opt.flightCosts || opt.flightCosts.length === 0) ? 'train' : 'flight');
+          const isTrain = transportMode === 'train';
+          const transportCosts = isTrain ? (opt.trainCosts || []) : (opt.flightCosts || []);
+          const hasPackageCosts = opt.packageCosts && opt.packageCosts.length > 0;
+          const hasTransportCosts = transportCosts && transportCosts.length > 0;
+
+          if (!hasPackageCosts && !hasTransportCosts) return '';
+
+          const transportLabel = isTrain ? 'Train Cost' : 'Flight Cost';
+          const transportCost = transportCosts.length > 0 ? transportCosts[0].cost : 0;
+          const transportRoute = transportCosts.map(t => t.city).filter(Boolean).join(' / ');
+
+          return `
         <tr>
           <td colspan="2" style="border:none; padding:12px;">
             <div class="price-title" style="margin-bottom:6px;">Total Estimate Breakdown (Option ${optIdx + 1})</div>
@@ -1229,28 +1461,31 @@ export default function AdminQuotation() {
                 <tr style="background:#eee;">
                   <th style="border:1px solid #ccc; padding:6px; background:#f4f4f4; color:#000; text-align:left;">Category</th>
                   <th style="border:1px solid #ccc; padding:6px; background:#f4f4f4; color:#000;">Package Cost</th>
-                  <th style="border:1px solid #ccc; padding:6px; background:#f4f4f4; color:#000;">Flight Cost</th>
+                  <th style="border:1px solid #ccc; padding:6px; background:#f4f4f4; color:#000;">
+                    <div>${transportLabel}</div>
+                    ${transportRoute ? `<div style="font-size:8px; font-weight:600; color:#555; margin-top:2px; text-transform:none;">(${transportRoute})</div>` : ''}
+                  </th>
                   <th style="border:1px solid #ccc; padding:6px; background:#f4f4f4; color:#000;">Total Estimate</th>
                 </tr>
               </thead>
               <tbody>
                 ${(opt.packageCosts || []).map(c => {
-      const flightCost = opt.flightCosts && opt.flightCosts.length > 0 ? opt.flightCosts[0].cost : 0;
-      const totalPerPerson = c.cost + flightCost;
-      return `
+                  const totalPerPerson = c.cost + transportCost;
+                  return `
                   <tr>
                     <td style="border:1px solid #ccc; padding:6px; text-align:left;">${c.category}</td>
                     <td style="border:1px solid #ccc; padding:6px;">Rs. ${c.cost.toLocaleString('en-IN')}/-</td>
-                    <td style="border:1px solid #ccc; padding:6px;">Rs. ${flightCost.toLocaleString('en-IN')}/-</td>
+                    <td style="border:1px solid #ccc; padding:6px;">Rs. ${transportCost.toLocaleString('en-IN')}/-</td>
                     <td style="border:1px solid #ccc; padding:6px; font-weight:bold; color:#d93025;">Rs. ${totalPerPerson.toLocaleString('en-IN')}/- ${c.pax > 0 ? `x ${String(c.pax).padStart(2, '0')}` : '(Per Person)'}</td>
                   </tr>
                   `;
-    }).join('')}
+                }).join('')}
               </tbody>
             </table>
           </td>
         </tr>
-        ` : ''}
+        `;
+        })()}
       </table>
       `).join('')}
     </div>
@@ -1426,8 +1661,17 @@ export default function AdminQuotation() {
         optionTitle: parsed.optionTitle || '',
         hotels: parsed.hotels || [],
         packageCosts: parsed.packageCosts || [],
+        transportType: parsed.transportType || 'flight',
         flightCosts: parsed.flightCosts || [],
+        trainCosts: parsed.trainCosts || [],
       }];
+    } else {
+      parsed.options = parsed.options.map(opt => ({
+        ...opt,
+        transportType: opt.transportType || (opt.trainCosts && opt.trainCosts.length > 0 && (!opt.flightCosts || opt.flightCosts.length === 0) ? 'train' : 'flight'),
+        flightCosts: opt.flightCosts || [],
+        trainCosts: opt.trainCosts || []
+      }));
     }
     if (!parsed.termsAndConditions) {
       parsed.termsAndConditions = [];
@@ -1757,13 +2001,88 @@ export default function AdminQuotation() {
 
                     <div className="border-t border-outline-variant/10 pt-4">
                       <div className="flex justify-between items-center mb-3">
-                        <label className={labelCls + " !mb-0"}>Hotels Grid</label>
-                        <button onClick={() => addHotelRow(optIdx)} className="text-[10px] font-bold text-primary px-2 py-1 bg-primary/10 rounded">+ Row</button>
+                        <div>
+                          <label className={labelCls + " !mb-0 font-bold"}>Hotels Grid ({opt.hotels.length} Stays)</label>
+                          <span className="text-[10px] text-on-surface-variant/70 block">Drag rows or use arrows to adjust stay order.</span>
+                        </div>
+                        <button onClick={() => addHotelRow(optIdx)} className="text-[11px] font-bold text-primary px-2.5 py-1 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors flex items-center gap-1">+ Add Stay</button>
                       </div>
                       <div className="space-y-3">
                         {opt.hotels.map((row, idx) => (
-                          <div key={idx} className="p-3 bg-surface-container-low rounded-xl border border-outline-variant/20 relative">
-                            <button onClick={() => removeHotelRow(optIdx, idx)} className="absolute right-2 top-2 text-red-400 hover:text-red-600"><span className="material-symbols-outlined text-sm">close</span></button>
+                          <div
+                            key={idx}
+                            draggable={true}
+                            onDragStart={(e) => handleHotelDragStart(e, optIdx, idx)}
+                            onDragOver={(e) => handleHotelDragOver(e, optIdx, idx)}
+                            onDragLeave={(e) => handleHotelDragLeave(e, optIdx, idx)}
+                            onDrop={(e) => handleHotelDrop(e, optIdx, idx)}
+                            onDragEnd={handleHotelDragEnd}
+                            className={`p-3 bg-surface-container-low rounded-xl border space-y-2.5 transition-all duration-150 ${
+                              draggedHotelRow?.optIdx === optIdx && draggedHotelRow?.rowIdx === idx
+                                ? 'opacity-40 border-dashed border-primary bg-primary/5 scale-[0.99] shadow-inner'
+                                : dragOverHotelRow?.optIdx === optIdx && dragOverHotelRow?.rowIdx === idx
+                                ? 'border-primary ring-2 ring-primary/40 bg-primary/10 shadow-md -translate-y-0.5'
+                                : 'border-outline-variant/20 hover:border-outline-variant/40'
+                            }`}
+                          >
+                            {/* Card Top Actions Header */}
+                            <div className="flex items-center justify-between border-b border-outline-variant/10 pb-1.5">
+                              <div className="flex items-center gap-2">
+                                <div
+                                  className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-surface-container text-on-surface-variant flex items-center justify-center transition-colors"
+                                  title="Drag to reorder hotel stay"
+                                >
+                                  <span className="material-symbols-outlined text-base">drag_indicator</span>
+                                </div>
+                                <span className="text-[10px] font-black uppercase tracking-wider bg-surface-container px-2 py-0.5 rounded text-on-surface">
+                                  Stay #{idx + 1}{row.destination ? `: ${row.destination}` : ''}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <div className="flex items-center gap-1 mr-1">
+                                  <span className="text-[10px] text-on-surface-variant font-medium hidden sm:inline">Move to:</span>
+                                  <select
+                                    value={idx}
+                                    onChange={e => moveHotelRow(optIdx, idx, Number(e.target.value))}
+                                    className="text-xs py-0.5 px-2 rounded-lg border border-outline-variant/30 bg-surface text-on-surface focus:outline-none focus:border-primary cursor-pointer"
+                                    title="Quick move hotel stay to position"
+                                  >
+                                    {opt.hotels.map((_, pIdx) => (
+                                      <option key={pIdx} value={pIdx}>
+                                        Stay #{pIdx + 1}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                                <button
+                                  type="button"
+                                  disabled={idx === 0}
+                                  onClick={() => moveHotelRow(optIdx, idx, idx - 1)}
+                                  title="Move Up"
+                                  className="p-1 rounded text-on-surface-variant hover:text-primary hover:bg-surface-container disabled:opacity-30 disabled:hover:bg-transparent transition-colors flex items-center justify-center"
+                                >
+                                  <span className="material-symbols-outlined text-base">arrow_upward</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={idx === opt.hotels.length - 1}
+                                  onClick={() => moveHotelRow(optIdx, idx, idx + 1)}
+                                  title="Move Down"
+                                  className="p-1 rounded text-on-surface-variant hover:text-primary hover:bg-surface-container disabled:opacity-30 disabled:hover:bg-transparent transition-colors flex items-center justify-center"
+                                >
+                                  <span className="material-symbols-outlined text-base">arrow_downward</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => removeHotelRow(optIdx, idx)}
+                                  title="Delete Stay Row"
+                                  className="p-1 rounded text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors ml-1 flex items-center justify-center"
+                                >
+                                  <span className="material-symbols-outlined text-base">close</span>
+                                </button>
+                              </div>
+                            </div>
+
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                               <div className="col-span-2 sm:col-span-1"><input type="text" value={row.destination} onChange={e => updateHotelRow(optIdx, idx, { destination: e.target.value })} className={inputCls + " !text-xs !py-1.5"} placeholder="Dest" /></div>
                               <div className="col-span-2"><input type="text" value={row.hotels} onChange={e => updateHotelRow(optIdx, idx, { hotels: e.target.value })} className={inputCls + " !text-xs !py-1.5"} placeholder="Hotels" /></div>
@@ -1794,21 +2113,121 @@ export default function AdminQuotation() {
                         </div>
                       </div>
 
-                      <div>
-                        <div className="flex justify-between items-center mb-2">
-                          <label className={labelCls + " !mb-0"}>Flight Costs</label>
-                          <button onClick={() => addFlightCost(optIdx, { city: 'Route', cost: 0, pax: 1 })} className="text-[10px] font-bold text-primary px-2 py-1 bg-primary/10 rounded">+ Flight</button>
+                      {/* Transport Selection Toggle */}
+                      <div className="bg-surface-container/40 p-3 rounded-xl border border-outline-variant/20 space-y-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-outline-variant/10 pb-2">
+                          <div>
+                            <span className="text-xs font-bold text-on-surface">Transport Option in Quotation</span>
+                            <p className="text-[11px] text-on-surface-variant/80">Select Flight or Train to include in this option's quotation.</p>
+                          </div>
+                          <div className="inline-flex rounded-lg p-1 bg-surface border border-outline-variant/30">
+                            <button
+                              type="button"
+                              onClick={() => setOptionTransportType(optIdx, 'flight')}
+                              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold transition-all ${
+                                (opt.transportType || 'flight') === 'flight'
+                                  ? 'bg-primary text-on-primary shadow-sm'
+                                  : 'text-on-surface-variant hover:text-on-surface'
+                              }`}
+                            >
+                              <span className="material-symbols-outlined text-sm">flight</span>
+                              Flight
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setOptionTransportType(optIdx, 'train')}
+                              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold transition-all ${
+                                opt.transportType === 'train'
+                                  ? 'bg-emerald-600 text-white shadow-sm'
+                                  : 'text-on-surface-variant hover:text-on-surface'
+                              }`}
+                            >
+                              <span className="material-symbols-outlined text-sm">train</span>
+                              Train
+                            </button>
+                          </div>
                         </div>
-                        <div className="space-y-2">
-                          {opt.flightCosts.map((c, idx) => (
-                            <div key={idx} className="flex items-center gap-2">
-                              <input type="text" value={c.city} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, flightCosts: o.flightCosts.map((fc, j) => j === idx ? { ...fc, city: e.target.value } : fc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 flex-1 min-w-[60px]"} placeholder="City" />
-                              <input type="number" value={c.cost} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, flightCosts: o.flightCosts.map((fc, j) => j === idx ? { ...fc, cost: Number(e.target.value) } : fc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-20 shrink-0"} placeholder="Cost" />
-                              <input type="number" value={c.pax} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, flightCosts: o.flightCosts.map((fc, j) => j === idx ? { ...fc, pax: Number(e.target.value) } : fc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-16 shrink-0"} placeholder="Pax" />
-                              <button onClick={() => removeFlightCost(optIdx, idx)} className="text-red-400 hover:text-red-600 shrink-0"><span className="material-symbols-outlined text-sm">close</span></button>
+
+                        {/* Flight Costs Section */}
+                        <div className={`p-3 rounded-lg border transition-all ${
+                          (opt.transportType || 'flight') === 'flight'
+                            ? 'bg-primary/5 border-primary/30 ring-1 ring-primary/20'
+                            : 'bg-surface-container-low border-outline-variant/20 opacity-75'
+                        }`}>
+                          <div className="flex justify-between items-center mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="material-symbols-outlined text-sm text-primary">flight</span>
+                              <label className={labelCls + " !mb-0 font-bold"}>Flight Costs</label>
+                              {(opt.transportType || 'flight') === 'flight' ? (
+                                <span className="text-[9px] bg-primary/15 text-primary px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Active in Quotation</span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => setOptionTransportType(optIdx, 'flight')}
+                                  className="text-[9px] text-on-surface-variant hover:text-primary underline"
+                                >
+                                  (Click to select Flight)
+                                </button>
+                              )}
                             </div>
-                          ))}
+                            <button onClick={() => addFlightCost(optIdx, { city: 'Route', cost: 0, pax: 1 })} className="text-[10px] font-bold text-primary px-2 py-1 bg-primary/10 hover:bg-primary/20 rounded transition-colors">+ Flight</button>
+                          </div>
+                          <div className="space-y-2">
+                            {(!opt.flightCosts || opt.flightCosts.length === 0) ? (
+                              <p className="text-[11px] italic text-on-surface-variant/60 py-1">No flight costs added. Click "+ Flight" to add flight routes.</p>
+                            ) : (
+                              opt.flightCosts.map((c, idx) => (
+                                <div key={idx} className="flex items-center gap-2">
+                                  <input type="text" value={c.city} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, flightCosts: (o.flightCosts || []).map((fc, j) => j === idx ? { ...fc, city: e.target.value } : fc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 flex-1 min-w-[60px]"} placeholder="Airport / City Route (e.g. BOM → COK / Ex. Mumbai)" />
+                                  <input type="number" value={c.cost} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, flightCosts: (o.flightCosts || []).map((fc, j) => j === idx ? { ...fc, cost: Number(e.target.value) } : fc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-20 shrink-0"} placeholder="Cost" />
+                                  <input type="number" value={c.pax} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, flightCosts: (o.flightCosts || []).map((fc, j) => j === idx ? { ...fc, pax: Number(e.target.value) } : fc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-16 shrink-0"} placeholder="Pax" />
+                                  <button onClick={() => removeFlightCost(optIdx, idx)} className="text-red-400 hover:text-red-600 shrink-0"><span className="material-symbols-outlined text-sm">close</span></button>
+                                </div>
+                              ))
+                            )}
+                          </div>
                         </div>
+
+                        {/* Train Costs Section (Below Flight Costs) */}
+                        <div className={`p-3 rounded-lg border transition-all ${
+                          opt.transportType === 'train'
+                            ? 'bg-emerald-500/5 border-emerald-500/30 ring-1 ring-emerald-500/20'
+                            : 'bg-surface-container-low border-outline-variant/20 opacity-75'
+                        }`}>
+                          <div className="flex justify-between items-center mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="material-symbols-outlined text-sm text-emerald-600">train</span>
+                              <label className={labelCls + " !mb-0 font-bold"}>Train Costs</label>
+                              {opt.transportType === 'train' ? (
+                                <span className="text-[9px] bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Active in Quotation</span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => setOptionTransportType(optIdx, 'train')}
+                                  className="text-[9px] text-on-surface-variant hover:text-emerald-600 underline"
+                                >
+                                  (Click to select Train)
+                                </button>
+                              )}
+                            </div>
+                            <button onClick={() => addTrainCost(optIdx, { city: 'Route', cost: 0, pax: 1 })} className="text-[10px] font-bold text-emerald-600 px-2 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 rounded transition-colors">+ Train</button>
+                          </div>
+                          <div className="space-y-2">
+                            {(!opt.trainCosts || opt.trainCosts.length === 0) ? (
+                              <p className="text-[11px] italic text-on-surface-variant/60 py-1">No train costs added. Click "+ Train" to add train routes.</p>
+                            ) : (
+                              opt.trainCosts.map((c, idx) => (
+                                <div key={idx} className="flex items-center gap-2">
+                                  <input type="text" value={c.city} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, trainCosts: (o.trainCosts || []).map((tc, j) => j === idx ? { ...tc, city: e.target.value } : tc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 flex-1 min-w-[60px]"} placeholder="Station / City Route (e.g. ST → NDLS / Ex. Surat)" />
+                                  <input type="number" value={c.cost} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, trainCosts: (o.trainCosts || []).map((tc, j) => j === idx ? { ...tc, cost: Number(e.target.value) } : tc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-20 shrink-0"} placeholder="Cost" />
+                                  <input type="number" value={c.pax} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, trainCosts: (o.trainCosts || []).map((tc, j) => j === idx ? { ...tc, pax: Number(e.target.value) } : tc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-16 shrink-0"} placeholder="Pax" />
+                                  <button onClick={() => removeTrainCost(optIdx, idx)} className="text-red-400 hover:text-red-600 shrink-0"><span className="material-symbols-outlined text-sm">close</span></button>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+
                       </div>
                     </div>
 
@@ -1819,48 +2238,249 @@ export default function AdminQuotation() {
 
             {/* Detailed Itinerary */}
             <div className="bg-surface rounded-2xl p-5 border border-outline-variant/30 shadow-sm space-y-4">
-              <div className="flex items-center justify-between border-b border-outline-variant/10 pb-2">
-                <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">4. Day Schedule (Itinerary)</h3>
-                <button onClick={addItineraryDay} className="px-3 py-1 bg-surface-container border border-outline-variant/30 hover:bg-surface-container-high text-xs font-bold rounded-lg transition-colors">+ Add Day</button>
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-outline-variant/10 pb-3">
+                <div>
+                  <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-sm text-primary">calendar_month</span>
+                    4. Day Schedule (Itinerary) ({data.itinerary.length} Days)
+                  </h3>
+                  <p className="text-[10px] text-on-surface-variant/70">
+                    Drag cards to reorder, use dropdowns to jump, or switch to Compact View.
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsCompactItinerary(prev => !prev)}
+                    className={`px-2.5 py-1 text-[11px] font-bold rounded-lg border transition-all flex items-center gap-1 ${
+                      isCompactItinerary
+                        ? 'bg-primary/10 border-primary/40 text-primary'
+                        : 'bg-surface-container border-outline-variant/30 text-on-surface hover:bg-surface-container-high'
+                    }`}
+                    title={isCompactItinerary ? 'Switch to Detailed Editor View' : 'Switch to Compact Reorder View (All days fit on screen)'}
+                  >
+                    <span className="material-symbols-outlined text-xs">
+                      {isCompactItinerary ? 'unfold_more' : 'unfold_less'}
+                    </span>
+                    {isCompactItinerary ? 'Detailed View' : 'Compact Reorder View'}
+                  </button>
+                  {data.itinerary.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={autoRenumberItineraryDays}
+                      title="Renumber Day 1, Day 2... in sequential order"
+                      className="px-2.5 py-1 bg-surface-container border border-outline-variant/30 hover:bg-surface-container-high text-[11px] font-bold rounded-lg transition-colors flex items-center gap-1 text-on-surface"
+                    >
+                      <span className="material-symbols-outlined text-xs">format_list_numbered</span>
+                      Renumber Days
+                    </button>
+                  )}
+                  <button
+                    onClick={addItineraryDay}
+                    className="px-3 py-1 bg-primary text-on-primary hover:bg-primary/90 text-xs font-bold rounded-lg transition-colors flex items-center gap-1 shadow-sm"
+                  >
+                    <span className="material-symbols-outlined text-sm">add</span>
+                    Add Day
+                  </button>
+                </div>
               </div>
 
-              <div className="space-y-4">
-                {data.itinerary.map((day, idx) => (
-                  <div key={idx} className="p-3 bg-surface-container-low rounded-xl border border-outline-variant/20 space-y-3 relative">
-                    <button onClick={() => removeItineraryDay(idx)} className="absolute right-2 top-2 text-red-400 hover:text-red-600">
-                      <span className="material-symbols-outlined text-base">close</span>
-                    </button>
-                    <div className="grid grid-cols-3 gap-3">
-                      <div>
-                        <label className={labelCls}>Day Index</label>
-                        <input type="text" value={day.day} onChange={e => updateItineraryDay(idx, { day: e.target.value })} className={inputCls} placeholder="Day 1 (11/Nov/2026)" />
+              {isCompactItinerary ? (
+                /* Compact Reorder List: All days fit on one screen */
+                <div className="space-y-2">
+                  {data.itinerary.map((day, idx) => (
+                    <div
+                      key={idx}
+                      draggable={true}
+                      onDragStart={(e) => handleDayDragStart(e, idx)}
+                      onDragOver={(e) => handleDayDragOver(e, idx)}
+                      onDragLeave={(e) => handleDayDragLeave(e, idx)}
+                      onDrop={(e) => handleDayDrop(e, idx)}
+                      onDragEnd={handleDayDragEnd}
+                      className={`px-3 py-2 bg-surface-container-low rounded-xl border flex flex-wrap sm:flex-nowrap items-center gap-2.5 transition-all ${
+                        draggedDayIdx === idx
+                          ? 'opacity-40 border-dashed border-primary bg-primary/5 scale-[0.99]'
+                          : dragOverDayIdx === idx
+                          ? 'border-primary ring-2 ring-primary/40 bg-primary/10 -translate-y-0.5 shadow-md'
+                          : 'border-outline-variant/20 hover:border-outline-variant/40 hover:bg-surface-container'
+                      }`}
+                    >
+                      <div
+                        className="cursor-grab active:cursor-grabbing p-1 text-on-surface-variant hover:text-primary flex items-center justify-center shrink-0"
+                        title="Drag to reorder"
+                      >
+                        <span className="material-symbols-outlined text-base">drag_indicator</span>
                       </div>
-                      <div className="col-span-2">
-                        <label className={labelCls}>Day Heading / Title</label>
-                        <input type="text" value={day.title} onChange={e => updateItineraryDay(idx, { title: e.target.value })} className={inputCls} placeholder="Title details" />
+                      <span className="text-[10px] font-black uppercase tracking-wider bg-surface-container-high px-2 py-0.5 rounded text-on-surface shrink-0">
+                        Day {idx + 1}
+                      </span>
+                      <input
+                        type="text"
+                        value={day.day}
+                        onChange={e => updateItineraryDay(idx, { day: e.target.value })}
+                        className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-36 shrink-0"}
+                        placeholder="Day Label"
+                      />
+                      <input
+                        type="text"
+                        value={day.title}
+                        onChange={e => updateItineraryDay(idx, { title: e.target.value })}
+                        className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 flex-1 min-w-[120px]"}
+                        placeholder="Day Title"
+                      />
+                      <div className="flex items-center gap-1 shrink-0 ml-auto">
+                        <select
+                          value={idx}
+                          onChange={e => moveItineraryDay(idx, Number(e.target.value))}
+                          className="text-xs py-1 px-2 rounded-lg border border-outline-variant/30 bg-surface text-on-surface focus:outline-none focus:border-primary cursor-pointer"
+                          title="Quick move to position"
+                        >
+                          {data.itinerary.map((_, pIdx) => (
+                            <option key={pIdx} value={pIdx}>
+                              Move to #{pIdx + 1}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          disabled={idx === 0}
+                          onClick={() => moveItineraryDay(idx, idx - 1)}
+                          title="Move Up"
+                          className="p-1 rounded text-on-surface-variant hover:text-primary hover:bg-surface-container disabled:opacity-30 transition-colors flex items-center justify-center"
+                        >
+                          <span className="material-symbols-outlined text-base">arrow_upward</span>
+                        </button>
+                        <button
+                          type="button"
+                          disabled={idx === data.itinerary.length - 1}
+                          onClick={() => moveItineraryDay(idx, idx + 1)}
+                          title="Move Down"
+                          className="p-1 rounded text-on-surface-variant hover:text-primary hover:bg-surface-container disabled:opacity-30 transition-colors flex items-center justify-center"
+                        >
+                          <span className="material-symbols-outlined text-base">arrow_downward</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeItineraryDay(idx)}
+                          title="Delete Day"
+                          className="p-1 rounded text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors flex items-center justify-center"
+                        >
+                          <span className="material-symbols-outlined text-base">close</span>
+                        </button>
                       </div>
-                      <div className="col-span-3">
-                        <label className={labelCls}>Description</label>
-                        <textarea value={day.description} onChange={e => updateItineraryDay(idx, { description: e.target.value })} className={inputCls} rows={4} placeholder="Detailed activities..." />
-                      </div>
-                      <div className="col-span-3">
-                        <label className={labelCls}>Day Image URL (Optional)</label>
-                        <div className="flex gap-2">
-                          <input type="text" value={day.imageUrl || ''} onChange={e => updateItineraryDay(idx, { imageUrl: e.target.value })} className={inputCls} placeholder="https://..." />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                /* Detailed View */
+                <div className="space-y-3">
+                  {data.itinerary.map((day, idx) => (
+                    <div
+                      key={idx}
+                      draggable={true}
+                      onDragStart={(e) => handleDayDragStart(e, idx)}
+                      onDragOver={(e) => handleDayDragOver(e, idx)}
+                      onDragLeave={(e) => handleDayDragLeave(e, idx)}
+                      onDrop={(e) => handleDayDrop(e, idx)}
+                      onDragEnd={handleDayDragEnd}
+                      className={`p-3.5 bg-surface-container-low rounded-xl border space-y-3 relative transition-all duration-150 ${
+                        draggedDayIdx === idx
+                          ? 'opacity-40 border-dashed border-primary scale-[0.99] shadow-inner bg-primary/5'
+                          : dragOverDayIdx === idx
+                          ? 'border-primary ring-2 ring-primary/40 bg-primary/10 shadow-md -translate-y-0.5'
+                          : 'border-outline-variant/20 hover:border-outline-variant/40'
+                      }`}
+                    >
+                      {/* Card Top Actions Header */}
+                      <div className="flex items-center justify-between border-b border-outline-variant/10 pb-2">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-surface-container text-on-surface-variant flex items-center justify-center transition-colors"
+                            title="Drag to reorder day"
+                          >
+                            <span className="material-symbols-outlined text-base">drag_indicator</span>
+                          </div>
+                          <span className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider bg-surface-container px-2 py-0.5 rounded-md">
+                            Position #{idx + 1}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-1 mr-1">
+                            <span className="text-[10px] text-on-surface-variant font-medium hidden sm:inline">Move to:</span>
+                            <select
+                              value={idx}
+                              onChange={e => moveItineraryDay(idx, Number(e.target.value))}
+                              className="text-xs py-0.5 px-2 rounded-lg border border-outline-variant/30 bg-surface text-on-surface focus:outline-none focus:border-primary cursor-pointer"
+                              title="Quick move to position"
+                            >
+                              {data.itinerary.map((_, pIdx) => (
+                                <option key={pIdx} value={pIdx}>
+                                  Day #{pIdx + 1}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
                           <button
                             type="button"
-                            onClick={() => openSelectorFor('itineraryDay', idx)}
-                            className="px-3 py-1 bg-surface-container hover:bg-surface-container-high rounded-xl border border-outline-variant/30 text-xs font-bold flex items-center gap-1 shrink-0 transition-all"
+                            disabled={idx === 0}
+                            onClick={() => moveItineraryDay(idx, idx - 1)}
+                            title="Move Up"
+                            className="p-1 rounded text-on-surface-variant hover:text-primary hover:bg-surface-container disabled:opacity-30 disabled:hover:bg-transparent transition-colors flex items-center justify-center"
                           >
-                            <span className="material-symbols-outlined text-sm font-bold">photo_library</span>
-                            Select
+                            <span className="material-symbols-outlined text-base">arrow_upward</span>
+                          </button>
+                          <button
+                            type="button"
+                            disabled={idx === data.itinerary.length - 1}
+                            onClick={() => moveItineraryDay(idx, idx + 1)}
+                            title="Move Down"
+                            className="p-1 rounded text-on-surface-variant hover:text-primary hover:bg-surface-container disabled:opacity-30 disabled:hover:bg-transparent transition-colors flex items-center justify-center"
+                          >
+                            <span className="material-symbols-outlined text-base">arrow_downward</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeItineraryDay(idx)}
+                            title="Delete Day"
+                            className="p-1 rounded text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors ml-1 flex items-center justify-center"
+                          >
+                            <span className="material-symbols-outlined text-base">close</span>
                           </button>
                         </div>
                       </div>
+
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <label className={labelCls}>Day Index</label>
+                          <input type="text" value={day.day} onChange={e => updateItineraryDay(idx, { day: e.target.value })} className={inputCls} placeholder="Day 1 (11/Nov/2026)" />
+                        </div>
+                        <div className="col-span-2">
+                          <label className={labelCls}>Day Heading / Title</label>
+                          <input type="text" value={day.title} onChange={e => updateItineraryDay(idx, { title: e.target.value })} className={inputCls} placeholder="Title details" />
+                        </div>
+                        <div className="col-span-3">
+                          <label className={labelCls}>Description</label>
+                          <textarea value={day.description} onChange={e => updateItineraryDay(idx, { description: e.target.value })} className={inputCls} rows={4} placeholder="Detailed activities..." />
+                        </div>
+                        <div className="col-span-3">
+                          <label className={labelCls}>Day Image URL (Optional)</label>
+                          <div className="flex gap-2">
+                            <input type="text" value={day.imageUrl || ''} onChange={e => updateItineraryDay(idx, { imageUrl: e.target.value })} className={inputCls} placeholder="https://..." />
+                            <button
+                              type="button"
+                              onClick={() => openSelectorFor('itineraryDay', idx)}
+                              className="px-3 py-1 bg-surface-container hover:bg-surface-container-high rounded-xl border border-outline-variant/30 text-xs font-bold flex items-center gap-1 shrink-0 transition-all"
+                            >
+                              <span className="material-symbols-outlined text-sm font-bold">photo_library</span>
+                              Select
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Visual Archive */}
@@ -2152,11 +2772,11 @@ export default function AdminQuotation() {
                         <tbody>
                           {opt.hotels.map((h, i) => (
                             <tr key={i} className="border-b border-gray-200">
-                              <td className="border border-gray-200 p-2 font-bold">{h.destination || '—'}</td>
-                              <td className="border border-gray-200 p-2 text-gray-600">{h.hotels || '—'}</td>
-                              <td className="border border-gray-200 p-2 text-center text-gray-600">{h.mealPlan}</td>
-                              <td className="border border-gray-200 p-2 text-center text-gray-600">{h.nights}</td>
-                              <td className="border border-gray-200 p-2 text-center text-gray-600">{h.rooms}</td>
+                              <td className="border border-gray-200 p-2 font-bold capitalize">{toCamelCase(h.destination)}</td>
+                              <td className="border border-gray-200 p-2 text-gray-700 capitalize">{toCamelCase(h.hotels)}</td>
+                              <td className="border border-gray-200 p-2 text-center text-gray-700 capitalize">{toCamelCase(h.mealPlan)}</td>
+                              <td className="border border-gray-200 p-2 text-center text-gray-700 capitalize">{toCamelCase(h.nights)}</td>
+                              <td className="border border-gray-200 p-2 text-center text-gray-700 capitalize">{toCamelCase(h.rooms)}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -2179,48 +2799,68 @@ export default function AdminQuotation() {
                             ) : null)}
                           </ul>
                         </div>
-                        {opt.flightCosts && opt.flightCosts.length > 0 && (
-                          <div>
-                            <div className="text-[7px] font-black uppercase text-gray-400">Additional Flight Costs</div>
-                            <ul className="list-none p-0 m-0">
-                              {opt.flightCosts.map((f, i) => (
-                                <li key={i} className="flex justify-between border-b border-gray-100 py-1 text-[10px]">
-                                  <span>{f.city} (x{f.pax})</span>
-                                  <strong>Rs. {(f.pax > 0 ? f.cost * f.pax : f.cost).toLocaleString('en-IN')}/- {f.pax === 0 && <span className="text-[9px] font-normal text-gray-400 ml-1">(Per Person)</span>}</strong>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                        {((opt.packageCosts && opt.packageCosts.length > 0) || (opt.flightCosts && opt.flightCosts.length > 0)) && (
-                          <div className="col-span-2 border-t border-dashed border-gray-300 pt-2 mt-1">
-                            <div className="text-[7px] font-black uppercase text-gray-400 mb-2">Total Estimate Breakdown (Option {optIdx + 1})</div>
-                            <table className="w-full text-[8px] text-center border border-gray-200">
-                              <thead className="bg-gray-100 font-bold">
-                                <tr>
-                                  <th className="border border-gray-200 p-1.5 text-left">Category</th>
-                                  <th className="border border-gray-200 p-1.5">Package Cost</th>
-                                  <th className="border border-gray-200 p-1.5">Flight Cost</th>
-                                  <th className="border border-gray-200 p-1.5">Total Estimate</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {(opt.packageCosts || []).map((c, i) => {
-                                  const flightCost = opt.flightCosts && opt.flightCosts.length > 0 ? opt.flightCosts[0].cost : 0;
-                                  const totalPerPerson = c.cost + flightCost;
-                                  return (
-                                    <tr key={i}>
-                                      <td className="border border-gray-200 p-1.5 text-left font-bold">{c.category}</td>
-                                      <td className="border border-gray-200 p-1.5">Rs. {c.cost.toLocaleString('en-IN')}/-</td>
-                                      <td className="border border-gray-200 p-1.5">Rs. {flightCost.toLocaleString('en-IN')}/-</td>
-                                      <td className="border border-gray-200 p-1.5 font-bold text-red-600">Rs. {totalPerPerson.toLocaleString('en-IN')}/- {c.pax > 0 ? `x ${String(c.pax).padStart(2, '0')}` : '(Per Person)'}</td>
-                                    </tr>
-                                  );
-                                })}
-                              </tbody>
-                            </table>
-                          </div>
-                        )}
+                        {(() => {
+                          const transportMode = opt.transportType || (opt.trainCosts && opt.trainCosts.length > 0 && (!opt.flightCosts || opt.flightCosts.length === 0) ? 'train' : 'flight');
+                          const isTrain = transportMode === 'train';
+                          const transportCosts = isTrain ? (opt.trainCosts || []) : (opt.flightCosts || []);
+                          const transportCost = transportCosts.length > 0 ? transportCosts[0].cost : 0;
+                          const transportLabel = isTrain ? 'Train Cost' : 'Flight Cost';
+                          const transportRoute = transportCosts.map(t => t.city).filter(Boolean).join(' / ');
+                          const additionalTitle = isTrain ? 'Additional Train Costs' : 'Additional Flight Costs';
+
+                          return (
+                            <>
+                              {transportCosts.length > 0 && (
+                                <div>
+                                  <div className="text-[7px] font-black uppercase text-gray-400">{additionalTitle}</div>
+                                  <ul className="list-none p-0 m-0">
+                                    {transportCosts.map((f, i) => (
+                                      <li key={i} className="flex justify-between border-b border-gray-100 py-1 text-[10px]">
+                                        <span>{f.city} (x{f.pax})</span>
+                                        <strong>Rs. {(f.pax > 0 ? f.cost * f.pax : f.cost).toLocaleString('en-IN')}/- {f.pax === 0 && <span className="text-[9px] font-normal text-gray-400 ml-1">(Per Person)</span>}</strong>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                              {((opt.packageCosts && opt.packageCosts.length > 0) || transportCosts.length > 0) && (
+                                <div className="col-span-2 border-t border-dashed border-gray-300 pt-2 mt-1">
+                                  <div className="text-[7px] font-black uppercase text-gray-400 mb-2">Total Estimate Breakdown (Option {optIdx + 1})</div>
+                                  <table className="w-full text-[8px] text-center border border-gray-200">
+                                    <thead className="bg-gray-100 font-bold">
+                                      <tr>
+                                        <th className="border border-gray-200 p-1.5 text-left">Category</th>
+                                        <th className="border border-gray-200 p-1.5">Package Cost</th>
+                                        <th className="border border-gray-200 p-1.5">
+                                          <div>{transportLabel}</div>
+                                          {transportRoute && (
+                                            <div className="text-[7px] font-normal text-gray-500 normal-case mt-0.5">
+                                              ({transportRoute})
+                                            </div>
+                                          )}
+                                        </th>
+                                        <th className="border border-gray-200 p-1.5">Total Estimate</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {(opt.packageCosts || []).map((c, i) => {
+                                        const totalPerPerson = c.cost + transportCost;
+                                        return (
+                                          <tr key={i}>
+                                            <td className="border border-gray-200 p-1.5 text-left font-bold">{c.category}</td>
+                                            <td className="border border-gray-200 p-1.5">Rs. {c.cost.toLocaleString('en-IN')}/-</td>
+                                            <td className="border border-gray-200 p-1.5">Rs. {transportCost.toLocaleString('en-IN')}/-</td>
+                                            <td className="border border-gray-200 p-1.5 font-bold text-red-600">Rs. {totalPerPerson.toLocaleString('en-IN')}/- {c.pax > 0 ? `x ${String(c.pax).padStart(2, '0')}` : '(Per Person)'}</td>
+                                          </tr>
+                                        );
+                                      })}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
                       </div>
                     </div>
                   ))}
