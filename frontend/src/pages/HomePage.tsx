@@ -305,18 +305,18 @@ export default function HomePage() {
               {[1,2,3].map(i => <div key={i} className="animate-pulse bg-surface-container-low aspect-[4/5] rounded-2xl" />)}
             </div>
           ) : (
-            <AutoCarousel autoPlayMs={5000}>
+            <AutoCarousel autoPlayMs={0}>
               {shuffledDestinations.map(dest => (
                 <div key={dest.id}
-                  className="group relative overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer w-[280px] sm:w-[320px] aspect-[4/5]"
+                  className="group relative overflow-hidden rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 cursor-pointer w-[280px] sm:w-[320px] aspect-[4/5] bg-neutral-900 border border-outline-variant/10"
                   onClick={() => navigate(`/destinations/${dest.id}`)}>
                   <LazyImage 
                     containerClassName="absolute inset-0 w-full h-full"
-                    className="w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105"
+                    className="w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105 opacity-95 group-hover:opacity-100"
                     alt={dest.name} src={optimizeImage(dest.heroImageUrl || FALLBACK, 800)} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent flex flex-col justify-end p-5">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent flex flex-col justify-end p-5">
                     <span className="text-white text-[9px] font-black tracking-[0.5em] uppercase bg-black/40 backdrop-blur-sm self-start px-3 py-1 rounded-full border border-white/20 mb-2">{dest.region}</span>
-                    <h3 className="text-2xl font-light text-white tracking-tighter font-serif italic">{dest.name}</h3>
+                    <h3 className="text-2xl font-light text-white tracking-tighter font-serif italic drop-shadow-sm">{dest.name}</h3>
                   </div>
                 </div>
               ))}
@@ -520,25 +520,25 @@ export default function HomePage() {
             </div>
           ) : visas.length > 0 ? (
             <div className="mb-10">
-              <AutoCarousel autoPlayMs={4500}>
+              <AutoCarousel autoPlayMs={0}>
                 {visas.map((visa) => (
-                  <div key={visa.id} onClick={() => navigate(`/visas#visa-${visa.id}`)} className="relative cursor-pointer group rounded-2xl overflow-hidden border border-outline-variant/10 shadow-sm hover:shadow-xl transition-all duration-500 aspect-[4/5] bg-black w-[280px] sm:w-[320px] shrink-0">
+                  <div key={visa.id} onClick={() => navigate(`/visas#visa-${visa.id}`)} className="relative cursor-pointer group rounded-2xl overflow-hidden border border-outline-variant/15 shadow-md hover:shadow-2xl transition-all duration-500 aspect-[4/5] bg-neutral-900 w-[280px] sm:w-[320px] shrink-0">
                     <LazyImage 
                       containerClassName="absolute inset-0 w-full h-full"
-                      className="w-full h-full object-cover transition-transform duration-[5s] ease-out group-hover:scale-105 opacity-60 group-hover:opacity-80"
+                      className="w-full h-full object-cover transition-transform duration-[4s] ease-out group-hover:scale-105 opacity-95 group-hover:opacity-100"
                       src={optimizeImage(visa.heroImageUrl || FALLBACK, 600)} alt={visa.country} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-between p-5">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex flex-col justify-between p-5">
                       <div className="flex justify-between items-start">
-                        <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-white/15 backdrop-blur-md border border-white/25 flex items-center justify-center shrink-0 shadow-sm">
                           <span className="material-symbols-outlined text-white font-light text-sm">public</span>
                         </div>
-                        <span className="text-[8px] font-black tracking-[0.3em] uppercase bg-white/10 backdrop-blur border border-white/20 px-2 py-1 rounded text-white shadow-sm">
+                        <span className="text-[8px] font-black tracking-[0.3em] uppercase bg-black/40 backdrop-blur-md border border-white/25 px-2.5 py-1 rounded text-white shadow-sm">
                           {visa.difficulty || '—'}
                         </span>
                       </div>
                       <div>
-                        <h3 className="text-2xl font-light tracking-tighter text-white mb-1 group-hover:text-primary transition-colors italic">{visa.country}</h3>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-white/60 truncate">{visa.processing}</p>
+                        <h3 className="text-2xl font-light tracking-tighter text-white mb-1 group-hover:text-primary transition-colors italic drop-shadow-sm">{visa.country}</h3>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-white/80 truncate drop-shadow-sm">{visa.processing}</p>
                       </div>
                     </div>
                   </div>
