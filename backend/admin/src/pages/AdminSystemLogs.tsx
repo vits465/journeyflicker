@@ -117,6 +117,7 @@ function LogDetailModal({ log, onClose, onResolve, onDelete, resolvingId, deleti
 export default function AdminSystemLogs() {
   const [logs, setLogs]       = useState<SystemLog[]>([]);
   const [total, setTotal]     = useState(0);
+  const [stats, setStats]     = useState({ totalAll: 0, openCount: 0, errorCount: 0, warnCount: 0 });
   const [loading, setLoading] = useState(true);
   const [page, setPage]       = useState(1);
   const [levelFilter, setLevelFilter]   = useState('all');
@@ -146,6 +147,16 @@ export default function AdminSystemLogs() {
       const data = await api.listSystemLogs(opts);
       setLogs(data.items);
       setTotal(data.total);
+      if (data.stats) {
+        setStats(data.stats);
+      } else {
+        setStats({
+          totalAll: data.total,
+          openCount: data.items.filter(l => !l.resolved).length,
+          errorCount: data.items.filter(l => l.level === 'error' && !l.resolved).length,
+          warnCount: data.items.filter(l => l.level === 'warn' && !l.resolved).length,
+        });
+      }
     } catch { 
       setLogs([]); 
       if (!background) showToast('Failed to fetch logs', 'err');
@@ -167,6 +178,12 @@ export default function AdminSystemLogs() {
     // Optimistic UI Update
     setLogs(prev => prev.map(l => l.id === log.id ? { ...l, resolved } : l));
     if (selected?.id === log.id) setSelected(prev => prev ? { ...prev, resolved } : null);
+    setStats(prev => ({
+      ...prev,
+      openCount: Math.max(0, prev.openCount + (resolved ? -1 : 1)),
+      errorCount: log.level === 'error' ? Math.max(0, prev.errorCount + (resolved ? -1 : 1)) : prev.errorCount,
+      warnCount: log.level === 'warn' ? Math.max(0, prev.warnCount + (resolved ? -1 : 1)) : prev.warnCount,
+    }));
     
     try {
       const updated = await api.resolveSystemLog(log.id, resolved);
@@ -177,6 +194,12 @@ export default function AdminSystemLogs() {
       // Revert on failure
       setLogs(prev => prev.map(l => l.id === log.id ? { ...l, resolved: !resolved } : l));
       if (selected?.id === log.id) setSelected(prev => prev ? { ...prev, resolved: !resolved } : null);
+      setStats(prev => ({
+        ...prev,
+        openCount: Math.max(0, prev.openCount + (resolved ? 1 : -1)),
+        errorCount: log.level === 'error' ? Math.max(0, prev.errorCount + (resolved ? 1 : -1)) : prev.errorCount,
+        warnCount: log.level === 'warn' ? Math.max(0, prev.warnCount + (resolved ? 1 : -1)) : prev.warnCount,
+      }));
       showToast('Failed to update log status', 'err');
     } finally {
       setResolvingId(null);
@@ -189,7 +212,14 @@ export default function AdminSystemLogs() {
     try {
       await api.deleteSystemLog(log.id);
       setLogs(prev => prev.filter(l => l.id !== log.id));
-      setTotal(t => t - 1);
+      setTotal(t => Math.max(0, t - 1));
+      setStats(prev => ({
+        ...prev,
+        totalAll: Math.max(0, prev.totalAll - 1),
+        openCount: !log.resolved ? Math.max(0, prev.openCount - 1) : prev.openCount,
+        errorCount: log.level === 'error' && !log.resolved ? Math.max(0, prev.errorCount - 1) : prev.errorCount,
+        warnCount: log.level === 'warn' && !log.resolved ? Math.max(0, prev.warnCount - 1) : prev.warnCount,
+      }));
       if (selected?.id === log.id) setSelected(null);
       showToast('Log deleted successfully');
     } catch {
@@ -213,9 +243,10 @@ export default function AdminSystemLogs() {
     setClearing(false);
   };
 
-  const openCount     = logs.filter(l => !l.resolved).length;
-  const errorCount    = logs.filter(l => l.level === 'error' && !l.resolved).length;
-  const warnCount     = logs.filter(l => l.level === 'warn' && !l.resolved).length;
+  const openCount     = stats.openCount;
+  const errorCount    = stats.errorCount;
+  const warnCount     = stats.warnCount;
+  const totalCount    = stats.totalAll || total;
   const totalPages    = Math.ceil(total / LIMIT);
 
   return (
@@ -254,7 +285,7 @@ export default function AdminSystemLogs() {
       {/* Stat Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: 'Total Logs',       value: total,      icon: 'summarize',     color: 'text-on-surface dark:text-white',         bg: 'bg-surface-container-low dark:bg-white/10' },
+          { label: 'Total Logs',       value: totalCount,  icon: 'summarize',     color: 'text-on-surface dark:text-white',         bg: 'bg-surface-container-low dark:bg-white/10' },
           { label: 'Open Issues',      value: openCount,  icon: 'radio_button_checked', color: 'text-red-600 dark:text-red-400',   bg: 'bg-red-50 dark:bg-red-900/20' },
           { label: 'Errors',           value: errorCount, icon: 'error',         color: 'text-red-600 dark:text-red-400',           bg: 'bg-red-50 dark:bg-red-900/20' },
           { label: 'Warnings',         value: warnCount,  icon: 'warning',       color: 'text-amber-600 dark:text-amber-400',       bg: 'bg-amber-50 dark:bg-amber-900/20' },

@@ -239,6 +239,12 @@ export type SystemLog = {
 export type SystemLogListResponse = {
   items: SystemLog[];
   total: number;
+  stats?: {
+    totalAll: number;
+    openCount: number;
+    errorCount: number;
+    warnCount: number;
+  };
   page: number;
   pages: number;
 };

@@ -31,6 +31,16 @@ function shouldIgnoreError(message: string, stack?: string, filename?: string): 
     'window.webkit',
     'evaluating \'window.webkit',
     'evaluating "window.webkit',
+    // External scanners, automated email link bots & CefSharp/Outlook SafeLinks noise
+    'object not found matching id',
+    'methodname:update',
+    'cefsharp',
+    'safelinks',
+    'protection.outlook.com',
+    'ms-outlook',
+    // Benign aborts / user cancelations
+    'abortoperation',
+    'the user aborted a request',
   ];
 
   return ignoredPatterns.some(pattern => combined.includes(pattern));

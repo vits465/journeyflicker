@@ -1451,18 +1451,52 @@ export default function AdminQuotation() {
           const transportLabel = isTrain ? 'Train Cost' : 'Flight Cost';
           const transportCost = transportCosts.length > 0 ? transportCosts[0].cost : 0;
           const transportRoute = transportCosts.map(t => t.city).filter(Boolean).join(' / ');
+          const additionalTitle = isTrain ? 'Additional Train Costs' : 'Additional Flight Costs';
 
           return `
         <tr>
-          <td colspan="2" style="border:none; padding:12px;">
+          <td style="border:none; padding:12px; width:${hasTransportCosts ? '52%' : '100%'}; vertical-align:top;">
+            <div class="price-title">Package Cost (Per Person)</div>
+            <ul class="flights-list">
+              ${hasPackageCosts
+                ? opt.packageCosts.map(c => `
+                  <li style="display:flex; justify-content:space-between; align-items:flex-start; padding:4px 0; border-bottom:1px dashed #eee;">
+                    <span>${c.category} ${c.pax > 0 ? `(x${c.pax})` : ''}</span>
+                    <span style="text-align:right;">
+                      <strong>Rs. ${c.cost.toLocaleString('en-IN')}/- <span style="font-size:9px; font-weight:normal; color:#666;">(Per Person)</span></strong>
+                      ${c.pax > 1 ? `<div style="font-size:8.5px; color:#555; font-weight:600;">Total: Rs. ${(c.cost * c.pax).toLocaleString('en-IN')}/-</div>` : ''}
+                    </span>
+                  </li>`).join('')
+                : (data.perPersonCost ? `<li><span>Per Person</span><strong>${data.perPersonCost}</strong></li>` : '')
+              }
+            </ul>
+          </td>
+          ${hasTransportCosts ? `
+          <td style="border:none; padding:12px; width:48%; vertical-align:top;">
+            <div class="price-title">${additionalTitle}</div>
+            <ul class="flights-list">
+              ${transportCosts.map(f => `
+                <li style="display:flex; justify-content:space-between; align-items:flex-start; padding:4px 0; border-bottom:1px dashed #eee;">
+                  <span>${f.city} ${f.pax > 0 ? `(x${f.pax})` : ''}</span>
+                  <span style="text-align:right;">
+                    <strong>Rs. ${f.cost.toLocaleString('en-IN')}/- <span style="font-size:9px; font-weight:normal; color:#666;">(Per Person)</span></strong>
+                    ${f.pax > 1 ? `<div style="font-size:8.5px; color:#555; font-weight:600;">Total: Rs. ${(f.cost * f.pax).toLocaleString('en-IN')}/-</div>` : ''}
+                  </span>
+                </li>
+              `).join('')}
+            </ul>
+          </td>` : ''}
+        </tr>
+        <tr>
+          <td colspan="2" style="border:none; padding:12px; border-top:1px dashed #ccc; padding-top:10px;">
             <div class="price-title" style="margin-bottom:6px;">Total Estimate Breakdown (Option ${optIdx + 1})</div>
             <table style="width:100%; border-collapse:collapse; text-align:center; font-size:10px; border:1px solid #ccc;" cellpadding="6">
               <thead>
                 <tr style="background:#eee;">
                   <th style="border:1px solid #ccc; padding:6px; background:#f4f4f4; color:#000; text-align:left;">Category</th>
-                  <th style="border:1px solid #ccc; padding:6px; background:#f4f4f4; color:#000;">Package Cost</th>
+                  <th style="border:1px solid #ccc; padding:6px; background:#f4f4f4; color:#000;">Package Cost (Per Person)</th>
                   <th style="border:1px solid #ccc; padding:6px; background:#f4f4f4; color:#000;">
-                    <div>${transportLabel}</div>
+                    <div>${transportLabel} (Per Person)</div>
                     ${transportRoute ? `<div style="font-size:8px; font-weight:600; color:#555; margin-top:2px; text-transform:none;">(${transportRoute})</div>` : ''}
                   </th>
                   <th style="border:1px solid #ccc; padding:6px; background:#f4f4f4; color:#000;">Total Estimate</th>
@@ -1471,12 +1505,16 @@ export default function AdminQuotation() {
               <tbody>
                 ${(opt.packageCosts || []).map(c => {
                   const totalPerPerson = c.cost + transportCost;
+                  const totalGroup = totalPerPerson * (c.pax || 1);
                   return `
                   <tr>
-                    <td style="border:1px solid #ccc; padding:6px; text-align:left;">${c.category}</td>
-                    <td style="border:1px solid #ccc; padding:6px;">Rs. ${c.cost.toLocaleString('en-IN')}/-</td>
-                    <td style="border:1px solid #ccc; padding:6px;">Rs. ${transportCost.toLocaleString('en-IN')}/-</td>
-                    <td style="border:1px solid #ccc; padding:6px; font-weight:bold; color:#d93025;">Rs. ${totalPerPerson.toLocaleString('en-IN')}/- ${c.pax > 0 ? `x ${String(c.pax).padStart(2, '0')}` : '(Per Person)'}</td>
+                    <td style="border:1px solid #ccc; padding:6px; text-align:left; font-weight:bold;">${c.category}</td>
+                    <td style="border:1px solid #ccc; padding:6px;">Rs. ${c.cost.toLocaleString('en-IN')}/- <span style="font-size:8.5px; color:#666;">(Per Person)</span></td>
+                    <td style="border:1px solid #ccc; padding:6px;">Rs. ${transportCost.toLocaleString('en-IN')}/- <span style="font-size:8.5px; color:#666;">(Per Person)</span></td>
+                    <td style="border:1px solid #ccc; padding:6px; font-weight:bold; color:#d93025;">
+                      <div>Rs. ${totalPerPerson.toLocaleString('en-IN')}/- <span style="font-size:8.5px; font-weight:normal; color:#444;">(Per Person)</span></div>
+                      ${c.pax > 1 ? `<div style="font-size:8.5px; color:#111; font-weight:bold; margin-top:2px;">Total: Rs. ${totalGroup.toLocaleString('en-IN')}/- (x${c.pax} Pax)</div>` : (c.pax === 1 ? `<div style="font-size:8px; color:#666; font-weight:normal;">(1 Pax)</div>` : '')}
+                    </td>
                   </tr>
                   `;
                 }).join('')}
@@ -2098,16 +2136,32 @@ export default function AdminQuotation() {
                     <div className="border-t border-outline-variant/10 pt-4 grid grid-cols-1 gap-6">
                       <div>
                         <div className="flex justify-between items-center mb-2">
-                          <label className={labelCls + " !mb-0"}>Package Costs</label>
-                          <button onClick={() => addPackageCost(optIdx, { category: 'Adults', cost: 0, pax: 1 })} className="text-[10px] font-bold text-primary px-2 py-1 bg-primary/10 rounded">+ Cost</button>
+                          <div>
+                            <label className={labelCls + " !mb-0 font-bold"}>Package Costs (Per Person)</label>
+                            <p className="text-[11px] text-on-surface-variant/80">Cost entered below is Per Person. Total is automatically calculated.</p>
+                          </div>
+                          <button onClick={() => addPackageCost(optIdx, { category: 'Adults', cost: 0, pax: 1 })} className="text-[10px] font-bold text-primary px-2.5 py-1 bg-primary/10 hover:bg-primary/20 rounded transition-colors flex items-center gap-1">+ Cost</button>
                         </div>
                         <div className="space-y-2">
                           {opt.packageCosts.map((c, idx) => (
-                            <div key={idx} className="flex items-center gap-2">
-                              <input type="text" value={c.category} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, packageCosts: o.packageCosts.map((pc, j) => j === idx ? { ...pc, category: e.target.value } : pc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 flex-1 min-w-[60px]"} placeholder="Cat" />
-                              <input type="number" value={c.cost} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, packageCosts: o.packageCosts.map((pc, j) => j === idx ? { ...pc, cost: Number(e.target.value) } : pc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-20 shrink-0"} placeholder="Cost" />
-                              <input type="number" value={c.pax} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, packageCosts: o.packageCosts.map((pc, j) => j === idx ? { ...pc, pax: Number(e.target.value) } : pc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-16 shrink-0"} placeholder="Pax" />
-                              <button onClick={() => removePackageCost(optIdx, idx)} className="text-red-400 hover:text-red-600 shrink-0"><span className="material-symbols-outlined text-sm">close</span></button>
+                            <div key={idx} className="flex flex-col gap-1.5 p-2 rounded-lg bg-surface-container/30 border border-outline-variant/20">
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 min-w-[70px]">
+                                  <input type="text" value={c.category} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, packageCosts: o.packageCosts.map((pc, j) => j === idx ? { ...pc, category: e.target.value } : pc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-full"} placeholder="Category (e.g. Adults)" />
+                                </div>
+                                <div className="relative w-32 shrink-0">
+                                  <input type="number" value={c.cost} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, packageCosts: o.packageCosts.map((pc, j) => j === idx ? { ...pc, cost: Number(e.target.value) } : pc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-full pr-8"} placeholder="Cost / Person" />
+                                  <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[9px] font-bold text-on-surface-variant/70 pointer-events-none">/person</span>
+                                </div>
+                                <div className="relative w-16 shrink-0">
+                                  <input type="number" value={c.pax} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, packageCosts: o.packageCosts.map((pc, j) => j === idx ? { ...pc, pax: Number(e.target.value) } : pc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-full"} placeholder="Pax" title="Person Count" />
+                                </div>
+                                <button onClick={() => removePackageCost(optIdx, idx)} className="text-red-400 hover:text-red-600 shrink-0 p-0.5 rounded transition-colors" title="Delete"><span className="material-symbols-outlined text-sm">close</span></button>
+                              </div>
+                              <div className="flex justify-between items-center text-[10px] text-on-surface-variant/80 px-1 pt-0.5 border-t border-outline-variant/10">
+                                <span className="font-semibold text-primary">Rate: Rs. {Number(c.cost || 0).toLocaleString('en-IN')}/- (Per Person)</span>
+                                <span>{c.pax > 0 ? `Subtotal (${c.pax} Pax): Rs. ${(Number(c.cost || 0) * Number(c.pax || 0)).toLocaleString('en-IN')}/-` : '(Per Person)'}</span>
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -2157,16 +2211,19 @@ export default function AdminQuotation() {
                           <div className="flex justify-between items-center mb-2">
                             <div className="flex items-center gap-2">
                               <span className="material-symbols-outlined text-sm text-primary">flight</span>
-                              <label className={labelCls + " !mb-0 font-bold"}>Flight Costs</label>
+                              <div>
+                                <label className={labelCls + " !mb-0 font-bold"}>Flight Costs (Per Person)</label>
+                                <p className="text-[10px] text-on-surface-variant/70">Per-person flight fare</p>
+                              </div>
                               {(opt.transportType || 'flight') === 'flight' ? (
-                                <span className="text-[9px] bg-primary/15 text-primary px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Active in Quotation</span>
+                                <span className="text-[9px] bg-primary/15 text-primary px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ml-1">Active</span>
                               ) : (
                                 <button
                                   type="button"
                                   onClick={() => setOptionTransportType(optIdx, 'flight')}
-                                  className="text-[9px] text-on-surface-variant hover:text-primary underline"
+                                  className="text-[9px] text-on-surface-variant hover:text-primary underline ml-1"
                                 >
-                                  (Click to select Flight)
+                                  (Select)
                                 </button>
                               )}
                             </div>
@@ -2177,11 +2234,22 @@ export default function AdminQuotation() {
                               <p className="text-[11px] italic text-on-surface-variant/60 py-1">No flight costs added. Click "+ Flight" to add flight routes.</p>
                             ) : (
                               opt.flightCosts.map((c, idx) => (
-                                <div key={idx} className="flex items-center gap-2">
-                                  <input type="text" value={c.city} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, flightCosts: (o.flightCosts || []).map((fc, j) => j === idx ? { ...fc, city: e.target.value } : fc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 flex-1 min-w-[60px]"} placeholder="Airport / City Route (e.g. BOM → COK / Ex. Mumbai)" />
-                                  <input type="number" value={c.cost} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, flightCosts: (o.flightCosts || []).map((fc, j) => j === idx ? { ...fc, cost: Number(e.target.value) } : fc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-20 shrink-0"} placeholder="Cost" />
-                                  <input type="number" value={c.pax} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, flightCosts: (o.flightCosts || []).map((fc, j) => j === idx ? { ...fc, pax: Number(e.target.value) } : fc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-16 shrink-0"} placeholder="Pax" />
-                                  <button onClick={() => removeFlightCost(optIdx, idx)} className="text-red-400 hover:text-red-600 shrink-0"><span className="material-symbols-outlined text-sm">close</span></button>
+                                <div key={idx} className="flex flex-col gap-1.5 p-2 rounded-lg bg-surface-container/30 border border-outline-variant/20">
+                                  <div className="flex items-center gap-2">
+                                    <input type="text" value={c.city} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, flightCosts: (o.flightCosts || []).map((fc, j) => j === idx ? { ...fc, city: e.target.value } : fc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 flex-1 min-w-[60px]"} placeholder="Airport / City Route (e.g. BOM → COK / Ex. Mumbai)" />
+                                    <div className="relative w-32 shrink-0">
+                                      <input type="number" value={c.cost} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, flightCosts: (o.flightCosts || []).map((fc, j) => j === idx ? { ...fc, cost: Number(e.target.value) } : fc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-full pr-8"} placeholder="Cost / Person" />
+                                      <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[9px] font-bold text-on-surface-variant/70 pointer-events-none">/person</span>
+                                    </div>
+                                    <div className="relative w-16 shrink-0">
+                                      <input type="number" value={c.pax} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, flightCosts: (o.flightCosts || []).map((fc, j) => j === idx ? { ...fc, pax: Number(e.target.value) } : fc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-full"} placeholder="Pax" title="Person Count" />
+                                    </div>
+                                    <button onClick={() => removeFlightCost(optIdx, idx)} className="text-red-400 hover:text-red-600 shrink-0 p-0.5 rounded transition-colors"><span className="material-symbols-outlined text-sm">close</span></button>
+                                  </div>
+                                  <div className="flex justify-between items-center text-[10px] text-on-surface-variant/80 px-1 pt-0.5 border-t border-outline-variant/10">
+                                    <span className="font-semibold text-primary">Fare: Rs. {Number(c.cost || 0).toLocaleString('en-IN')}/- (Per Person)</span>
+                                    <span>{c.pax > 0 ? `Subtotal (${c.pax} Pax): Rs. ${(Number(c.cost || 0) * Number(c.pax || 0)).toLocaleString('en-IN')}/-` : '(Per Person)'}</span>
+                                  </div>
                                 </div>
                               ))
                             )}
@@ -2197,16 +2265,19 @@ export default function AdminQuotation() {
                           <div className="flex justify-between items-center mb-2">
                             <div className="flex items-center gap-2">
                               <span className="material-symbols-outlined text-sm text-emerald-600">train</span>
-                              <label className={labelCls + " !mb-0 font-bold"}>Train Costs</label>
+                              <div>
+                                <label className={labelCls + " !mb-0 font-bold"}>Train Costs (Per Person)</label>
+                                <p className="text-[10px] text-on-surface-variant/70">Per-person train fare</p>
+                              </div>
                               {opt.transportType === 'train' ? (
-                                <span className="text-[9px] bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Active in Quotation</span>
+                                <span className="text-[9px] bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ml-1">Active</span>
                               ) : (
                                 <button
                                   type="button"
                                   onClick={() => setOptionTransportType(optIdx, 'train')}
-                                  className="text-[9px] text-on-surface-variant hover:text-emerald-600 underline"
+                                  className="text-[9px] text-on-surface-variant hover:text-emerald-600 underline ml-1"
                                 >
-                                  (Click to select Train)
+                                  (Select)
                                 </button>
                               )}
                             </div>
@@ -2217,11 +2288,22 @@ export default function AdminQuotation() {
                               <p className="text-[11px] italic text-on-surface-variant/60 py-1">No train costs added. Click "+ Train" to add train routes.</p>
                             ) : (
                               opt.trainCosts.map((c, idx) => (
-                                <div key={idx} className="flex items-center gap-2">
-                                  <input type="text" value={c.city} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, trainCosts: (o.trainCosts || []).map((tc, j) => j === idx ? { ...tc, city: e.target.value } : tc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 flex-1 min-w-[60px]"} placeholder="Station / City Route (e.g. ST → NDLS / Ex. Surat)" />
-                                  <input type="number" value={c.cost} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, trainCosts: (o.trainCosts || []).map((tc, j) => j === idx ? { ...tc, cost: Number(e.target.value) } : tc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-20 shrink-0"} placeholder="Cost" />
-                                  <input type="number" value={c.pax} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, trainCosts: (o.trainCosts || []).map((tc, j) => j === idx ? { ...tc, pax: Number(e.target.value) } : tc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-16 shrink-0"} placeholder="Pax" />
-                                  <button onClick={() => removeTrainCost(optIdx, idx)} className="text-red-400 hover:text-red-600 shrink-0"><span className="material-symbols-outlined text-sm">close</span></button>
+                                <div key={idx} className="flex flex-col gap-1.5 p-2 rounded-lg bg-surface-container/30 border border-outline-variant/20">
+                                  <div className="flex items-center gap-2">
+                                    <input type="text" value={c.city} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, trainCosts: (o.trainCosts || []).map((tc, j) => j === idx ? { ...tc, city: e.target.value } : tc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 flex-1 min-w-[60px]"} placeholder="Station / City Route (e.g. ST → NDLS / Ex. Surat)" />
+                                    <div className="relative w-32 shrink-0">
+                                      <input type="number" value={c.cost} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, trainCosts: (o.trainCosts || []).map((tc, j) => j === idx ? { ...tc, cost: Number(e.target.value) } : tc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-full pr-8"} placeholder="Cost / Person" />
+                                      <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[9px] font-bold text-on-surface-variant/70 pointer-events-none">/person</span>
+                                    </div>
+                                    <div className="relative w-16 shrink-0">
+                                      <input type="number" value={c.pax} onChange={e => upd({ options: data.options.map((o, i) => i === optIdx ? { ...o, trainCosts: (o.trainCosts || []).map((tc, j) => j === idx ? { ...tc, pax: Number(e.target.value) } : tc) } : o) })} className={inputCls.replace('w-full', '') + " !text-xs !py-1 !px-2 w-full"} placeholder="Pax" title="Person Count" />
+                                    </div>
+                                    <button onClick={() => removeTrainCost(optIdx, idx)} className="text-red-400 hover:text-red-600 shrink-0 p-0.5 rounded transition-colors"><span className="material-symbols-outlined text-sm">close</span></button>
+                                  </div>
+                                  <div className="flex justify-between items-center text-[10px] text-on-surface-variant/80 px-1 pt-0.5 border-t border-outline-variant/10">
+                                    <span className="font-semibold text-emerald-600">Fare: Rs. {Number(c.cost || 0).toLocaleString('en-IN')}/- (Per Person)</span>
+                                    <span>{c.pax > 0 ? `Subtotal (${c.pax} Pax): Rs. ${(Number(c.cost || 0) * Number(c.pax || 0)).toLocaleString('en-IN')}/-` : '(Per Person)'}</span>
+                                  </div>
                                 </div>
                               ))
                             )}
@@ -2784,12 +2866,17 @@ export default function AdminQuotation() {
 
                       <div className="grid grid-cols-2 gap-4 bg-gray-50 border border-gray-200 p-3 rounded-xl mb-4">
                         <div>
-                          <div className="text-[7px] font-black uppercase text-gray-400">Package Cost</div>
+                          <div className="text-[7px] font-black uppercase text-gray-400">Package Cost (Per Person)</div>
                           <ul className="list-none p-0 m-0">
                             {(opt.packageCosts && opt.packageCosts.length > 0) ? opt.packageCosts.map((c, i) => (
-                              <li key={i} className="flex justify-between border-b border-gray-100 py-1 text-[10px]">
-                                <span>{c.category} (x{c.pax})</span>
-                                <strong>Rs. {(c.pax > 0 ? c.cost * c.pax : c.cost).toLocaleString('en-IN')}/- {c.pax === 0 && <span className="text-[9px] font-normal text-gray-400 ml-1">(Per Person)</span>}</strong>
+                              <li key={i} className="flex justify-between items-start border-b border-gray-100 py-1 text-[10px]">
+                                <span>{c.category} {c.pax > 0 ? `(x${c.pax})` : ''}</span>
+                                <div className="text-right">
+                                  <strong>Rs. {c.cost.toLocaleString('en-IN')}/- <span className="text-[9px] font-normal text-gray-500">(Per Person)</span></strong>
+                                  {c.pax > 1 && (
+                                    <div className="text-[8px] text-gray-500 font-semibold">Total: Rs. {(c.cost * c.pax).toLocaleString('en-IN')}/-</div>
+                                  )}
+                                </div>
                               </li>
                             )) : (data.perPersonCost ? (
                               <li className="flex justify-between border-b border-gray-100 py-1 text-[10px]">
@@ -2815,9 +2902,14 @@ export default function AdminQuotation() {
                                   <div className="text-[7px] font-black uppercase text-gray-400">{additionalTitle}</div>
                                   <ul className="list-none p-0 m-0">
                                     {transportCosts.map((f, i) => (
-                                      <li key={i} className="flex justify-between border-b border-gray-100 py-1 text-[10px]">
-                                        <span>{f.city} (x{f.pax})</span>
-                                        <strong>Rs. {(f.pax > 0 ? f.cost * f.pax : f.cost).toLocaleString('en-IN')}/- {f.pax === 0 && <span className="text-[9px] font-normal text-gray-400 ml-1">(Per Person)</span>}</strong>
+                                      <li key={i} className="flex justify-between items-start border-b border-gray-100 py-1 text-[10px]">
+                                        <span>{f.city} {f.pax > 0 ? `(x${f.pax})` : ''}</span>
+                                        <div className="text-right">
+                                          <strong>Rs. {f.cost.toLocaleString('en-IN')}/- <span className="text-[9px] font-normal text-gray-500">(Per Person)</span></strong>
+                                          {f.pax > 1 && (
+                                            <div className="text-[8px] text-gray-500 font-semibold">Total: Rs. {(f.cost * f.pax).toLocaleString('en-IN')}/-</div>
+                                          )}
+                                        </div>
                                       </li>
                                     ))}
                                   </ul>
@@ -2830,9 +2922,9 @@ export default function AdminQuotation() {
                                     <thead className="bg-gray-100 font-bold">
                                       <tr>
                                         <th className="border border-gray-200 p-1.5 text-left">Category</th>
-                                        <th className="border border-gray-200 p-1.5">Package Cost</th>
+                                        <th className="border border-gray-200 p-1.5">Package Cost (Per Person)</th>
                                         <th className="border border-gray-200 p-1.5">
-                                          <div>{transportLabel}</div>
+                                          <div>{transportLabel} (Per Person)</div>
                                           {transportRoute && (
                                             <div className="text-[7px] font-normal text-gray-500 normal-case mt-0.5">
                                               ({transportRoute})
@@ -2845,12 +2937,20 @@ export default function AdminQuotation() {
                                     <tbody>
                                       {(opt.packageCosts || []).map((c, i) => {
                                         const totalPerPerson = c.cost + transportCost;
+                                        const totalGroup = totalPerPerson * (c.pax || 1);
                                         return (
                                           <tr key={i}>
                                             <td className="border border-gray-200 p-1.5 text-left font-bold">{c.category}</td>
-                                            <td className="border border-gray-200 p-1.5">Rs. {c.cost.toLocaleString('en-IN')}/-</td>
-                                            <td className="border border-gray-200 p-1.5">Rs. {transportCost.toLocaleString('en-IN')}/-</td>
-                                            <td className="border border-gray-200 p-1.5 font-bold text-red-600">Rs. {totalPerPerson.toLocaleString('en-IN')}/- {c.pax > 0 ? `x ${String(c.pax).padStart(2, '0')}` : '(Per Person)'}</td>
+                                            <td className="border border-gray-200 p-1.5">Rs. {c.cost.toLocaleString('en-IN')}/- <span className="text-[7px] font-normal text-gray-500">(Per Person)</span></td>
+                                            <td className="border border-gray-200 p-1.5">Rs. {transportCost.toLocaleString('en-IN')}/- <span className="text-[7px] font-normal text-gray-500">(Per Person)</span></td>
+                                            <td className="border border-gray-200 p-1.5 font-bold text-red-600">
+                                              <div>Rs. {totalPerPerson.toLocaleString('en-IN')}/- <span className="text-[7px] font-normal text-gray-600">(Per Person)</span></div>
+                                              {c.pax > 1 ? (
+                                                <div className="text-[7.5px] text-gray-800 font-bold mt-0.5">Total: Rs. {totalGroup.toLocaleString('en-IN')}/- (x{c.pax} Pax)</div>
+                                              ) : (c.pax === 1 ? (
+                                                <div className="text-[7px] text-gray-500 font-normal">(1 Pax)</div>
+                                              ) : null)}
+                                            </td>
                                           </tr>
                                         );
                                       })}
