@@ -302,7 +302,7 @@ const hiteshPreset: QuotationData = {
     'Passport Size Photos, Photocopies Of Photo Identity Proof Of All Members (Passport, Voter Card, Aadhar Card, Driving Licenses etc.)'
   ],
   cancellationPolicy: [
-        'Once flight tickets are issued, the applicable airline cancellation penalty will be charged.',
+    'Once flight tickets are issued, the applicable airline cancellation penalty will be charged.',
     '50–40 days before departure: 50% of the package cost will be charged.',
     '40–30 days before departure: 60% of the package cost will be charged.',
     '30–21 days before departure: 75% of the package cost will be charged.',
@@ -311,7 +311,7 @@ const hiteshPreset: QuotationData = {
     'Any non-refundable services, including hotel bookings, transfers, or other third-party arrangements, will be charged in full as per supplier policy.',
   ],
   importantInfo: [
-        'Rates are based on minimum guest count and subject to change if group size changes.',
+    'Rates are based on minimum guest count and subject to change if group size changes.',
     'Early check-in or late check-out is subject to room availability and extra charges.',
     'We act as booking agents only and cannot be held liable for mechanical failures or acts of God.',
     'Hotels/Airline will be subject to availability till Reconfirmation.',
@@ -474,7 +474,7 @@ const keralaPreset: QuotationData = {
     'All prices are subject to change without prior notice unless booking is fully paid.',
     'Any further increase in airfare due to increase in the fuel price, change in government regulations, taxes, etc., charged by the airline will have to be borne by the passengers. JOURNEYFLICKER will not be held responsible for them.',
     'In case your package needs to be cancelled due to any natural calamity, weather conditions etc. JOURNEYFLICKER shall strive to give you the maximum possible refund subject to the agreement made with our trade partners/vendors',
-    'Any increase in the number of passengers may lead to an increase in the total cost of the tour'  
+    'Any increase in the number of passengers may lead to an increase in the total cost of the tour'
   ]
 };
 
@@ -714,7 +714,7 @@ export default function AdminQuotation() {
 
     const handleGlobalDrag = (e: DragEvent) => {
       if (e.clientY === 0 && e.clientX === 0) return;
-      
+
       const scrollEl = document.querySelector('.admin-scroll') as HTMLElement || document.documentElement;
       const rect = scrollEl.getBoundingClientRect();
       const edgeThreshold = 140;
@@ -1440,22 +1440,22 @@ export default function AdminQuotation() {
       
       <table class="pricing-section" style="width:100%; border-collapse:collapse; background:#f9f9f9; border:1px solid #eee; margin-bottom:10px;" cellpadding="12">
         ${(() => {
-          const transportMode = opt.transportType || (opt.trainCosts && opt.trainCosts.length > 0 && (!opt.flightCosts || opt.flightCosts.length === 0) ? 'train' : 'flight');
-          const isTrain = transportMode === 'train';
-          const transportCosts = isTrain ? (opt.trainCosts || []) : (opt.flightCosts || []);
-          const hasPackageCosts = opt.packageCosts && opt.packageCosts.length > 0;
-          const hasTransportCosts = transportCosts && transportCosts.length > 0;
+        const transportMode = opt.transportType || (opt.trainCosts && opt.trainCosts.length > 0 && (!opt.flightCosts || opt.flightCosts.length === 0) ? 'train' : 'flight');
+        const isTrain = transportMode === 'train';
+        const transportCosts = isTrain ? (opt.trainCosts || []) : (opt.flightCosts || []);
+        const hasPackageCosts = opt.packageCosts && opt.packageCosts.length > 0;
+        const hasTransportCosts = transportCosts && transportCosts.length > 0;
 
-          if (!hasPackageCosts && !hasTransportCosts) return '';
+        if (!hasPackageCosts && !hasTransportCosts) return '';
 
-          const transportLabel = isTrain ? 'Train Cost' : 'Flight Cost';
-          const transportCost = transportCosts.length > 0 ? transportCosts[0].cost : 0;
-          const transportRoute = transportCosts.map(t => t.city).filter(Boolean).join(' / ');
+        const transportLabel = isTrain ? 'Train Cost' : 'Flight Cost';
+        const transportCost = transportCosts.length > 0 ? transportCosts[0].cost : 0;
+        const transportRoute = transportCosts.map(t => t.city).filter(Boolean).join(' / ');
 
-          return `
+        return `
         <tr>
           <td colspan="2" style="border:none; padding:12px;">
-            <div class="price-title" style="margin-bottom:6px;">Total Estimate Breakdown (Option ${optIdx + 1})</div>
+            <div class="price-title" style="margin-bottom:6px;">Per Person(Option ${optIdx + 1})</div>
             <table style="width:100%; border-collapse:collapse; text-align:center; font-size:10px; border:1px solid #ccc;" cellpadding="6">
               <thead>
                 <tr style="background:#eee;">
@@ -1470,8 +1470,8 @@ export default function AdminQuotation() {
               </thead>
               <tbody>
                 ${(opt.packageCosts || []).map(c => {
-                  const totalPerPerson = c.cost + transportCost;
-                  return `
+          const totalPerPerson = c.cost + transportCost;
+          return `
                   <tr>
                     <td style="border:1px solid #ccc; padding:6px; text-align:left;">${c.category}</td>
                     <td style="border:1px solid #ccc; padding:6px;">Rs. ${c.cost.toLocaleString('en-IN')}/-</td>
@@ -1479,13 +1479,13 @@ export default function AdminQuotation() {
                     <td style="border:1px solid #ccc; padding:6px; font-weight:bold; color:#d93025;">Rs. ${totalPerPerson.toLocaleString('en-IN')}/- ${c.pax > 0 ? `x ${String(c.pax).padStart(2, '0')}` : '(Per Person)'}</td>
                   </tr>
                   `;
-                }).join('')}
+        }).join('')}
               </tbody>
             </table>
           </td>
         </tr>
         `;
-        })()}
+      })()}
       </table>
       `).join('')}
     </div>
@@ -2017,13 +2017,12 @@ export default function AdminQuotation() {
                             onDragLeave={(e) => handleHotelDragLeave(e, optIdx, idx)}
                             onDrop={(e) => handleHotelDrop(e, optIdx, idx)}
                             onDragEnd={handleHotelDragEnd}
-                            className={`p-3 bg-surface-container-low rounded-xl border space-y-2.5 transition-all duration-150 ${
-                              draggedHotelRow?.optIdx === optIdx && draggedHotelRow?.rowIdx === idx
+                            className={`p-3 bg-surface-container-low rounded-xl border space-y-2.5 transition-all duration-150 ${draggedHotelRow?.optIdx === optIdx && draggedHotelRow?.rowIdx === idx
                                 ? 'opacity-40 border-dashed border-primary bg-primary/5 scale-[0.99] shadow-inner'
                                 : dragOverHotelRow?.optIdx === optIdx && dragOverHotelRow?.rowIdx === idx
-                                ? 'border-primary ring-2 ring-primary/40 bg-primary/10 shadow-md -translate-y-0.5'
-                                : 'border-outline-variant/20 hover:border-outline-variant/40'
-                            }`}
+                                  ? 'border-primary ring-2 ring-primary/40 bg-primary/10 shadow-md -translate-y-0.5'
+                                  : 'border-outline-variant/20 hover:border-outline-variant/40'
+                              }`}
                           >
                             {/* Card Top Actions Header */}
                             <div className="flex items-center justify-between border-b border-outline-variant/10 pb-1.5">
@@ -2124,11 +2123,10 @@ export default function AdminQuotation() {
                             <button
                               type="button"
                               onClick={() => setOptionTransportType(optIdx, 'flight')}
-                              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold transition-all ${
-                                (opt.transportType || 'flight') === 'flight'
+                              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold transition-all ${(opt.transportType || 'flight') === 'flight'
                                   ? 'bg-primary text-on-primary shadow-sm'
                                   : 'text-on-surface-variant hover:text-on-surface'
-                              }`}
+                                }`}
                             >
                               <span className="material-symbols-outlined text-sm">flight</span>
                               Flight
@@ -2136,11 +2134,10 @@ export default function AdminQuotation() {
                             <button
                               type="button"
                               onClick={() => setOptionTransportType(optIdx, 'train')}
-                              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold transition-all ${
-                                opt.transportType === 'train'
+                              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold transition-all ${opt.transportType === 'train'
                                   ? 'bg-emerald-600 text-white shadow-sm'
                                   : 'text-on-surface-variant hover:text-on-surface'
-                              }`}
+                                }`}
                             >
                               <span className="material-symbols-outlined text-sm">train</span>
                               Train
@@ -2149,11 +2146,10 @@ export default function AdminQuotation() {
                         </div>
 
                         {/* Flight Costs Section */}
-                        <div className={`p-3 rounded-lg border transition-all ${
-                          (opt.transportType || 'flight') === 'flight'
+                        <div className={`p-3 rounded-lg border transition-all ${(opt.transportType || 'flight') === 'flight'
                             ? 'bg-primary/5 border-primary/30 ring-1 ring-primary/20'
                             : 'bg-surface-container-low border-outline-variant/20 opacity-75'
-                        }`}>
+                          }`}>
                           <div className="flex justify-between items-center mb-2">
                             <div className="flex items-center gap-2">
                               <span className="material-symbols-outlined text-sm text-primary">flight</span>
@@ -2189,11 +2185,10 @@ export default function AdminQuotation() {
                         </div>
 
                         {/* Train Costs Section (Below Flight Costs) */}
-                        <div className={`p-3 rounded-lg border transition-all ${
-                          opt.transportType === 'train'
+                        <div className={`p-3 rounded-lg border transition-all ${opt.transportType === 'train'
                             ? 'bg-emerald-500/5 border-emerald-500/30 ring-1 ring-emerald-500/20'
                             : 'bg-surface-container-low border-outline-variant/20 opacity-75'
-                        }`}>
+                          }`}>
                           <div className="flex justify-between items-center mb-2">
                             <div className="flex items-center gap-2">
                               <span className="material-symbols-outlined text-sm text-emerald-600">train</span>
@@ -2252,11 +2247,10 @@ export default function AdminQuotation() {
                   <button
                     type="button"
                     onClick={() => setIsCompactItinerary(prev => !prev)}
-                    className={`px-2.5 py-1 text-[11px] font-bold rounded-lg border transition-all flex items-center gap-1 ${
-                      isCompactItinerary
+                    className={`px-2.5 py-1 text-[11px] font-bold rounded-lg border transition-all flex items-center gap-1 ${isCompactItinerary
                         ? 'bg-primary/10 border-primary/40 text-primary'
                         : 'bg-surface-container border-outline-variant/30 text-on-surface hover:bg-surface-container-high'
-                    }`}
+                      }`}
                     title={isCompactItinerary ? 'Switch to Detailed Editor View' : 'Switch to Compact Reorder View (All days fit on screen)'}
                   >
                     <span className="material-symbols-outlined text-xs">
@@ -2297,13 +2291,12 @@ export default function AdminQuotation() {
                       onDragLeave={(e) => handleDayDragLeave(e, idx)}
                       onDrop={(e) => handleDayDrop(e, idx)}
                       onDragEnd={handleDayDragEnd}
-                      className={`px-3 py-2 bg-surface-container-low rounded-xl border flex flex-wrap sm:flex-nowrap items-center gap-2.5 transition-all ${
-                        draggedDayIdx === idx
+                      className={`px-3 py-2 bg-surface-container-low rounded-xl border flex flex-wrap sm:flex-nowrap items-center gap-2.5 transition-all ${draggedDayIdx === idx
                           ? 'opacity-40 border-dashed border-primary bg-primary/5 scale-[0.99]'
                           : dragOverDayIdx === idx
-                          ? 'border-primary ring-2 ring-primary/40 bg-primary/10 -translate-y-0.5 shadow-md'
-                          : 'border-outline-variant/20 hover:border-outline-variant/40 hover:bg-surface-container'
-                      }`}
+                            ? 'border-primary ring-2 ring-primary/40 bg-primary/10 -translate-y-0.5 shadow-md'
+                            : 'border-outline-variant/20 hover:border-outline-variant/40 hover:bg-surface-container'
+                        }`}
                     >
                       <div
                         className="cursor-grab active:cursor-grabbing p-1 text-on-surface-variant hover:text-primary flex items-center justify-center shrink-0"
@@ -2383,13 +2376,12 @@ export default function AdminQuotation() {
                       onDragLeave={(e) => handleDayDragLeave(e, idx)}
                       onDrop={(e) => handleDayDrop(e, idx)}
                       onDragEnd={handleDayDragEnd}
-                      className={`p-3.5 bg-surface-container-low rounded-xl border space-y-3 relative transition-all duration-150 ${
-                        draggedDayIdx === idx
+                      className={`p-3.5 bg-surface-container-low rounded-xl border space-y-3 relative transition-all duration-150 ${draggedDayIdx === idx
                           ? 'opacity-40 border-dashed border-primary scale-[0.99] shadow-inner bg-primary/5'
                           : dragOverDayIdx === idx
-                          ? 'border-primary ring-2 ring-primary/40 bg-primary/10 shadow-md -translate-y-0.5'
-                          : 'border-outline-variant/20 hover:border-outline-variant/40'
-                      }`}
+                            ? 'border-primary ring-2 ring-primary/40 bg-primary/10 shadow-md -translate-y-0.5'
+                            : 'border-outline-variant/20 hover:border-outline-variant/40'
+                        }`}
                     >
                       {/* Card Top Actions Header */}
                       <div className="flex items-center justify-between border-b border-outline-variant/10 pb-2">
@@ -2825,7 +2817,7 @@ export default function AdminQuotation() {
                               )}
                               {((opt.packageCosts && opt.packageCosts.length > 0) || transportCosts.length > 0) && (
                                 <div className="col-span-2 border-t border-dashed border-gray-300 pt-2 mt-1">
-                                  <div className="text-[7px] font-black uppercase text-gray-400 mb-2">Total Estimate Breakdown (Option {optIdx + 1})</div>
+                                  <div className="text-[7px] font-black uppercase text-gray-400 mb-2">Per Person (Option {optIdx + 1})</div>
                                   <table className="w-full text-[8px] text-center border border-gray-200">
                                     <thead className="bg-gray-100 font-bold">
                                       <tr>
@@ -2939,7 +2931,7 @@ export default function AdminQuotation() {
                       </ul>
                     </div>
                   </div>
-                  
+
                   {data.noteBox && (
                     <div className="mt-4 p-3 bg-yellow-50 text-yellow-800 border-l-4 border-yellow-400 rounded text-[10px] font-bold italic" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                       Note: {data.noteBox}
