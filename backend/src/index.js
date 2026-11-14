@@ -1444,7 +1444,7 @@ app.post("/api/logs", logLimiter, async (req, res) => {
     const { level = "error", source = "frontend", message, stack, url, userAgent } = req.body;
     if (!message) return res.status(400).json({ error: "message is required" });
 
-    const combined = `${message} ${stack || ''} ${userAgent || ''}`.toLowerCase();
+    const combined = `${message} ${stack || ''}`.toLowerCase();
     const ignoredPatterns = [
       'script error.',
       'webkit.messagehandlers',
@@ -1460,16 +1460,6 @@ app.post("/api/logs", logLimiter, async (req, res) => {
       'loading chunk',
       'chunkloaderror',
       'window.webkit',
-      // External scanners, automated email link bots & CefSharp/Outlook SafeLinks noise
-      'object not found matching id',
-      'methodname:update',
-      'cefsharp',
-      'safelinks',
-      'protection.outlook.com',
-      'ms-outlook',
-      // Benign aborts / user cancelations
-      'abortoperation',
-      'the user aborted a request',
     ];
 
     if (ignoredPatterns.some(p => combined.includes(p))) {
@@ -1493,26 +1483,11 @@ app.get("/api/admin/logs", requireAdmin, async (req, res) => {
     if (source && source !== "all") filter.source = source;
     if (resolved !== undefined) filter.resolved = resolved === "true";
     const skip = (Number(page) - 1) * Number(limit);
-    const [items, total, totalAll, openCount, errorCount, warnCount] = await Promise.all([
+    const [items, total] = await Promise.all([
       SystemLogModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(Number(limit)).lean(),
       SystemLogModel.countDocuments(filter),
-      SystemLogModel.countDocuments(),
-      SystemLogModel.countDocuments({ resolved: false }),
-      SystemLogModel.countDocuments({ level: "error", resolved: false }),
-      SystemLogModel.countDocuments({ level: "warn", resolved: false }),
     ]);
-    res.json({
-      items,
-      total,
-      stats: {
-        totalAll,
-        openCount,
-        errorCount,
-        warnCount,
-      },
-      page: Number(page),
-      pages: Math.ceil(total / Number(limit)),
-    });
+    res.json({ items, total, page: Number(page), pages: Math.ceil(total / Number(limit)) });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
