@@ -27,18 +27,31 @@ export function AutoCarousel({ children, autoPlayMs = 0, pauseOnHover = true, di
   }, [next, autoPlayMs, isPaused]);
 
   useEffect(() => {
-    if (containerRef.current) {
-      const child = containerRef.current.children[index] as HTMLElement;
-      if (child) {
-        const containerWidth = containerRef.current.offsetWidth;
-        const childWidth = child.offsetWidth;
-        const scrollLeft = child.offsetLeft - (containerWidth / 2) + (childWidth / 2);
-        
-        containerRef.current.scrollTo({
-          left: scrollLeft,
-          behavior: 'smooth'
-        });
+    const container = containerRef.current;
+    if (!container) return;
+
+    const child = container.children[index] as HTMLElement | undefined;
+    if (!child) return;
+
+    try {
+      const containerWidth = container.offsetWidth || 0;
+      const childWidth = child.offsetWidth || 0;
+      const scrollLeft = child.offsetLeft - (containerWidth / 2) + (childWidth / 2);
+
+      if (typeof container.scrollTo === 'function') {
+        try {
+          container.scrollTo({
+            left: scrollLeft,
+            behavior: 'smooth'
+          });
+        } catch {
+          container.scrollLeft = scrollLeft;
+        }
+      } else {
+        container.scrollLeft = scrollLeft;
       }
+    } catch {
+      // Safe fallback - avoid crashing React component
     }
   }, [index]);
 
