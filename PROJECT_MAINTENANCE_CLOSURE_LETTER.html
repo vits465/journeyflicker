@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JourneyFlicker — Comprehensive Project Completion & End of Maintenance Notice</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 12mm 15mm;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      color: #1a1a1a;
+      background: #ffffff;
+      margin: 0;
+      padding: 24px;
+      line-height: 1.5;
+      font-size: 10.5pt;
+    }
+    .sheet {
+      max-width: 820px;
+      margin: 0 auto;
+      background: #fff;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid #000;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .brand-title {
+      font-size: 19pt;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+      color: #000;
+    }
+    .brand-sub {
+      font-size: 8.5pt;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .doc-badge {
+      text-align: right;
+    }
+    .badge {
+      display: inline-block;
+      background: #000;
+      color: #fff;
+      font-size: 7.5pt;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .doc-date {
+      font-size: 8.5pt;
+      color: #555;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
+      font-size: 9pt;
+    }
+    .meta-item strong {
+      display: block;
+      color: #6c757d;
+      font-size: 7.5pt;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 2px;
+    }
+    .subject-box {
+      background: #f1f3f5;
+      border-left: 4px solid #000;
+      padding: 10px 14px;
+      margin-bottom: 18px;
+      font-weight: 700;
+      font-size: 10.5pt;
+    }
+    h2 {
+      font-size: 11.5pt;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 4px;
+      margin-top: 20px;
+      margin-bottom: 8px;
+      color: #000;
+    }
+    p {
+      margin: 0 0 9px 0;
+      color: #333;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 16px 0;
+      font-size: 9pt;
+    }
+    th, td {
+      border: 1px solid #dee2e6;
+      padding: 7px 10px;
+      text-align: left;
+    }
+    th {
+      background: #f8f9fa;
+      font-weight: 700;
+      font-size: 8pt;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .highlight-status {
+      display: inline-block;
+      background: #e6fcf5;
+      color: #0ca678;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 7.5pt;
+    }
+    .expired-status {
+      display: inline-block;
+      background: #fff5f5;
+      color: #e03131;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 7.5pt;
+    }
+    ul {
+      margin: 0 0 12px 0;
+      padding-left: 18px;
+      color: #333;
+      font-size: 9pt;
+    }
+    li {
+      margin-bottom: 3.5px;
+    }
+    .project-header-pill {
+      display: inline-block;
+      background: #000;
+      color: #fff;
+      font-size: 7.5pt;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .notice-box {
+      background: #fff9db;
+      border: 1px solid #ffe066;
+      border-radius: 6px;
+      padding: 11px 14px;
+      margin: 14px 0;
+      font-size: 9pt;
+      color: #856404;
+    }
+    .notice-box strong {
+      color: #533f03;
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 10px 0;
+    }
+    .plan-card {
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      padding: 10px 12px;
+      background: #fff;
+    }
+    .plan-card h3 {
+      margin: 0 0 4px 0;
+      font-size: 9.5pt;
+      font-weight: 800;
+    }
+    .plan-card p {
+      font-size: 8.5pt;
+      margin-bottom: 4px;
+      color: #555;
+    }
+    .signature-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+      padding-top: 14px;
+      border-top: 1px solid #dee2e6;
+      page-break-inside: avoid;
+    }
+    .sig-block {
+      width: 45%;
+    }
+    .sig-line {
+      border-bottom: 1px solid #333;
+      margin-top: 34px;
+      margin-bottom: 5px;
+    }
+    .sig-name {
+      font-weight: 700;
+      font-size: 9.5pt;
+    }
+    .sig-sub {
+      font-size: 8pt;
+      color: #666;
+    }
+    .print-btn-bar {
+      margin-bottom: 16px;
+      text-align: right;
+    }
+    .print-btn {
+      background: #000;
+      color: #fff;
+      padding: 7px 14px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      font-size: 9.5pt;
+      font-weight: 700;
+    }
+    @media print {
+      body {
+        padding: 0;
+      }
+      .print-btn-bar {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="sheet">
+    <div class="print-btn-bar">
+      <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+    </div>
+
+    <!-- Letterhead Header -->
+    <div class="header">
+      <div>
+        <div class="brand-title">JourneyFlicker</div>
+        <div class="brand-sub">Curated Expeditions & Technology Ecosystem</div>
+      </div>
+      <div class="doc-badge">
+        <div class="badge">Official Technical Notice</div>
+        <div class="doc-date">Date: November 14, 2026</div>
+      </div>
+    </div>
+
+    <!-- Meta Details -->
+    <div class="meta-grid">
+      <div class="meta-item">
+        <strong>Client Details</strong>
+        JourneyFlicker (Mr. Tushar & Mr. Pashv)<br>
+        103 | Raj Victoriya, Adajan, Surat, Gujarat 395009<br>
+        Email: tushar@journeyflicker.com | pashv@journeyflicker.com<br>
+        Phone: +91 98792 68811 | +91 97266 98987
+      </div>
+      <div class="meta-item">
+        <strong>Technical Service Provider</strong>
+        Lead Developer & System Architect (Adii)<br>
+        Projects: 1) Web Platform & Admin &nbsp;|&nbsp; 2) AI ChatBot Automation<br>
+        Repos: github.com/vits465/journeyflicker &amp; journeyflicker-automation<br>
+        Agreement Scope: Full Development + 6 Months Maintenance
+      </div>
+    </div>
+
+    <!-- Subject -->
+    <div class="subject-box">
+      Subject: Formal Notice of Completion for 6-Month Complimentary Support & Maintenance Period (Web Platform & AI ChatBot Automation Ecosystem)
+    </div>
+
+    <p>Dear Mr. Tushar, Mr. Pashv, and the JourneyFlicker Team,</p>
+
+    <p>
+      This document serves as the official confirmation that the <strong>6-Month Complimentary Warranty, Support & Maintenance Period</strong> has officially concluded for both flagship digital systems delivered to JourneyFlicker:
+    </p>
+
+    <ol style="margin: 0 0 12px 18px; font-size: 9.5pt; line-height: 1.6;">
+      <li><strong>Project 1: JourneyFlicker Web Platform & Custom Admin Quotation CMS</strong></li>
+      <li><strong>Project 2: JourneyFlicker AI WhatsApp & Web ChatBot Automation Ecosystem</strong></li>
+    </ol>
+
+    <h2>1. Consolidated Projects Timeline & Activity</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>System / Project</th>
+          <th>Starting Date</th>
+          <th>Launch / Approval</th>
+          <th>6-Month Maintenance Period</th>
+          <th>Commits</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <strong>JourneyFlicker Web Platform</strong><br>
+            <span style="font-size: 8pt; color: #666;">(Public Site, Admin Panel, API, PDF Generator)</span>
+          </td>
+          <td>April 24, 2026</td>
+          <td>April 28, 2026</td>
+          <td>April 24, 2026 – October 24, 2026</td>
+          <td><strong>213</strong></td>
+          <td><span class="expired-status">Concluded</span></td>
+        </tr>
+        <tr>
+          <td>
+            <strong>AI ChatBot & WhatsApp Automation</strong><br>
+            <span style="font-size: 8pt; color: #666;">(Meta Cloud API, Gemini AI, CRM & Daily Digest)</span>
+          </td>
+          <td>May 19, 2026</td>
+          <td>May 29, 2026 <span style="font-size: 7.5pt;">(Meta Review)</span></td>
+          <td>May 19, 2026 – November 14, 2026</td>
+          <td><strong>61</strong></td>
+          <td><span class="expired-status">Concluded</span></td>
+        </tr>
+        <tr style="background: #fbfbfb; font-weight: bold;">
+          <td>Total Combined Ecosystem</td>
+          <td>April 2026</td>
+          <td>Production Active</td>
+          <td><strong>Full 6 Calendar Months Completed</strong></td>
+          <td><strong>274</strong></td>
+          <td><span class="highlight-status">100% Fulfilled</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>2. Summary of Delivered Capabilities</h2>
+
+    <div style="margin-bottom: 8px;">
+      <span class="project-header-pill">Project 1: Web Platform & Quotation CMS</span>
+      <ul>
+        <li><strong>Public Luxury Voyager Portal:</strong> React 18, Vite, TypeScript, TailwindCSS, PWA, 8-Region directory filter, tour landmark dossiers, visa intelligence guide, dynamic global search, and dynamic SEO sitemap.</li>
+        <li><strong>Cloud Admin Management Panel:</strong> Dedicated dashboard for full catalog management (tours, destinations, visas, hero slider, media library with Cloudinary CDN, inquiry tracker).</li>
+        <li><strong>Automatic Quotation & Multi-Page PDF Engine:</strong> Dynamic Option 1 & 2 builder, stay/hotel drag-and-drop reordering, domestic & international policy templates, flight/train cost toggles, and A4 pagination.</li>
+        <li><strong>Backend & Database Infrastructure:</strong> Express API, MongoDB cluster with automated daily backups (2:00 AM UTC), Upstash Redis cache layer, and rate-limiting security.</li>
+      </ul>
+    </div>
+
+    <div>
+      <span class="project-header-pill">Project 2: AI WhatsApp & Web ChatBot Automation Ecosystem</span>
+      <ul>
+        <li><strong>Meta WhatsApp Business Cloud API Integration:</strong> Official WhatsApp webhook verification, inbound customer message processing, and automated responses.</li>
+        <li><strong>Google Gemini AI Engine:</strong> AI-powered contextual travel itinerary suggestions and consultation with automatic model fallback cascade.</li>
+        <li><strong>Live Chat Dashboard & Agent Takeover:</strong> Real-time WebSockets interface for staff to monitor incoming WhatsApp conversations and take over live chats.</li>
+        <li><strong>Automated Inquiries CRM & Daily 10 AM IST Digest:</strong> Inquiries stored directly in MongoDB with automated daily morning email summaries delivered to management, plus Excel export.</li>
+        <li><strong>Meta Compliance & Security Safeguards:</strong> Embedded Privacy Policy, Terms of Service, user data deletion endpoints, and JWT authentication.</li>
+      </ul>
+    </div>
+
+    <div class="notice-box">
+      <strong>Notice of Support Transition:</strong><br>
+      Both systems have undergone comprehensive real-world testing, operational refinements, and are running in production. As the agreed 6-month complimentary support period has concluded, both systems now transition into standard post-warranty operational status.
+    </div>
+
+    <h2>3. Ownership & Operational Autonomy</h2>
+    <p>
+      JourneyFlicker holds 100% ownership of both repositories (GitHub), databases (MongoDB Atlas), Cloudinary CDN accounts, and Meta WhatsApp Developer assets. Both applications are architected to operate fully autonomously without daily developer intervention.
+    </p>
+
+    <h2>4. Post-Warranty Support & Maintenance Options (Optional AMC)</h2>
+    <p>
+      To provide ongoing peace of mind, system upgrades, and dedicated engineering hours, JourneyFlicker may choose from the following continuation options:
+    </p>
+
+    <div class="card-grid">
+      <div class="plan-card">
+        <h3>Option A: Combined Annual Maintenance Contract (AMC)</h3>
+        <p>Comprehensive coverage for both the Web Platform and the WhatsApp ChatBot. Includes uptime monitoring, Meta API token renewals, Gemini AI model updates, database optimization, and priority emergency bug fixes.</p>
+        <p><strong>Best for:</strong> Worry-free continuous technical maintenance.</p>
+      </div>
+      <div class="plan-card">
+        <h3>Option B: On-Demand Engineering (Hourly / Per Task)</h3>
+        <p>No fixed monthly fee. On-demand technical support or new feature developments (e.g. new payment gateways, promotional landing pages, chatbot conversational flows) billed upon approved scope.</p>
+        <p><strong>Best for:</strong> Occasional feature additions.</p>
+      </div>
+    </div>
+
+    <p style="margin-top: 14px;">
+      We sincerely thank Mr. Tushar, Mr. Pashv, and the entire JourneyFlicker leadership team for the trust and collaboration throughout the development and maintenance journey of both platforms.
+    </p>
+
+    <!-- Signatures -->
+    <div class="signature-row">
+      <div class="sig-block">
+        <div class="sig-name">Adii (Lead Developer & Architect)</div>
+        <div class="sig-sub">Full Stack Developer — Web & AI Automations</div>
+        <div class="sig-line"></div>
+        <div class="sig-sub">Signature & Date: 14 / 11 / 2026</div>
+      </div>
+      <div class="sig-block">
+        <div class="sig-name">JourneyFlicker Management</div>
+        <div class="sig-sub">Client Acknowledgment & Sign-off</div>
+        <div class="sig-line"></div>
+        <div class="sig-sub">Signature & Date: _____ / _____ / 2026</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
